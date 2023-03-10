@@ -1,0 +1,9 @@
+# python
+__pycache__/
+
+# rust
+Cargo.lock
+target/
+
+# mac
+.DS_Store
