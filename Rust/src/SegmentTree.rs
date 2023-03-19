@@ -1,11 +1,24 @@
 #![allow(dead_code)]
 
+use std::ops::{
+    Bound::{Excluded, Included, Unbounded},
+    Index, RangeBounds,
+};
+
 /// SegmentTree (Monoid)
 struct SegmentTree<F, T> {
+    len: usize,
     offset: usize,
     data: Vec<T>,
     op: F,
     e: T,
+}
+
+impl<F, T> Index<usize> for SegmentTree<F, T> {
+    type Output = T;
+    fn index(&self, idx: usize) -> &Self::Output {
+        &self.data[self.offset + idx]
+    }
 }
 
 impl<F, T> SegmentTree<F, T>
@@ -19,6 +32,7 @@ where
         let len = n.next_power_of_two();
 
         Self {
+            len: len,
             offset: len,
             data: vec![e; len << 1],
             op: op,
@@ -53,18 +67,26 @@ where
         }
     }
 
-    /// ## get_point
-    /// 一点取得する
-    fn get_point(&self, index: usize) -> T {
-        let i = self.offset + index;
-        self.data[i]
-    }
+    fn get_range<R: RangeBounds<usize>>(&self, range: R) -> T {
+        let start = match range.start_bound() {
+            Unbounded => 0,
+            Excluded(&v) => v + 1,
+            Included(&v) => v,
+        };
+        let end = match range.end_bound() {
+            Unbounded => self.len,
+            Excluded(&v) => v,
+            Included(&v) => v - 1,
+        };
+        assert!(start <= end);
+        // 全体の値を取得
+        if (start, end) == (0, self.len) {
+            return self.data[1];
+        }
 
-    /// ## get_range
-    /// 区間`[l, r)`を取得する
-    fn get_range(&self, left: usize, right: usize) -> T {
-        let mut l = self.offset + left;
-        let mut r = self.offset + right;
+        // 値の取得
+        let mut l = self.offset + start;
+        let mut r = self.offset + end;
         let (mut res_l, mut res_r) = (self.e, self.e);
 
         while l < r {
@@ -89,6 +111,14 @@ mod test {
     use super::*;
 
     #[test]
+    fn test_get_point() {
+        let mut segtree = SegmentTree::from(&vec![1, 2, 3, 4, 5], 1, |a, b| a * b);
+
+        assert_eq!(segtree[0], 1);
+        assert_eq!(segtree[3], 4);
+    }
+
+    #[test]
     fn test_RSQ() {
         let mut segtree = SegmentTree::new(3, 0, |a, b| a ^ b);
 
@@ -96,8 +126,8 @@ mod test {
         segtree.update(1, 2);
         segtree.update(2, 3);
 
-        assert_eq!(segtree.get_range(0, 2), 3);
-        assert_eq!(segtree.get_range(1, 2), 2);
+        assert_eq!(segtree.get_range(0..2), 3);
+        assert_eq!(segtree.get_range(1..2), 2);
     }
 
     #[test]
@@ -105,23 +135,23 @@ mod test {
         const INF: usize = (1 << 31) - 1;
         let mut segtree = SegmentTree::new(3, INF, |a, b| a.min(b));
 
-        assert_eq!(segtree.get_range(0, 1), (1 << 31) - 1);
+        assert_eq!(segtree.get_range(..1), (1 << 31) - 1);
         segtree.update(0, 5);
-        assert_eq!(segtree.get_range(0, 1), 5);
+        assert_eq!(segtree.get_range(..1), 5);
     }
 
     #[test]
     fn test_from_slice() {
-        const INF: isize = - (1 << 31) + 1;
+        const INF: isize = -(1 << 31) + 1;
         let arr = vec![20, 4, 5, 6, 8, 9, 100];
         let mut segtree = SegmentTree::from(&arr, INF, |a, b| a.max(b));
 
-        assert_eq!(segtree.get_range(0, 7), 100);
-        assert_eq!(segtree.get_range(2, 5), 8);
+        assert_eq!(segtree.get_range(0..), 100);
+        assert_eq!(segtree.get_range(2..5), 8);
 
         segtree.update(0, 200);
 
-        assert_eq!(segtree.get_range(0, 7), 200);
-        assert_eq!(segtree.get_range(2, 5), 8);
+        assert_eq!(segtree.get_range(..), 200);
+        assert_eq!(segtree.get_range(2..5), 8);
     }
 }
