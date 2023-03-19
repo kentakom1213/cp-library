@@ -1,3 +1,6 @@
+//! # SegmentTree
+//! セグメント木の実装
+
 #![allow(dead_code)]
 
 use std::ops::{
@@ -5,9 +8,9 @@ use std::ops::{
     Index, RangeBounds,
 };
 
-/// SegmentTree (Monoid)
-struct SegmentTree<F, T> {
-    len: usize,
+/// # SegmentTree (Monoid)
+pub struct SegmentTree<F, T> {
+    pub len: usize,
     offset: usize,
     data: Vec<T>,
     op: F,
@@ -28,7 +31,7 @@ where
 {
     /// ## new
     /// セグメント木を初期化する
-    fn new(n: usize, e: T, op: F) -> Self {
+    pub fn new(n: usize, e: T, op: F) -> Self {
         let len = n.next_power_of_two();
 
         Self {
@@ -42,7 +45,7 @@ where
 
     /// ## from
     /// 配列からセグメント木を生成する
-    fn from(arr: &[T], e: T, op: F) -> Self {
+    pub fn from(arr: &[T], e: T, op: F) -> Self {
         let mut seg = Self::new(arr.len(), e, op);
         for (i, &v) in arr.iter().enumerate() {
             seg.data[seg.offset + i] = v;
@@ -57,7 +60,7 @@ where
     /// ## update
     /// 要素`index`を`value`に上書きする
     /// （`index`：0-indexed）
-    fn update(&mut self, index: usize, value: T) {
+    pub fn update(&mut self, index: usize, value: T) {
         let mut i = index + self.offset;
         self.data[i] = value;
         while i > 1 {
@@ -67,7 +70,7 @@ where
         }
     }
 
-    fn get_range<R: RangeBounds<usize>>(&self, range: R) -> T {
+    pub fn get_range<R: RangeBounds<usize>>(&self, range: R) -> T {
         let start = match range.start_bound() {
             Unbounded => 0,
             Excluded(&v) => v + 1,
