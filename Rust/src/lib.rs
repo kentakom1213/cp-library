@@ -9,6 +9,7 @@ pub mod Factors;
 pub mod LCA;
 pub mod LCS;
 pub mod MatrixExp;
+pub mod MatrixExpMod;
 pub mod MillerRabinTest;
 pub mod MultiSet;
 pub mod PollardRhoMethod;
