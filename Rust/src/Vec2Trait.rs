@@ -46,11 +46,9 @@ where T: Copy
     }
 }
 
-type Linei = Line<i32>;
-
 /// ## is_collided
 /// 線分abと線分xyが衝突しているかどうか
-fn is_collided(ab: Linei, xy: Linei) -> bool {
+fn is_collided(ab: Line<isize>, xy: Line<isize>) -> bool {
     let (a, b) = ab;
     let (x, y) = xy;
 
@@ -108,17 +106,17 @@ mod test {
 
     #[test]
     fn test_collision_line() {
-        let ab: Linei = (
+        let ab: Line<isize> = (
             (3, 1),
             (-3, 1)
         );
 
-        let line1: Linei = (
+        let line1: Line<isize> = (
             (1, 2),
             (2, 2)
         );
 
-        let line2: Linei = (
+        let line2: Line<isize> = (
             (1, 2),
             (1, 0)
         );
