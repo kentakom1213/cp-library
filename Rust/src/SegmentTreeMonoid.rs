@@ -3,14 +3,15 @@
 
 #![allow(dead_code)]
 
+use std::fmt;
 use std::ops::{
     Bound::{Excluded, Included, Unbounded},
-    Index, RangeBounds,
+    Deref, DerefMut, Index, RangeBounds,
 };
 
 /// # Monoid
 pub trait Monoid {
-    type Val: Clone + PartialEq;
+    type Val: fmt::Debug + Clone + PartialEq;
     const E: Self::Val;
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val;
 }
@@ -58,16 +59,28 @@ impl<T: Monoid> SegmentTree<T> {
         }
     }
 
-    /// ## update
-    /// 要素`index`を`value`に上書きする
-    /// （`index`：0-indexed）
-    pub fn update(&mut self, index: usize, value: T::Val) {
+    fn update(&mut self, index: usize, value: T::Val) {
         let mut i = index + self.offset;
         self.data[i] = value;
         while i > 1 {
             i >>= 1;
             let lch = i << 1;
             self.data[i] = T::op(&self.data[lch], &self.data[lch + 1]);
+        }
+    }
+
+    /// ## get_mut
+    /// - 可変な参照を返す
+    pub fn get_mut(&mut self, i: usize) -> Option<ValMut<'_, T>> {
+        if i < self.len {
+            let default = self.index(i).clone();
+            Some(ValMut {
+                segtree: self,
+                idx: i,
+                new_val: default,
+            })
+        } else {
+            None
         }
     }
 
@@ -115,6 +128,39 @@ impl<T: Monoid> From<&Vec<T::Val>> for SegmentTree<T> {
     }
 }
 
+pub struct ValMut<'a, T: 'a + Monoid> {
+    segtree: &'a mut SegmentTree<T>,
+    idx: usize,
+    new_val: T::Val,
+}
+
+impl<T: Monoid> fmt::Debug for ValMut<'_, T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("ValMut")
+            .field(&self.segtree.index(self.idx))
+            .finish()
+    }
+}
+
+impl<T: Monoid> Drop for ValMut<'_, T> {
+    fn drop(&mut self) {
+        self.segtree.update(self.idx, self.new_val.clone());
+    }
+}
+
+impl<T: Monoid> Deref for ValMut<'_, T> {
+    type Target = T::Val;
+    fn deref(&self) -> &Self::Target {
+        &self.segtree[self.idx]
+    }
+}
+
+impl<T: Monoid> DerefMut for ValMut<'_, T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.new_val
+    }
+}
+
 pub mod Alg {
     use super::Monoid;
 
@@ -157,7 +203,7 @@ pub mod Alg {
     pub struct Max;
     impl Monoid for Max {
         type Val = isize;
-        const E: Self::Val = -( (1 << 31) - 1 );
+        const E: Self::Val = -((1 << 31) - 1);
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
             *left.max(right)
         }
@@ -187,7 +233,7 @@ mod test {
 
     #[test]
     fn test_get_point() {
-        let mut segtree = SegmentTree::<Alg::Mul>::from(&vec![1, 2, 3, 4, 5]);
+        let segtree = SegmentTree::<Alg::Mul>::from(&vec![1, 2, 3, 4, 5]);
 
         assert_eq!(segtree[0], 1);
         assert_eq!(segtree[3], 4);
@@ -197,9 +243,10 @@ mod test {
     fn test_RSQ() {
         let mut segtree = SegmentTree::<Alg::Xor>::new(3);
 
-        segtree.update(0, 1);
-        segtree.update(1, 2);
-        segtree.update(2, 3);
+        // segtree.update(0, 1);
+        *segtree.get_mut(0).unwrap() += 1;
+        *segtree.get_mut(1).unwrap() += 2;
+        *segtree.get_mut(2).unwrap() += 3;
 
         assert_eq!(segtree.get_range(0..2), 3);
         assert_eq!(segtree.get_range(1..2), 2);
@@ -211,7 +258,7 @@ mod test {
         let mut segtree = SegmentTree::<Alg::Min>::new(3);
 
         assert_eq!(segtree.get_range(..1), (1 << 31) - 1);
-        segtree.update(0, 5);
+        *segtree.get_mut(0).unwrap() = 5;
         assert_eq!(segtree.get_range(..1), 5);
     }
 
