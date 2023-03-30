@@ -85,7 +85,7 @@ impl<T: OrderedMonoid> BIT<T> {
     }
 }
 
-mod Alg {
+pub mod Alg {
     use super::{Monoid, OrderedMonoid};
 
     pub struct Add;

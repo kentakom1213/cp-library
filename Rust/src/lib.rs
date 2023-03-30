@@ -14,7 +14,7 @@ pub mod MillerRabinTest;
 pub mod MultiSet;
 pub mod PollardRhoMethod;
 pub mod RollingHash;
-pub mod SegmentTree;
+pub mod SegmentTreeMonoid;
 pub mod UnionFind;
 pub mod Vec2;
 pub mod Vec2Trait;
