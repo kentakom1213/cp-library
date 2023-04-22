@@ -12,7 +12,6 @@ pub mod MatrixExp;
 pub mod MatrixExpMod;
 pub mod MillerRabinTest;
 pub mod MultiSet;
-pub mod MultiSet_collections_like;
 pub mod PollardRhoMethod;
 pub mod RollingHash;
 pub mod SegmentTreeMonoid;
