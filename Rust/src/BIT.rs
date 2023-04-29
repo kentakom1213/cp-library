@@ -1,11 +1,23 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
+use std::{
+    fmt::Debug,
+    ops::{
+        Bound::{Excluded, Included, Unbounded},
+        RangeBounds,
+    },
+};
+
 /// # Monoid
 pub trait Monoid {
-    type Val: Clone + PartialEq;
+    type Val: Debug + Clone + PartialEq;
     const E: Self::Val;
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val;
+}
+
+pub trait InversableMonoid: Monoid {
+    fn inv(val: &Self::Val) -> Self::Val;
 }
 
 pub trait OrderedMonoid: Monoid {
@@ -14,7 +26,6 @@ pub trait OrderedMonoid: Monoid {
 
 /// # BinaryIndexedTree
 /// - `0-indexed`なインターフェースを持つBIT
-#[derive(Debug, Clone)]
 pub struct BIT<T: Monoid> {
     pub size: usize,
     arr: Vec<T::Val>,
@@ -48,6 +59,35 @@ impl<T: Monoid> BIT<T> {
             i -= Self::lsb(i);
         }
         res
+    }
+}
+
+impl<T: InversableMonoid> BIT<T> {
+    #[inline]
+    fn parse_range<R: RangeBounds<usize>>(&self, range: R) -> Option<(usize, usize)> {
+        let start = match range.start_bound() {
+            Unbounded => 0,
+            Excluded(&v) => v + 1,
+            Included(&v) => v,
+        };
+        let end = match range.end_bound() {
+            Unbounded => self.size,
+            Excluded(&v) => v,
+            Included(&v) => v - 1,
+        };
+        if start <= end {
+            Some((start, end))
+        } else {
+            None
+        }
+    }
+
+    fn sum<R: RangeBounds<usize>>(&self, range: R) -> T::Val {
+        if let Some((i, j)) = self.parse_range(range) {
+            T::op(&self.prefix_sum(j), &T::inv(&self.prefix_sum(i)))
+        } else {
+            T::E
+        }
     }
 }
 
@@ -86,8 +126,18 @@ impl<T: OrderedMonoid> BIT<T> {
     }
 }
 
+impl<T: InversableMonoid> Debug for BIT<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "BIT {{ [")?;
+        for i in 0..self.size - 1 {
+            write!(f, "{:?}, ", self.sum(i..i + 1))?;
+        }
+        write!(f, "{:?}] }}", self.sum(self.size - 1..self.size))
+    }
+}
+
 pub mod Alg {
-    use super::{Monoid, OrderedMonoid};
+    use super::{InversableMonoid, Monoid, OrderedMonoid};
 
     #[derive(Debug)]
     pub struct Add;
@@ -96,6 +146,11 @@ pub mod Alg {
         const E: Self::Val = 0;
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
             left + right
+        }
+    }
+    impl InversableMonoid for Add {
+        fn inv(val: &Self::Val) -> Self::Val {
+            -val
         }
     }
     impl OrderedMonoid for Add {
@@ -121,6 +176,11 @@ pub mod Alg {
         const E: Self::Val = 0;
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
             left ^ right
+        }
+    }
+    impl InversableMonoid for Xor {
+        fn inv(val: &Self::Val) -> Self::Val {
+            *val
         }
     }
 }
@@ -163,6 +223,16 @@ mod test {
     }
 
     #[test]
+    fn test_sum() {
+        let bit = BIT::<Alg::Add>::from(&vec![1, 2, 3, 4, 5]);
+
+        assert_eq!(bit.sum(0..5), 15);
+        assert_eq!(bit.sum(1..5), 14);
+        assert_eq!(bit.sum(2..3), 3);
+        assert_eq!(bit.sum(3..2), 0);
+    }
+
+    #[test]
     fn test_lowerbound() {
         let bit = BIT::<Alg::Add>::from(&vec![1, 2, 3, 4, 5]);
 
@@ -176,8 +246,7 @@ mod test {
 
     #[test]
     fn test_debugprint() {
-        let bit = BIT::<Alg::Add>::from(&vec![1, 2, 3, 4, 5]);
-
-        println!("{:?}", bit);
+        let bit1 = BIT::<Alg::Add>::from(&vec![1, 2, 3, 4, 5]);
+        println!("{:?}", bit1);
     }
 }

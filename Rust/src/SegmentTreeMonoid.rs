@@ -32,7 +32,7 @@ impl<T: Monoid> Index<usize> for SegmentTree<T> {
 
 impl<T: Monoid> SegmentTree<T> {
     #[inline]
-    fn parse_range<R: RangeBounds<usize>>(&self, range: R) -> (usize, usize) {
+    fn parse_range<R: RangeBounds<usize>>(&self, range: R) -> Option<(usize, usize)> {
         let start = match range.start_bound() {
             Unbounded => 0,
             Excluded(&v) => v + 1,
@@ -43,8 +43,11 @@ impl<T: Monoid> SegmentTree<T> {
             Excluded(&v) => v,
             Included(&v) => v - 1,
         };
-        assert!(start <= end);
-        (start, end)
+        if start <= end {
+            Some((start, end))
+        } else {
+            None
+        }
     }
 
     /// ## new
@@ -85,7 +88,12 @@ impl<T: Monoid> SegmentTree<T> {
     }
 
     pub fn get_range<R: RangeBounds<usize>>(&self, range: R) -> T::Val {
-        let (start, end) = self.parse_range(range);
+        let parsed = self.parse_range(range);
+        if parsed.is_none() {
+            return T::E;
+        }
+
+        let (start, end) = parsed.unwrap();
 
         // 全体の値を取得
         if (start, end) == (0, self.len) {
