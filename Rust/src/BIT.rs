@@ -14,6 +14,7 @@ pub trait OrderedMonoid: Monoid {
 
 /// # BinaryIndexedTree
 /// - `0-indexed`なインターフェースを持つBIT
+#[derive(Debug, Clone)]
 pub struct BIT<T: Monoid> {
     pub size: usize,
     arr: Vec<T::Val>,
@@ -88,6 +89,7 @@ impl<T: OrderedMonoid> BIT<T> {
 pub mod Alg {
     use super::{Monoid, OrderedMonoid};
 
+    #[derive(Debug)]
     pub struct Add;
     impl Monoid for Add {
         type Val = isize;
@@ -102,6 +104,7 @@ pub mod Alg {
         }
     }
 
+    #[derive(Debug)]
     pub struct Mul;
     impl Monoid for Mul {
         type Val = isize;
@@ -111,6 +114,7 @@ pub mod Alg {
         }
     }
 
+    #[derive(Debug)]
     pub struct Xor;
     impl Monoid for Xor {
         type Val = usize;
@@ -168,5 +172,12 @@ mod test {
         assert_eq!(bit.lower_bound(10), 3);
         assert_eq!(bit.lower_bound(11), 4);
         assert_eq!(bit.lower_bound(100), 5);
+    }
+
+    #[test]
+    fn test_debugprint() {
+        let bit = BIT::<Alg::Add>::from(&vec![1, 2, 3, 4, 5]);
+
+        println!("{:?}", bit);
     }
 }
