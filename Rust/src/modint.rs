@@ -3,9 +3,9 @@
 pub const MOD: usize = 998_244_353;
 // const MOD: usize = 1_000_000_007;
 
-/// ## Modint
+/// ## Fp
 /// 有限体の実装
-pub trait Modint {
+pub trait Fp {
     fn val(&self) -> usize;
     fn madd(&self, other: usize) -> usize;
     fn mneg(&self) -> usize;
@@ -14,10 +14,9 @@ pub trait Modint {
     fn minv(&self) -> usize;
     fn mdiv(&self, other: usize) -> usize;
     fn mpow(&self, other: usize) -> usize;
-    fn factorial(&self) -> usize;
 }
 
-impl Modint for usize {
+impl Fp for usize {
     fn val(&self) -> usize {
         self % MOD
     }
@@ -59,13 +58,9 @@ impl Modint for usize {
     fn mdiv(&self, other: usize) -> usize {
         self.mmul(other.minv())
     }
-
-    fn factorial(&self) -> usize {
-        (1..=*self).fold(1, |acc, v| acc.mmul(v))
-    }
 }
 
-macro_rules! madd_assign {
+macro_rules! madd {
     ( $a:expr, $b:expr ) => {{
         let tmp = ($a).madd($b);
         $a = tmp;
@@ -136,19 +131,12 @@ mod test {
     fn test_mdiv_err() {
         1.mdiv(0);
     }
-
-    #[test]
-    fn test_factorial() {
-        assert_eq!(20021213.factorial(), 666935530);
-        assert_eq!(10.factorial(), 3628800);
-        assert_eq!(999999.factorial(), 595392237);
-    }
-
+    
     #[test]
     fn test_madd_assign() {
         let mut arr = vec![1, 2, 3];
         for i in 0..3 {
-            madd_assign!(arr[i], arr[i]);
+            madd!(arr[i], arr[i]);
         }
     }
 }

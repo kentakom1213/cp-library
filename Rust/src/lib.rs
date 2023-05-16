@@ -25,7 +25,6 @@ pub mod factorize;
 pub mod factors_all;
 pub mod max_min;
 pub mod modint;
-pub mod modint_forall;
 pub mod ord_chr;
 pub mod powmod;
 pub mod run_length;
