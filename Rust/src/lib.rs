@@ -13,6 +13,7 @@ pub mod MatrixExp;
 pub mod MatrixExpMod;
 pub mod MillerRabinTest;
 pub mod MultiSet;
+pub mod Namori;
 pub mod PollardRhoMethod;
 pub mod RollingHash;
 pub mod SegmentTreeMonoid;
