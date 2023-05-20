@@ -17,6 +17,8 @@ pub mod Namori;
 pub mod PollardRhoMethod;
 pub mod RollingHash;
 pub mod SegmentTreeMonoid;
+pub mod TreeDP;
+pub mod TreeDPMod;
 pub mod UnionFind;
 pub mod UsizeTools;
 pub mod Vec2;
