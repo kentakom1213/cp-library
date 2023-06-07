@@ -234,14 +234,14 @@ mod test {
 
     #[test]
     fn test_lowerbound() {
-        let bit = BIT::<Alg::Add>::from(&vec![1, 2, 3, 4, 5]);
+        let bit = BIT::<Alg::Add>::from(&vec![1, 2, 3, 4, 0, 5]);
 
         assert_eq!(bit.lower_bound(0), 0);
         assert_eq!(bit.lower_bound(1), 0);
         assert_eq!(bit.lower_bound(2), 1);
         assert_eq!(bit.lower_bound(10), 3);
-        assert_eq!(bit.lower_bound(11), 4);
-        assert_eq!(bit.lower_bound(100), 5);
+        assert_eq!(bit.lower_bound(11), 5);
+        assert_eq!(bit.lower_bound(100), 6);
     }
 
     #[test]

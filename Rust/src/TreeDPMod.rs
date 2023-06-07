@@ -4,7 +4,7 @@ type Graph = Vec<Vec<usize>>;
 
 /// # Monoid
 pub trait Monoid {
-    type Val: Clone + PartialEq;
+    type Val: Clone;
     const E: Self::Val;
     fn op(u: &Self::Val, v: &Self::Val) -> Self::Val;
     fn apply(val: &Self::Val) -> Self::Val;
@@ -14,12 +14,12 @@ pub trait Monoid {
 /// # 木DP（任意mod）
 struct TreeDPMod<T: Monoid> {
     pub N: usize,
-    pub G: Vec<Vec<usize>>,
+    pub G: Graph,
     dp: Vec<T::Val>,
     M: usize,
 }
 
-impl<T: Monoid> TreeDPMod<T> {    
+impl<T: Monoid> TreeDPMod<T> {
     pub fn new(N: usize, M: usize) -> Self {
         Self {
             N,
@@ -38,13 +38,7 @@ impl<T: Monoid> TreeDPMod<T> {
     /// 頂点`start`に値を集約する
     pub fn aggregate(&mut self, start: usize) -> T::Val {
         let NEG1 = 1_usize.wrapping_neg();
-        Self::dfs(
-            NEG1,
-            start,
-            &self.G,
-            &mut self.dp,
-            self.M,
-        );
+        Self::dfs(NEG1, start, &self.G, &mut self.dp, self.M);
 
         self.dp[start].clone()
     }
@@ -63,10 +57,7 @@ impl<T: Monoid> TreeDPMod<T> {
                 continue;
             }
             Self::dfs(u, v, G, dp, M);
-            acc = T::op(
-                &acc,
-                &dp[v]
-            );
+            acc = T::op(&acc, &dp[v]);
             acc = T::modulo(&acc, M);
         }
         dp[u] = T::apply(&acc);

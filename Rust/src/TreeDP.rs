@@ -13,7 +13,7 @@ pub trait Monoid {
 /// # 木DP
 struct TreeDP<T: Monoid> {
     pub N: usize,
-    pub G: Vec<Vec<usize>>,
+    pub G: Graph,
     dp: Vec<T::Val>,
 }
 
