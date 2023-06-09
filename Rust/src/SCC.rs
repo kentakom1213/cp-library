@@ -2,13 +2,14 @@
 
 type Graph = Vec<Vec<usize>>;
 
-/// # SCC (強連結成分分解)
+/// ## SCC (強連結成分分解)
 /// - Strongly Conneected Components
 pub struct SCC {
     pub V: usize,
     pub E: usize,
     pub G: Graph,
     rG: Graph,
+    pub group_count: Option<usize>,
     pub components: Option<Vec<usize>>,
     pub DAG: Option<Graph>,
 }
@@ -22,6 +23,7 @@ impl SCC {
             E: 0,
             G: vec![vec![]; V],
             rG: vec![vec![]; V],
+            group_count: None,
             components: None,
             DAG: None,
         }
@@ -34,7 +36,7 @@ impl SCC {
         self.rG[v].push(u);
     }
 
-    pub fn build(&mut self) {
+    pub fn decompose(&mut self) {
         // 帰りがけ順で順序付け
         let mut order = vec![];
         let mut visited = vec![false; self.V];
@@ -63,6 +65,7 @@ impl SCC {
             }
         }
 
+        self.group_count = Some(group);
         self.components = Some(components);
         self.DAG = Some(DAG);
     }
@@ -101,8 +104,9 @@ mod test {
         edges.iter().for_each(|&(u, v)| scc.add_edge(u, v));
 
         // 強連結成分分解
-        scc.build();
+        scc.decompose();
 
+        assert_eq!(scc.group_count, Some(4));
         assert_eq!(&scc.components.unwrap(), &vec![3, 1, 2, 3, 1, 0]);
         assert_eq!(&scc.DAG.unwrap(), &vec![vec![2], vec![2], vec![], vec![]]);
     }
