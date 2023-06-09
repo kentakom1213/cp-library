@@ -15,6 +15,7 @@ pub mod MultiSet;
 pub mod Namori;
 pub mod PollardRhoMethod;
 pub mod RollingHash;
+pub mod SCC;
 pub mod SegmentTreeMonoid;
 pub mod SimpleGraph;
 pub mod TreeDP;

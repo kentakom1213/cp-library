@@ -1,79 +1,109 @@
 #![allow(dead_code)]
 
-type Edge = usize;
-type Graph = Vec<Vec<Edge>>;
-const INF: usize = std::usize::MAX;
+type Graph = Vec<Vec<usize>>;
 
 /// # SCC (強連結成分分解)
 /// - Strongly Conneected Components
 pub struct SCC {
-    size: usize, // |V|
-    fG: Graph, // forwards
-    bG: Graph, // backwards
-    order: Vec<Edge>,
-    visited: Vec<bool>,
-    pub scc: Vec<Vec<Edge>>,
-    pub components: Vec<usize>,
-    pub dag: Graph,
+    pub V: usize,
+    pub E: usize,
+    pub G: Graph,
+    rG: Graph,
+    pub components: Option<Vec<usize>>,
+    pub DAG: Option<Graph>,
 }
 
 impl SCC {
-    pub fn new(n: usize) -> Self {
-        SCC {
-            size: n,
-            fG: vec![vec![]; n],
-            bG: vec![vec![]; n],
-            order: vec![],
-            scc: vec![],
-            visited: vec![false; n],
-            components: vec![INF; n],
-            dag: vec![vec![]; n],
+    const INF: usize = std::usize::MAX;
+
+    pub fn new(V: usize) -> Self {
+        Self {
+            V,
+            E: 0,
+            G: vec![vec![]; V],
+            rG: vec![vec![]; V],
+            components: None,
+            DAG: None,
         }
     }
 
-    /// グラフに有向辺を追加する
+    /// uからvへの有向辺を追加
     pub fn add_edge(&mut self, u: usize, v: usize) {
-        self.fG[u].push(v);
-        self.bG[v].push(u);
+        self.E += 1;
+        self.G[u].push(v);
+        self.rG[v].push(u);
     }
 
-    /// 順方向にDFSを行う
-    fn forward_dfs(&mut self, u: usize) {
-        self.visited[v] = true;
-        for &v in &self.fG[u] {
-            if !self.visited[v] {
-                self.forward_dfs(v);
+    pub fn build(&mut self) {
+        // 帰りがけ順で順序付け
+        let mut order = vec![];
+        let mut visited = vec![false; self.V];
+        for i in 0..self.V {
+            Self::dfs(i, &self.G, &mut order, &mut visited);
+        }
+
+        // 連結成分に分解
+        let mut group = 0;
+        let mut components = vec![Self::INF; self.V];
+        for &i in order.iter().rev() {
+            if components[i] == Self::INF {
+                Self::rdfs(i, group, &self.rG, &mut components);
+                group += 1;
             }
         }
-        self.order.push(u);
+
+        // DAGを構築
+        let mut DAG = vec![vec![]; group];
+        for i in 0..self.V {
+            for &j in &self.G[i] {
+                let (u, v) = (components[i], components[j]);
+                if u != v {
+                    DAG[u].push(v);
+                }
+            }
+        }
+
+        self.components = Some(components);
+        self.DAG = Some(DAG);
     }
 
-    /// 逆方向にDFSを行う
-    fn backward_dfs(&mut self, u: usize, k: usize) {
-        self.visited[u] = true;
-        self.components[u] = k;
-        for &v in &self.bG[u] {
-            if !self.visited[v] {
-                self.backward_dfs(v, k);
-            }
+    fn dfs(u: usize, G: &Graph, order: &mut Vec<usize>, visited: &mut Vec<bool>) {
+        if visited[u] {
+            return;
         }
+        visited[u] = true;
+        for &v in &G[u] {
+            Self::dfs(v, G, order, visited);
+        }
+        order.push(u);
     }
 
-    /// 強連結成分分解を行う
-    pub fn decompose() {
-        // 全頂点から順方向にDFSを行う
-        for u in 0..self.size {
-            if !self.visited[u] {
-                self.forward_dfs(u);
-            }
+    fn rdfs(u: usize, group: usize, rG: &Graph, components: &mut Vec<usize>) {
+        if components[u] != Self::INF {
+            return;
         }
-        // 逆順にDFSを行う
-        let mut k = 0;
-        for u in self.forder.iter().rev() {
-            if !self.visited[u] {
-                self.backward_dfs(u, k);
-                k += 1;
-            }
+        components[u] = group;
+        for &v in &rG[u] {
+            Self::rdfs(v, group, rG, components);
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_scc() {
+        let V = 6;
+        let edges = [(1, 4), (5, 2), (3, 0), (5, 5), (4, 1), (0, 3), (4, 2)];
+        let mut scc = SCC::new(V);
+        edges.iter().for_each(|&(u, v)| scc.add_edge(u, v));
+
+        // 強連結成分分解
+        scc.build();
+
+        assert_eq!(&scc.components.unwrap(), &vec![3, 1, 2, 3, 1, 0]);
+        assert_eq!(&scc.DAG.unwrap(), &vec![vec![2], vec![2], vec![], vec![]]);
     }
 }
