@@ -10,8 +10,8 @@ pub struct SCC {
     pub G: Graph,
     rG: Graph,
     pub group_count: Option<usize>,
-    pub components: Option<Vec<usize>>,
-    pub DAG: Option<Graph>,
+    pub components: Vec<usize>,
+    pub DAG: Graph,
 }
 
 impl SCC {
@@ -24,8 +24,8 @@ impl SCC {
             G: vec![vec![]; V],
             rG: vec![vec![]; V],
             group_count: None,
-            components: None,
-            DAG: None,
+            components: vec![],
+            DAG: vec![],
         }
     }
 
@@ -66,8 +66,8 @@ impl SCC {
         }
 
         self.group_count = Some(group);
-        self.components = Some(components);
-        self.DAG = Some(DAG);
+        self.components = components;
+        self.DAG = DAG;
     }
 
     fn dfs(u: usize, G: &Graph, order: &mut Vec<usize>, visited: &mut Vec<bool>) {
@@ -107,7 +107,7 @@ mod test {
         scc.decompose();
 
         assert_eq!(scc.group_count, Some(4));
-        assert_eq!(&scc.components.unwrap(), &vec![3, 1, 2, 3, 1, 0]);
-        assert_eq!(&scc.DAG.unwrap(), &vec![vec![2], vec![2], vec![], vec![]]);
+        assert_eq!(&scc.components, &vec![3, 1, 2, 3, 1, 0]);
+        assert_eq!(&scc.DAG, &vec![vec![2], vec![2], vec![], vec![]]);
     }
 }
