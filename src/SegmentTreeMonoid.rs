@@ -18,7 +18,7 @@ pub trait Monoid {
 
 /// # SegmentTree (Monoid)
 pub struct SegmentTree<T: Monoid> {
-    pub len: usize,
+    pub size: usize,
     offset: usize,
     data: Vec<T::Val>,
 }
@@ -39,7 +39,7 @@ impl<T: Monoid> SegmentTree<T> {
             Included(&v) => v,
         };
         let end = match range.end_bound() {
-            Unbounded => self.len,
+            Unbounded => self.offset,
             Excluded(&v) => v,
             Included(&v) => v - 1,
         };
@@ -53,12 +53,12 @@ impl<T: Monoid> SegmentTree<T> {
     /// ## new
     /// セグメント木を初期化する
     pub fn new(n: usize) -> Self {
-        let len = n.next_power_of_two();
+        let offset = n.next_power_of_two();
 
         Self {
-            len,
-            offset: len,
-            data: vec![T::E; len << 1],
+            size: n,
+            offset,
+            data: vec![T::E; offset << 1],
         }
     }
 
@@ -75,7 +75,7 @@ impl<T: Monoid> SegmentTree<T> {
     /// ## get_mut
     /// - 可変な参照を返す
     pub fn get_mut(&mut self, i: usize) -> Option<ValMut<'_, T>> {
-        if i < self.len {
+        if i < self.offset {
             let default = self.index(i).clone();
             Some(ValMut {
                 segtree: self,
@@ -96,7 +96,7 @@ impl<T: Monoid> SegmentTree<T> {
         let (start, end) = parsed.unwrap();
 
         // 全体の値を取得
-        if (start, end) == (0, self.len) {
+        if (start, end) == (0, self.offset) {
             return self.data[1].clone();
         }
 
@@ -133,6 +133,20 @@ impl<T: Monoid> From<&Vec<T::Val>> for SegmentTree<T> {
             seg.data[i] = T::op(&seg.data[lch], &seg.data[lch + 1]);
         }
         seg
+    }
+}
+
+impl<T: Monoid> std::fmt::Debug for SegmentTree<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "SegmentTree {{ [").ok();
+        for i in 0..self.size {
+            if i + 1 < self.size {
+                write!(f, "{:?}, ", self.data[self.offset + i]).ok();
+            } else {
+                write!(f, "{:?}", self.data[self.offset + i]).ok();
+            }
+        }
+        write!(f, "] }}")
     }
 }
 
@@ -283,5 +297,15 @@ mod test {
 
         assert_eq!(segtree.get_range(..), 200);
         assert_eq!(segtree.get_range(2..5), 8);
+    }
+
+    #[test]
+    fn test_debug_print() {
+        const INF: isize = -(1 << 31) + 1;
+        let arr = vec![20, 4, 5, 6, 8, 9, 100];
+        let segtree = SegmentTree::<Alg::Max>::from(&arr);
+
+        let dbg = format!("{:?}", &segtree);
+        assert_eq!(&dbg, "SegmentTree { [20, 4, 5, 6, 8, 9, 100] }");
     }
 }
