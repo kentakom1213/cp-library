@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(unused_macros)]
 
 pub const MOD: usize = 998_244_353;
 // const MOD: usize = 1_000_000_007;
@@ -95,9 +96,9 @@ mod test {
         let y: usize = 1000000007;
         assert_eq!(x.msub(y), 996488699);
 
-        let a: usize = 288230376151711744;   // 1 << 58
-        let b: usize = 576460752303423488;   // 1 << 59
-        let c: usize = 1152921504606846976;  // 1 << 60
+        let a: usize = 288230376151711744; // 1 << 58
+        let b: usize = 576460752303423488; // 1 << 59
+        let c: usize = 1152921504606846976; // 1 << 60
         assert_eq!(a.mneg().msub(b).msub(c), 553154679);
     }
 
@@ -117,7 +118,7 @@ mod test {
         assert_eq!(1.minv(), 1);
         assert_eq!(2.minv(), 499122177);
         assert_eq!(1000.minv(), 981274199);
-        assert_eq!((MOD-1).minv(), 998244352);
+        assert_eq!((MOD - 1).minv(), 998244352);
     }
 
     #[test]
@@ -131,7 +132,7 @@ mod test {
     fn test_mdiv_err() {
         1.mdiv(0);
     }
-    
+
     #[test]
     fn test_madd_assign() {
         let mut arr = vec![1, 2, 3];

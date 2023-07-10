@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+#![allow(dead_code)]
 
 /// 余りをとる累乗
 pub fn powmod(a: usize, b: usize, m: usize) -> usize {

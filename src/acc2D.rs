@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+#![allow(dead_code)]
 
 pub fn acc2D(array: &Vec<Vec<isize>>) -> impl Fn(usize, usize, usize, usize) -> isize {
     let (H, W) = (array.len(), array[0].len());

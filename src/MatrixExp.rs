@@ -1,5 +1,4 @@
-#[allow(dead_code)]
-use rand::prelude::*;
+#![allow(dead_code)]
 
 // 定数
 const MOD: usize = 998244353;
@@ -71,10 +70,10 @@ impl MatrixExp for Matrix {
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
+    use rand::{prelude::*, rngs::ThreadRng};
     const REPEAT_TIME: usize = 100;
 
     /// ランダムな値で埋められたDIMxDIM行列を生成する
@@ -126,16 +125,11 @@ mod test {
     #[test]
     fn test_pow() {
         // テトラナッチ数
-        let tetra = [
-            [0, 1, 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1],
-            [1, 1, 1, 1],
-        ];
+        let tetra = [[0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [1, 1, 1, 1]];
 
         // 初期値
         let init = [0, 0, 0, 1];
-        
+
         // T_{35}を求める
         let T_35 = tetra.pow(35).apply(init)[0];
 

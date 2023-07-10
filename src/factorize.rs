@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+#![allow(dead_code)]
 
 /// ## factorize
 /// - 素因数分解し、`(素因数,指数)`のペアを返す

@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+#![allow(dead_code)]
 
 /// # LCA
 /// 最小共通祖先を求めるクエリに答える
