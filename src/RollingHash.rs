@@ -1,22 +1,24 @@
 #![allow(dead_code)]
 
 /// # Modint
-trait Modint {
+pub trait Modint {
+    const MOD: usize;
     fn madd(&self, other: usize) -> usize;
     fn msub(&self, other: usize) -> usize;
     fn mmul(&self, other: usize) -> usize;
 }
 
 impl Modint for usize {
+    const MOD: usize = (1 << 61) - 1;
     fn madd(&self, other: usize) -> usize {
-        (*self + other) % MOD
+        (*self + other) % Self::MOD
     }
     fn msub(&self, other: usize) -> usize {
-        (MOD + *self - other) % MOD
+        (Self::MOD + *self - other) % Self::MOD
     }
     fn mmul(&self, other: usize) -> usize {
         let res: u128 = (*self as u128) * (other as u128);
-        (res % MOD as u128) as usize
+        (res % Self::MOD as u128) as usize
     }
 }
 
@@ -24,8 +26,8 @@ impl Modint for usize {
 /// 文字列の比較を高速に行う
 /// - 計算量: `O(n+m)`
 #[derive(Debug)]
-struct RollingHash {
-    size: usize,
+pub struct RollingHash {
+    pub size: usize,
     power: Vec<usize>,
     hash: Vec<usize>,
     base: usize,
@@ -33,7 +35,7 @@ struct RollingHash {
 
 impl RollingHash {
     /// 初期化
-    fn build(arr: &[usize], base: usize) -> Self {
+    pub fn build(arr: &[usize], base: usize) -> Self {
         let size = arr.len();
         let mut power = vec![0; size + 1];
         let mut hash = vec![0; size + 1];
@@ -43,40 +45,55 @@ impl RollingHash {
         for i in 0..size {
             h = arr[i].madd(h.mmul(base));
             p = p.mmul(base);
-            hash[i+1] = h;
-            power[i+1] = p;
+            hash[i + 1] = h;
+            power[i + 1] = p;
         }
 
-        Self { size, power, hash, base }
+        Self {
+            size,
+            power,
+            hash,
+            base,
+        }
     }
 
     /// 文字列から生成
-    fn from_str(s: &str, base: usize) -> Self {
-        let arr: Vec<usize> = s
-            .chars()
-            .map(Self::ord)
-            .collect();
-        
+    pub fn from_str(s: &str, base: usize) -> Self {
+        let arr: Vec<usize> = s.chars().map(Self::ord).collect();
         Self::build(&arr, base)
     }
 
     /// `l..r`のハッシュを取得
     /// - 計算量: `O(1)`
-    fn get(&self, l: usize, r: usize) -> usize {
-        self.hash[r].msub(
-            self.hash[l].mmul(self.power[r-l])
-        )
+    pub fn get(&self, l: usize, r: usize) -> usize {
+        self.hash[r].msub(self.hash[l].mmul(self.power[r - l]))
     }
 
     /// `0..size`のハッシュを取得
     /// - 計算量: `O(1)`
-    fn full(&self) -> usize {
+    pub fn full(&self) -> usize {
         self.hash[self.size]
+    }
+
+    /// a,bからの最長共通接頭辞の長さを調べる
+    /// - 計算量: `O(log N)`
+    pub fn getLCP(&self, a: usize, b: usize) -> usize {
+        let len = self.size.saturating_sub(a.max(b));
+        let (mut lo, mut hi) = (0, len + 1);
+        while hi - lo > 1 {
+            let mid = (lo + hi) / 2;
+            if self.get(a, a + mid) == self.get(b, b + mid) {
+                lo = mid;
+            } else {
+                hi = mid;
+            }
+        }
+        lo
     }
 
     /// ハッシュ同士を連結
     /// - 計算量: `O(1)`
-    fn connect(&self, h1: usize, h2:usize, h2_len: usize) -> usize {
+    pub fn concat(&self, h1: usize, h2: usize, h2_len: usize) -> usize {
         h1.mmul(self.power[h2_len]).madd(h2)
     }
 
@@ -87,11 +104,6 @@ impl RollingHash {
         (c - a) as usize
     }
 }
-
-// constant
-const MOD: usize = 998244353;
-// const MOD: usize = (1 << 61) - 1;
-
 
 #[cfg(test)]
 mod test {
@@ -108,7 +120,7 @@ mod test {
 
         // "sumomo"を検索
         let mut res1 = vec![];
-        for i in 0..tlen-p1len {
+        for i in 0..tlen - p1len {
             if target.get(i, i + p1len) == ptn1.full() {
                 res1.push(i);
             }
@@ -118,12 +130,25 @@ mod test {
 
         // "momo"を検索
         let mut res2 = vec![];
-        for i in 0..tlen-p2len {
+        for i in 0..tlen - p2len {
             if target.get(i, i + p2len) == ptn2.full() {
                 res2.push(i);
             }
         }
 
         assert_eq!(res2, vec![0, 2, 8, 10, 12, 14]);
+    }
+
+    #[test]
+    fn test_LCP() {
+        let rh1 = RollingHash::from_str(&"humpbump", 2023);
+
+        assert_eq!(rh1.getLCP(0, 4), 0);
+        assert_eq!(rh1.getLCP(1, 5), 3);
+
+        let rh2 = RollingHash::from_str(&"strangeorange", 19);
+
+        assert_eq!(rh2.getLCP(2, 8), 5);
+        assert_eq!(rh2.getLCP(3, 9), 4);
     }
 }
