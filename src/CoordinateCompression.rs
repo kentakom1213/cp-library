@@ -30,8 +30,8 @@ impl<'a, T: Ord> Compression<'a, T> {
 
     /// 圧縮前の要素を返す
     pub fn val(&self, idx: usize) -> Option<&T> {
-        if idx < self.size {
-            Some(self.sorted_array[idx])
+        if let Some(&val) = self.sorted_array.get(idx) {
+            Some(val)
         } else {
             None
         }
