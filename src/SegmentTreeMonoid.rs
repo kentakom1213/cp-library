@@ -41,8 +41,9 @@ impl<T: Monoid> SegmentTree<T> {
         let end = match range.end_bound() {
             Unbounded => self.offset,
             Excluded(&v) => v,
-            Included(&v) => v - 1,
+            Included(&v) => v + 1,
         };
+        println!("{:?} {:?}", start, end);
         if start <= end {
             Some((start, end))
         } else {
@@ -263,15 +264,18 @@ mod test {
 
     #[test]
     fn test_RSQ() {
-        let mut segtree = SegmentTree::<Alg::Xor>::new(3);
+        let mut segtree = SegmentTree::<Alg::Add>::new(3);
 
         // segtree.update(0, 1);
         *segtree.get_mut(0).unwrap() += 1;
         *segtree.get_mut(1).unwrap() += 2;
         *segtree.get_mut(2).unwrap() += 3;
+        // [1, 2, 3]
 
         assert_eq!(segtree.get_range(0..2), 3);
         assert_eq!(segtree.get_range(1..2), 2);
+        assert_eq!(segtree.get_range(1..=2), 5);
+        assert_eq!(segtree.get_range(..), 6);
     }
 
     #[test]
