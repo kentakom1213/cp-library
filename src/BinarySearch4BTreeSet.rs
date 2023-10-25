@@ -5,7 +5,7 @@ use std::ops::Bound::{Included, Excluded, Unbounded};
 
 /// # BinarySearch
 /// 二分探索
-trait BinarySearch<T> {
+pub trait BinarySearch<T> {
     fn lower_bound(&self, x: &T) -> Option<&T>;
     fn upper_bound(&self, x: &T) -> Option<&T>;
 }

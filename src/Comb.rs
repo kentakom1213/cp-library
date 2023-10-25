@@ -7,13 +7,13 @@ const MOD: usize = 998_244_353;
 /// 二項係数を高速に求める
 /// - 前計算: `O(N)`
 /// - クエリ: `O(1)`
-struct Comb {
+pub struct Comb {
     fac: Vec<usize>,
     finv: Vec<usize>,
 }
 
 impl Comb {
-    fn new(max_size: usize) -> Self {
+    pub fn new(max_size: usize) -> Self {
         let mut fac = vec![1; max_size];
         let mut finv = vec![1; max_size];
         let mut inv = vec![1; max_size];
@@ -26,14 +26,14 @@ impl Comb {
         Comb { fac, finv }
     }
 
-    fn comb(&self, n: usize, r: usize) -> usize {
+    pub fn comb(&self, n: usize, r: usize) -> usize {
         if n < r {
             return 0;
         }
         self.fac[n] * (self.finv[r] * self.finv[n - r] % MOD) % MOD
     }
 
-    fn perm(&self, n: usize, r: usize) -> usize {
+    pub fn perm(&self, n: usize, r: usize) -> usize {
         if n < r {
             return 0;
         }

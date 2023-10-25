@@ -2,7 +2,7 @@
 
 use crate::MillerRabinTest::is_prime_MR;
 
-fn gcd(a: usize, b: usize) -> usize {
+pub fn gcd(a: usize, b: usize) -> usize {
     if b == 0 {
         a
     } else {
@@ -12,7 +12,7 @@ fn gcd(a: usize, b: usize) -> usize {
 
 /// ## pollard_rho
 /// ポラード・ロー法を適用し、約数を見つける
-fn pollard_rho(N: usize) -> usize {
+pub fn pollard_rho(N: usize) -> usize {
     if N % 2 == 0 { 
         return 2;
     }
@@ -40,7 +40,7 @@ fn pollard_rho(N: usize) -> usize {
 /// ## factorize
 /// ポラード・ロー法による高速素因数分解
 /// `O(n^(1/4))`
-fn factorize(N: usize) -> Vec<usize> {
+pub fn factorize(N: usize) -> Vec<usize> {
     if N == 1 { return vec![]; }
     let p = pollard_rho(N);
     if p == N { return vec![N]; }

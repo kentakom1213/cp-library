@@ -3,8 +3,8 @@
 use std::collections::BinaryHeap;
 use std::cmp::Reverse;
 
-// Dijkstra法
-fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, s: usize) -> Vec<usize> {
+/// Dijkstra法
+pub fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, s: usize) -> Vec<usize> {
     const INF: usize = 1001001001001001001;
     let n: usize = graph.len();
     let mut dist: Vec<usize> = vec![INF; n];

@@ -2,6 +2,7 @@
 #![allow(unused_macros)]
 
 /// `a < b` のとき、`a`を`b`に置き換え、trueを返す
+#[macro_export]
 macro_rules! chmax {
     ( $a:expr, $b:expr $(,)* ) => {{
         if $a < $b {
@@ -21,6 +22,7 @@ macro_rules! chmax {
 }
 
 /// `a > b` のとき、`a`を`b`に置き換え、trueを返す
+#[macro_export]
 macro_rules! chmin {
     ( $a:expr, $b:expr $(,)* ) => {{
         if $a > $b {

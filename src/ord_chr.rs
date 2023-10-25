@@ -2,7 +2,7 @@
 
 /// ## ord
 /// `A`を`0`とするascii文字(`A~Za~z`)のインデックスを返す
-fn ord(c: char) -> usize {
+pub fn ord(c: char) -> usize {
     let a = 'A' as u32;
     let c = c as u32;
     (c - a) as usize
@@ -10,7 +10,7 @@ fn ord(c: char) -> usize {
 
 /// ## chr
 /// `chr(0) = A`であるようなascii文字(`A~Za~z`)を返す
-fn chr(i: usize) -> char {
+pub fn chr(i: usize) -> char {
     let a = 'A' as u32;
     let c = char::from_u32(a + i as u32).unwrap();
     c

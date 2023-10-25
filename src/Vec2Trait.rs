@@ -2,10 +2,10 @@
 
 use std::ops::{Add, Sub, Mul, Neg};
 
-type Pos<T> = (T, T);
-type Line<T> = (Pos<T>, Pos<T>);
+pub type Pos<T> = (T, T);
+pub type Line<T> = (Pos<T>, Pos<T>);
 
-trait Vec2<T> {
+pub trait Vec2<T> {
     fn mul(&self, scalar: T) -> Self;
     fn add(&self, other: Self) -> Self;
     fn sub(&self, other: Self) -> Self;
@@ -48,7 +48,7 @@ where T: Copy
 
 /// ## is_collided
 /// 線分abと線分xyが衝突しているかどうか
-fn is_collided(ab: Line<isize>, xy: Line<isize>) -> bool {
+pub fn is_collided(ab: Line<isize>, xy: Line<isize>) -> bool {
     let (a, b) = ab;
     let (x, y) = xy;
 

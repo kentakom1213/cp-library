@@ -15,7 +15,7 @@ macro_rules! chmax {
 /// ## LCS
 /// 最長共通部分列を得る
 /// 計算量：O(NM)
-fn LCS<T: std::cmp::PartialEq> (A: &[T], B: &[T]) -> usize {
+pub fn LCS<T: std::cmp::PartialEq> (A: &[T], B: &[T]) -> usize {
     let (la, lb) = (A.len(), B.len());
     let mut dp = vec![vec![0; lb+1]; la+1];
 
@@ -35,7 +35,7 @@ fn LCS<T: std::cmp::PartialEq> (A: &[T], B: &[T]) -> usize {
 /// ## LCS with Vector
 /// 最長共通部分列を得る
 /// 計算量：O(NM)
-fn LCS_with_Vec<T: std::cmp::PartialEq + Copy> (A: &[T], B: &[T]) -> Vec<T> {
+pub fn LCS_with_Vec<T: std::cmp::PartialEq + Copy> (A: &[T], B: &[T]) -> Vec<T> {
     let (la, lb) = (A.len(), B.len());
     let mut dp = vec![vec![0; lb+1]; la+1];
 

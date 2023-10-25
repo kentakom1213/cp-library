@@ -2,7 +2,7 @@
 
 /// ## RunLengthEncode
 /// ランレングス圧縮
-fn run_length_encode<T>(arr: &[T]) -> Vec<(T, usize)>
+pub fn run_length_encode<T>(arr: &[T]) -> Vec<(T, usize)>
 where
     T: PartialEq + Copy,
 {
@@ -26,7 +26,7 @@ where
 
 /// ## RunLengthEncode
 /// ランレングス圧縮 (from Iterator)
-fn run_length_encode_from<T, I>(mut itr: I) -> Vec<(T, usize)>
+pub fn run_length_encode_from<T, I>(mut itr: I) -> Vec<(T, usize)>
 where
     T: PartialEq,
     I: Iterator<Item = T>,

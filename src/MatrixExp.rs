@@ -4,11 +4,11 @@
 const MOD: usize = 998244353;
 
 /* 行列累乗 */
-const DIM: usize = 4;
-type Vec = [usize; DIM];
-type Matrix = [[usize; DIM]; DIM];
+pub const DIM: usize = 4;
+pub type Vec = [usize; DIM];
+pub type Matrix = [[usize; DIM]; DIM];
 
-trait MatrixExp {
+pub trait MatrixExp {
     fn e() -> Self;
     fn dot(&self, other: Self) -> Self;
     fn pow(&self, e: usize) -> Self;

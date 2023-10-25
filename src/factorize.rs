@@ -2,7 +2,7 @@
 
 /// ## factorize
 /// - 素因数分解し、`(素因数,指数)`のペアを返す
-fn factorize(mut n: usize) -> Vec<(usize, usize)> {
+pub fn factorize(mut n: usize) -> Vec<(usize, usize)> {
     let mut res = Vec::new();
     for i in 2.. {
         if i*i > n {

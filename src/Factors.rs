@@ -1,12 +1,12 @@
 #![allow(dead_code)]
 
-struct Factors {
+pub struct Factors {
     n: usize,
     sieve: Vec<usize>,
 }
 
 impl Factors {
-    fn new(n: usize) -> Self {
+    pub fn new(n: usize) -> Self {
         let mut facs = Factors {
             n: n,
             sieve: vec![1; n+1],
@@ -23,7 +23,7 @@ impl Factors {
     }
 
     /// 素因数分解を高速（`O(logn)`）で行う
-    fn factorize(&self, mut x: usize) -> Vec<usize> {
+    pub fn factorize(&self, mut x: usize) -> Vec<usize> {
         assert!(1 <= x && x <= self.n);
         let mut factors = vec![];
         while x > 1 {
