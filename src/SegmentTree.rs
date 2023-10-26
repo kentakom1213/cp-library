@@ -8,14 +8,18 @@ use std::ops::{
     Deref, DerefMut, Index, RangeBounds,
 };
 
-/// # Monoid
+/// モノイド
 pub trait Monoid {
+    /// 元の型
     type Val: fmt::Debug + Clone + PartialEq;
+    /// 単位元
     const E: Self::Val;
+    /// 演算
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val;
 }
 
 /// # SegmentTree (Monoid)
+/// - 抽象化セグメント木
 pub struct SegmentTree<T: Monoid> {
     pub size: usize,
     offset: usize,
@@ -184,9 +188,11 @@ impl<T: Monoid> DerefMut for ValMut<'_, T> {
     }
 }
 
+/// さまざまな代数的構造
 pub mod Alg {
     use super::Monoid;
 
+    /// 和
     pub struct Add;
     impl Monoid for Add {
         type Val = isize;
@@ -196,15 +202,17 @@ pub mod Alg {
         }
     }
 
+    /// 積
     pub struct Mul;
     impl Monoid for Mul {
         type Val = isize;
         const E: Self::Val = 1;
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left + right
+            left * right
         }
     }
 
+    /// bit単位の排他的論理和
     pub struct Xor;
     impl Monoid for Xor {
         type Val = usize;
@@ -214,6 +222,7 @@ pub mod Alg {
         }
     }
 
+    /// 最小値
     pub struct Min;
     impl Monoid for Min {
         type Val = isize;
@@ -223,6 +232,7 @@ pub mod Alg {
         }
     }
 
+    /// 最大値
     pub struct Max;
     impl Monoid for Max {
         type Val = isize;
@@ -232,6 +242,7 @@ pub mod Alg {
         }
     }
 
+    /// 最小公倍数
     pub struct GCD;
     impl Monoid for GCD {
         type Val = usize;
