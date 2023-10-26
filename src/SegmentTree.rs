@@ -37,13 +37,14 @@ impl<T: Monoid> SegmentTree<T> {
             Unbounded => 0,
             Excluded(&v) => v + 1,
             Included(&v) => v,
-        };
+        }
+        .min(self.size);
         let end = match range.end_bound() {
-            Unbounded => self.offset,
+            Unbounded => self.size,
             Excluded(&v) => v,
             Included(&v) => v + 1,
-        };
-        println!("{:?} {:?}", start, end);
+        }
+        .min(self.size);
         if start <= end {
             Some((start, end))
         } else {
@@ -301,6 +302,8 @@ mod test {
 
         assert_eq!(segtree.get_range(..), 200);
         assert_eq!(segtree.get_range(2..5), 8);
+        assert_eq!(segtree.get_range(5..10), 100);
+        assert_eq!(segtree.get_range(10..20), INF);
     }
 
     #[test]

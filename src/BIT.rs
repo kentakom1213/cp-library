@@ -84,12 +84,14 @@ impl<T: InversableMonoid> BIT<T> {
             Unbounded => 0,
             Excluded(&v) => v + 1,
             Included(&v) => v,
-        };
+        }
+        .min(self.size);
         let end = match range.end_bound() {
             Unbounded => self.size,
             Excluded(&v) => v,
-            Included(&v) => v - 1,
-        };
+            Included(&v) => v + 1,
+        }
+        .min(self.size);
         if start <= end {
             Some((start, end))
         } else {
@@ -248,7 +250,7 @@ mod test {
         assert_eq!(bit.sum(2..3), 3);
         assert_eq!(bit.sum(3..2), 0);
         assert_eq!(bit.sum(0..=5), 15);
-        assert_eq!(bit.sum(1..=3), 5);
+        assert_eq!(bit.sum(1..=3), 9);
     }
 
     #[test]
