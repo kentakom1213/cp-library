@@ -1,3 +1,5 @@
+//! ローリングハッシュ
+
 #![allow(dead_code)]
 
 /// # Modint

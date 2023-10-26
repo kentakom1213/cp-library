@@ -1,3 +1,5 @@
+//! 重み付きUnionFind
+
 #![allow(dead_code)]
 
 use std::fmt::Debug;
@@ -10,6 +12,7 @@ pub trait Abel {
     fn inv(x: &Self::E) -> Self::E;
 }
 
+/// # 重み付きUnionFind
 pub struct WeightedUnionFind<G: Abel> {
     par: Vec<usize>,
     rank: Vec<usize>,

@@ -1,5 +1,4 @@
-//! # SegmentTree
-//! セグメント木の実装
+//! セグメント木
 
 #![allow(dead_code)]
 

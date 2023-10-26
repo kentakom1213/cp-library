@@ -1,3 +1,5 @@
+//! 多重集合
+
 #![allow(dead_code)]
 
 use std::collections::BTreeMap;

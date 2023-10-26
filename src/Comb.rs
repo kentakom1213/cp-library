@@ -1,3 +1,5 @@
+//! 二項係数を求める
+
 #![allow(dead_code)]
 
 const MOD: usize = 998_244_353;

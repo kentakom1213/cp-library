@@ -14,7 +14,6 @@ impl UsizeTools for usize {
         }
     }
 
-    /// ## sqrt
     /// x^2がNを超えない最大のxを求める
     /// - 計算量：O(log(N))
     fn sqrt(&self) -> Self {

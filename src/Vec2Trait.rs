@@ -1,3 +1,5 @@
+//! 幾何ライブラリ
+
 #![allow(dead_code)]
 
 use std::ops::{Add, Sub, Mul, Neg};
@@ -5,12 +7,16 @@ use std::ops::{Add, Sub, Mul, Neg};
 pub type Pos<T> = (T, T);
 pub type Line<T> = (Pos<T>, Pos<T>);
 
+/// ベクトル演算を行う
 pub trait Vec2<T> {
     fn mul(&self, scalar: T) -> Self;
     fn add(&self, other: Self) -> Self;
     fn sub(&self, other: Self) -> Self;
+    /// ドット積
     fn dot(&self, other: Self) -> T;
+    /// クロス積
     fn cross(&self, other: Self) -> T;
+    /// L2-ノルム（の2乗）
     fn dist2(&self, other: Self) -> T;
 }
 
@@ -33,20 +39,15 @@ where T: Copy
     fn dot(&self, other: Self) -> T {
         self.0 * other.0 + self.1 * other.1
     }
-    /// ## cross
-    /// ベクトルのクロス積
     fn cross(&self, other: Self) -> T {
         (self.0 * other.1) - (other.0 * self.1)
     }
-    /// ## dist2
-    /// 距離の2乗の値を返す
     fn dist2(&self, other: Self) -> T {
         (self.0 - other.0) * (self.0 - other.0)
         + (self.1 - other.1) * (self.1 - other.1)
     }
 }
 
-/// ## is_collided
 /// 線分abと線分xyが衝突しているかどうか
 pub fn is_collided(ab: Line<isize>, xy: Line<isize>) -> bool {
     let (a, b) = ab;

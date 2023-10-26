@@ -1,3 +1,5 @@
+//! `char`と`usize`の相互変換
+
 #![allow(dead_code)]
 
 /// ## ord

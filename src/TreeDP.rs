@@ -1,3 +1,5 @@
+//! 木DP
+
 #![allow(dead_code)]
 
 type Graph = Vec<Vec<usize>>;

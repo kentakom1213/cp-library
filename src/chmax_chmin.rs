@@ -1,8 +1,7 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
-/// `chmax!{x1, x2, ..., xn}`:\
-/// - `x1`,`x2`,...,`xn`のうち最大のものを、`x1`に代入する
+/// `chmax!{x1, x2, ..., xn}`:`x1`,`x2`,...,`xn`のうち最大のものを、`x1`に代入する
 /// - 代入があったとき、`true`を返す
 #[macro_export]
 macro_rules! chmax {
@@ -23,8 +22,7 @@ macro_rules! chmax {
     }}
 }
 
-/// `chmin!{x1, x2, ..., xn}`:\
-/// - `x1`,`x2`,...,`xn`のうち最小のものを、`x1`に代入する
+/// `chmin!{x1, x2, ..., xn}`:`x1`,`x2`,...,`xn`のうち最小のものを、`x1`に代入する
 /// - 代入があったとき、`true`を返す
 #[macro_export]
 macro_rules! chmin {

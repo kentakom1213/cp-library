@@ -1,3 +1,5 @@
+//! ポラード・ロー法による素因数分解
+
 #![allow(dead_code)]
 
 use crate::MillerRabinTest::is_prime_MR;

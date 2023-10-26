@@ -1,3 +1,5 @@
+//! 単純グラフの処理
+
 #![allow(dead_code)]
 
 type Graph = Vec<Vec<usize>>;
