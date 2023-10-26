@@ -1,3 +1,5 @@
+//! UnionFind木
+
 #![allow(dead_code)]
 
 /// # UnionFind

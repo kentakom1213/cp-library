@@ -1,3 +1,5 @@
+//! chmax/chminの実装
+
 #![allow(dead_code)]
 #![allow(unused_macros)]
 

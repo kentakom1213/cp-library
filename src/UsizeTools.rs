@@ -1,3 +1,5 @@
+//! usizeの便利ツール
+
 #![allow(dead_code)]
 
 pub trait UsizeTools {
