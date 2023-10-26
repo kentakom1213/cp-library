@@ -1,3 +1,5 @@
+//! # アフィン変換
+
 #![allow(dead_code)]
 
 /// # AffineMatrix

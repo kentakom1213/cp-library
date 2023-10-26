@@ -17,7 +17,7 @@ pub mod Namori;
 pub mod PollardRhoMethod;
 pub mod RollingHash;
 pub mod SCC;
-pub mod SegmentTreeMonoid;
+pub mod SegmentTree;
 pub mod SimpleGraph;
 pub mod TreeDP;
 pub mod Trie;

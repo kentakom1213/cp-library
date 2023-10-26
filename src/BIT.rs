@@ -1,3 +1,5 @@
+//! BinaryIndexedTree / FenwickTree
+
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
@@ -10,16 +12,22 @@ use std::{
 };
 
 /// # Monoid
+/// - モノイド
 pub trait Monoid {
+    /// 値の型
     type Val: Debug + Clone + PartialEq;
+    /// 単位元
     const E: Self::Val;
+    /// 演算
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val;
 }
 
+/// モノイドに対する逆元の実装
 pub trait InversableMonoid: Monoid {
     fn inv(val: &Self::Val) -> Self::Val;
 }
 
+/// モノイドに対する順序の実装
 pub trait OrderedMonoid: Monoid {
     fn lt(left: &Self::Val, right: &Self::Val) -> bool;
 }
@@ -37,6 +45,8 @@ impl<T: Monoid> BIT<T> {
         x & x.wrapping_neg()
     }
 
+    /// BITの初期化を行う
+    /// - `n`: 列の長さ
     pub fn new(n: usize) -> Self {
         BIT {
             size: n,
@@ -44,6 +54,9 @@ impl<T: Monoid> BIT<T> {
         }
     }
 
+    /// 一点加算を行う
+    /// - `i`: 加算を行うインデックス（`0-indexed`）
+    /// - `x`: 加算する値
     pub fn add(&mut self, mut i: usize, x: T::Val) {
         i += 1;
         while i <= self.size {
@@ -52,6 +65,8 @@ impl<T: Monoid> BIT<T> {
         }
     }
 
+    /// 先頭からの和を求める
+    /// - `i`: 区間`[0,i)`に対しての総和（`0-indexed`）
     pub fn prefix_sum(&self, mut i: usize) -> T::Val {
         let mut res = T::E;
         while i != 0 {
@@ -82,6 +97,8 @@ impl<T: InversableMonoid> BIT<T> {
         }
     }
 
+    /// 任意の区間の和を求める
+    /// - `range`: 区間を表すRangeオブジェクト
     fn sum<R: RangeBounds<usize>>(&self, range: R) -> T::Val {
         if let Some((i, j)) = self.parse_range(range) {
             T::op(&self.prefix_sum(j), &T::inv(&self.prefix_sum(i)))
@@ -230,6 +247,8 @@ mod test {
         assert_eq!(bit.sum(1..5), 14);
         assert_eq!(bit.sum(2..3), 3);
         assert_eq!(bit.sum(3..2), 0);
+        assert_eq!(bit.sum(0..=5), 15);
+        assert_eq!(bit.sum(1..=3), 5);
     }
 
     #[test]

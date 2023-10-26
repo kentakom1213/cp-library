@@ -1,3 +1,5 @@
+//! sliceに対する`lower_bound`,`upper_bound`の実装
+
 #![allow(dead_code)]
 
 /// # BinarySearch
