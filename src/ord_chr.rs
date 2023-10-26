@@ -14,8 +14,7 @@ pub fn ord(c: char) -> usize {
 /// `chr(0) = A`であるようなascii文字(`A~Za~z`)を返す
 pub fn chr(i: usize) -> char {
     let a = 'A' as u32;
-    let c = char::from_u32(a + i as u32).unwrap();
-    c
+    char::from_u32(a + i as u32).unwrap()
 }
 
 

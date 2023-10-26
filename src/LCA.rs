@@ -26,7 +26,7 @@ impl LCA {
         let mut double = vec![vec![0; V]; logV];  // ダブリング配列
         let mut depth = vec![INF; V];             // 頂点の根からの距離
         depth[0] = 0;
-        Self::dfs(root, &mut double[0], &mut depth, &tree);
+        Self::dfs(root, &mut double[0], &mut depth, tree);
 
         // ダブリング
         for i in 1..logV {

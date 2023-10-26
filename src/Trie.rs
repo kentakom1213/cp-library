@@ -71,37 +71,17 @@ where
     pub fn get(&self, key: &str) -> Option<&T> {
         let mut node = &self.root;
         for c in key.chars().map(ord) {
-            if node.as_ref().is_none() {
-                return None;
-            }
-            node = &node.as_ref().unwrap().children[c];
+            node = &node.as_ref()?.children[c];
         }
-        if node.as_ref().is_none() {
-            return None;
-        }
-        if let Some(value) = node.as_deref().unwrap().data.as_ref() {
-            Some(value)
-        } else {
-            None
-        }
+        node.as_deref()?.data.as_ref()
     }
 
     pub fn get_mut(&mut self, key: &str) -> Option<&mut T> {
         let mut node = &mut self.root;
         for c in key.chars().map(ord) {
-            if node.as_ref().is_none() {
-                return None;
-            }
-            node = node.as_mut().unwrap().children.get_mut(c).unwrap();
+            node = node.as_mut()?.children.get_mut(c).unwrap();
         }
-        if node.as_ref().is_none() {
-            return None;
-        }
-        if let Some(value) = node.as_deref_mut().unwrap().data.as_mut() {
-            Some(value)
-        } else {
-            None
-        }
+        node.as_deref_mut()?.data.as_mut()
     }
 
     pub fn get_or_insert_mut(&mut self, key: &str) -> &mut Option<T> {

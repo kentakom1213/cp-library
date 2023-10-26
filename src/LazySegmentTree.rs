@@ -86,7 +86,7 @@ impl<T: Monoid> LazySegmentTree<T> {
             // 左の子を更新
             self.set_range_inner(left, right, val.clone(), begin, mid, idx * 2);
             // 右の子を更新
-            self.set_range_inner(left, right, val.clone(), mid, end, idx * 2 + 1);
+            self.set_range_inner(left, right, val, mid, end, idx * 2 + 1);
             // 値を更新
             self.data[idx] = T::fx(&self.data[idx * 2], &self.data[idx * 2 + 1]);
         }

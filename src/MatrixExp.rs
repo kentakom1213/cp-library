@@ -11,15 +11,21 @@ pub type Vec = [usize; DIM];
 pub type Matrix = [[usize; DIM]; DIM];
 
 pub trait MatrixExp {
+    /// ## e
+    /// 単位行列を返す
     fn e() -> Self;
+    /// ## apply
+    /// ベクトル`x`と行列`A`について、`Ax`を返す
     fn dot(&self, other: Self) -> Self;
+    /// ## pow
+    /// 行列の累乗を返す（繰り返し2乗法）
     fn pow(&self, e: usize) -> Self;
+    /// ## dot
+    /// 行列のドット積
     fn apply(&self, vec: Vec) -> Vec;
 }
 
 impl MatrixExp for Matrix {
-    /// ## e
-    /// 単位行列を返す
     fn e() -> Self {
         let mut res = [[0; DIM]; DIM];
         for i in 0..DIM {
@@ -27,9 +33,6 @@ impl MatrixExp for Matrix {
         }
         res
     }
-
-    /// ## apply
-    /// ベクトル`x`と行列`A`について、`Ax`を返す
     fn apply(&self, vec: Vec) -> Vec {
         let mut res = [0; DIM];
         for i in 0..DIM {
@@ -40,12 +43,9 @@ impl MatrixExp for Matrix {
         }
         res
     }
-
-    /// ## pow
-    /// 行列の累乗を返す（繰り返し2乗法）
     fn pow(&self, mut e: usize) -> Self {
         let mut res = Self::e();
-        let mut tmp = self.clone();
+        let mut tmp = *self;
         while e > 0 {
             if e & 1 == 1 {
                 res = tmp.dot(res);
@@ -55,9 +55,6 @@ impl MatrixExp for Matrix {
         }
         res
     }
-
-    /// ## dot
-    /// 行列のドット積
     fn dot(&self, other: Self) -> Self {
         let mut res = [[0; DIM]; DIM];
         for i in 0..DIM {

@@ -30,10 +30,10 @@ where
 
     /// 要素`x`を削除する
     pub fn remove(&mut self, x: &T) -> bool {
-        if let Some(v) = self.map.get_mut(&x) {
+        if let Some(v) = self.map.get_mut(x) {
             *v -= 1;
             if *v == 0 {
-                self.map.remove(&x);
+                self.map.remove(x);
             }
             self.len -= 1;
             return true;
@@ -43,7 +43,7 @@ where
 
     /// 要素`x`が存在するか判定する
     pub fn contains(&self, x: &T) -> bool {
-        self.map.contains_key(&x)
+        self.map.contains_key(x)
     }
 
     /// 先頭の要素を取得する
