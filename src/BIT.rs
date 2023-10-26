@@ -149,11 +149,11 @@ impl<T: OrderedMonoid> BIT<T> {
         }
         idx
     }
-    /// `self.sum(i) >= w`となる最小の`w`を求める
+    /// `a_0 + a_1 + ... + a_i >= w`となる最小の`i`を求める
     pub fn lower_bound(&self, w: T::Val) -> usize {
         self.binary_search(w, T::lt)
     }
-    /// `self.sum(i) > w`となる最小の`w`を求める
+    /// `a_0 + a_1 + ... + a_i > w`となる最小の`i`を求める
     pub fn upper_bound(&self, w: T::Val) -> usize {
         self.binary_search(w, T::le)
     }
