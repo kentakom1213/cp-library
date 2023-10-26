@@ -13,6 +13,7 @@ pub struct Comb {
 }
 
 impl Comb {
+    /// サイズ`max_size`で配列を初期化する
     pub fn new(max_size: usize) -> Self {
         let mut fac = vec![1; max_size];
         let mut finv = vec![1; max_size];
@@ -26,6 +27,7 @@ impl Comb {
         Comb { fac, finv }
     }
 
+    /// `nCr`を`MOD`で割った値を求める
     pub fn comb(&self, n: usize, r: usize) -> usize {
         if n < r {
             return 0;
@@ -33,6 +35,7 @@ impl Comb {
         self.fac[n] * (self.finv[r] * self.finv[n - r] % MOD) % MOD
     }
 
+    /// `nPr`を`MOD`で割った値を求める
     pub fn perm(&self, n: usize, r: usize) -> usize {
         if n < r {
             return 0;

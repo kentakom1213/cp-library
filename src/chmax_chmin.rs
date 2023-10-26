@@ -1,7 +1,9 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
-/// `a < b` のとき、`a`を`b`に置き換え、trueを返す
+/// `chmax!{x1, x2, ..., xn}`:\
+/// - `x1`,`x2`,...,`xn`のうち最大のものを、`x1`に代入する
+/// - 代入があったとき、`true`を返す
 #[macro_export]
 macro_rules! chmax {
     ( $a:expr, $b:expr $(,)* ) => {{
@@ -21,7 +23,9 @@ macro_rules! chmax {
     }}
 }
 
-/// `a > b` のとき、`a`を`b`に置き換え、trueを返す
+/// `chmin!{x1, x2, ..., xn}`:\
+/// - `x1`,`x2`,...,`xn`のうち最小のものを、`x1`に代入する
+/// - 代入があったとき、`true`を返す
 #[macro_export]
 macro_rules! chmin {
     ( $a:expr, $b:expr $(,)* ) => {{

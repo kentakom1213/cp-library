@@ -1,14 +1,23 @@
+//! 前計算ありの高速素因数分解
+
 #![allow(dead_code)]
 
+/// # 前計算ありの高速素因数分解
+/// `N`までの数の素因数分解を
+/// - 前計算: `O(NloglogN)`
+/// - クエリ: `O(logN)`
+/// で行う。
 pub struct Factors {
     n: usize,
     sieve: Vec<usize>,
 }
 
 impl Factors {
+    /// 前計算を行う
+    /// - `O(NloglogN)`で篩を作成
     pub fn new(n: usize) -> Self {
         let mut facs = Factors {
-            n: n,
+            n,
             sieve: vec![1; n+1],
         };
         for i in 2..=n {
@@ -22,7 +31,7 @@ impl Factors {
         facs
     }
 
-    /// 素因数分解を高速（`O(logn)`）で行う
+    /// 素因数分解を`O(logn)`で行う
     pub fn factorize(&self, mut x: usize) -> Vec<usize> {
         assert!(1 <= x && x <= self.n);
         let mut factors = vec![];

@@ -1,3 +1,5 @@
+//! 遅延評価セグメント木
+
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
@@ -31,7 +33,7 @@ pub struct LazySegmentTree<T: Monoid> {
 }
 
 impl<T: Monoid> LazySegmentTree<T> {
-    /// 新規作成
+    /// 遅延評価セグメント木を長さ`n`で初期化する
     pub fn new(n: usize) -> Self {
         let offset = n.next_power_of_two();
         Self {

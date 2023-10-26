@@ -1,9 +1,12 @@
+//! ダイクストラ法
+
 #![allow(dead_code)]
 
 use std::collections::BinaryHeap;
 use std::cmp::Reverse;
 
 /// Dijkstra法
+/// - グラフ`graph`が与えられたとき、スタート地点`s`から各頂点への最短路を求める
 pub fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, s: usize) -> Vec<usize> {
     const INF: usize = 1001001001001001001;
     let n: usize = graph.len();

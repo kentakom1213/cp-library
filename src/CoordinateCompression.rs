@@ -8,6 +8,7 @@ pub struct Compression<'a, T> {
 }
 
 impl<'a, T: Ord> Compression<'a, T> {
+    /// スライス`array`で配列を初期化する
     pub fn new(array: &'a [T]) -> Self {
         let mut comp: Vec<&T> = array.iter().collect();
         comp.sort();
@@ -18,7 +19,7 @@ impl<'a, T: Ord> Compression<'a, T> {
         }
     }
 
-    /// 圧縮後の番号を返す
+    /// 圧縮後の`val`の番号を返す
     pub fn idx(&self, val: &T) -> Option<usize> {
         let idx = self.sorted_array.binary_search(&val);
         if let Ok(idx) = idx {
@@ -28,7 +29,7 @@ impl<'a, T: Ord> Compression<'a, T> {
         }
     }
 
-    /// 圧縮前の要素を返す
+    /// 圧縮前の要素`idx`を返す
     pub fn val(&self, idx: usize) -> Option<&T> {
         if let Some(&val) = self.sorted_array.get(idx) {
             Some(val)
