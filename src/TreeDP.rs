@@ -18,6 +18,7 @@ struct TreeDP<T: Monoid> {
 }
 
 impl<T: Monoid> TreeDP<T> {    
+    /// 頂点数`N`でグラフを初期化する
     pub fn new(N: usize) -> Self {
         Self {
             N,

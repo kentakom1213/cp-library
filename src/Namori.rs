@@ -4,6 +4,8 @@ use std::collections::VecDeque;
 
 pub type Graph = Vec<Vec<usize>>;
 
+/// # なもりグラフ
+/// - なもりグラフ（木に辺を1本加えたグラフ）を分解する
 #[derive(Debug)]
 pub struct Namori {
     pub N: usize,
@@ -13,6 +15,7 @@ pub struct Namori {
 }
 
 impl Namori {
+    /// 頂点数`N`のグラフを作成する
     pub fn new(N: usize) -> Self {
         Self {
             N,
@@ -22,11 +25,17 @@ impl Namori {
         }
     }
 
+    /// 頂点`u`,`v`に辺を張る
     pub fn add_edge(&mut self, u: usize, v: usize) {
         self.graph[u].push(v);
         self.graph[v].push(u);
     }
 
+    /// なもりグラフを分解し、
+    /// - サイクルを取り除いた森
+    /// - サイクル上の頂点
+    /// 
+    /// を求める
     pub fn decompose(&mut self) {
         // 葉を調べる
         let mut degree = vec![0; self.N];

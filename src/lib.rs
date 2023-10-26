@@ -23,7 +23,6 @@ pub mod TreeDP;
 pub mod Trie;
 pub mod UnionFind;
 pub mod UsizeTools;
-pub mod Vec2;
 pub mod Vec2Trait;
 pub mod WeightedUnionFind;
 pub mod acc2D;

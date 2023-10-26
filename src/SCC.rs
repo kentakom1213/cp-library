@@ -17,6 +17,7 @@ pub struct SCC {
 impl SCC {
     const INF: usize = std::usize::MAX;
 
+    /// 頂点`V`のグラフを構築する
     pub fn new(V: usize) -> Self {
         Self {
             V,
@@ -36,6 +37,7 @@ impl SCC {
         self.rG[v].push(u);
     }
 
+    /// 強連結成分に分解する
     pub fn decompose(&mut self) {
         // 帰りがけ順で順序付け
         let mut order = vec![];

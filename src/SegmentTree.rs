@@ -74,8 +74,7 @@ impl<T: Monoid> SegmentTree<T> {
         }
     }
 
-    /// ## get_mut
-    /// - 可変な参照を返す
+    /// 可変な参照を返す
     pub fn get_mut(&mut self, i: usize) -> Option<ValMut<'_, T>> {
         if i < self.offset {
             let default = self.index(i).clone();
@@ -89,6 +88,7 @@ impl<T: Monoid> SegmentTree<T> {
         }
     }
 
+    /// 区間`range`の集約を行う
     pub fn get_range<R: RangeBounds<usize>>(&self, range: R) -> T::Val {
         let parsed = self.parse_range(range);
         if parsed.is_none() {

@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
-// [RustでUnionFind](https://zenn.dev/nakamurus/articles/f398b7f4d7618ea5b7eb)
+/// # UnionFind
+/// 参考: [RustでUnionFind](https://zenn.dev/nakamurus/articles/f398b7f4d7618ea5b7eb)
 pub struct UnionFind {
     par: Vec<usize>,
     siz: Vec<usize>,
@@ -9,7 +10,7 @@ pub struct UnionFind {
 }
 
 impl UnionFind {
-    // UnionFindを新規作成
+    /// UnionFindを新規作成
     pub fn new(n: usize) -> Self {
         UnionFind {
             par: (0..n).collect(),
@@ -18,7 +19,7 @@ impl UnionFind {
         }
     }
 
-    // 根を求める
+    /// 根を求める
     pub fn root(&mut self, x: usize) -> usize {
         if self.par[x] == x {
             return x;
@@ -27,12 +28,12 @@ impl UnionFind {
         self.par[x]
     }
 
-    // 同一の集合に所属するか判定
+    /// 同一の集合に所属するか判定
     pub fn issame(&mut self, x: usize, y: usize) -> bool {
         self.root(x) == self.root(y)
     }
 
-    // 要素を結合
+    /// 要素を結合
     pub fn unite(&mut self, mut parent: usize, mut child: usize) -> bool {
         parent = self.root(parent);
         child = self.root(child);
@@ -52,6 +53,7 @@ impl UnionFind {
         true
     }
 
+    /// 連結成分の大きさを求める
     pub fn size(&mut self, x: usize) -> usize {
         let root = self.root(x);
         self.siz[root]

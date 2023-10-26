@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-/// ## RunLengthEncode
-/// ランレングス圧縮
+/// ## ランレングス圧縮
+/// - スライスからエンコードを行う
 pub fn run_length_encode<T>(arr: &[T]) -> Vec<(T, usize)>
 where
     T: PartialEq + Copy,
@@ -24,8 +24,8 @@ where
     res
 }
 
-/// ## RunLengthEncode
-/// ランレングス圧縮 (from Iterator)
+/// ## ランレングス圧縮 (from Iterator)
+/// - イテレータからエンコードを行う
 pub fn run_length_encode_from<T, I>(mut itr: I) -> Vec<(T, usize)>
 where
     T: PartialEq,
