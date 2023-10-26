@@ -1,5 +1,5 @@
 [package]
-name = "Rust"
+name = "cp-library-rs"
 version = "0.1.0"
 edition = "2021"
 

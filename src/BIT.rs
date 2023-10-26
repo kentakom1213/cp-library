@@ -30,6 +30,7 @@ pub trait InversableMonoid: Monoid {
 /// モノイドに対する順序の実装
 pub trait OrderedMonoid: Monoid {
     fn lt(left: &Self::Val, right: &Self::Val) -> bool;
+    fn le(left: &Self::Val, right: &Self::Val) -> bool;
 }
 
 /// # BinaryIndexedTree
@@ -111,6 +112,7 @@ impl<T: InversableMonoid> BIT<T> {
 }
 
 impl<T: Monoid> From<&Vec<T::Val>> for BIT<T> {
+    /// ベクターの参照からBITを作成
     fn from(src: &Vec<T::Val>) -> Self {
         let size = src.len();
         let mut arr = vec![T::E; size + 1];
@@ -127,6 +129,7 @@ impl<T: Monoid> From<&Vec<T::Val>> for BIT<T> {
 }
 
 impl<T: OrderedMonoid> BIT<T> {
+    /// `self.sum(i) >= w`となる最小の`w`を求める
     pub fn lower_bound(&self, w: T::Val) -> usize {
         let mut sum = T::E;
         let mut idx = 0;
@@ -135,6 +138,23 @@ impl<T: OrderedMonoid> BIT<T> {
             if idx + d <= self.size {
                 let nxt = T::op(&sum, &self.arr[idx + d]);
                 if T::lt(&nxt, &w) {
+                    sum = nxt;
+                    idx += d;
+                }
+            }
+            d >>= 1;
+        }
+        idx
+    }
+    /// `self.sum(i) >= w`となる最小の`w`を求める
+    pub fn upper_bound(&self, w: T::Val) -> usize {
+        let mut sum = T::E;
+        let mut idx = 0;
+        let mut d = self.size.next_power_of_two() / 2;
+        while d != 0 {
+            if idx + d <= self.size {
+                let nxt = T::op(&sum, &self.arr[idx + d]);
+                if T::le(&nxt, &w) {
                     sum = nxt;
                     idx += d;
                 }
@@ -175,6 +195,9 @@ pub mod Alg {
     impl OrderedMonoid for Add {
         fn lt(left: &Self::Val, right: &Self::Val) -> bool {
             left < right
+        }
+        fn le(left: &Self::Val, right: &Self::Val) -> bool {
+            left <= right
         }
     }
 
@@ -254,7 +277,7 @@ mod test {
     }
 
     #[test]
-    fn test_lowerbound() {
+    fn test_lower_bound() {
         let bit = BIT::<Alg::Add>::from(&vec![1, 2, 3, 4, 0, 5]);
 
         assert_eq!(bit.lower_bound(0), 0);
@@ -263,6 +286,18 @@ mod test {
         assert_eq!(bit.lower_bound(10), 3);
         assert_eq!(bit.lower_bound(11), 5);
         assert_eq!(bit.lower_bound(100), 6);
+    }
+
+    #[test]
+    fn test_upper_bound() {
+        let bit = BIT::<Alg::Add>::from(&vec![1, 2, 3, 4, 0, 5]);
+
+        assert_eq!(bit.upper_bound(0), 0);
+        assert_eq!(bit.upper_bound(1), 1);
+        assert_eq!(bit.upper_bound(2), 1);
+        assert_eq!(bit.upper_bound(10), 5);
+        assert_eq!(bit.upper_bound(11), 5);
+        assert_eq!(bit.upper_bound(100), 6);
     }
 
     #[test]
