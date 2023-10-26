@@ -16,13 +16,13 @@ pub trait Monoid {
     const IM: Self::M;
 
     /// 要素同士の演算
-    fn fx(x: &Self::X, y: &Self::X) -> Self::X;
+    fn operate_x(x: &Self::X, y: &Self::X) -> Self::X;
     /// 要素に対する作用
-    fn fa(x: &Self::X, y: &Self::M) -> Self::X;
+    fn apply(x: &Self::X, y: &Self::M) -> Self::X;
     /// 作用素同士の演算
-    fn fm(x: &Self::M, y: &Self::M) -> Self::M;
+    fn operate_m(x: &Self::M, y: &Self::M) -> Self::M;
     /// 作用素の集約
-    fn fp(x: &Self::M, p: usize) -> Self::M;
+    fn aggregate(x: &Self::M, p: usize) -> Self::M;
 }
 
 #[derive(Debug)]
@@ -50,11 +50,11 @@ impl<T: Monoid> LazySegmentTree<T> {
         }
         // 葉でなければ子に伝搬
         if idx < self.offset {
-            self.lazy[idx * 2] = T::fm(&self.lazy[idx * 2], &self.lazy[idx]);
-            self.lazy[idx * 2 + 1] = T::fm(&self.lazy[idx * 2 + 1], &self.lazy[idx]);
+            self.lazy[idx * 2] = T::operate_m(&self.lazy[idx * 2], &self.lazy[idx]);
+            self.lazy[idx * 2 + 1] = T::operate_m(&self.lazy[idx * 2 + 1], &self.lazy[idx]);
         }
         // 自身を更新
-        self.data[idx] = T::fa(&self.data[idx], &T::fp(&self.lazy[idx], len));
+        self.data[idx] = T::apply(&self.data[idx], &T::aggregate(&self.lazy[idx], len));
         self.lazy[idx] = T::IM;
     }
 
@@ -77,7 +77,7 @@ impl<T: Monoid> LazySegmentTree<T> {
         self.eval(idx, end - begin);
         // 区間を内包するとき
         if left <= begin && end <= right {
-            self.lazy[idx] = T::fm(&self.lazy[idx], &val);
+            self.lazy[idx] = T::operate_m(&self.lazy[idx], &val);
             self.eval(idx, end - begin);
         }
         // 区間が重なるとき
@@ -88,7 +88,7 @@ impl<T: Monoid> LazySegmentTree<T> {
             // 右の子を更新
             self.set_range_inner(left, right, val.clone(), mid, end, idx * 2 + 1);
             // 値を更新
-            self.data[idx] = T::fx(&self.data[idx * 2], &self.data[idx * 2 + 1]);
+            self.data[idx] = T::operate_x(&self.data[idx * 2], &self.data[idx * 2 + 1]);
         }
     }
 
@@ -122,7 +122,7 @@ impl<T: Monoid> LazySegmentTree<T> {
             let mid = (begin + end) / 2;
             let l_val = self.get_range_inner(left, right, begin, mid, idx * 2);
             let r_val = self.get_range_inner(left, right, mid, end, idx * 2 + 1);
-            T::fx(&l_val, &r_val)
+            T::operate_x(&l_val, &r_val)
         }
     }
 }
@@ -138,16 +138,16 @@ impl Monoid for RSQandRAQ {
     type M = isize;
     const IX: Self::X = 0;
     const IM: Self::M = 0;
-    fn fx(x: &Self::X, y: &Self::X) -> Self::X {
+    fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
         x + y
     }
-    fn fa(x: &Self::X, y: &Self::M) -> Self::X {
+    fn apply(x: &Self::X, y: &Self::M) -> Self::X {
         x + y
     }
-    fn fm(x: &Self::M, y: &Self::M) -> Self::M {
+    fn operate_m(x: &Self::M, y: &Self::M) -> Self::M {
         x + y
     }
-    fn fp(x: &Self::M, p: usize) -> Self::M {
+    fn aggregate(x: &Self::M, p: usize) -> Self::M {
         x * p as isize
     }
 }
@@ -163,16 +163,24 @@ impl Monoid for RMQandRUQ {
     type M = isize;
     const IM: Self::M = (1 << 31) - 1;
     const IX: Self::X = (1 << 31) - 1;
-    fn fx(x: &Self::X, y: &Self::X) -> Self::X {
+    fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
         *x.min(y)
     }
-    fn fa(_x: &Self::X, y: &Self::M) -> Self::X {
+    fn apply(_x: &Self::X, y: &Self::M) -> Self::X {
         *y
     }
-    fn fm(_x: &Self::M, y: &Self::M) -> Self::M {
+    fn operate_m(_x: &Self::M, y: &Self::M) -> Self::M {
         *y
     }
-    fn fp(x: &Self::M, _p: usize) -> Self::M {
+    fn aggregate(x: &Self::M, _p: usize) -> Self::M {
         *x
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn test_RSQ_and_RAQ() {
     }
 }
