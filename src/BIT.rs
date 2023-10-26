@@ -129,15 +129,18 @@ impl<T: Monoid> From<&Vec<T::Val>> for BIT<T> {
 }
 
 impl<T: OrderedMonoid> BIT<T> {
-    /// `self.sum(i) >= w`となる最小の`w`を求める
-    pub fn lower_bound(&self, w: T::Val) -> usize {
+    /// `lower_bound`/`upper_bound`を共通化した実装
+    fn binary_search<F>(&self, w: T::Val, compare: F) -> usize
+    where
+        F: Fn(&T::Val, &T::Val) -> bool
+    {
         let mut sum = T::E;
         let mut idx = 0;
         let mut d = self.size.next_power_of_two() / 2;
         while d != 0 {
             if idx + d <= self.size {
                 let nxt = T::op(&sum, &self.arr[idx + d]);
-                if T::lt(&nxt, &w) {
+                if compare(&nxt, &w) {
                     sum = nxt;
                     idx += d;
                 }
@@ -147,21 +150,12 @@ impl<T: OrderedMonoid> BIT<T> {
         idx
     }
     /// `self.sum(i) >= w`となる最小の`w`を求める
+    pub fn lower_bound(&self, w: T::Val) -> usize {
+        self.binary_search(w, T::lt)
+    }
+    /// `self.sum(i) > w`となる最小の`w`を求める
     pub fn upper_bound(&self, w: T::Val) -> usize {
-        let mut sum = T::E;
-        let mut idx = 0;
-        let mut d = self.size.next_power_of_two() / 2;
-        while d != 0 {
-            if idx + d <= self.size {
-                let nxt = T::op(&sum, &self.arr[idx + d]);
-                if T::le(&nxt, &w) {
-                    sum = nxt;
-                    idx += d;
-                }
-            }
-            d >>= 1;
-        }
-        idx
+        self.binary_search(w, T::le)
     }
 }
 
