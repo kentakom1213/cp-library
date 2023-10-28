@@ -3,7 +3,7 @@
 #![allow(dead_code)]
 
 #[rustfmt::skip]
-mod modint {
+pub mod modint {
     use std::{fmt::Display,ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub}};
     #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)] pub struct Modint<const MOD: usize>(usize);
     impl<const MOD: usize> Modint<MOD> { pub fn new(n: usize) -> Self { Self(if n < MOD { n } else { n % MOD }) } }
