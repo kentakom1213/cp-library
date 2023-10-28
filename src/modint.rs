@@ -22,23 +22,18 @@ impl Fp for usize {
     fn val(&self) -> usize {
         self % MOD
     }
-
     fn madd(&self, other: usize) -> usize {
         (self.val() + other.val()).val()
     }
-
     fn mneg(&self) -> usize {
         (MOD - self.val()).val()
     }
-
     fn msub(&self, other: usize) -> usize {
         self.madd(other.mneg())
     }
-
     fn mmul(&self, other: usize) -> usize {
         (self.val() * other.val()).val()
     }
-
     fn mpow(&self, other: usize) -> usize {
         let (mut a, mut b) = (self.val(), other);
         let mut res = 1;
@@ -51,12 +46,10 @@ impl Fp for usize {
         }
         res
     }
-
     fn minv(&self) -> usize {
         assert!(*self != 0);
         self.mpow(MOD - 2)
     }
-
     fn mdiv(&self, other: usize) -> usize {
         self.mmul(other.minv())
     }
@@ -67,6 +60,24 @@ macro_rules! madd {
         let tmp = ($a).madd($b);
         $a = tmp;
     }};
+}
+
+pub trait FpAssign {
+    fn madd_assign(&mut self, other: usize);
+    fn msub_assign(&mut self, other: usize);
+    fn mmul_assign(&mut self, other: usize);
+}
+
+impl FpAssign for usize {
+    fn madd_assign(&mut self, other: usize) {
+        *self = self.madd(other);
+    }
+    fn mmul_assign(&mut self, other: usize) {
+        *self = self.mmul(other);
+    }
+    fn msub_assign(&mut self, other: usize) {
+        *self = self.msub(other);
+    }
 }
 
 pub const SIZE: usize = 505050;
@@ -177,11 +188,21 @@ mod test {
     }
 
     #[test]
-    fn test_madd_assign() {
+    fn test_madd_macro() {
         let mut arr = vec![1, 2, 3];
         for i in 0..3 {
             madd!(arr[i], arr[i]);
         }
+    }
+
+    #[test]
+    fn test_madd_assign() {
+        let arr = vec![1, 2, 3];
+        let mut ans = 0;
+        for i in 0..3 {
+            ans.madd_assign(arr[i]);
+        }
+        assert_eq!(ans, 6);
     }
 
     #[test]
