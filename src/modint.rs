@@ -113,6 +113,9 @@ impl Comb for usize {
         self.factorial().mdiv((*self - other).factorial())
     }
     fn comb(&self, other: usize) -> usize {
+        if *self < other {
+            return 0;
+        }
         self.factorial()
             .mdiv(other.factorial())
             .mdiv((*self - other).factorial())
