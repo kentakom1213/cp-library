@@ -2,7 +2,7 @@
 
 #![allow(dead_code)]
 
-use crate::MillerRabinTest::is_prime_MR;
+use crate::miller_rabin_test::is_prime_MR;
 
 /// `a`,`b`の最大公約数を求める
 pub fn gcd(a: usize, b: usize) -> usize {
