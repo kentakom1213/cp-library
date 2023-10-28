@@ -5,6 +5,7 @@ pub mod BIT;
 pub mod BinarySearch4BTreeSet;
 pub mod BinarySearch4slice;
 pub mod Comb;
+pub mod ConstFact;
 pub mod CoordinateCompression;
 pub mod Factors;
 pub mod Grid;
