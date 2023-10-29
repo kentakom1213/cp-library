@@ -1,6 +1,9 @@
 use serde::Serialize;
-use serde_json::to_string;
-use std::{fs, path::Path};
+use std::{
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 
 /// スニペットの断片
 #[derive(Serialize)]
@@ -17,13 +20,16 @@ struct Snippets {
 }
 
 const SRC: &str = "./src";
+const TARGET: &str = "./rust.code-snippet";
 
-fn main() {
-    let files = fs::read_dir(SRC).unwrap();
+fn main() -> Result<(), io::Error> {
+    let src = fs::read_dir(SRC)?;
+
+    // スニペット
     let mut snippet = Snippets { kyopro: vec![] };
 
     // ファイルを列挙
-    for entry in files {
+    for entry in src {
         let path = entry.unwrap().path();
 
         // ディレクトリはskip
@@ -37,7 +43,17 @@ fn main() {
         snippet.kyopro.push(snippet_piece);
     }
 
-    println!("{}", serde_json::to_string(&snippet).unwrap());
+    // 書き込み
+    let target = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(&TARGET)?;
+    write!(
+        &target,
+        "{}",
+        &serde_json::to_string_pretty(&snippet).unwrap()
+    )?;
+    Ok(())
 }
 
 /// ファイルを読み込み、不要な部分を削除する
@@ -56,14 +72,17 @@ fn read_file(path: &Path) -> SnippetPiece {
 
     let mut idx = 0;
     while idx < content.len() && content[idx].starts_with("//!") {
-        description += content[idx].as_str();
+        description += content[idx].as_str().replace("//! ", "").as_str();
         idx += 1;
     }
 
     // テスト以外の中身を追加
     while idx < content.len() && !content[idx].starts_with("#![cfg(test)]") {
         if content[idx] != "" {
-            let line = content[idx].to_string();
+            let line = content[idx]
+                .replace("    ", "\t")
+                .replace("$", "\\$")
+                .replace("\"", "\\\"");
             body.push(line);
         }
         idx += 1;
