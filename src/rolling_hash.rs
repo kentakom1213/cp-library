@@ -1,7 +1,5 @@
 //! ローリングハッシュ
 
-#![allow(dead_code)]
-
 /// # Modint
 pub trait Modint {
     const MOD: usize;

@@ -1,7 +1,5 @@
 //! アフィン変換
 
-#![allow(dead_code)]
-
 /// # AffineMatrix
 /// アフィン変換（3x3行列）
 #[derive(Debug, Clone, Copy)]

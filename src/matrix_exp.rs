@@ -1,7 +1,5 @@
 //! 行列累乗
 
-#![allow(dead_code)]
-
 // 定数
 const MOD: usize = 998244353;
 

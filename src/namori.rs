@@ -1,7 +1,5 @@
 //! なもりグラフの分解
 
-#![allow(dead_code)]
-
 use std::collections::VecDeque;
 
 pub type Graph = Vec<Vec<usize>>;

@@ -1,7 +1,5 @@
 //! UnionFind木
 
-#![allow(dead_code)]
-
 /// # UnionFind
 /// 参考: [RustでUnionFind](https://zenn.dev/nakamurus/articles/f398b7f4d7618ea5b7eb)
 pub struct UnionFind {

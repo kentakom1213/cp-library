@@ -1,7 +1,5 @@
 //! 素因数分解
 
-#![allow(dead_code)]
-
 /// - 素因数分解し、`(素因数,指数)`のペアを返す
 pub fn factorize(mut n: usize) -> Vec<(usize, usize)> {
     let mut res = Vec::new();

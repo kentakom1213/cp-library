@@ -1,7 +1,5 @@
 //! ダブリングにより、最小共通祖先を求める
 
-#![allow(dead_code)]
-
 const INF: usize = 1001001001001001001;
 type Graph = Vec<Vec<usize>>;
 

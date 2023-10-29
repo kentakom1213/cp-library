@@ -1,8 +1,5 @@
 //! 遅延評価セグメント木
 
-#![allow(dead_code)]
-#![allow(unused_variables)]
-
 use std::ops::{
     Bound::{Excluded, Included, Unbounded},
     RangeBounds,

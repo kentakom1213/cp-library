@@ -1,7 +1,5 @@
 //! Modintの構造体
 
-#![allow(dead_code)]
-
 #[rustfmt::skip]
 pub mod modint {
     use std::{fmt::Display,ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub}};

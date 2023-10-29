@@ -1,8 +1,5 @@
 //! Modintをusizeに注入するトレイト
 
-#![allow(dead_code)]
-#![allow(unused_macros)]
-
 pub const MOD: usize = 998_244_353;
 // const MOD: usize = 1_000_000_007;
 
@@ -53,13 +50,6 @@ impl Fp for usize {
     fn mdiv(&self, other: usize) -> usize {
         self.mmul(other.minv())
     }
-}
-
-macro_rules! madd {
-    ( $a:expr, $b:expr ) => {{
-        let tmp = ($a).madd($b);
-        $a = tmp;
-    }};
 }
 
 pub trait FpAssign {
@@ -188,14 +178,6 @@ mod test {
     #[should_panic]
     fn test_mdiv_err() {
         1.mdiv(0);
-    }
-
-    #[test]
-    fn test_madd_macro() {
-        let mut arr = vec![1, 2, 3];
-        for i in 0..3 {
-            madd!(arr[i], arr[i]);
-        }
     }
 
     #[test]
