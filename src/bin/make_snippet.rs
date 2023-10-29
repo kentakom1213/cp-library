@@ -23,6 +23,8 @@ const SRC: &str = "./src";
 const TARGET: &str = "./rust.code-snippet";
 
 fn main() -> Result<(), io::Error> {
+    eprint!("Making snippet file ... ");
+
     let src = fs::read_dir(SRC)?;
 
     // スニペット
@@ -53,6 +55,8 @@ fn main() -> Result<(), io::Error> {
         "{}",
         &serde_json::to_string_pretty(&snippet).unwrap()
     )?;
+
+    eprintln!("Complete!");
     Ok(())
 }
 
