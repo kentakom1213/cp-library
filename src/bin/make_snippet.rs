@@ -20,7 +20,7 @@ struct Snippets {
 }
 
 const SRC: &str = "./src";
-const TARGET: &str = "./rust.code-snippet";
+const TARGET: &str = "./rust.code-snippets";
 
 fn main() -> Result<(), io::Error> {
     eprint!("Making snippet file ... ");
@@ -38,6 +38,10 @@ fn main() -> Result<(), io::Error> {
         if path.is_dir() {
             continue;
         }
+        // lib.rsはskip
+        if path.file_name().unwrap().to_str().unwrap() == "lib.rs" {
+            continue;
+        }
 
         // ファイルの中身
         let snippet_piece = read_file(&path);
@@ -46,10 +50,7 @@ fn main() -> Result<(), io::Error> {
     }
 
     // 書き込み
-    let target = fs::OpenOptions::new()
-        .read(true)
-        .write(true)
-        .open(&TARGET)?;
+    let target = fs::File::create(&TARGET)?;
     write!(
         &target,
         "{}",
@@ -64,32 +65,19 @@ fn main() -> Result<(), io::Error> {
 fn read_file(path: &Path) -> SnippetPiece {
     // ファイル名
     let prefix = path.file_name().unwrap().to_str().unwrap().to_string();
-    // ファイルの中身
-    let content: Vec<String> = fs::read_to_string(path)
-        .unwrap()
-        .split("\n")
-        .map(|line| line.to_string())
-        .collect();
 
     let mut description = String::new(); // コードの説明
     let mut body = vec![]; // コードの中身
 
-    let mut idx = 0;
-    while idx < content.len() && content[idx].starts_with("//!") {
-        description += content[idx].as_str().replace("//! ", "").as_str();
-        idx += 1;
-    }
-
-    // テスト以外の中身を追加
-    while idx < content.len() && !content[idx].starts_with("#![cfg(test)]") {
-        if content[idx] != "" {
-            let line = content[idx]
-                .replace("    ", "\t")
-                .replace("$", "\\$")
-                .replace("\"", "\\\"");
+    for line in fs::read_to_string(path).unwrap().split("\n") {
+        if line.starts_with("//!") {
+            description += line.replace("//! ", "").as_str();
+        } else if line.starts_with("#[cfg(test)]") {
+            break;
+        } else if line != "" {
+            let line = line.replace("    ", "\t").replace("$", "\\$");
             body.push(line);
         }
-        idx += 1;
     }
 
     SnippetPiece {
