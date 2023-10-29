@@ -10,16 +10,25 @@ fn main() {
     // ファイルを列挙
     for entry in files {
         let path = entry.unwrap().path();
+
         // ディレクトリはskip
         if path.is_dir() {
             continue;
         }
 
         let contents = read_file(&path);
-        println!("{}", contents);
+        println!("{:?}\n{}\n", &path, contents.join("\n"));
     }
 }
 
-fn read_file(path: &Path) -> String {
-    fs::read_to_string(path).unwrap()
+/// ファイルを読み込み、不要な部分を削除する
+fn read_file(path: &Path) -> Vec<String> {
+    fs::read_to_string(path)
+        .unwrap()
+        .split("\n")
+        .filter(|&line| !line.is_empty() && !line.starts_with("//!")) // ファイルのdoc-commentは無視
+        .take_while(|&line| !line.starts_with("#[cfg(test)]")) // テストは無視
+        .map(|line| line.replace("    ", "\\t")) // タブ文字に置換
+        .map(|line| line.to_string())
+        .collect()
 }
