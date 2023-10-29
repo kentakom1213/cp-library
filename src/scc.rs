@@ -1,7 +1,5 @@
 //! 強連結成分分解
 
-#![allow(dead_code)]
-
 type Graph = Vec<Vec<usize>>;
 
 /// ## SCC (強連結成分分解)

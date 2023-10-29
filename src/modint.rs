@@ -1,6 +1,6 @@
 //! Modintの構造体
 
-#![allow(dead_code)]
+#![allow(unused_imports)]
 
 #[rustfmt::skip]
 pub mod modint {

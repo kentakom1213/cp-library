@@ -1,7 +1,5 @@
 //! 2次元累積和
 
-#![allow(dead_code)]
-
 use num_traits::Num;
 
 /// ## acc2D

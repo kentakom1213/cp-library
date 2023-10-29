@@ -1,7 +1,5 @@
 //! usizeの便利ツール
 
-#![allow(dead_code)]
-
 pub trait UsizeTools {
     fn abs_diff(&self, other: Self) -> Self;
     fn sqrt(&self) -> Self;

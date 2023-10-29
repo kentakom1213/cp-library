@@ -1,7 +1,5 @@
 //! 幾何ライブラリ
 
-#![allow(dead_code)]
-
 use std::ops::{Add, Sub, Mul, Neg};
 
 pub type Pos<T> = (T, T);

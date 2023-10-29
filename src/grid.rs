@@ -1,7 +1,5 @@
 //! グリッド探索の便利ツール
 
-#![allow(dead_code)]
-
 /// グリッドの探索
 pub trait Grid<T>
 where

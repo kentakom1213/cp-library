@@ -1,7 +1,5 @@
 //! ポラード・ロー法による素因数分解
 
-#![allow(dead_code)]
-
 use crate::miller_rabin_test::is_prime_MR;
 
 /// `a`,`b`の最大公約数を求める

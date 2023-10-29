@@ -1,7 +1,5 @@
 //! sliceに対する`lower_bound`,`upper_bound`の実装
 
-#![allow(dead_code)]
-
 /// # BinarySearch
 /// 二分探索の実装
 pub trait BinarySearch<T> {

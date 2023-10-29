@@ -1,8 +1,5 @@
 //! BinaryIndexedTree / FenwickTree
 
-#![allow(non_snake_case)]
-#![allow(dead_code)]
-
 use std::{
     fmt::Debug,
     ops::{

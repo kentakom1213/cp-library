@@ -1,7 +1,5 @@
 //! トライ木
 
-#![allow(dead_code)]
-
 use std::fmt::Debug;
 
 // 定数

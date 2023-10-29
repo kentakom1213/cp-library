@@ -1,7 +1,5 @@
 //! BTreeSetに対する`lower_bound`,`upper_bound`の実装
 
-#![allow(dead_code)]
-
 use std::collections::BTreeSet;
 use std::ops::Bound::{Included, Excluded, Unbounded};
 

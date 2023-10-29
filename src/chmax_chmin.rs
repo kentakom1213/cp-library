@@ -1,8 +1,5 @@
 //! chmax/chminの実装
 
-#![allow(dead_code)]
-#![allow(unused_macros)]
-
 /// `chmax!{x1, x2, ..., xn}`:`x1`,`x2`,...,`xn`のうち最大のものを、`x1`に代入する
 /// - 代入があったとき、`true`を返す
 #[macro_export]

@@ -1,7 +1,5 @@
 //! 最長共通部分列
 
-#![allow(dead_code)]
-
 /// `a < b` のとき、`a`を`b`に置き換え、trueを返す
 macro_rules! chmax {
     ( $a:expr, $b:expr ) => {{

@@ -1,7 +1,5 @@
 //! 重み付きUnionFind
 
-#![allow(dead_code)]
-
 use std::fmt::Debug;
 
 /// ## アーベル群

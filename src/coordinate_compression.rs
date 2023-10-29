@@ -1,7 +1,5 @@
 //! 座標圧縮
 
-#![allow(dead_code)]
-
 /// # 座標圧縮
 #[derive(Debug)]
 pub struct Compression<'a, T> {

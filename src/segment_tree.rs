@@ -1,7 +1,5 @@
 //! セグメント木
 
-#![allow(dead_code)]
-
 use std::fmt;
 use std::ops::{
     Bound::{Excluded, Included, Unbounded},
