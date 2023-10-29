@@ -1,5 +1,7 @@
 //! Modintをusizeに注入するトレイト
 
+#![cfg(test)]
+
 pub const MOD: usize = 998_244_353;
 // const MOD: usize = 1_000_000_007;
 
