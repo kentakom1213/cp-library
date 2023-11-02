@@ -1801,7 +1801,7 @@
         "\t\t}",
         "\t\tlet (start, end) = parsed.unwrap();",
         "\t\t// 全体の値を取得",
-        "\t\tif (start, end) == (0, self.offset) {",
+        "\t\tif (start, end) == (0, self.size) {",
         "\t\t\treturn self.data[1].clone();",
         "\t\t}",
         "\t\t// 値の取得",

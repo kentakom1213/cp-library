@@ -99,7 +99,7 @@ impl<T: Monoid> SegmentTree<T> {
         let (start, end) = parsed.unwrap();
 
         // 全体の値を取得
-        if (start, end) == (0, self.offset) {
+        if (start, end) == (0, self.size) {
             return self.data[1].clone();
         }
 
