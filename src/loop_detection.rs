@@ -1,3 +1,5 @@
+//! ループ検出
+
 use num_bigint::BigUint;
 use num_traits::{FromPrimitive, ToPrimitive, Zero};
 use std::ops::{Add, Mul, Sub};

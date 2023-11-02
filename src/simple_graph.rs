@@ -6,7 +6,7 @@ type Graph = Vec<Vec<usize>>;
 /// 単純グラフに対して
 /// - 連結成分分解
 /// - 2部グラフ分解
-/// 
+///
 /// を行う。
 #[derive(Debug)]
 pub struct SimpleGraph {

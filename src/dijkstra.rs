@@ -1,7 +1,7 @@
 //! ダイクストラ法
 
-use std::collections::BinaryHeap;
 use std::cmp::Reverse;
+use std::collections::BinaryHeap;
 
 /// Dijkstra法
 /// - グラフ`graph`が与えられたとき、スタート地点`s`から各頂点への最短路を求める
@@ -15,7 +15,9 @@ pub fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, s: usize) -> Vec<usize> {
     pq.push(Reverse((dist[s], s)));
     // 更新
     while let Some(Reverse((cost, u))) = pq.pop() {
-        if dist[u] < cost { continue; }
+        if dist[u] < cost {
+            continue;
+        }
         for &(v, weight) in &graph[u] {
             if dist[v] > dist[u] + weight {
                 dist[v] = dist[u] + weight;
@@ -26,11 +28,10 @@ pub fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, s: usize) -> Vec<usize> {
     dist
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
-    
+
     #[test]
     fn test_dijkstra() {
         let graph = vec![

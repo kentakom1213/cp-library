@@ -10,42 +10,32 @@ pub struct AffineMatrix {
 impl AffineMatrix {
     pub fn e() -> Self {
         Self {
-            arr: [[1, 0, 0],
-                  [0, 1, 0],
-                  [0, 0, 1]]
+            arr: [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
         }
     }
 
     pub fn rotate90() -> Self {
         Self {
-            arr: [[0, -1, 0],
-                  [1, 0, 0],
-                  [0, 0, 1]]
+            arr: [[0, -1, 0], [1, 0, 0], [0, 0, 1]],
         }
     }
 
     pub fn rotate270() -> Self {
         Self {
-            arr: [[0, 1, 0],
-                  [-1, 0, 0],
-                  [0, 0, 1]]
-        } 
+            arr: [[0, 1, 0], [-1, 0, 0], [0, 0, 1]],
+        }
     }
 
     pub fn mirror_x(p: isize) -> Self {
         Self {
-            arr: [[-1, 0, 2*p],
-                  [0, 1, 0],
-                  [0, 0, 1]]
-        }  
+            arr: [[-1, 0, 2 * p], [0, 1, 0], [0, 0, 1]],
+        }
     }
 
     pub fn mirror_y(p: isize) -> Self {
         Self {
-            arr: [[1, 0, 0],
-                  [0, -1, 2*p],
-                  [0, 0, 1]]
-        }  
+            arr: [[1, 0, 0], [0, -1, 2 * p], [0, 0, 1]],
+        }
     }
 
     pub fn dot(&self, other: &Self) -> Self {

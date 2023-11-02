@@ -24,7 +24,7 @@ impl UnionFind {
         if self.par[x] == x {
             return x;
         }
-        self.par[x] = self.root(self.par[x]);  // 経路圧縮
+        self.par[x] = self.root(self.par[x]); // 経路圧縮
         self.par[x]
     }
 
@@ -59,7 +59,6 @@ impl UnionFind {
         self.siz[root]
     }
 }
-
 
 #[cfg(test)]
 mod test {
@@ -133,7 +132,7 @@ mod test {
         /*
          * 0-1-2-3-4-5-6-7
          */
-    
+
         assert_eq!(uf.group_count, 1);
     }
 }

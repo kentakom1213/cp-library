@@ -16,13 +16,15 @@ impl Factors {
     pub fn new(n: usize) -> Self {
         let mut facs = Factors {
             n,
-            sieve: vec![1; n+1],
+            sieve: vec![1; n + 1],
         };
         for i in 2..=n {
             for j in 1.. {
-                if i*j > n { break; }
-                if facs.sieve[i*j] == 1 {
-                    facs.sieve[i*j] = i;
+                if i * j > n {
+                    break;
+                }
+                if facs.sieve[i * j] == 1 {
+                    facs.sieve[i * j] = i;
                 }
             }
         }
@@ -40,7 +42,6 @@ impl Factors {
         factors
     }
 }
-
 
 #[cfg(test)]
 mod test {

@@ -4,7 +4,7 @@
 pub fn factorize(mut n: usize) -> Vec<(usize, usize)> {
     let mut res = Vec::new();
     for i in 2.. {
-        if i*i > n {
+        if i * i > n {
             break;
         }
         let mut cnt = 0;
@@ -22,27 +22,17 @@ pub fn factorize(mut n: usize) -> Vec<(usize, usize)> {
     res
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
     fn test_factorize() {
-        assert_eq!(
-            factorize(1024),
-            vec![(2, 10)]
-        );
+        assert_eq!(factorize(1024), vec![(2, 10)]);
 
-        assert_eq!(
-            factorize(123456789),
-            vec![(3, 2), (3607, 1), (3803, 1)]
-        );
+        assert_eq!(factorize(123456789), vec![(3, 2), (3607, 1), (3803, 1)]);
 
-        assert_eq!(
-            factorize(20021213),
-            vec![(20021213, 1)]
-        );
+        assert_eq!(factorize(20021213), vec![(20021213, 1)]);
 
         assert_eq!(
             factorize(1234567891234567),

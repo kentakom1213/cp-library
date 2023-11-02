@@ -30,7 +30,6 @@ impl UsizeTools for usize {
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;

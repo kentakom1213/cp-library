@@ -2,7 +2,7 @@
 
 /// 余りをとる累乗
 pub fn powmod(a: usize, b: usize, m: usize) -> usize {
-    let (mut a, mut  b, m) = (a as u128, b as u128, m as u128);
+    let (mut a, mut b, m) = (a as u128, b as u128, m as u128);
     let mut res = 1;
     while b > 0 {
         if b & 1 == 1 {
@@ -33,21 +33,26 @@ pub fn is_prime_MR(N: usize) -> bool {
     // n < 2^64 の場合、以下を調べれば十分
     let A = [2, 325, 9375, 28178, 450775, 9780504, 1795265022];
     for &a in &A {
-        if a % N == 0 { break; }
+        if a % N == 0 {
+            break;
+        }
         let mut t = 0;
         let mut x = powmod(a, d, N);
         if x != 1 {
             while t < s {
-                if x == N - 1 { break; }
+                if x == N - 1 {
+                    break;
+                }
                 x = ((x as u128).pow(2) % (N as u128)) as usize;
                 t += 1;
             }
-            if t == s { return false; }
+            if t == s {
+                return false;
+            }
         }
     }
     true
 }
-
 
 #[cfg(test)]
 mod test {

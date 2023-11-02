@@ -1,6 +1,6 @@
 //! 幾何ライブラリ
 
-use std::ops::{Add, Sub, Mul, Neg};
+use std::ops::{Add, Mul, Neg, Sub};
 
 pub type Pos<T> = (T, T);
 pub type Line<T> = (Pos<T>, Pos<T>);
@@ -19,11 +19,8 @@ pub trait Vec2<T> {
 }
 
 impl<T> Vec2<T> for Pos<T>
-where T: Copy
-    + Add<Output = T>
-    + Sub<Output = T>
-    + Mul<Output = T>
-    + Neg
+where
+    T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Neg,
 {
     fn mul(&self, scalar: T) -> Self {
         (self.0 * scalar, self.1 * scalar)
@@ -41,8 +38,7 @@ where T: Copy
         (self.0 * other.1) - (other.0 * self.1)
     }
     fn dist2(&self, other: Self) -> T {
-        (self.0 - other.0) * (self.0 - other.0)
-        + (self.1 - other.1) * (self.1 - other.1)
+        (self.0 - other.0) * (self.0 - other.0) + (self.1 - other.1) * (self.1 - other.1)
     }
 }
 
@@ -105,20 +101,11 @@ mod test {
 
     #[test]
     fn test_collision_line() {
-        let ab: Line<isize> = (
-            (3, 1),
-            (-3, 1)
-        );
+        let ab: Line<isize> = ((3, 1), (-3, 1));
 
-        let line1: Line<isize> = (
-            (1, 2),
-            (2, 2)
-        );
+        let line1: Line<isize> = ((1, 2), (2, 2));
 
-        let line2: Line<isize> = (
-            (1, 2),
-            (1, 0)
-        );
+        let line2: Line<isize> = ((1, 2), (1, 0));
 
         assert_eq!(is_collided(ab, line1), false);
         assert_eq!(is_collided(ab, line2), true);

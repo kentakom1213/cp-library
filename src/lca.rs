@@ -13,23 +13,24 @@ pub struct LCA {
 impl LCA {
     /// `root`を根に持つ木`tree`で、初期化を行う
     pub fn new(tree: &Graph, root: usize) -> Self {
-        let V = tree.len();  // グラフの頂点数
-        let logV = {          // log_2(グラフの頂点数)
+        let V = tree.len(); // グラフの頂点数
+        let logV = {
+            // log_2(グラフの頂点数)
             let mut logv = 0;
             while (V >> logv) > 0 {
                 logv += 1;
             }
             logv
         };
-        let mut double = vec![vec![0; V]; logV];  // ダブリング配列
-        let mut depth = vec![INF; V];             // 頂点の根からの距離
+        let mut double = vec![vec![0; V]; logV]; // ダブリング配列
+        let mut depth = vec![INF; V]; // 頂点の根からの距離
         depth[0] = 0;
         Self::dfs(root, &mut double[0], &mut depth, tree);
 
         // ダブリング
         for i in 1..logV {
             for j in 0..V {
-                double[i][j] = double[i-1][double[i-1][j]];
+                double[i][j] = double[i - 1][double[i - 1][j]];
             }
         }
 
@@ -38,7 +39,9 @@ impl LCA {
 
     fn dfs(u: usize, par: &mut Vec<usize>, depth: &mut Vec<usize>, tree: &Graph) {
         for &v in &tree[u] {
-            if depth[v] != INF { continue; }
+            if depth[v] != INF {
+                continue;
+            }
             depth[v] = depth[u] + 1;
             par[v] = u;
             Self::dfs(v, par, depth, tree);
@@ -64,13 +67,13 @@ impl LCA {
         }
 
         // 二分探索
-        for k in ( 0 .. self.double.len() ).rev() {
+        for k in (0..self.double.len()).rev() {
             if self.double[k][u] != self.double[k][v] {
                 u = self.double[k][u];
                 v = self.double[k][v];
             }
         }
-        
+
         self.double[0][u]
     }
 
@@ -80,7 +83,6 @@ impl LCA {
         (self.depth[u] - self.depth[o]) + (self.depth[v] - self.depth[o])
     }
 }
-
 
 #[cfg(test)]
 mod test {
@@ -149,7 +151,7 @@ mod test {
         assert_eq!(lca.dist(0, 3), 1);
         assert_eq!(lca.dist(0, 5), 2);
         assert_eq!(lca.dist(0, 0), 0);
-        
+
         // 根以外の頂点同士の距離
         assert_eq!(lca.dist(1, 2), 2);
         assert_eq!(lca.dist(3, 7), 4);

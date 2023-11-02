@@ -129,7 +129,7 @@ impl<T: OrderedMonoid> BIT<T> {
     /// `lower_bound`/`upper_bound`を共通化した実装
     fn binary_search<F>(&self, w: T::Val, compare: F) -> usize
     where
-        F: Fn(&T::Val, &T::Val) -> bool
+        F: Fn(&T::Val, &T::Val) -> bool,
     {
         let mut sum = T::E;
         let mut idx = 0;

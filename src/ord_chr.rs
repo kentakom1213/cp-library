@@ -15,7 +15,6 @@ pub fn chr(i: usize) -> char {
     char::from_u32(a + i as u32).unwrap()
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;

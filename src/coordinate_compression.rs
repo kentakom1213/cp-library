@@ -39,7 +39,6 @@ impl<'a, T: Ord> Compression<'a, T> {
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use super::Compression;

@@ -34,7 +34,7 @@ impl Namori {
     /// なもりグラフを分解し、
     /// - サイクルを取り除いた森
     /// - サイクル上の頂点
-    /// 
+    ///
     /// を求める
     pub fn decompose(&mut self) {
         // 葉を調べる
@@ -43,7 +43,7 @@ impl Namori {
         let mut visited = vec![false; self.N];
         for i in 0..self.N {
             degree[i] = self.graph[i].len(); // 次数を調べる
-            // 次数が1の頂点を格納
+                                             // 次数が1の頂点を格納
             if degree[i] == 1 {
                 leafs.push_back(i);
                 visited[i] = true;

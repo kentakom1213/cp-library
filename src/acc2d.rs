@@ -15,13 +15,9 @@ pub fn acc2D<T: Num + Copy>(array: &Vec<Vec<T>>) -> impl Fn(usize, usize, usize,
         }
     }
     move |r_start: usize, r_end: usize, c_start: usize, c_end: usize| -> T {
-        S[r_end][c_end]
-            - S[r_end][c_start]
-            - S[r_start][c_end]
-            + S[r_start][c_start]
+        S[r_end][c_end] - S[r_end][c_start] - S[r_start][c_end] + S[r_start][c_start]
     }
 }
-
 
 #[cfg(test)]
 mod test {
@@ -29,11 +25,7 @@ mod test {
 
     #[test]
     fn test_acc2_isize() {
-        let arr: Vec<Vec<isize>> = vec![
-            vec![1, -2, 3],
-            vec![4, -5, 6],
-            vec![7, -8, 9],
-        ];
+        let arr: Vec<Vec<isize>> = vec![vec![1, -2, 3], vec![4, -5, 6], vec![7, -8, 9]];
 
         let acc = acc2D(&arr);
 
@@ -46,11 +38,7 @@ mod test {
 
     #[test]
     fn test_acc2D_usize() {
-        let arr: Vec<Vec<usize>> = vec![
-            vec![1, 2, 3],
-            vec![4, 5, 6],
-            vec![7, 8, 9],
-        ];
+        let arr: Vec<Vec<usize>> = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
 
         let acc = acc2D(&arr);
 

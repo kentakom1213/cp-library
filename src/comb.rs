@@ -19,11 +19,11 @@ impl Comb {
         let mut finv = vec![1; max_size];
         let mut inv = vec![1; max_size];
         for i in 2..max_size {
-            fac[i] = fac[i-1] * i % MOD;
+            fac[i] = fac[i - 1] * i % MOD;
             inv[i] = MOD - (MOD / i) * inv[MOD % i] % MOD;
-            finv[i] = finv[i-1] * inv[i] % MOD;
+            finv[i] = finv[i - 1] * inv[i] % MOD;
         }
-        
+
         Comb { fac, finv }
     }
 
@@ -40,7 +40,7 @@ impl Comb {
         if n < r {
             return 0;
         }
-        self.fac[n] * self.finv[n-r] % MOD
+        self.fac[n] * self.finv[n - r] % MOD
     }
 }
 
