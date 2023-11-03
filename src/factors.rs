@@ -32,6 +32,8 @@ impl Factors {
     }
 
     /// 素因数分解を`O(logn)`で行う
+    /// ### 戻り値
+    /// - `Vec<usize>`: 素因数のリスト
     pub fn factorize(&self, mut x: usize) -> Vec<usize> {
         assert!(1 <= x && x <= self.n);
         let mut factors = vec![];
@@ -40,6 +42,24 @@ impl Factors {
             x /= self.sieve[x];
         }
         factors
+    }
+
+    /// 素因数分解を`O(logn)`で行う
+    /// ### 戻り値
+    /// - `Vec<(usize, usize)>`: (素因数, その個数)
+    pub fn factorize_pairs(&self, mut x: usize) -> Vec<(usize, usize)> {
+        assert!(1 <= x && x <= self.n);
+        let mut pairs: Vec<(usize, usize)> = vec![];
+        while x > 1 {
+            let p = self.sieve[x];
+            if !pairs.is_empty() && pairs.last().unwrap().0 == p {
+                pairs.last_mut().unwrap().1 += 1
+            } else {
+                pairs.push((p, 1));
+            }
+            x /= self.sieve[x];
+        }
+        pairs
     }
 }
 
@@ -55,5 +75,15 @@ mod test {
         assert_eq!(f.factorize(123450), vec![2, 3, 5, 5, 823]);
         assert_eq!(f.factorize(107311), vec![239, 449]);
         assert_eq!(f.factorize(199999), vec![199999]);
+    }
+
+    #[test]
+    fn test_factorize_pairs() {
+        let f = Factors::new(200_000);
+
+        assert_eq!(f.factorize_pairs(200), vec![(2, 3), (5, 2)]);
+        assert_eq!(f.factorize_pairs(123450), vec![(2, 1), (3, 1), (5, 2), (823, 1)]);
+        assert_eq!(f.factorize_pairs(107311), vec![(239, 1), (449, 1)]);
+        assert_eq!(f.factorize_pairs(199999), vec![(199999, 1)]);
     }
 }
