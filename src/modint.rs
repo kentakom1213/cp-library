@@ -27,20 +27,22 @@ pub mod modint {
 }
 use modint::*;
 
+type Mod998 = Modint<998244353>;
+type Mod1e9 = Modint<1000000007>;
+
 #[cfg(test)]
 mod test {
     use super::*;
 
     const MOD998: usize = 998244353;
-    type Modint998 = Modint<MOD998>;
 
     #[test]
     fn test_add() {
-        let x: Modint998 = 998244355.into();
+        let x: Mod998 = 998244355.into();
         let y: usize = 998244359;
         assert_eq!(x + y, 8 + MOD998);
 
-        let a: Modint998 = MOD998.into();
+        let a: Mod998 = MOD998.into();
         let b = 1000000007;
         let c = 20021213;
         assert_eq!(a + b + c, 21776867);
@@ -49,23 +51,23 @@ mod test {
 
     #[test]
     fn test_neg() {
-        let x: Modint998 = 0.into();
+        let x: Mod998 = 0.into();
         assert_eq!(-x, 0);
 
-        let y = Modint998::new(10);
+        let y = Mod998::new(10);
         assert_eq!(-y, MOD998 - 10);
 
-        let z = Modint998::new(MOD998 + 200);
+        let z = Mod998::new(MOD998 + 200);
         assert_eq!(-z, MOD998 - 200);
     }
 
     #[test]
     fn test_sub() {
-        let x = Modint998::new(0);
+        let x = Mod998::new(0);
         let y = 1000000007;
         assert_eq!(x - y, 996488699);
 
-        let a: Modint998 = 288230376151711744.into(); // 1 << 58
+        let a: Mod998 = 288230376151711744.into(); // 1 << 58
         let b: usize = 576460752303423488; // 1 << 59
         let c: usize = 1152921504606846976; // 1 << 60
         assert_eq!(-a - b - c, 553154679);
@@ -73,21 +75,21 @@ mod test {
 
     #[test]
     fn test_pow() {
-        let x = Modint998::new(2);
+        let x = Mod998::new(2);
         let y: usize = 1000000007;
         assert_eq!(x.pow(y), 132727571);
 
-        let a: Modint998 = MOD998.into();
+        let a: Mod998 = MOD998.into();
         let b: usize = 1024;
         assert_eq!(a.pow(b), 0);
     }
 
     #[test]
     fn test_inv() {
-        assert_eq!(Modint998::new(1).inv(), 1);
-        assert_eq!(Modint998::new(2).inv(), 499122177);
-        assert_eq!(Modint998::new(1000).inv(), 981274199);
-        assert_eq!(Modint998::new(998244352).inv(), 998244352);
+        assert_eq!(Mod998::new(1).inv(), 1);
+        assert_eq!(Mod998::new(2).inv(), 499122177);
+        assert_eq!(Mod998::new(1000).inv(), 981274199);
+        assert_eq!(Mod998::new(998244352).inv(), 998244352);
     }
 
     #[test]
@@ -102,7 +104,7 @@ mod test {
 
     #[test]
     fn test_mul_assign() {
-        let mut fact = vec![Modint998::new(1); 20];
+        let mut fact = vec![Mod998::new(1); 20];
 
         // 階乗
         for i in 1..20 {

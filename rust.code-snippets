@@ -1360,7 +1360,9 @@
         "\tpub trait Fp { fn pow(&self, rhs: usize) -> Self; fn inv(&self) -> Self; }",
         "\timpl<const MOD: usize> Fp for Modint<MOD> { fn pow(&self, rhs: usize) -> Self { let (mut a, mut b) = (self.0, rhs); let mut res = 1; while b > 0 { if b & 1 == 1 { res = (res * a) % MOD; } a = (a * a) % MOD; b >>= 1u32; } Modint(res) } fn inv(&self) -> Self { self.pow(MOD - 2) } }",
         "}",
-        "use modint::*;"
+        "use modint::*;",
+        "type Mod998 = Modint<998244353>;",
+        "type Mod1e9 = Modint<1000000007>;"
       ],
       "description": "Modintの構造体"
     },
