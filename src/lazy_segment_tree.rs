@@ -85,13 +85,13 @@ impl<T: ExtMonoid> LazySegmentTree<T> {
 
     /// 区間に`val`を作用させる
     /// - `range`: `[left, right)`
-    pub fn set_range<R: RangeBounds<usize>>(&mut self, range: R, val: T::M) {
+    pub fn apply_range<R: RangeBounds<usize>>(&mut self, range: R, val: T::M) {
         if let Some((left, right)) = self.parse_range(range) {
-            self.set_range_inner(left, right, val, 0, self.offset, 1);
+            self.apply_range_inner(left, right, val, 0, self.offset, 1);
         }
     }
 
-    fn set_range_inner(
+    fn apply_range_inner(
         &mut self,
         left: usize,
         right: usize,
@@ -111,9 +111,9 @@ impl<T: ExtMonoid> LazySegmentTree<T> {
         else if left < end && begin < right {
             let mid = (begin + end) / 2;
             // 左の子を更新
-            self.set_range_inner(left, right, val.clone(), begin, mid, idx * 2);
+            self.apply_range_inner(left, right, val.clone(), begin, mid, idx * 2);
             // 右の子を更新
-            self.set_range_inner(left, right, val, mid, end, idx * 2 + 1);
+            self.apply_range_inner(left, right, val, mid, end, idx * 2 + 1);
             // 値を更新
             self.data[idx] = T::operate_x(&self.data[idx * 2], &self.data[idx * 2 + 1]);
         }
@@ -157,7 +157,7 @@ impl<T: ExtMonoid> LazySegmentTree<T> {
     }
 }
 
-pub mod ExtAlg {
+pub mod Alg {
     use super::ExtMonoid;
 
     /// ## RSQandRAQ
@@ -217,7 +217,7 @@ mod test {
 
     #[test]
     fn test_RSQ_and_RAQ_hand() {
-        let mut seg = LazySegmentTree::<ExtAlg::RSQandRAQ>::new(10);
+        let mut seg = LazySegmentTree::<Alg::RSQandRAQ>::new(10);
         // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         assert_eq!(seg.get_range(..), 0);
@@ -225,7 +225,7 @@ mod test {
         assert_eq!(seg.get_range(5..), 0);
         assert_eq!(seg.get_range(3..8), 0);
 
-        seg.set_range(0..4, 2);
+        seg.apply_range(0..4, 2);
         // [2, 2, 2, 2, 0, 0, 0, 0, 0, 0]
 
         assert_eq!(seg.get_range(..), 8);
@@ -233,7 +233,7 @@ mod test {
         assert_eq!(seg.get_range(5..), 0);
         assert_eq!(seg.get_range(3..8), 2);
 
-        seg.set_range(4.., 5);
+        seg.apply_range(4.., 5);
         // [2, 2, 2, 2, 5, 5, 5, 5, 5, 5]
 
         assert_eq!(seg.get_range(..), 38);
@@ -241,7 +241,7 @@ mod test {
         assert_eq!(seg.get_range(5..), 25);
         assert_eq!(seg.get_range(3..8), 22);
 
-        seg.set_range(2..=5, -3);
+        seg.apply_range(2..=5, -3);
         // [2, 2, -1, -1, 2, 2, 5, 5, 5, 5]
 
         assert_eq!(seg.get_range(..), 26);
@@ -249,7 +249,7 @@ mod test {
         assert_eq!(seg.get_range(5..), 22);
         assert_eq!(seg.get_range(3..8), 13);
 
-        seg.set_range(8..=10, -10);
+        seg.apply_range(8..=10, -10);
         // [2, 2, -1, -1, 2, 2, 5, 5, -5, -5]
 
         assert_eq!(seg.get_range(..), 6);
@@ -261,7 +261,7 @@ mod test {
     #[test]
     fn test_RMQ_and_RUQ_hand() {
         const INF: isize = (1 << 31) - 1;
-        let mut seg = LazySegmentTree::<ExtAlg::RMQandRUQ>::new(10);
+        let mut seg = LazySegmentTree::<Alg::RMQandRUQ>::new(10);
         // [INF, INF, INF, INF, INF, INF, INF, INF, INF, INF]
 
         assert_eq!(seg.get_range(..), INF);
@@ -269,7 +269,7 @@ mod test {
         assert_eq!(seg.get_range(5..), INF);
         assert_eq!(seg.get_range(3..8), INF);
 
-        seg.set_range(0..4, 2);
+        seg.apply_range(0..4, 2);
         // [2, 2, 2, 2, INF, INF, INF, INF, INF, INF]
 
         assert_eq!(seg.get_range(..), 2);
@@ -277,7 +277,7 @@ mod test {
         assert_eq!(seg.get_range(5..), INF);
         assert_eq!(seg.get_range(3..8), 2);
 
-        seg.set_range(4.., 5);
+        seg.apply_range(4.., 5);
         // [2, 2, 2, 2, 5, 5, 5, 5, 5, 5]
 
         assert_eq!(seg.get_range(..), 2);
@@ -285,7 +285,7 @@ mod test {
         assert_eq!(seg.get_range(5..), 5);
         assert_eq!(seg.get_range(3..8), 2);
 
-        seg.set_range(2..=5, -3);
+        seg.apply_range(2..=5, -3);
         // [2, 2, -3, -3, -3, -3, 5, 5, 5, 5]
 
         assert_eq!(seg.get_range(..), -3);
@@ -293,7 +293,7 @@ mod test {
         assert_eq!(seg.get_range(5..), -3);
         assert_eq!(seg.get_range(3..8), -3);
 
-        seg.set_range(8..=10, -10);
+        seg.apply_range(8..=10, -10);
         // [2, 2, -3, -3, -3, -3, 5, 5, -10, -10]
 
         assert_eq!(seg.get_range(..), -10);
