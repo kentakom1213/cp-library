@@ -27,8 +27,8 @@ pub mod modint {
 }
 use modint::*;
 
-type Mod998 = Modint<998244353>;
-type Mod1e9 = Modint<1000000007>;
+pub type Mod998 = Modint<998244353>;
+pub type Mod1e9 = Modint<1000000007>;
 
 #[cfg(test)]
 mod test {

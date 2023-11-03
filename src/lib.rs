@@ -21,6 +21,7 @@ pub mod loop_detection;
 pub mod matrix_exp;
 pub mod miller_rabin_test;
 pub mod modint;
+pub mod modint_comb;
 pub mod modint_traits;
 pub mod multiset;
 pub mod namori;
