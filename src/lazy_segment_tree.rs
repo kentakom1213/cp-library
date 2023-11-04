@@ -209,6 +209,30 @@ pub mod Alg {
             *x
         }
     }
+
+    /// ## RMQandRAQ
+    /// - 区間加算
+    /// - 区間最小値
+    #[derive(Debug)]
+    pub struct RMQandRAQ;
+    impl ExtMonoid for RMQandRAQ {
+        type X = isize;
+        type M = isize;
+        const IM: Self::M = 0;
+        const IX: Self::X = 0;
+        fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
+            *x.max(y)
+        }
+        fn apply(x: &Self::X, y: &Self::M) -> Self::X {
+            x + y
+        }
+        fn operate_m(x: &Self::M, y: &Self::M) -> Self::M {
+            x + y
+        }
+        fn aggregate(x: &Self::M, _p: usize) -> Self::M {
+            *x
+        }
+    }
 }
 
 #[cfg(test)]
