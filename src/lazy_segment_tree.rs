@@ -219,9 +219,9 @@ pub mod Alg {
         type X = isize;
         type M = isize;
         const IM: Self::M = 0;
-        const IX: Self::X = 0;
+        const IX: Self::X = 1 << 31;
         fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
-            *x.max(y)
+            *x.min(y)
         }
         fn apply(x: &Self::X, y: &Self::M) -> Self::X {
             x + y
@@ -231,6 +231,30 @@ pub mod Alg {
         }
         fn aggregate(x: &Self::M, _p: usize) -> Self::M {
             *x
+        }
+    }
+
+    /// ## RSQandRUQ
+    /// - 区間加算
+    /// - 区間和
+    #[derive(Debug)]
+    pub struct RSQandRUQ;
+    impl ExtMonoid for RSQandRUQ {
+        type X = isize;
+        type M = isize;
+        const IX: Self::X = 0;
+        const IM: Self::M = 1 << 31;
+        fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
+            x + y
+        }
+        fn apply(_x: &Self::X, y: &Self::M) -> Self::X {
+            *y
+        }
+        fn operate_m(_x: &Self::M, y: &Self::M) -> Self::M {
+            *y
+        }
+        fn aggregate(x: &Self::M, p: usize) -> Self::M {
+            x * p as isize
         }
     }
 }
