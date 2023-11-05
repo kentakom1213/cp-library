@@ -32,6 +32,7 @@ pub mod rolling_hash;
 pub mod run_length;
 pub mod scc;
 pub mod segment_tree;
+pub mod segment_tree_mutable;
 pub mod simple_graph;
 pub mod tree_dp;
 pub mod trie;
