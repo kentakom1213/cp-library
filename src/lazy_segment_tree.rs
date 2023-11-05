@@ -85,13 +85,13 @@ impl<T: ExtMonoid> LazySegmentTree<T> {
 
     /// 区間に`val`を作用させる
     /// - `range`: `[left, right)`
-    pub fn apply_range<R: RangeBounds<usize>>(&mut self, range: R, val: T::M) {
+    pub fn apply<R: RangeBounds<usize>>(&mut self, range: R, val: T::M) {
         if let Some((left, right)) = self.parse_range(range) {
-            self.apply_range_inner(left, right, val, 0, self.offset, 1);
+            self.apply_inner(left, right, val, 0, self.offset, 1);
         }
     }
 
-    fn apply_range_inner(
+    fn apply_inner(
         &mut self,
         left: usize,
         right: usize,
@@ -111,9 +111,9 @@ impl<T: ExtMonoid> LazySegmentTree<T> {
         else if left < end && begin < right {
             let mid = (begin + end) / 2;
             // 左の子を更新
-            self.apply_range_inner(left, right, val.clone(), begin, mid, idx * 2);
+            self.apply_inner(left, right, val.clone(), begin, mid, idx * 2);
             // 右の子を更新
-            self.apply_range_inner(left, right, val, mid, end, idx * 2 + 1);
+            self.apply_inner(left, right, val, mid, end, idx * 2 + 1);
             // 値を更新
             self.data[idx] = T::operate_x(&self.data[idx * 2], &self.data[idx * 2 + 1]);
         }
@@ -121,15 +121,15 @@ impl<T: ExtMonoid> LazySegmentTree<T> {
 
     /// 区間を取得する
     /// - `range`: `[left, right)`
-    pub fn get_range<R: RangeBounds<usize>>(&mut self, range: R) -> T::X {
+    pub fn get<R: RangeBounds<usize>>(&mut self, range: R) -> T::X {
         if let Some((left, right)) = self.parse_range(range) {
-            self.get_range_inner(left, right, 0, self.offset, 1)
+            self.get_inner(left, right, 0, self.offset, 1)
         } else {
             T::IX
         }
     }
 
-    fn get_range_inner(
+    fn get_inner(
         &mut self,
         left: usize,
         right: usize,
@@ -150,10 +150,24 @@ impl<T: ExtMonoid> LazySegmentTree<T> {
         // 区間が重なる
         else {
             let mid = (begin + end) / 2;
-            let l_val = self.get_range_inner(left, right, begin, mid, idx * 2);
-            let r_val = self.get_range_inner(left, right, mid, end, idx * 2 + 1);
+            let l_val = self.get_inner(left, right, begin, mid, idx * 2);
+            let r_val = self.get_inner(left, right, mid, end, idx * 2 + 1);
             T::operate_x(&l_val, &r_val)
         }
+    }
+}
+
+impl<T: ExtMonoid> From<&Vec<T::X>> for LazySegmentTree<T> {
+    fn from(src: &Vec<T::X>) -> Self {
+        let mut seg = Self::new(src.len());
+        for (i, v) in src.iter().enumerate() {
+            seg.data[seg.offset + i] = v.clone();
+        }
+        for i in (0..seg.offset).rev() {
+            let lch = i << 1;
+            seg.data[i] = T::operate_x(&seg.data[lch], &seg.data[lch + 1]);
+        }
+        seg
     }
 }
 
@@ -235,26 +249,26 @@ pub mod Alg {
     }
 
     /// ## RSQandRUQ
-    /// - 区間加算
-    /// - 区間和
+    /// - 区間更新
+    /// - 区間和取得
     #[derive(Debug)]
     pub struct RSQandRUQ;
     impl ExtMonoid for RSQandRUQ {
         type X = isize;
-        type M = isize;
+        type M = Option<isize>;
         const IX: Self::X = 0;
-        const IM: Self::M = 1 << 31;
+        const IM: Self::M = None;
         fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
             x + y
         }
         fn apply(_x: &Self::X, y: &Self::M) -> Self::X {
-            *y
+            y.unwrap()
         }
         fn operate_m(_x: &Self::M, y: &Self::M) -> Self::M {
             *y
         }
         fn aggregate(x: &Self::M, p: usize) -> Self::M {
-            x * p as isize
+            x.map(|x| x * p as isize)
         }
     }
 }
@@ -268,42 +282,42 @@ mod test {
         let mut seg = LazySegmentTree::<Alg::RSQandRAQ>::new(10);
         // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-        assert_eq!(seg.get_range(..), 0);
-        assert_eq!(seg.get_range(..5), 0);
-        assert_eq!(seg.get_range(5..), 0);
-        assert_eq!(seg.get_range(3..8), 0);
+        assert_eq!(seg.get(..), 0);
+        assert_eq!(seg.get(..5), 0);
+        assert_eq!(seg.get(5..), 0);
+        assert_eq!(seg.get(3..8), 0);
 
-        seg.apply_range(0..4, 2);
+        seg.apply(0..4, 2);
         // [2, 2, 2, 2, 0, 0, 0, 0, 0, 0]
 
-        assert_eq!(seg.get_range(..), 8);
-        assert_eq!(seg.get_range(..5), 8);
-        assert_eq!(seg.get_range(5..), 0);
-        assert_eq!(seg.get_range(3..8), 2);
+        assert_eq!(seg.get(..), 8);
+        assert_eq!(seg.get(..5), 8);
+        assert_eq!(seg.get(5..), 0);
+        assert_eq!(seg.get(3..8), 2);
 
-        seg.apply_range(4.., 5);
+        seg.apply(4.., 5);
         // [2, 2, 2, 2, 5, 5, 5, 5, 5, 5]
 
-        assert_eq!(seg.get_range(..), 38);
-        assert_eq!(seg.get_range(..5), 13);
-        assert_eq!(seg.get_range(5..), 25);
-        assert_eq!(seg.get_range(3..8), 22);
+        assert_eq!(seg.get(..), 38);
+        assert_eq!(seg.get(..5), 13);
+        assert_eq!(seg.get(5..), 25);
+        assert_eq!(seg.get(3..8), 22);
 
-        seg.apply_range(2..=5, -3);
+        seg.apply(2..=5, -3);
         // [2, 2, -1, -1, 2, 2, 5, 5, 5, 5]
 
-        assert_eq!(seg.get_range(..), 26);
-        assert_eq!(seg.get_range(..5), 4);
-        assert_eq!(seg.get_range(5..), 22);
-        assert_eq!(seg.get_range(3..8), 13);
+        assert_eq!(seg.get(..), 26);
+        assert_eq!(seg.get(..5), 4);
+        assert_eq!(seg.get(5..), 22);
+        assert_eq!(seg.get(3..8), 13);
 
-        seg.apply_range(8..=10, -10);
+        seg.apply(8..=10, -10);
         // [2, 2, -1, -1, 2, 2, 5, 5, -5, -5]
 
-        assert_eq!(seg.get_range(..), 6);
-        assert_eq!(seg.get_range(..5), 4);
-        assert_eq!(seg.get_range(5..), 2);
-        assert_eq!(seg.get_range(3..8), 13);
+        assert_eq!(seg.get(..), 6);
+        assert_eq!(seg.get(..5), 4);
+        assert_eq!(seg.get(5..), 2);
+        assert_eq!(seg.get(3..8), 13);
     }
 
     #[test]
@@ -312,41 +326,105 @@ mod test {
         let mut seg = LazySegmentTree::<Alg::RMQandRUQ>::new(10);
         // [INF, INF, INF, INF, INF, INF, INF, INF, INF, INF]
 
-        assert_eq!(seg.get_range(..), INF);
-        assert_eq!(seg.get_range(..5), INF);
-        assert_eq!(seg.get_range(5..), INF);
-        assert_eq!(seg.get_range(3..8), INF);
+        assert_eq!(seg.get(..), INF);
+        assert_eq!(seg.get(..5), INF);
+        assert_eq!(seg.get(5..), INF);
+        assert_eq!(seg.get(3..8), INF);
 
-        seg.apply_range(0..4, 2);
+        seg.apply(0..4, 2);
         // [2, 2, 2, 2, INF, INF, INF, INF, INF, INF]
 
-        assert_eq!(seg.get_range(..), 2);
-        assert_eq!(seg.get_range(..5), 2);
-        assert_eq!(seg.get_range(5..), INF);
-        assert_eq!(seg.get_range(3..8), 2);
+        assert_eq!(seg.get(..), 2);
+        assert_eq!(seg.get(..5), 2);
+        assert_eq!(seg.get(5..), INF);
+        assert_eq!(seg.get(3..8), 2);
 
-        seg.apply_range(4.., 5);
+        seg.apply(4.., 5);
         // [2, 2, 2, 2, 5, 5, 5, 5, 5, 5]
 
-        assert_eq!(seg.get_range(..), 2);
-        assert_eq!(seg.get_range(..5), 2);
-        assert_eq!(seg.get_range(5..), 5);
-        assert_eq!(seg.get_range(3..8), 2);
+        assert_eq!(seg.get(..), 2);
+        assert_eq!(seg.get(..5), 2);
+        assert_eq!(seg.get(5..), 5);
+        assert_eq!(seg.get(3..8), 2);
 
-        seg.apply_range(2..=5, -3);
+        seg.apply(2..=5, -3);
         // [2, 2, -3, -3, -3, -3, 5, 5, 5, 5]
 
-        assert_eq!(seg.get_range(..), -3);
-        assert_eq!(seg.get_range(..5), -3);
-        assert_eq!(seg.get_range(5..), -3);
-        assert_eq!(seg.get_range(3..8), -3);
+        assert_eq!(seg.get(..), -3);
+        assert_eq!(seg.get(..5), -3);
+        assert_eq!(seg.get(5..), -3);
+        assert_eq!(seg.get(3..8), -3);
 
-        seg.apply_range(8..=10, -10);
+        seg.apply(8..=10, -10);
         // [2, 2, -3, -3, -3, -3, 5, 5, -10, -10]
 
-        assert_eq!(seg.get_range(..), -10);
-        assert_eq!(seg.get_range(..5), -3);
-        assert_eq!(seg.get_range(5..), -10);
-        assert_eq!(seg.get_range(3..8), -3);
+        assert_eq!(seg.get(..), -10);
+        assert_eq!(seg.get(..5), -3);
+        assert_eq!(seg.get(5..), -10);
+        assert_eq!(seg.get(3..8), -3);
+    }
+
+    /// テストケース: <https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=DSL_2_I&lang=ja>
+    #[test]
+    fn test_RSQ_and_RUQ() {
+        let mut seg = LazySegmentTree::<Alg::RSQandRUQ>::new(6);
+
+        seg.apply(1..=3, Some(1));
+        seg.apply(2..=4, Some(-2));
+
+        assert_eq!(seg.get(..=5), -5);
+        assert_eq!(seg.get(..=1), 1);
+
+        seg.apply(3..=5, Some(3));
+
+        assert_eq!(seg.get(3..=4), 6);
+        assert_eq!(seg.get(..=5), 8);
+    }
+
+    #[test]
+    fn test_from() {
+        const INF: isize = Alg::RMQandRAQ::IX;
+
+        let arr = vec![5, 2, -3, -1, -9, -2, 5, 0, 0, 5];
+
+        let mut seg = LazySegmentTree::<Alg::RMQandRUQ>::from(&arr);
+        // [5, 2, -3, -1, -9, -2, 5, 0, 0, 5]
+
+        assert_eq!(seg.get(..), -9);
+        assert_eq!(seg.get(..5), -9);
+        assert_eq!(seg.get(5..), -2);
+        assert_eq!(seg.get(3..8), -9);
+
+        seg.apply(..4, 2);
+        // [2, 2, 2, 2, -9, -2, 5, 0, 0, 5]
+
+        assert_eq!(seg.get(..), -9);
+        assert_eq!(seg.get(..5), -9);
+        assert_eq!(seg.get(5..), -2);
+        assert_eq!(seg.get(3..8), -9);
+
+        seg.apply(4.., 5);
+        // [2, 2, 2, 2, 5, 5, 5, 5, 5, 5]
+
+        assert_eq!(seg.get(..), 2);
+        assert_eq!(seg.get(..5), 2);
+        assert_eq!(seg.get(5..), 5);
+        assert_eq!(seg.get(3..8), 2);
+
+        seg.apply(2..=5, -3);
+        // [2, 2, -3, -3, -3, -3, 5, 5, 5, 5]
+
+        assert_eq!(seg.get(..), -3);
+        assert_eq!(seg.get(..5), -3);
+        assert_eq!(seg.get(5..), -3);
+        assert_eq!(seg.get(3..8), -3);
+
+        seg.apply(8..=10, -10);
+        // [2, 2, -3, -3, -3, -3, 5, 5, -10, -10]
+
+        assert_eq!(seg.get(..), -10);
+        assert_eq!(seg.get(..5), -3);
+        assert_eq!(seg.get(5..), -10);
+        assert_eq!(seg.get(3..8), -3);
     }
 }
