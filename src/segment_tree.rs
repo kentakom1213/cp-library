@@ -257,6 +257,16 @@ pub mod Alg {
             gcd(b, a % b)
         }
     }
+
+    // /// あまりをとる積
+    // pub struct ModMul;
+    // impl Monoid for ModMul {
+    //     type Val = Modint<998244353>;
+    //     const E: Self::Val = Modint::<998244353>(1);
+    //     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+    //         *left * *right
+    //     }
+    // }
 }
 
 #[cfg(test)]

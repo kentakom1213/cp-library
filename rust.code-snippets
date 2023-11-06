@@ -2021,6 +2021,15 @@
         "\t\t\tgcd(b, a % b)",
         "\t\t}",
         "\t}",
+        "\t// /// あまりをとる積",
+        "\t// pub struct ModMul;",
+        "\t// impl Monoid for ModMul {",
+        "\t//\t type Val = Modint<998244353>;",
+        "\t//\t const E: Self::Val = Modint::<998244353>(1);",
+        "\t//\t fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {",
+        "\t//\t\t *left * *right",
+        "\t//\t }",
+        "\t// }",
         "}"
       ],
       "description": "セグメント木"
