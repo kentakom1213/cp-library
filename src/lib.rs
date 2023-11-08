@@ -18,6 +18,7 @@ pub mod lazy_segment_tree;
 pub mod lca;
 pub mod lcs;
 pub mod loop_detection;
+pub mod loop_detection_fold;
 pub mod matrix_exp;
 pub mod miller_rabin_test;
 pub mod modint;
