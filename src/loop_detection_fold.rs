@@ -1,4 +1,4 @@
-//! ループ検出
+//! ループ検出（fold関数版）
 
 use num_bigint::BigUint;
 use num_traits::{FromPrimitive, ToPrimitive, Zero};
