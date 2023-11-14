@@ -29,7 +29,7 @@ impl Comb {
 
     /// `nCr`を`MOD`で割った値を求める
     pub fn comb(&self, n: usize, r: usize) -> usize {
-        if n < r {
+        if n < r || r < n {
             return 0;
         }
         self.fac[n] * (self.finv[r] * self.finv[n - r] % MOD) % MOD

@@ -8,6 +8,7 @@ pub mod binary_search_slice;
 pub mod bit;
 pub mod chmax_chmin;
 pub mod comb;
+pub mod comb_no_mod;
 pub mod coordinate_compression;
 pub mod dijkstra;
 pub mod factorize;

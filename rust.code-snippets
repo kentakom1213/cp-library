@@ -826,7 +826,7 @@
         "\t}",
         "\t/// `nCr`を`MOD`で割った値を求める",
         "\tpub fn comb(&self, n: usize, r: usize) -> usize {",
-        "\t\tif n < r {",
+        "\t\tif n < r || r < n {",
         "\t\t\treturn 0;",
         "\t\t}",
         "\t\tself.fac[n] * (self.finv[r] * self.finv[n - r] % MOD) % MOD",
@@ -940,6 +940,21 @@
         "}"
       ],
       "description": "ローリングハッシュ"
+    },
+    {
+      "prefix": "comb_no_mod.rs",
+      "body": [
+        "pub fn comb(n: usize, r: usize) -> usize {",
+        "\tif r == 0 {",
+        "\t\t1",
+        "\t} else if n < r {",
+        "\t\t0",
+        "\t} else {",
+        "\t\tn * comb(n - 1, r - 1) / r",
+        "\t}",
+        "}"
+      ],
+      "description": ""
     },
     {
       "prefix": "powmod.rs",
