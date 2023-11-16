@@ -26,6 +26,7 @@ pub mod modint;
 pub mod modint_comb;
 pub mod modint_traits;
 pub mod multiset;
+pub mod multiset_iterable;
 pub mod namori;
 pub mod ord_chr;
 pub mod pollard_rho_method;
