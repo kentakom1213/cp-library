@@ -161,7 +161,7 @@ mod test {
     fn test_iterator() {
         let mut arr = vec![0, 9, 4, 4, 5, 5, 10, 10, 3, 3, 0, 0, 2, 1];
 
-        let mut mset: MultiSet<usize> = arr.iter().cloned().collect();
+        let mset: MultiSet<usize> = arr.iter().cloned().collect();
 
         assert_eq!(mset.len(), 14);
 
