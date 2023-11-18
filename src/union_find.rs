@@ -1,7 +1,6 @@
 //! UnionFind木
 
 /// # UnionFind
-/// 参考: [RustでUnionFind](https://zenn.dev/nakamurus/articles/f398b7f4d7618ea5b7eb)
 pub struct UnionFind {
     par: Vec<usize>,
     siz: Vec<usize>,
