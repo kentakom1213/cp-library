@@ -2,7 +2,7 @@
 
 #[rustfmt::skip]
 pub mod modint {
-    use std::{fmt::Display,ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign}, str::FromStr, num::ParseIntError};
+    use std::{fmt::Display,ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign}, str::FromStr, num::ParseIntError, iter::{Sum, Product}};
     #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)] pub struct Modint<const MOD: usize>(pub usize);
     impl<const MOD: usize> Modint<MOD> { pub fn new(n: usize) -> Self { Self(if n < MOD { n } else { n % MOD }) } }
     impl<const MOD: usize> Neg for Modint<MOD> { type Output = Self; fn neg(self) -> Self { Modint(if self.0 == 0 { 0 } else { MOD - self.0 }) } }
@@ -26,6 +26,8 @@ pub mod modint {
     impl<const MOD: usize> FromStr for Modint<MOD> { type Err = ParseIntError; fn from_str(s: &str) -> Result<Self, Self::Err> { usize::from_str(s).map(Modint::new) } }
     pub trait Fp { fn pow(&self, rhs: usize) -> Self; fn inv(&self) -> Self; }
     impl<const MOD: usize> Fp for Modint<MOD> { fn pow(&self, rhs: usize) -> Self { let (mut a, mut b) = (self.0, rhs); let mut res = 1; while b > 0 { if b & 1 == 1 { res = (res * a) % MOD; } a = (a * a) % MOD; b >>= 1u32; } Modint(res) } fn inv(&self) -> Self { self.pow(MOD - 2) } }
+    impl<const MOD: usize> Sum<Modint<MOD>> for Modint<MOD> { fn sum<I: Iterator<Item = Modint<MOD>>>(iter: I) -> Self { iter.fold(Modint::<MOD>(0), |acc, x| acc + x) } }
+    impl<const MOD: usize> Product<Modint<MOD>> for Modint<MOD> { fn product<I: Iterator<Item = Modint<MOD>>>(iter: I) -> Self { iter.fold(Modint::<MOD>(1), |acc, x| acc * x) } }
 }
 use modint::*;
 
@@ -135,6 +137,26 @@ mod test {
                 1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600,
                 237554682, 331032489, 972509923, 586493473, 986189864, 781263551, 868586527
             ]
+        );
+    }
+
+    #[test]
+    fn test_sum() {
+        assert_eq!(
+            (0..20)
+                .map(|i| Mod1e9::new(2).pow(i))
+                .sum::<Mod1e9>(),
+            Mod1e9::new(2).pow(20) - 1
+        );
+    }
+
+    #[test]
+    fn test_product() {
+        assert_eq!(
+            (0..100)
+                .map(|_| 3.into())
+                .product::<Mod1e9>(),
+            Mod1e9::new(3).pow(100)
         );
     }
 }
