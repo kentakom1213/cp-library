@@ -4,6 +4,7 @@ type Graph = Vec<Vec<usize>>;
 
 /// ## SCC (強連結成分分解)
 /// - Strongly Conneected Components
+#[derive(Debug)]
 pub struct SCC {
     pub V: usize,
     pub E: usize,
