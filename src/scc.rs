@@ -9,8 +9,9 @@ pub struct SCC {
     pub E: usize,
     pub G: Graph,
     rG: Graph,
-    pub group_count: Option<usize>,
-    pub components: Vec<usize>,
+    pub group_count: usize,
+    pub belongs_to: Vec<usize>,
+    pub components: Vec<Vec<usize>>,
     pub DAG: Graph,
 }
 
@@ -24,7 +25,8 @@ impl SCC {
             E: 0,
             G: vec![vec![]; V],
             rG: vec![vec![]; V],
-            group_count: None,
+            group_count: 0,
+            belongs_to: vec![0; V],
             components: vec![],
             DAG: vec![],
         }
@@ -48,10 +50,10 @@ impl SCC {
 
         // 連結成分に分解
         let mut group = 0;
-        let mut components = vec![Self::INF; self.V];
+        let mut belongs_to = vec![Self::INF; self.V];
         for &i in order.iter().rev() {
-            if components[i] == Self::INF {
-                Self::rdfs(i, group, &self.rG, &mut components);
+            if belongs_to[i] == Self::INF {
+                Self::rdfs(i, group, &self.rG, &mut belongs_to);
                 group += 1;
             }
         }
@@ -60,15 +62,22 @@ impl SCC {
         let mut DAG = vec![vec![]; group];
         for i in 0..self.V {
             for &j in &self.G[i] {
-                let (u, v) = (components[i], components[j]);
+                let (u, v) = (belongs_to[i], belongs_to[j]);
                 if u != v {
                     DAG[u].push(v);
                 }
             }
         }
 
-        self.group_count = Some(group);
-        self.components = components;
+        // 分解する
+        self.components.resize_with(group, Vec::new);
+
+        for (v, &g) in belongs_to.iter().enumerate() {
+            self.components[g].push(v);
+        }
+
+        self.group_count = group;
+        self.belongs_to = belongs_to;
         self.DAG = DAG;
     }
 
@@ -83,13 +92,13 @@ impl SCC {
         order.push(u);
     }
 
-    fn rdfs(u: usize, group: usize, rG: &Graph, components: &mut Vec<usize>) {
-        if components[u] != Self::INF {
+    fn rdfs(u: usize, group: usize, rG: &Graph, belongs_to: &mut Vec<usize>) {
+        if belongs_to[u] != Self::INF {
             return;
         }
-        components[u] = group;
+        belongs_to[u] = group;
         for &v in &rG[u] {
-            Self::rdfs(v, group, rG, components);
+            Self::rdfs(v, group, rG, belongs_to);
         }
     }
 }
@@ -108,8 +117,9 @@ mod test {
         // 強連結成分分解
         scc.decompose();
 
-        assert_eq!(scc.group_count, Some(4));
-        assert_eq!(&scc.components, &vec![3, 1, 2, 3, 1, 0]);
+        assert_eq!(scc.group_count, 4);
+        assert_eq!(&scc.belongs_to, &vec![3, 1, 2, 3, 1, 0]);
         assert_eq!(&scc.DAG, &vec![vec![2], vec![2], vec![], vec![]]);
+        assert_eq!(&scc.components, &vec![vec![5], vec![1, 4], vec![2], vec![0, 3]]);
     }
 }
