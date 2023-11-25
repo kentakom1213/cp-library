@@ -686,6 +686,32 @@
       "description": "ミラー・ラビン素数判定法"
     },
     {
+      "prefix": "chmin.rs",
+      "body": [
+        "/// `chmin!{x1, x2, ..., xn}`:`x1`,`x2`,...,`xn`のうち最小のものを、`x1`に代入する",
+        "/// - 代入があったとき、`true`を返す",
+        "#[macro_export]",
+        "macro_rules! chmin {",
+        "\t( \\$a:expr, \\$b:expr \\$(,)* ) => {{",
+        "\t\tif \\$a > \\$b {",
+        "\t\t\t\\$a = \\$b;",
+        "\t\t\ttrue",
+        "\t\t} else {",
+        "\t\t\tfalse",
+        "\t\t}",
+        "\t}};",
+        "\t( \\$a:expr, \\$b:expr, \\$c:expr \\$(,\\$other:expr)* \\$(,)* ) => {{",
+        "\t\tchmin! {",
+        "\t\t\t\\$a,",
+        "\t\t\t(\\$b).min(\\$c)",
+        "\t\t\t\\$(,\\$other)*",
+        "\t\t}",
+        "\t}};",
+        "}"
+      ],
+      "description": "chminの実装"
+    },
+    {
       "prefix": "modint_traits.rs",
       "body": [
         "/// 有限体の実装",
@@ -2043,6 +2069,32 @@
       "description": "重み付きUnionFind"
     },
     {
+      "prefix": "chmax.rs",
+      "body": [
+        "/// `chmax!{x1, x2, ..., xn}`:`x1`,`x2`,...,`xn`のうち最大のものを、`x1`に代入する",
+        "/// - 代入があったとき、`true`を返す",
+        "#[macro_export]",
+        "macro_rules! chmax {",
+        "\t( \\$a:expr, \\$b:expr \\$(,)* ) => {{",
+        "\t\tif \\$a < \\$b {",
+        "\t\t\t\\$a = \\$b;",
+        "\t\t\ttrue",
+        "\t\t} else {",
+        "\t\t\tfalse",
+        "\t\t}",
+        "\t}};",
+        "\t( \\$a:expr, \\$b:expr, \\$c:expr \\$(,\\$other:expr)* \\$(,)* ) => {{",
+        "\t\tchmax! {",
+        "\t\t\t\\$a,",
+        "\t\t\t(\\$b).max(\\$c)",
+        "\t\t\t\\$(,\\$other)*",
+        "\t\t}",
+        "\t}}",
+        "}"
+      ],
+      "description": "chmaxの実装"
+    },
+    {
       "prefix": "affine_transform.rs",
       "body": [
         "/// # AffineMatrix",
@@ -3295,52 +3347,6 @@
         "}"
       ],
       "description": "2次元累積和"
-    },
-    {
-      "prefix": "chmax_chmin.rs",
-      "body": [
-        "/// `chmax!{x1, x2, ..., xn}`:`x1`,`x2`,...,`xn`のうち最大のものを、`x1`に代入する",
-        "/// - 代入があったとき、`true`を返す",
-        "#[macro_export]",
-        "macro_rules! chmax {",
-        "\t( \\$a:expr, \\$b:expr \\$(,)* ) => {{",
-        "\t\tif \\$a < \\$b {",
-        "\t\t\t\\$a = \\$b;",
-        "\t\t\ttrue",
-        "\t\t} else {",
-        "\t\t\tfalse",
-        "\t\t}",
-        "\t}};",
-        "\t( \\$a:expr, \\$b:expr, \\$c:expr \\$(,\\$other:expr)* \\$(,)* ) => {{",
-        "\t\tchmax! {",
-        "\t\t\t\\$a,",
-        "\t\t\t(\\$b).max(\\$c)",
-        "\t\t\t\\$(,\\$other)*",
-        "\t\t}",
-        "\t}}",
-        "}",
-        "/// `chmin!{x1, x2, ..., xn}`:`x1`,`x2`,...,`xn`のうち最小のものを、`x1`に代入する",
-        "/// - 代入があったとき、`true`を返す",
-        "#[macro_export]",
-        "macro_rules! chmin {",
-        "\t( \\$a:expr, \\$b:expr \\$(,)* ) => {{",
-        "\t\tif \\$a > \\$b {",
-        "\t\t\t\\$a = \\$b;",
-        "\t\t\ttrue",
-        "\t\t} else {",
-        "\t\t\tfalse",
-        "\t\t}",
-        "\t}};",
-        "\t( \\$a:expr, \\$b:expr, \\$c:expr \\$(,\\$other:expr)* \\$(,)* ) => {{",
-        "\t\tchmin! {",
-        "\t\t\t\\$a,",
-        "\t\t\t(\\$b).min(\\$c)",
-        "\t\t\t\\$(,\\$other)*",
-        "\t\t}",
-        "\t}};",
-        "}"
-      ],
-      "description": "chmax/chminの実装"
     },
     {
       "prefix": "namori.rs",
