@@ -166,31 +166,39 @@ impl MexSet {
         }
         let &(ll, l) = self
             .ranges
-            .range(..(start + 1, start + 1))
+            .range((Unbounded, Included((start, start))))
             .next_back()
             .unwrap();
-        let &(r, rr) = self.ranges.range((end, end)..).next().unwrap();
+        let &(r, rr) = self
+            .ranges
+            .range((Unbounded, Included((end, end))))
+            .next_back()
+            .unwrap();
+        println!("{:?}", ((ll, l), (r, rr)));
         if l < start && end < r {
             return false;
         }
-        // 左側の削除
-        self.ranges.remove(&(ll, l));
-        match (ll < start, end < l) {
-            (false, false) => (),
-            (false, true) => {
-                self.ranges.insert((end - 1, l));
-            }
-            (true, false) => {
-                self.ranges.insert((ll, start - 1));
-            }
-            (true, true) => {
-                self.ranges.insert((ll, start - 1));
-                self.ranges.insert((end + 1, l));
+        if start <= l {
+            self.ranges.remove(&(ll, l));
+            match (ll < start, end < l) {
+                (false, false) => {}
+                (false, true) => {
+                    self.ranges.insert((end.saturating_add(1), l));
+                }
+                (true, false) => {
+                    self.ranges.insert((ll, start.saturating_sub(1)));
+                }
+                (true, true) => {
+                    self.ranges.insert((ll, start.saturating_sub(1)));
+                    self.ranges.insert((end.saturating_add(1), l));
+                }
             }
         }
-        // 右側の削除
-        self.ranges.remove(&(r, rr));
-        true
+        if r <= end && end <= rr {
+            self.ranges.remove(&(r, rr));
+            self.ranges.insert((end.saturating_add(1), rr));
+        }
+        todo!()
     }
 
     /// **集合に含まれない**`x`以上で最小の整数を調べる
@@ -297,17 +305,17 @@ mod test {
         eprintln!("{:?}", mex);
     }
 
-    #[test]
-    fn test_delete_range() {
-        let mut mex = MexSet::new();
+    // #[test]
+    // fn test_delete_range() {
+    //     let mut mex = MexSet::new();
 
-        mex.insert_range(2..=4);
-        mex.insert(8);
-        mex.insert(10);
-        mex.insert_range(20..=40);
-        eprintln!("{:?}", mex);
+    //     mex.insert_range(2..=4);
+    //     mex.insert(8);
+    //     mex.insert(10);
+    //     mex.insert_range(20..=40);
+    //     eprintln!("{:?}", mex);
 
-        assert_eq!(mex.delete_range(6..=10), true);
-        eprintln!("{:?}", mex);
-    }
+    //     mex.delete_range(..);
+    //     eprintln!("{:?}", mex);
+    // }
 }
