@@ -1,6 +1,9 @@
 //! Mexを管理するデータ構造
 
-use std::collections::BTreeSet;
+use std::{
+    collections::BTreeSet,
+    ops::{Bound::*, RangeBounds},
+};
 
 /// 集合とそのmexを管理する
 #[derive(Debug)]
@@ -71,6 +74,122 @@ impl MexSet {
             }
             (true, true) => (),
         }
+        true
+    }
+
+    #[inline]
+    fn parse_range<R: RangeBounds<isize>>(range: R) -> (isize, isize) {
+        let start = match range.start_bound() {
+            Unbounded => isize::MIN,
+            Included(&s) => s,
+            Excluded(&s) => s + 1,
+        };
+        let end = match range.end_bound() {
+            Unbounded => isize::MAX,
+            Included(&e) => e,
+            Excluded(&e) => e - 1,
+        };
+        (start, end)
+    }
+
+    /// 集合に区間を追加する
+    /// - 計算量: O(log(n)) (amotized)
+    pub fn insert_range<R: RangeBounds<isize>>(&mut self, range: R) -> bool {
+        let (start, end) = Self::parse_range(range);
+        if start > end {
+            return false;
+        }
+        if start == end {
+            return self.insert(start);
+        }
+        while let Some(&(l, r)) = self
+            .ranges
+            .range((Excluded((start, start)), Excluded((end, end))))
+            .next()
+        {
+            if r < end {
+                self.ranges.remove(&(l, r));
+            } else {
+                break;
+            }
+        }
+        let &(ll, l) = self
+            .ranges
+            .range(..(start + 1, start + 1))
+            .next_back()
+            .unwrap();
+        let &(r, rr) = self.ranges.range((end, end)..).next().unwrap();
+        if ll <= start && end <= l {
+            return false;
+        }
+        match (start <= l + 1, r - 1 <= end) {
+            (false, false) => {
+                self.ranges.insert((start, end));
+            }
+            (false, true) => {
+                self.ranges.remove(&(r, rr));
+                self.ranges.insert((start, rr));
+            }
+            (true, false) => {
+                self.ranges.remove(&(ll, l));
+                self.ranges.insert((ll, end));
+            }
+            (true, true) => {
+                self.ranges.remove(&(ll, l));
+                self.ranges.remove(&(r, rr));
+                self.ranges.insert((ll, rr));
+            }
+        }
+        true
+    }
+
+    /// 集合から区間を削除する
+    /// - 計算量: O(log(n)) (amotized)
+    pub fn delete_range<R: RangeBounds<isize>>(&mut self, range: R) -> bool {
+        let (start, end) = Self::parse_range(range);
+        if start > end {
+            return false;
+        }
+        if start == end {
+            return self.delete(start);
+        }
+        while let Some(&(l, r)) = self
+            .ranges
+            .range((Excluded((start, start)), Excluded((end, end))))
+            .next()
+        {
+            if r < end {
+                self.ranges.remove(&(l, r));
+            } else {
+                break;
+            }
+        }
+        let &(ll, l) = self
+            .ranges
+            .range(..(start + 1, start + 1))
+            .next_back()
+            .unwrap();
+        let &(r, rr) = self.ranges.range((end, end)..).next().unwrap();
+        if l < start && end < r {
+            return false;
+        }
+        // 左側の削除
+        self.ranges.remove(&(ll, l));
+        match (ll < start, end < l) {
+            (false, false) => (),
+            (false, true) => {
+                self.ranges.insert((end - 1, l));
+            }
+            (true, false) => {
+                self.ranges.insert((ll, start - 1));
+            }
+            (true, true) => {
+                self.ranges.insert((ll, start - 1));
+                self.ranges.insert((end + 1, l));
+            }
+        }
+        // 右側の削除
+        self.ranges.remove(&(r, rr));
         true
     }
 
@@ -152,5 +271,43 @@ mod test {
         assert_eq!(mex.delete(0), true);
         /* set: {2, 4, 5} */
         assert_eq!(mex.mex(0), 0);
+    }
+
+    #[test]
+    fn test_insert_range() {
+        let mut mex = MexSet::new();
+
+        assert_eq!(mex.insert_range(0..=20), true);
+        assert_eq!(mex.mex(0), 21);
+        eprintln!("{:?}", mex);
+
+        assert_eq!(mex.insert_range(2..10), false);
+        assert_eq!(mex.mex(0), 21);
+
+        assert_eq!(mex.insert_range(30..40), true);
+        assert_eq!(mex.mex(0), 21);
+        eprintln!("{:?}", mex);
+
+        assert_eq!(mex.insert_range(11..=28), true);
+        assert_eq!(mex.mex(0), 29);
+        eprintln!("{:?}", mex);
+
+        assert_eq!(mex.insert_range(29..=29), true);
+        assert_eq!(mex.mex(0), 40);
+        eprintln!("{:?}", mex);
+    }
+
+    #[test]
+    fn test_delete_range() {
+        let mut mex = MexSet::new();
+
+        mex.insert_range(2..=4);
+        mex.insert(8);
+        mex.insert(10);
+        mex.insert_range(20..=40);
+        eprintln!("{:?}", mex);
+
+        assert_eq!(mex.delete_range(6..=10), true);
+        eprintln!("{:?}", mex);
     }
 }
