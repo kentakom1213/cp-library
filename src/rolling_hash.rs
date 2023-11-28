@@ -140,6 +140,32 @@ mod test {
     }
 
     #[test]
+    fn test_concat() {
+        const BASE: usize = 998244353;
+
+        let a = "abc";
+        let b = "str";
+        let c = "abcstr";
+
+        let hash_a = RollingHash::from_str(a, BASE);
+        let hash_b = RollingHash::from_str(b, BASE);
+        let hash_c = RollingHash::from_str(c, BASE);
+
+        assert_eq!(
+            hash_a.concat(hash_a.full(), hash_b.full(), 3),
+            hash_c.full()
+        );
+        assert_ne!(
+            hash_a.concat(hash_b.full(), hash_a.full(), 3),
+            hash_c.full()
+        );
+        assert_eq!(
+            hash_a.concat(hash_a.get(0, 3), hash_a.get(3, 3), 0),
+            hash_a.full()
+        );
+    }
+
+    #[test]
     fn test_LCP() {
         let rh1 = RollingHash::from_str(&"humpbump", 2023);
 
