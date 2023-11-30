@@ -10,13 +10,7 @@ pub struct Compression<'a, T> {
 impl<'a, T: Ord> Compression<'a, T> {
     /// スライス`array`で配列を初期化する
     pub fn new(array: &'a [T]) -> Self {
-        let mut comp: Vec<&T> = array.iter().collect();
-        comp.sort();
-        comp.dedup();
-        Self {
-            size: comp.len(),
-            sorted_array: comp,
-        }
+        array.iter().collect()
     }
 
     /// 圧縮後の`val`の番号を返す
@@ -35,6 +29,18 @@ impl<'a, T: Ord> Compression<'a, T> {
             Some(val)
         } else {
             None
+        }
+    }
+}
+
+impl<'a, T: Ord> FromIterator<&'a T> for Compression<'a, T> {
+    fn from_iter<I: IntoIterator<Item = &'a T>>(iter: I) -> Self {
+        let mut comp: Vec<&'a T> = iter.into_iter().collect();
+        comp.sort();
+        comp.dedup();
+        Self {
+            size: comp.len(),
+            sorted_array: comp,
         }
     }
 }

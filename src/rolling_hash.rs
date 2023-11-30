@@ -98,6 +98,7 @@ impl RollingHash {
     }
 
     /// `A`を`0`とするascii文字(`A~Za~z`)のインデックスを返す
+    #[inline]
     fn ord(c: char) -> usize {
         let a = 'A' as u32;
         let c = c as u32;
