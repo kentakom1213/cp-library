@@ -11,7 +11,7 @@ pub mod modint {
     impl Add for Modint { type Output = Self; fn add(self, rhs: Self) -> Self { let mut res = self.0 + rhs.0; if res >= MOD { res -= MOD; } Modint(res) } }
     impl Sub for Modint { type Output = Self; fn sub(self, rhs: Self) -> Self { self + (- rhs) } }
     impl Mul for Modint { type Output = Self; fn mul(self, rhs: Self) -> Self { Modint((self.0 as u128 * rhs.0 as u128 % MOD128) as usize) } }
-    impl Div for Modint { type Output = Self; fn div(self, rhs: Self) -> Self { Modint((self.0 as u128 * rhs.inv().0 as u128) as usize) } }
+    impl Div for Modint { type Output = Self; fn div(self, rhs: Self) -> Self { self * rhs.inv() } }
     impl AddAssign for Modint { fn add_assign(&mut self, rhs: Self) { self.0 = (*self + rhs).0 } }
     impl SubAssign for Modint { fn sub_assign(&mut self, rhs: Self) { self.0 = (*self - rhs).0 } }
     impl MulAssign for Modint { fn mul_assign(&mut self, rhs: Self) { self.0 = (*self * rhs).0 } }
