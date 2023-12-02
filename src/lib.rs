@@ -27,6 +27,7 @@ pub mod mex_set;
 pub mod miller_rabin_test;
 pub mod modint;
 pub mod modint_comb;
+pub mod modint_for_rollinghash;
 pub mod modint_traits;
 pub mod multiset;
 pub mod multiset_iterable;
