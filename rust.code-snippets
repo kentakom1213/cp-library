@@ -2015,6 +2015,25 @@
       "description": "Modintの構造体"
     },
     {
+      "prefix": "bitarray16.rs",
+      "body": [
+        "/// 64bit整数を16bit整数4つの配列として使う",
+        "pub trait BitArray16 {",
+        "\tfn set(&self, i: usize, x: u16) -> Self;",
+        "\tfn get(&self, i: usize) -> u16;",
+        "}",
+        "impl BitArray16 for usize {",
+        "\tfn set(&self, i: usize, x: u16) -> Self {",
+        "\t\t*self & !(0xffff << 16 * i) | (x as usize) << 16 * i",
+        "\t}",
+        "\tfn get(&self, i: usize) -> u16 {",
+        "\t\t((*self & (0xffff << 16 * i)) >> 16 * i) as u16",
+        "\t}",
+        "}"
+      ],
+      "description": "64bit整数を16bit整数4つの配列として使う"
+    },
+    {
       "prefix": "weighted_union_find.rs",
       "body": [
         "use std::fmt::Debug;",

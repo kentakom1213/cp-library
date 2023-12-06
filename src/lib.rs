@@ -6,6 +6,7 @@ pub mod affine_transform;
 pub mod binary_search_btreeset;
 pub mod binary_search_slice;
 pub mod bit;
+pub mod bitarray16;
 pub mod bitset;
 pub mod chmax;
 pub mod chmin;
