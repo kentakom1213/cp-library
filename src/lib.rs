@@ -34,7 +34,7 @@ pub mod multiset;
 pub mod multiset_iterable;
 pub mod namori;
 pub mod ord_chr;
-pub mod pollard_rho_method;
+pub mod pollard_rho_algorithm;
 pub mod powmod;
 pub mod rolling_hash;
 pub mod run_length;
