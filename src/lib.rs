@@ -18,6 +18,7 @@ pub mod factorize;
 pub mod factors;
 pub mod factors_all;
 pub mod grid;
+pub mod indexedset;
 pub mod lazy_segment_tree;
 pub mod lca;
 pub mod lcs;
