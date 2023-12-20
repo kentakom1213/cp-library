@@ -4,7 +4,7 @@ use std::{cmp::Ordering, fmt::Debug};
 
 /// # Node
 #[derive(Debug, Clone)]
-pub struct Node<T: Ord + Debug> {
+pub struct Node<T: Ord> {
     pub key: T,
     pub left: Option<Box<Node<T>>>,
     pub right: Option<Box<Node<T>>>,
@@ -12,7 +12,7 @@ pub struct Node<T: Ord + Debug> {
     pub size: usize,
 }
 
-impl<T: Ord + Debug> Node<T> {
+impl<T: Ord> Node<T> {
     pub fn new(key: T) -> Self {
         Self {
             key,
@@ -25,14 +25,14 @@ impl<T: Ord + Debug> Node<T> {
 
 /// # IndexedSet
 /// スプレー木のクラス
-pub struct IndexedSet<T: Ord + Debug> {
+pub struct IndexedSet<T: Ord> {
     size: usize,
     pub root: Option<Box<Node<T>>>,
 }
 
 impl<T> IndexedSet<T>
 where
-    T: Ord + Clone + Debug,
+    T: Ord + Clone,
 {
     /// `a <= b`の値を返す
     #[inline]
@@ -228,9 +228,9 @@ where
         }
     }
 
-    /// ## nth
+    /// ## get_by_index
     /// - 先頭からn番目の値を取得する（0-indexed）
-    pub fn nth(&self, n: usize) -> Option<&T> {
+    pub fn get_by_index(&self, n: usize) -> Option<&T> {
         if n > self.size {
             None
         } else {
@@ -238,31 +238,27 @@ where
         }
     }
 
-    /// ## to_vec
-    /// 要素を順にVecとして取り出す
-    pub fn to_vec(&self) -> Vec<&T> {
-        let mut res = vec![];
-        traverse(&self.root, &mut res);
-        res
+    /// ## index
+    /// - 要素`key`のインデックスを取得する（0-indexed）
+    pub fn index(&mut self, key: &T) -> Option<usize> {
+        // keyでsplayを行う
+        if self.get(key).is_some() {
+            let left_size = self
+                .root
+                .as_ref()
+                .unwrap()
+                .left
+                .as_ref()
+                .map_or(0, |node| node.size);
+            Some(left_size)
+        } else {
+            None
+        }
     }
-}
-
-/// ## traverse
-/// 順に取り出す
-fn traverse<'a, T: Ord + Debug>(root: &'a Option<Box<Node<T>>>, res: &mut Vec<&'a T>) {
-    if root.is_none() {
-        return;
-    }
-    // 左の子を探索
-    traverse(&root.as_ref().unwrap().left, res);
-    // 値を追加
-    res.push(&root.as_ref().unwrap().key);
-    // 右の子を探索
-    traverse(&root.as_ref().unwrap().right, res);
 }
 
 /// ## get_nth
-fn get_nth<T: Ord + Debug>(root: &Option<Box<Node<T>>>, n: usize) -> Option<&T> {
+fn get_nth<T: Ord>(root: &Option<Box<Node<T>>>, n: usize) -> Option<&T> {
     if let Some(root) = root {
         let left_size = root.left.as_ref().map_or(0, |node| node.size);
         match n.cmp(&(left_size + 1)) {
@@ -279,7 +275,7 @@ fn get_nth<T: Ord + Debug>(root: &Option<Box<Node<T>>>, n: usize) -> Option<&T> 
 /// 比較関数`compare`を引数にとり、条件を満たす最小のノードを返す
 fn splay<T, C>(mut root: Option<Box<Node<T>>>, key: &T, compare: C) -> (Option<Box<Node<T>>>, bool)
 where
-    T: Ord + Debug,
+    T: Ord,
     C: Fn(&T, &T) -> bool,
 {
     if root.is_none() {
@@ -358,7 +354,7 @@ fn splay_rev<T, C>(
     compare: C,
 ) -> (Option<Box<Node<T>>>, bool)
 where
-    T: Ord + Debug,
+    T: Ord,
     C: Fn(&T, &T) -> bool,
 {
     if root.is_none() {
@@ -429,7 +425,7 @@ where
 }
 
 /// 部分木のサイズを更新する
-fn update_size<T: Ord + Debug>(node: &mut Option<Box<Node<T>>>) {
+fn update_size<T: Ord>(node: &mut Option<Box<Node<T>>>) {
     if let Some(node) = node {
         let left_size = node.left.as_ref().map_or(0, |node| node.size);
         let right_size = node.right.as_ref().map_or(0, |node| node.size);
@@ -445,7 +441,7 @@ fn update_size<T: Ord + Debug>(node: &mut Option<Box<Node<T>>>) {
 ///     / \                        / \
 ///    A   B                      B   C
 /// ```
-fn rotate_right<T: Ord + Debug>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T>>> {
+fn rotate_right<T: Ord>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T>>> {
     let Some(mut root) = root else { return None };
     let Some(mut new_root) = root.left else {
         return Some(root);
@@ -466,7 +462,7 @@ fn rotate_right<T: Ord + Debug>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T
 ///       / \                    / \
 ///      B   C                  A   B
 /// ```
-fn rotate_left<T: Ord + Debug>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T>>> {
+fn rotate_left<T: Ord>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T>>> {
     let Some(mut root) = root else { return None };
     let Some(mut new_root) = root.right else {
         return Some(root);
@@ -480,7 +476,7 @@ fn rotate_left<T: Ord + Debug>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T>
 }
 
 // ----- FromIterator -----
-impl<T: Ord + Clone + Debug> FromIterator<T> for IndexedSet<T> {
+impl<T: Ord + Clone> FromIterator<T> for IndexedSet<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         let mut res = IndexedSet::new();
         for item in iter {
@@ -520,6 +516,52 @@ where
     }
 }
 
+// ----- iterator -----
+pub struct SplayTreeIterator<'a, T: 'a + Ord> {
+    unvisited: Vec<&'a Node<T>>,
+}
+
+impl<'a, T: Ord> SplayTreeIterator<'a, T> {
+    fn push_left_edge(&mut self, mut tree: &'a Option<Box<Node<T>>>) {
+        while let Some(node) = tree.as_deref() {
+            self.unvisited.push(node);
+            tree = &node.left;
+        }
+    }
+}
+
+impl<'a, T: Ord> Iterator for SplayTreeIterator<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let node = match self.unvisited.pop() {
+            None => return None,
+            Some(n) => n,
+        };
+
+        self.push_left_edge(&node.right);
+
+        Some(&node.key)
+    }
+}
+
+impl<T: Ord> IndexedSet<T> {
+    pub fn iter<'a>(&'a self) -> SplayTreeIterator<'a, T> {
+        let mut iter = SplayTreeIterator { unvisited: vec![] };
+        iter.push_left_edge(&self.root);
+        iter
+    }
+}
+
+impl<'a, T: Ord> IntoIterator for &'a IndexedSet<T> {
+    type IntoIter = SplayTreeIterator<'a, T>;
+    type Item = &'a T;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -530,31 +572,31 @@ mod test {
 
         eprintln!("{:?}", set);
 
-        assert_eq!(set.nth(0), Some(&(-5)));
-        assert_eq!(set.nth(1), Some(&(1)));
-        assert_eq!(set.nth(2), Some(&(4)));
-        assert_eq!(set.nth(3), Some(&(5)));
-        assert_eq!(set.nth(4), Some(&(10)));
-        assert_eq!(set.nth(5), Some(&(20)));
-        assert_eq!(set.nth(6), Some(&(32)));
-        assert_eq!(set.nth(7), Some(&(100)));
-        assert_eq!(set.nth(8), Some(&(256)));
-        assert_eq!(set.nth(9), Some(&(1024)));
+        assert_eq!(set.get_by_index(0), Some(&(-5)));
+        assert_eq!(set.get_by_index(1), Some(&(1)));
+        assert_eq!(set.get_by_index(2), Some(&(4)));
+        assert_eq!(set.get_by_index(3), Some(&(5)));
+        assert_eq!(set.get_by_index(4), Some(&(10)));
+        assert_eq!(set.get_by_index(5), Some(&(20)));
+        assert_eq!(set.get_by_index(6), Some(&(32)));
+        assert_eq!(set.get_by_index(7), Some(&(100)));
+        assert_eq!(set.get_by_index(8), Some(&(256)));
+        assert_eq!(set.get_by_index(9), Some(&(1024)));
 
         set.insert(512);
 
         eprintln!("{:?}", set);
 
-        assert_eq!(set.nth(0), Some(&(-5)));
-        assert_eq!(set.nth(1), Some(&(1)));
-        assert_eq!(set.nth(2), Some(&(4)));
-        assert_eq!(set.nth(3), Some(&(5)));
-        assert_eq!(set.nth(4), Some(&(10)));
-        assert_eq!(set.nth(5), Some(&(20)));
-        assert_eq!(set.nth(6), Some(&(32)));
-        assert_eq!(set.nth(7), Some(&(100)));
-        assert_eq!(set.nth(8), Some(&(256)));
-        assert_eq!(set.nth(9), Some(&(512)));
-        assert_eq!(set.nth(10), Some(&(1024)));
+        assert_eq!(set.get_by_index(0), Some(&(-5)));
+        assert_eq!(set.get_by_index(1), Some(&(1)));
+        assert_eq!(set.get_by_index(2), Some(&(4)));
+        assert_eq!(set.get_by_index(3), Some(&(5)));
+        assert_eq!(set.get_by_index(4), Some(&(10)));
+        assert_eq!(set.get_by_index(5), Some(&(20)));
+        assert_eq!(set.get_by_index(6), Some(&(32)));
+        assert_eq!(set.get_by_index(7), Some(&(100)));
+        assert_eq!(set.get_by_index(8), Some(&(256)));
+        assert_eq!(set.get_by_index(9), Some(&(512)));
+        assert_eq!(set.get_by_index(10), Some(&(1024)));
     }
 }
