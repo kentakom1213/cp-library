@@ -3,15 +3,13 @@
 /// ペアを列挙する
 #[derive(Debug)]
 pub struct PairsIterator<T: Clone> {
-    remainings: Vec<Vec<T>>,
-    pairs: Vec<Vec<(T, T)>>,
+    stack: Vec<(Vec<T>, Vec<(T, T)>)>,
 }
 
 impl<T: Clone> FromIterator<T> for PairsIterator<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         Self {
-            remainings: vec![iter.into_iter().collect::<Vec<T>>()],
-            pairs: vec![vec![]],
+            stack: vec![(iter.into_iter().collect::<Vec<T>>(), vec![])],
         }
     }
 }
@@ -20,7 +18,7 @@ impl<T: Clone> Iterator for PairsIterator<T> {
     type Item = Vec<(T, T)>;
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            let (Some(rem), Some(pairs)) = (self.remainings.pop(), self.pairs.pop()) else {
+            let Some((rem, pairs)) = self.stack.pop() else {
                 return None;
             };
             if rem.len() < 2 {
@@ -33,8 +31,7 @@ impl<T: Clone> Iterator for PairsIterator<T> {
                 let mut new_pairs = pairs.clone();
                 new_pairs.push((fst, snd));
                 // 新しい要素を追加
-                self.remainings.push(new_rem);
-                self.pairs.push(new_pairs);
+                self.stack.push((new_rem, new_pairs));
             }
         }
     }
