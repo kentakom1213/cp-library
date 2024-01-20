@@ -1,5 +1,6 @@
 //! 遅延評価セグメント木
 
+use core::fmt;
 use std::ops::{
     Bound::{Excluded, Included, Unbounded},
     RangeBounds,
@@ -36,20 +37,18 @@ pub struct LazySegmentTree<T: ExtMonoid> {
 
 impl<T: ExtMonoid> LazySegmentTree<T> {
     #[inline]
-    fn parse_range<R: RangeBounds<usize>>(&self, range: R) -> Option<(usize, usize)> {
+    fn parse_range<R: RangeBounds<usize>>(&self, range: &R) -> Option<(usize, usize)> {
         let start = match range.start_bound() {
             Unbounded => 0,
             Excluded(&v) => v + 1,
             Included(&v) => v,
-        }
-        .min(self.size);
+        };
         let end = match range.end_bound() {
             Unbounded => self.size,
             Excluded(&v) => v,
             Included(&v) => v + 1,
-        }
-        .min(self.size);
-        if start <= end {
+        };
+        if start <= end && end <= self.size {
             Some((start, end))
         } else {
             None
@@ -86,7 +85,7 @@ impl<T: ExtMonoid> LazySegmentTree<T> {
     /// 区間に`val`を作用させる
     /// - `range`: `[left, right)`
     pub fn apply<R: RangeBounds<usize>>(&mut self, range: R, val: T::M) {
-        if let Some((left, right)) = self.parse_range(range) {
+        if let Some((left, right)) = self.parse_range(&range) {
             self.apply_inner(left, right, val, 0, self.offset, 1);
         }
     }
@@ -121,11 +120,11 @@ impl<T: ExtMonoid> LazySegmentTree<T> {
 
     /// 区間を取得する
     /// - `range`: `[left, right)`
-    pub fn get<R: RangeBounds<usize>>(&mut self, range: R) -> T::X {
-        if let Some((left, right)) = self.parse_range(range) {
+    pub fn get<R: RangeBounds<usize> + fmt::Debug>(&mut self, range: R) -> T::X {
+        if let Some((left, right)) = self.parse_range(&range) {
             self.get_inner(left, right, 0, self.offset, 1)
         } else {
-            T::IX
+            panic!("The given range is wrong: {:?}", range);
         }
     }
 
@@ -426,5 +425,13 @@ mod test {
         assert_eq!(seg.get(..5), -3);
         assert_eq!(seg.get(5..), -10);
         assert_eq!(seg.get(3..8), -3);
+    }
+
+    #[test]
+    #[should_panic]
+    fn wrong_range() {
+        let mut seg = LazySegmentTree::<Alg::RMQandRAQ>::from(&vec![0, 1, 2, 3, 4, 5]);
+
+        seg.get(..7);
     }
 }
