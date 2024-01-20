@@ -33,20 +33,18 @@ impl<T: Monoid> Index<usize> for SegmentTree<T> {
 
 impl<T: Monoid> SegmentTree<T> {
     #[inline]
-    fn parse_range<R: RangeBounds<usize>>(&self, range: R) -> Option<(usize, usize)> {
+    fn parse_range<R: RangeBounds<usize>>(&self, range: &R) -> Option<(usize, usize)> {
         let start = match range.start_bound() {
             Unbounded => 0,
             Excluded(&v) => v + 1,
             Included(&v) => v,
-        }
-        .min(self.size);
+        };
         let end = match range.end_bound() {
             Unbounded => self.size,
             Excluded(&v) => v,
             Included(&v) => v + 1,
-        }
-        .min(self.size);
-        if start <= end {
+        };
+        if start <= end && end <= self.size {
             Some((start, end))
         } else {
             None
@@ -90,13 +88,10 @@ impl<T: Monoid> SegmentTree<T> {
     }
 
     /// 区間`range`の集約を行う
-    pub fn get_range<R: RangeBounds<usize>>(&self, range: R) -> T::Val {
-        let parsed = self.parse_range(range);
-        if parsed.is_none() {
-            return T::E;
-        }
-
-        let (start, end) = parsed.unwrap();
+    pub fn get_range<R: RangeBounds<usize> + fmt::Debug>(&self, range: R) -> T::Val {
+        let Some((start, end)) = self.parse_range(&range) else {
+            panic!("The given range is wrong: {:?}", range);
+        };
 
         // 全体の値を取得
         if (start, end) == (0, self.size) {
@@ -328,11 +323,22 @@ mod test {
         assert_eq!(segtree.get_range(2..5), 8);
 
         segtree.update(0, 200);
+        eprintln!("{:?}", segtree);
 
         assert_eq!(segtree.get_range(..), 200);
         assert_eq!(segtree.get_range(2..5), 8);
-        assert_eq!(segtree.get_range(5..10), 100);
-        assert_eq!(segtree.get_range(10..20), INF);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_wrong_range() {
+        let segtree = SegmentTree::<Alg::Add>::from(&vec![0, 1, 2, 3, 4, 5]);
+
+        assert_eq!(segtree.get_range(..), 15);
+        assert_eq!(segtree.get_range(..2), 1);
+        assert_eq!(segtree.get_range(..6), 15);
+        assert_eq!(segtree.get_range(0..), 15);
+        assert_eq!(segtree.get_range(..7), 15);
     }
 
     #[test]
