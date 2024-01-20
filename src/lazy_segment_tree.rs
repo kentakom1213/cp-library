@@ -84,10 +84,11 @@ impl<T: ExtMonoid> LazySegmentTree<T> {
 
     /// 区間に`val`を作用させる
     /// - `range`: `[left, right)`
-    pub fn apply<R: RangeBounds<usize>>(&mut self, range: R, val: T::M) {
-        if let Some((left, right)) = self.parse_range(&range) {
-            self.apply_inner(left, right, val, 0, self.offset, 1);
-        }
+    pub fn apply<R: RangeBounds<usize> + fmt::Debug>(&mut self, range: R, val: T::M) {
+        let Some((left, right)) = self.parse_range(&range) else {
+            panic!("The given range is wrong: {:?}", range);
+        };
+        self.apply_inner(left, right, val, 0, self.offset, 1);
     }
 
     fn apply_inner(
@@ -121,11 +122,10 @@ impl<T: ExtMonoid> LazySegmentTree<T> {
     /// 区間を取得する
     /// - `range`: `[left, right)`
     pub fn get<R: RangeBounds<usize> + fmt::Debug>(&mut self, range: R) -> T::X {
-        if let Some((left, right)) = self.parse_range(&range) {
-            self.get_inner(left, right, 0, self.offset, 1)
-        } else {
+        let Some((left, right)) = self.parse_range(&range) else {
             panic!("The given range is wrong: {:?}", range);
-        }
+        };
+        self.get_inner(left, right, 0, self.offset, 1)
     }
 
     fn get_inner(
@@ -310,7 +310,7 @@ mod test {
         assert_eq!(seg.get(5..), 22);
         assert_eq!(seg.get(3..8), 13);
 
-        seg.apply(8..=10, -10);
+        seg.apply(8..10, -10);
         // [2, 2, -1, -1, 2, 2, 5, 5, -5, -5]
 
         assert_eq!(seg.get(..), 6);
@@ -354,7 +354,7 @@ mod test {
         assert_eq!(seg.get(5..), -3);
         assert_eq!(seg.get(3..8), -3);
 
-        seg.apply(8..=10, -10);
+        seg.apply(8..10, -10);
         // [2, 2, -3, -3, -3, -3, 5, 5, -10, -10]
 
         assert_eq!(seg.get(..), -10);
@@ -418,7 +418,7 @@ mod test {
         assert_eq!(seg.get(5..), -3);
         assert_eq!(seg.get(3..8), -3);
 
-        seg.apply(8..=10, -10);
+        seg.apply(8.., -10);
         // [2, 2, -3, -3, -3, -3, 5, 5, -10, -10]
 
         assert_eq!(seg.get(..), -10);
@@ -429,9 +429,17 @@ mod test {
 
     #[test]
     #[should_panic]
-    fn wrong_range() {
+    fn get_wrong_range() {
         let mut seg = LazySegmentTree::<Alg::RMQandRAQ>::from(&vec![0, 1, 2, 3, 4, 5]);
 
         seg.get(..7);
+    }
+
+    #[test]
+    #[should_panic]
+    fn set_wrong_range() {
+        let mut seg = LazySegmentTree::<Alg::RMQandRAQ>::from(&vec![0, 1, 2, 3, 4, 5]);
+
+        seg.apply(..7, 0);
     }
 }
