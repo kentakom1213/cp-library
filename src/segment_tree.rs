@@ -54,7 +54,7 @@ impl<T: Monoid> SegmentTree<T> {
     /// ## new
     /// セグメント木を初期化する
     pub fn new(n: usize) -> Self {
-        let offset = n.next_power_of_two();
+        let offset = n;
 
         Self {
             size: n,
@@ -92,12 +92,6 @@ impl<T: Monoid> SegmentTree<T> {
         let Some((start, end)) = self.parse_range(&range) else {
             panic!("The given range is wrong: {:?}", range);
         };
-
-        // 全体の値を取得
-        if (start, end) == (0, self.size) {
-            return self.data[1].clone();
-        }
-
         // 値の取得
         let mut l = self.offset + start;
         let mut r = self.offset + end;
