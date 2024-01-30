@@ -34,6 +34,52 @@
       "description": "usizeの便利ツール"
     },
     {
+      "prefix": "frac.rs",
+      "body": [
+        "use std::{cmp::Ordering, ops::Mul};",
+        "/// 分数を表す構造体",
+        "/// - `Frac(a, b)` := a / b",
+        "#[derive(Debug, Clone, Copy)]",
+        "pub struct Frac<T>(T, T);",
+        "impl<T> PartialEq for Frac<T>",
+        "where",
+        "\tT: Clone + Copy + Ord + Mul<Output = T>,",
+        "{",
+        "\tfn eq(&self, other: &Self) -> bool {",
+        "\t\tlet &Frac(a1, b1) = self;",
+        "\t\tlet &Frac(a2, b2) = other;",
+        "\t\ta1 * b2 == a2 * b1",
+        "\t}",
+        "}",
+        "impl<T> Eq for Frac<T>",
+        "where",
+        "\tT: Clone + Copy + Ord + Mul<Output = T>,",
+        "{",
+        "\tfn assert_receiver_is_total_eq(&self) {}",
+        "}",
+        "impl<T> PartialOrd for Frac<T>",
+        "where",
+        "\tT: Clone + Copy + Ord + Mul<Output = T>,",
+        "{",
+        "\tfn partial_cmp(&self, other: &Self) -> Option<Ordering> {",
+        "\t\tlet &Frac(a1, b1) = self;",
+        "\t\tlet &Frac(a2, b2) = other;",
+        "\t\t(a1 * b2).partial_cmp(&(a2 * b1))",
+        "\t}",
+        "}",
+        "impl<T> Ord for Frac<T>",
+        "where",
+        "\tT: Clone + Copy + Ord + Mul<Output = T>,",
+        "{",
+        "\tfn cmp(&self, other: &Self) -> Ordering {",
+        "\t\tself.partial_cmp(other).unwrap()",
+        "\t}",
+        "}",
+        "// TODO: Add, Mul等の実装"
+      ],
+      "description": "比較を実装した分数の実装"
+    },
+    {
       "prefix": "factors_all.rs",
       "body": [
         "/// ## 高速約数列挙",
@@ -3007,6 +3053,16 @@
         "}"
       ],
       "description": "遅延評価セグメント木"
+    },
+    {
+      "prefix": "rollback_unionfind.rs",
+      "body": [
+        "/// ロールバック可能UnionFind",
+        "struct RollbackUnionFind {",
+        "\t",
+        "}"
+      ],
+      "description": "undo処理，rollback処理をもたせたUnionFind木"
     },
     {
       "prefix": "segment_tree.rs",
