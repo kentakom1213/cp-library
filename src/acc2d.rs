@@ -11,16 +11,16 @@ pub fn acc2D<T: Num + Copy>(array: &Vec<Vec<T>>) -> impl Fn(usize, usize, usize,
     let mut S = vec![vec![T::zero(); W + 1]; H + 1];
     for i in 0..H {
         for j in 0..W {
-            S[i + 1][j + 1] = S[i][j + 1] + S[i + 1][j] - S[i][j] + array[i][j];
+            S[i + 1][j + 1] = array[i][j] + S[i][j + 1] + S[i + 1][j] - S[i][j];
         }
     }
     move |r_start: usize, r_end: usize, c_start: usize, c_end: usize| -> T {
-        S[r_end][c_end] - S[r_end][c_start] - S[r_start][c_end] + S[r_start][c_start]
+        S[r_end][c_end] + S[r_start][c_start] - S[r_end][c_start] - S[r_start][c_end]
     }
 }
 
 #[cfg(test)]
-mod test {
+mod test_acc2D {
     use super::acc2D;
 
     #[test]
@@ -47,5 +47,33 @@ mod test {
         assert_eq!(acc(0, 3, 1, 2), 15);
         assert_eq!(acc(1, 2, 0, 3), 15);
         assert_eq!(acc(0, 3, 0, 3), 45);
+    }
+
+    #[test]
+    fn test_acc_2D_overflow() {
+        let arr: Vec<Vec<usize>> = vec![
+            vec![100, 10, 1],
+            vec![20, 1, 3],
+            vec![1, 5, 1],
+        ];
+
+        let acc = acc2D(&arr);
+
+        for t in 0..3 {
+            for b in t + 1..=3 {
+                for l in 0..3 {
+                    for r in l + 1..=3 {
+                        // 愚直な足し算
+                        let mut tmp = 0;
+                        for i in t..b {
+                            for j in l..r {
+                                tmp += arr[i][j];
+                            }
+                        }
+                        assert_eq!(tmp, acc(t, b, l, r));
+                    }
+                }
+            }
+        }
     }
 }
