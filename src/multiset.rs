@@ -1,5 +1,6 @@
 //! 多重集合（BTreeMapによる実装）
 
+// ===== Multi Set =====
 use std::collections::BTreeMap;
 
 #[derive(Debug)]

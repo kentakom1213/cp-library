@@ -1,5 +1,6 @@
 //! 2次元累積和
 
+// ===== acc2D =====
 use num_traits::Num;
 
 /// ## acc2D

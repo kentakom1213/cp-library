@@ -1,5 +1,6 @@
 //! 重み付きUnionFind
 
+// ===== Weighted UnionFind =====
 use std::fmt::Debug;
 
 /// ## アーベル群

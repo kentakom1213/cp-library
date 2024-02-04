@@ -1,5 +1,6 @@
 //! ランレングス圧縮
 
+// ===== Run Length Encode =====
 /// ## ランレングス圧縮
 /// - スライスからエンコードを行う
 pub fn run_length_encode<T>(arr: &[T]) -> Vec<(T, usize)>

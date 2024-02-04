@@ -1,5 +1,6 @@
 //! 二項係数を求める
 
+// ===== Precalculation for Combination =====
 const MOD: usize = 998_244_353;
 // const MOD: usize = 1_000_000_007;
 

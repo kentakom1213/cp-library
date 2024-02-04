@@ -1,5 +1,6 @@
 //! ローリングハッシュ
 
+// ===== Rolling Hash =====
 /// # Modint
 pub trait Modint {
     const MOD: usize;

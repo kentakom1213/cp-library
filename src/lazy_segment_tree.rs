@@ -1,5 +1,6 @@
 //! 遅延評価セグメント木
 
+// ===== Lazy Segment Tree =====
 use core::fmt;
 use std::ops::{
     Bound::{Excluded, Included, Unbounded},
