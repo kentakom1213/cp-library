@@ -46,6 +46,7 @@ pub mod scc;
 pub mod segment_tree;
 pub mod segment_tree_mutable;
 pub mod simple_graph;
+pub mod sparse_table;
 pub mod tree_dp;
 pub mod trie;
 pub mod union_find;
