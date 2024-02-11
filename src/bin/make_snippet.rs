@@ -66,8 +66,10 @@ fn read_file(path: &Path) -> SnippetPiece {
     // ファイル名
     let prefix = path.file_name().unwrap().to_str().unwrap().to_string();
 
-    let mut description = String::new(); // コードの説明
-    let mut body = vec![]; // コードの中身
+    // コードの説明
+    let mut description = String::new();
+    // コードの中身（modに切り分け）
+    let mut body = vec![format!("mod {} {{", &prefix[..prefix.len() - 3])];
 
     for line in fs::read_to_string(path).unwrap().split("\n") {
         if line.starts_with("//!") {
@@ -75,10 +77,12 @@ fn read_file(path: &Path) -> SnippetPiece {
         } else if line.starts_with("#[cfg(test)]") {
             break;
         } else if line != "" {
-            let line = line.replace("    ", "\t").replace("$", "\\$");
+            let line = format!("\t{}", line.replace("    ", "\t").replace("$", "\\$"));
             body.push(line);
         }
     }
+
+    body.push("}".to_string());
 
     SnippetPiece {
         prefix,
