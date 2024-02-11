@@ -1,6 +1,5 @@
 //! セグメント木
 
-
 // ===== Segment Tree =====
 use std::fmt;
 use std::ops::{

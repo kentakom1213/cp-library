@@ -112,10 +112,30 @@ pub mod Alg {
             *x.max(y)
         }
     }
+    /// 最大公約数
+    pub fn gcd(a: usize, b: usize) -> usize {
+        if b == 0 {
+            a
+        } else {
+            gcd(b, a % b)
+        }
+    }
+    /// 区間最大公約数
+    #[derive(Debug)]
+    pub struct GCD;
+    impl Semilattice for GCD {
+        type Val = usize;
+        const E: Self::Val = 0;
+        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
+            gcd(*x, *y)
+        }
+    }
 }
 
 #[cfg(test)]
 mod test_sparse_table {
+    use rand::random;
+
     use super::*;
 
     #[test]
@@ -127,6 +147,21 @@ mod test_sparse_table {
         eprintln!("{:?}", table);
 
         let get_range = |l, r| *arr[l..r].iter().min().unwrap_or(&isize::MAX);
+
+        for l in 0..N {
+            for r in l..N {
+                assert_eq!(table.get_range(l..r), get_range(l, r));
+            }
+        }
+    }
+
+    #[test]
+    fn test_range_max_random() {
+        let N = 500;
+        let arr = (0..N).map(|_| random()).collect::<Vec<isize>>();
+        let table = SparseTable::<Alg::Max>::build(&arr);
+
+        let get_range = |l, r| *arr[l..r].iter().max().unwrap_or(&isize::MAX);
 
         for l in 0..N {
             for r in l..N {
