@@ -19,20 +19,20 @@ pub trait Monoid {
 
 /// # SegmentTree (Monoid)
 /// - 抽象化セグメント木
-pub struct SegmentTree<T: Monoid> {
+pub struct SegmentTree<M: Monoid> {
     pub size: usize,
     offset: usize,
-    data: Vec<T::Val>,
+    data: Vec<M::Val>,
 }
 
-impl<T: Monoid> Index<usize> for SegmentTree<T> {
-    type Output = T::Val;
+impl<M: Monoid> Index<usize> for SegmentTree<M> {
+    type Output = M::Val;
     fn index(&self, idx: usize) -> &Self::Output {
         &self.data[self.offset + idx]
     }
 }
 
-impl<T: Monoid> SegmentTree<T> {
+impl<M: Monoid> SegmentTree<M> {
     #[inline]
     fn parse_range<R: RangeBounds<usize>>(&self, range: &R) -> Option<(usize, usize)> {
         let start = match range.start_bound() {
@@ -52,7 +52,6 @@ impl<T: Monoid> SegmentTree<T> {
         }
     }
 
-    /// ## new
     /// セグメント木を初期化する
     pub fn new(n: usize) -> Self {
         let offset = n;
@@ -60,22 +59,22 @@ impl<T: Monoid> SegmentTree<T> {
         Self {
             size: n,
             offset,
-            data: vec![T::E; offset << 1],
+            data: vec![M::E; offset << 1],
         }
     }
 
-    fn update(&mut self, index: usize, value: T::Val) {
+    fn update(&mut self, index: usize, value: M::Val) {
         let mut i = index + self.offset;
         self.data[i] = value;
         while i > 1 {
             i >>= 1;
             let lch = i << 1;
-            self.data[i] = T::op(&self.data[lch], &self.data[lch + 1]);
+            self.data[i] = M::op(&self.data[lch], &self.data[lch + 1]);
         }
     }
 
     /// 可変な参照を返す
-    pub fn get_mut(&mut self, i: usize) -> Option<ValMut<'_, T>> {
+    pub fn get_mut(&mut self, i: usize) -> Option<ValMut<'_, M>> {
         if i < self.offset {
             let default = self.index(i).clone();
             Some(ValMut {
@@ -89,47 +88,47 @@ impl<T: Monoid> SegmentTree<T> {
     }
 
     /// 区間`range`の集約を行う
-    pub fn get_range<R: RangeBounds<usize> + fmt::Debug>(&self, range: R) -> T::Val {
+    pub fn get_range<R: RangeBounds<usize> + fmt::Debug>(&self, range: R) -> M::Val {
         let Some((start, end)) = self.parse_range(&range) else {
             panic!("The given range is wrong: {:?}", range);
         };
         // 値の取得
         let mut l = self.offset + start;
         let mut r = self.offset + end;
-        let (mut res_l, mut res_r) = (T::E, T::E);
+        let (mut res_l, mut res_r) = (M::E, M::E);
 
         while l < r {
             if l & 1 == 1 {
-                res_l = T::op(&res_l, &self.data[l]);
+                res_l = M::op(&res_l, &self.data[l]);
                 l += 1;
             }
             if r & 1 == 1 {
                 r -= 1;
-                res_r = T::op(&self.data[r], &res_r);
+                res_r = M::op(&self.data[r], &res_r);
             }
             l >>= 1;
             r >>= 1;
         }
 
-        T::op(&res_l, &res_r)
+        M::op(&res_l, &res_r)
     }
 }
 
-impl<T: Monoid> From<&Vec<T::Val>> for SegmentTree<T> {
-    fn from(src: &Vec<T::Val>) -> Self {
+impl<M: Monoid> From<&Vec<M::Val>> for SegmentTree<M> {
+    fn from(src: &Vec<M::Val>) -> Self {
         let mut seg = Self::new(src.len());
         for (i, v) in src.iter().enumerate() {
             seg.data[seg.offset + i] = v.clone();
         }
         for i in (0..seg.offset).rev() {
             let lch = i << 1;
-            seg.data[i] = T::op(&seg.data[lch], &seg.data[lch + 1]);
+            seg.data[i] = M::op(&seg.data[lch], &seg.data[lch + 1]);
         }
         seg
     }
 }
 
-impl<T: Monoid> std::fmt::Debug for SegmentTree<T> {
+impl<M: Monoid> std::fmt::Debug for SegmentTree<M> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "SegmentTree {{ [").ok();
         for i in 0..self.size {
@@ -143,13 +142,13 @@ impl<T: Monoid> std::fmt::Debug for SegmentTree<T> {
     }
 }
 
-pub struct ValMut<'a, T: 'a + Monoid> {
-    segtree: &'a mut SegmentTree<T>,
+pub struct ValMut<'a, M: 'a + Monoid> {
+    segtree: &'a mut SegmentTree<M>,
     idx: usize,
-    new_val: T::Val,
+    new_val: M::Val,
 }
 
-impl<T: Monoid> fmt::Debug for ValMut<'_, T> {
+impl<M: Monoid> fmt::Debug for ValMut<'_, M> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_tuple("ValMut")
             .field(&self.segtree.index(self.idx))
@@ -157,20 +156,20 @@ impl<T: Monoid> fmt::Debug for ValMut<'_, T> {
     }
 }
 
-impl<T: Monoid> Drop for ValMut<'_, T> {
+impl<M: Monoid> Drop for ValMut<'_, M> {
     fn drop(&mut self) {
         self.segtree.update(self.idx, self.new_val.clone());
     }
 }
 
-impl<T: Monoid> Deref for ValMut<'_, T> {
-    type Target = T::Val;
+impl<M: Monoid> Deref for ValMut<'_, M> {
+    type Target = M::Val;
     fn deref(&self) -> &Self::Target {
         &self.segtree[self.idx]
     }
 }
 
-impl<T: Monoid> DerefMut for ValMut<'_, T> {
+impl<M: Monoid> DerefMut for ValMut<'_, M> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.new_val
     }
