@@ -1,26 +1,6 @@
 //! ローリングハッシュ
 
-/// # Modint
-pub trait Modint {
-    const MOD: usize;
-    fn madd(&self, other: usize) -> usize;
-    fn msub(&self, other: usize) -> usize;
-    fn mmul(&self, other: usize) -> usize;
-}
-
-impl Modint for usize {
-    const MOD: usize = (1 << 61) - 1;
-    fn madd(&self, other: usize) -> usize {
-        (*self + other) % Self::MOD
-    }
-    fn msub(&self, other: usize) -> usize {
-        (Self::MOD + *self - other) % Self::MOD
-    }
-    fn mmul(&self, other: usize) -> usize {
-        let res: u128 = (*self as u128) * (other as u128);
-        (res % Self::MOD as u128) as usize
-    }
-}
+use crate::modint_for_rollinghash::modint::Modint;
 
 /// # RollingHash
 /// 文字列の比較を高速に行う
@@ -28,50 +8,50 @@ impl Modint for usize {
 #[derive(Debug)]
 pub struct RollingHash {
     pub size: usize,
-    power: Vec<usize>,
-    hash: Vec<usize>,
-    base: usize,
+    power: Vec<Modint>,
+    hash: Vec<Modint>,
+    base: Modint,
 }
 
 impl RollingHash {
     /// 初期化
-    pub fn build(arr: &[usize], base: usize) -> Self {
+    pub fn build(arr: &[Modint], base: usize) -> Self {
         let size = arr.len();
-        let mut power = vec![0; size + 1];
-        let mut hash = vec![0; size + 1];
+        let mut power = vec![Modint(0); size + 1];
+        let mut hash = vec![Modint(0); size + 1];
 
         // hashを初期化
-        let (mut h, mut p) = (0, 1);
+        let (mut h, mut p) = (Modint(0), Modint(1));
         for i in 0..size {
-            h = arr[i].madd(h.mmul(base));
-            p = p.mmul(base);
-            hash[i + 1] = h;
-            power[i + 1] = p;
+            h = arr[i] + (h * base);
+            p *= base;
+            hash[i + 1] = h.into();
+            power[i + 1] = p.into();
         }
 
         Self {
             size,
             power,
             hash,
-            base,
+            base: base.into(),
         }
     }
 
     /// 文字列から生成
     pub fn from_str(s: &str, base: usize) -> Self {
-        let arr: Vec<usize> = s.chars().map(Self::ord).collect();
+        let arr: Vec<Modint> = s.chars().map(Self::ord).map(Modint).collect();
         Self::build(&arr, base)
     }
 
     /// `l..r`のハッシュを取得
     /// - 計算量: `O(1)`
-    pub fn get(&self, l: usize, r: usize) -> usize {
-        self.hash[r].msub(self.hash[l].mmul(self.power[r - l]))
+    pub fn get(&self, l: usize, r: usize) -> Modint {
+        self.hash[r] - self.hash[l] * self.power[r - l]
     }
 
     /// `0..size`のハッシュを取得
     /// - 計算量: `O(1)`
-    pub fn full(&self) -> usize {
+    pub fn full(&self) -> Modint {
         self.hash[self.size]
     }
 
@@ -93,8 +73,8 @@ impl RollingHash {
 
     /// ハッシュ同士を連結
     /// - 計算量: `O(1)`
-    pub fn concat(&self, h1: usize, h2: usize, h2_len: usize) -> usize {
-        h1.mmul(self.power[h2_len]).madd(h2)
+    pub fn concat(&self, h1: Modint, h2: Modint, h2_len: usize) -> Modint {
+        h1 * self.power[h2_len] + h2
     }
 
     /// `A`を`0`とするascii文字(`A~Za~z`)のインデックスを返す
