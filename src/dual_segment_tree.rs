@@ -61,7 +61,7 @@ impl<M: CommutativeMonoid> DualSegmentTree<M> {
     pub fn build(arr: &Vec<M::Val>) -> Self {
         let offset = arr.len();
         let mut seg = Self::new(offset);
-        seg.data[offset..].clone_from_slice(&arr);
+        seg.data[offset..].clone_from_slice(arr);
         seg
     }
 

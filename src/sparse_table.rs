@@ -61,7 +61,7 @@ impl<S: Semilattice> SparseTable<S> {
             let mut j = 0;
             while j + (1 << i) <= size {
                 let a = &table[i - 1][j];
-                let b = &table[i - 1][j + (1 << i - 1)];
+                let b = &table[i - 1][j + (1 << (i - 1))];
                 let res = S::op(a, b);
                 table[i].push(res);
                 j += 1;

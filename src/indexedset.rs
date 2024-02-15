@@ -444,7 +444,7 @@ fn update_size<T: Ord>(node: &mut Option<Box<Node<T>>>) {
 ///    A   B                      B   C
 /// ```
 fn rotate_right<T: Ord>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T>>> {
-    let Some(mut root) = root else { return None };
+    let mut root = root?;
     let Some(mut new_root) = root.left else {
         return Some(root);
     };
@@ -465,7 +465,7 @@ fn rotate_right<T: Ord>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T>>> {
 ///      B   C                  A   B
 /// ```
 fn rotate_left<T: Ord>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T>>> {
-    let Some(mut root) = root else { return None };
+    let mut root = root?;
     let Some(mut new_root) = root.right else {
         return Some(root);
     };
@@ -548,7 +548,7 @@ impl<'a, T: Ord> Iterator for SplayTreeIterator<'a, T> {
 }
 
 impl<T: Ord> IndexedSet<T> {
-    pub fn iter<'a>(&'a self) -> SplayTreeIterator<'a, T> {
+    pub fn iter(&self) -> SplayTreeIterator<'_, T> {
         let mut iter = SplayTreeIterator { unvisited: vec![] };
         iter.push_left_edge(&self.root);
         iter

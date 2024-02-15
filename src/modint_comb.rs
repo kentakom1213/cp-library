@@ -83,7 +83,7 @@ mod test {
     #[test]
     fn test_combination() {
         let comb = Comb::<998244353>::new(SIZE);
-        
+
         assert_eq!(comb.comb(259242, 87705), 774328561);
         assert_eq!(comb.comb(71363, 25183), 536450162);
         assert_eq!(comb.comb(475558, 122225), 420488366);
@@ -106,4 +106,3 @@ mod test {
         assert_eq!(comb.comb(384285, 200334), 59276605);
     }
 }
-

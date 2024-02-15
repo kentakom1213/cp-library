@@ -50,7 +50,7 @@ fn main() -> Result<(), io::Error> {
     }
 
     // 書き込み
-    let target = fs::File::create(&TARGET)?;
+    let target = fs::File::create(TARGET)?;
     write!(
         &target,
         "{}",
@@ -71,7 +71,7 @@ fn read_file(path: &Path) -> SnippetPiece {
     // コードの中身（modに切り分け）
     let mut body = vec![format!("mod {} {{", &prefix[..prefix.len() - 3])];
 
-    for line in fs::read_to_string(path).unwrap().split("\n") {
+    for line in fs::read_to_string(path).unwrap().split('\n') {
         if line.starts_with("//!") {
             description += line.replace("//! ", "").as_str();
         }
@@ -79,8 +79,8 @@ fn read_file(path: &Path) -> SnippetPiece {
         if line.starts_with("#[cfg(test)]") {
             break;
         }
-        if line != "" {
-            let line = format!("\t{}", line.replace("    ", "\t").replace("$", "\\$"));
+        if !line.is_empty() {
+            let line = format!("\t{}", line.replace("    ", "\t").replace('$', "\\$"));
             body.push(line);
         }
     }
