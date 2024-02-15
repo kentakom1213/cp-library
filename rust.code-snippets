@@ -4,6 +4,7 @@
       "prefix": "usize_tools.rs",
       "body": [
         "mod usize_tools {",
+        "\t//! usizeの便利ツール",
         "\tpub trait UsizeTools {",
         "\t\tfn abs_diff(&self, other: Self) -> Self;",
         "\t\tfn sqrt(&self) -> Self;",
@@ -39,6 +40,7 @@
       "prefix": "factors_all.rs",
       "body": [
         "mod factors_all {",
+        "\t//! 高速な約数列挙",
         "\t/// ## 高速約数列挙",
         "\t/// `1 ~ N`までの数の約数を高速に列挙する",
         "\t/// 計算量：`O(nloglogn)`",
@@ -62,6 +64,7 @@
       "prefix": "acc2d.rs",
       "body": [
         "mod acc2d {",
+        "\t//! 2次元累積和",
         "\tuse num_traits::Num;",
         "\t/// ## acc2D",
         "\t/// - 2次元累積和を取る",
@@ -87,6 +90,7 @@
       "prefix": "factorize.rs",
       "body": [
         "mod factorize {",
+        "\t//! 素因数分解",
         "\t/// - 素因数分解し、`(素因数,指数)`のペアを返す",
         "\tpub fn factorize(mut n: usize) -> Vec<(usize, usize)> {",
         "\t\tlet mut res = Vec::new();",
@@ -116,6 +120,7 @@
       "prefix": "modint_for_rollinghash.rs",
       "body": [
         "mod modint_for_rollinghash {",
+        "\t//! Modintの構造体",
         "\t#[rustfmt::skip]",
         "\tpub mod modint {",
         "\t\tpub const MOD: usize = (1 << 61) - 1;",
@@ -160,6 +165,7 @@
       "prefix": "union_find.rs",
       "body": [
         "mod union_find {",
+        "\t//! UnionFind木",
         "\t/// # UnionFind",
         "\tpub struct UnionFind {",
         "\t\tpar: Vec<usize>,",
@@ -218,6 +224,7 @@
       "prefix": "ord_chr.rs",
       "body": [
         "mod ord_chr {",
+        "\t//! `char`と`usize`の相互変換",
         "\t/// ## ord",
         "\t/// `A`を`0`とするascii文字(`A~Za~z`)のインデックスを返す",
         "\tpub fn ord(c: char) -> usize {",
@@ -239,6 +246,7 @@
       "prefix": "enum_pairs.rs",
       "body": [
         "mod enum_pairs {",
+        "\t//! N人をペアに分ける組合せを全列挙する",
         "\t/// ペアを列挙する",
         "\t#[derive(Debug)]",
         "\tpub struct PairsIterator<T: Clone> {",
@@ -286,6 +294,7 @@
       "prefix": "chmin.rs",
       "body": [
         "mod chmin {",
+        "\t//! chminの実装",
         "\t/// `chmin!{x1, x2, ..., xn}`:`x1`,`x2`,...,`xn`のうち最小のものを、`x1`に代入する",
         "\t/// - 代入があったとき、`true`を返す",
         "\t#[macro_export]",
@@ -314,6 +323,7 @@
       "prefix": "dual_segment_tree.rs",
       "body": [
         "mod dual_segment_tree {",
+        "\t//! 双対セグメント木：区間加算・一点取得",
         "\tuse std::fmt::{self, Debug};",
         "\tuse std::ops::{",
         "\t\tBound::{Excluded, Included, Unbounded},",
@@ -462,6 +472,7 @@
       "prefix": "indexedset.rs",
       "body": [
         "mod indexedset {",
+        "\t//! インデックス付きの集合",
         "\tuse std::iter::FromIterator;",
         "\tuse std::mem::{replace, swap};",
         "\tuse std::{cmp::Ordering, fmt::Debug};",
@@ -995,6 +1006,7 @@
       "prefix": "modint.rs",
       "body": [
         "mod modint {",
+        "\t//! Modintの構造体",
         "\tuse modint::*;",
         "\tpub type Mod998 = Modint<998244353>;",
         "\tpub type Mod1e9 = Modint<1000000007>;",
@@ -1039,6 +1051,7 @@
       "prefix": "pollard_rho_algorithm.rs",
       "body": [
         "mod pollard_rho_algorithm {",
+        "\t//! ポラード・ロー法による素因数分解",
         "\tuse crate::miller_rabin_test::is_prime_MR;",
         "\t/// `a`,`b`の最大公約数を求める",
         "\tpub fn gcd(a: usize, b: usize) -> usize {",
@@ -1101,6 +1114,7 @@
       "prefix": "bit.rs",
       "body": [
         "mod bit {",
+        "\t//! BinaryIndexedTree / FenwickTree",
         "\tuse std::{",
         "\t\tfmt::Debug,",
         "\t\tops::{",
@@ -1309,6 +1323,7 @@
       "prefix": "scc.rs",
       "body": [
         "mod scc {",
+        "\t//! 強連結成分分解",
         "\ttype Graph = Vec<Vec<usize>>;",
         "\t/// ## SCC (強連結成分分解)",
         "\t/// - Strongly Conneected Components",
@@ -1408,6 +1423,7 @@
       "prefix": "bitarray16.rs",
       "body": [
         "mod bitarray16 {",
+        "\t//! 64bit整数を16bit整数4つの配列として使う",
         "\t/// 64bit整数を16bit整数4つの配列として使う",
         "\tpub trait BitArray16 {",
         "\t\tfn set(&self, i: usize, x: u16) -> Self;",
@@ -1429,6 +1445,7 @@
       "prefix": "miller_rabin_test.rs",
       "body": [
         "mod miller_rabin_test {",
+        "\t//! ミラー・ラビン素数判定法",
         "\t/// 余りをとる累乗",
         "\tpub fn powmod(a: usize, b: usize, m: usize) -> usize {",
         "\t\tlet (mut a, mut b, m) = (a as u128, b as u128, m as u128);",
@@ -1487,6 +1504,7 @@
       "prefix": "bitset.rs",
       "body": [
         "mod bitset {",
+        "\t//! ビット列を管理する",
         "\tuse std::{",
         "\t\tfmt::Debug,",
         "\t\tops::{Deref, DerefMut, Index, Shl, ShlAssign, Shr, ShrAssign},",
@@ -1656,6 +1674,7 @@
       "prefix": "rolling_hash.rs",
       "body": [
         "mod rolling_hash {",
+        "\t//! ローリングハッシュ",
         "\t/// # Modint",
         "\tpub trait Modint {",
         "\t\tconst MOD: usize;",
@@ -1758,6 +1777,7 @@
       "prefix": "multiset_splay_tree.rs",
       "body": [
         "mod multiset_splay_tree {",
+        "\t//! スプレー木のMultiSet",
         "\tuse std::iter::FromIterator;",
         "\tuse std::mem::swap;",
         "\tuse std::{cmp::Ordering, fmt::Debug};",
@@ -2222,6 +2242,7 @@
       "prefix": "loop_detection.rs",
       "body": [
         "mod loop_detection {",
+        "\t//! ループ検出",
         "\tuse num_bigint::BigUint;",
         "\tuse num_traits::{FromPrimitive, ToPrimitive, Zero};",
         "\tuse std::ops::{Add, Mul, Sub};",
@@ -2358,6 +2379,7 @@
       "prefix": "modint_traits.rs",
       "body": [
         "mod modint_traits {",
+        "\t//! Modintをusizeに注入するトレイト",
         "\t/// 有限体の実装",
         "\tpub trait Fp {",
         "\t\tfn val(&self) -> usize;",
@@ -2431,6 +2453,7 @@
       "prefix": "namori.rs",
       "body": [
         "mod namori {",
+        "\t//! なもりグラフの分解",
         "\tuse std::collections::VecDeque;",
         "\tpub type Graph = Vec<Vec<usize>>;",
         "\t/// # なもりグラフ",
@@ -2502,6 +2525,7 @@
       "prefix": "trie.rs",
       "body": [
         "mod trie {",
+        "\t//! トライ木",
         "\tuse std::fmt::Debug;",
         "\t// 定数",
         "\tconst ORIGIN: char = 'a'; // 基準となる文字",
@@ -2624,6 +2648,7 @@
       "prefix": "comb.rs",
       "body": [
         "mod comb {",
+        "\t//! 二項係数を求める",
         "\tconst MOD: usize = 998_244_353;",
         "\t// const MOD: usize = 1_000_000_007;",
         "\t/// # Comb",
@@ -2670,6 +2695,7 @@
       "prefix": "powmod.rs",
       "body": [
         "mod powmod {",
+        "\t//! あまりを取る累乗",
         "\t/// 余りをとる累乗",
         "\tpub fn powmod(mut a: usize, mut b: usize, m: usize) -> usize {",
         "\t\tlet mut res = 1;",
@@ -2690,6 +2716,7 @@
       "prefix": "dijkstra.rs",
       "body": [
         "mod dijkstra {",
+        "\t//! ダイクストラ法",
         "\tuse std::cmp::Reverse;",
         "\tuse std::collections::BinaryHeap;",
         "\t/// Dijkstra法",
@@ -2724,6 +2751,7 @@
       "prefix": "segment_tree_mutable.rs",
       "body": [
         "mod segment_tree_mutable {",
+        "\t//! セグメント木",
         "\tuse std::fmt::{self, Debug};",
         "\tuse std::ops::{",
         "\t\tBound::{Excluded, Included, Unbounded},",
@@ -2925,6 +2953,7 @@
       "prefix": "chmax.rs",
       "body": [
         "mod chmax {",
+        "\t//! chmaxの実装",
         "\t/// `chmax!{x1, x2, ..., xn}`:`x1`,`x2`,...,`xn`のうち最大のものを、`x1`に代入する",
         "\t/// - 代入があったとき、`true`を返す",
         "\t#[macro_export]",
@@ -2953,6 +2982,7 @@
       "prefix": "simple_graph.rs",
       "body": [
         "mod simple_graph {",
+        "\t//! 単純グラフの処理",
         "\ttype Graph = Vec<Vec<usize>>;",
         "\t/// # 単純グラフ",
         "\t/// 単純グラフに対して",
@@ -3047,6 +3077,7 @@
       "prefix": "sparse_table.rs",
       "body": [
         "mod sparse_table {",
+        "\t//! SparseTable",
         "\tuse std::fmt;",
         "\tuse std::ops::{",
         "\t\tBound::{Excluded, Included, Unbounded},",
@@ -3175,6 +3206,7 @@
       "prefix": "modint_comb.rs",
       "body": [
         "mod modint_comb {",
+        "\t//! 階乗を前計算する（Modint構造体に依存）",
         "\tuse crate::modint::modint::Modint;",
         "\t/// 二項係数を高速に求める",
         "\t/// - 前計算: `O(N)`",
@@ -3224,6 +3256,7 @@
       "prefix": "binary_search_slice.rs",
       "body": [
         "mod binary_search_slice {",
+        "\t//! sliceに対する`lower_bound`,`upper_bound`の実装",
         "\t/// # BinarySearch",
         "\t/// 二分探索の実装",
         "\tpub trait BinarySearch<T> {",
@@ -3268,6 +3301,7 @@
       "prefix": "lca.rs",
       "body": [
         "mod lca {",
+        "\t//! ダブリングにより、最小共通祖先を求める",
         "\tconst INF: usize = 1001001001001001001;",
         "\ttype Graph = Vec<Vec<usize>>;",
         "\t/// # LCA",
@@ -3348,6 +3382,7 @@
       "prefix": "matrix_exp.rs",
       "body": [
         "mod matrix_exp {",
+        "\t//! 行列累乗",
         "\t// 定数",
         "\tconst MOD: usize = 998244353;",
         "\t/* 行列累乗 */",
@@ -3419,6 +3454,7 @@
       "prefix": "segment_tree.rs",
       "body": [
         "mod segment_tree {",
+        "\t//! セグメント木",
         "\tuse std::fmt;",
         "\tuse std::ops::{",
         "\t\tBound::{Excluded, Included, Unbounded},",
@@ -3666,6 +3702,7 @@
       "prefix": "multiset.rs",
       "body": [
         "mod multiset {",
+        "\t//! 多重集合（BTreeMapによる実装）",
         "\tuse std::collections::BTreeMap;",
         "\t#[derive(Debug)]",
         "\tpub struct MultiSet<T> {",
@@ -3734,6 +3771,7 @@
       "prefix": "multiset_iterable.rs",
       "body": [
         "mod multiset_iterable {",
+        "\t//! 多重集合（Setによる実装）",
         "\tuse rustc_hash::FxHashMap;",
         "\tuse std::{collections::BTreeSet, hash::Hash};",
         "\t#[derive(Debug)]",
@@ -3825,6 +3863,7 @@
       "prefix": "vec2.rs",
       "body": [
         "mod vec2 {",
+        "\t//! 幾何ライブラリ",
         "\tuse std::ops::{Add, Mul, Neg, Sub};",
         "\tpub type Pos<T> = (T, T);",
         "\tpub type Line<T> = (Pos<T>, Pos<T>);",
@@ -3885,6 +3924,7 @@
       "prefix": "mex_set.rs",
       "body": [
         "mod mex_set {",
+        "\t//! Mexを管理するデータ構造",
         "\tuse std::{",
         "\t\tcollections::BTreeSet,",
         "\t\tops::{Bound::*, RangeBounds},",
@@ -4096,6 +4136,7 @@
       "prefix": "coordinate_compression.rs",
       "body": [
         "mod coordinate_compression {",
+        "\t//! 座標圧縮",
         "\t/// # 座標圧縮",
         "\t#[derive(Debug)]",
         "\tpub struct Compression<'a, T> {",
@@ -4144,6 +4185,7 @@
       "prefix": "binary_search_btreeset.rs",
       "body": [
         "mod binary_search_btreeset {",
+        "\t//! BTreeSetに対する`lower_bound`,`upper_bound`の実装",
         "\tuse std::collections::BTreeSet;",
         "\tuse std::ops::Bound::{Excluded, Included, Unbounded};",
         "\t/// # BinarySearch",
@@ -4172,6 +4214,7 @@
       "prefix": "frac.rs",
       "body": [
         "mod frac {",
+        "\t//! 比較を実装した分数の実装",
         "\tuse std::{cmp::Ordering, ops::Mul};",
         "\t/// 分数を表す構造体",
         "\t/// - `Frac(a, b)` := a / b",
@@ -4220,6 +4263,7 @@
       "prefix": "loop_detection_fold.rs",
       "body": [
         "mod loop_detection_fold {",
+        "\t//! ループ検出（fold関数版）",
         "\tuse num_bigint::BigUint;",
         "\tuse num_traits::{FromPrimitive, ToPrimitive, Zero};",
         "\tuse std::ops::{Add, Mul, Sub};",
@@ -4339,6 +4383,7 @@
       "prefix": "run_length.rs",
       "body": [
         "mod run_length {",
+        "\t//! ランレングス圧縮",
         "\t/// ## ランレングス圧縮",
         "\t/// - スライスからエンコードを行う",
         "\tpub fn run_length_encode<T>(arr: &[T]) -> Vec<(T, usize)>",
@@ -4391,6 +4436,7 @@
       "prefix": "lcs.rs",
       "body": [
         "mod lcs {",
+        "\t//! 最長共通部分列",
         "\t/// `a < b` のとき、`a`を`b`に置き換え、trueを返す",
         "\tmacro_rules! chmax {",
         "\t\t( \\$a:expr, \\$b:expr ) => {{",
@@ -4459,6 +4505,7 @@
       "prefix": "grid.rs",
       "body": [
         "mod grid {",
+        "\t//! グリッド探索の便利ツール",
         "\t/// グリッドの探索",
         "\tpub trait Grid<T>",
         "\twhere",
@@ -4521,6 +4568,7 @@
       "prefix": "factors.rs",
       "body": [
         "mod factors {",
+        "\t//! 前計算ありの高速素因数分解",
         "\t/// # 前計算ありの高速素因数分解",
         "\t/// `N`までの数の素因数分解を",
         "\t/// - 前計算: `O(NloglogN)`",
@@ -4588,6 +4636,7 @@
       "prefix": "weighted_union_find.rs",
       "body": [
         "mod weighted_union_find {",
+        "\t//! 重み付きUnionFind",
         "\tuse std::fmt::Debug;",
         "\t/// ## アーベル群",
         "\tpub trait Abel {",
@@ -4692,6 +4741,7 @@
       "prefix": "tree_dp.rs",
       "body": [
         "mod tree_dp {",
+        "\t//! 木DP",
         "\ttype Graph = Vec<Vec<usize>>;",
         "\t/// # Monoid",
         "\tpub trait Monoid {",
@@ -4752,6 +4802,7 @@
       "prefix": "lazy_segment_tree.rs",
       "body": [
         "mod lazy_segment_tree {",
+        "\t//! 遅延評価セグメント木",
         "\tuse core::fmt;",
         "\tuse std::{",
         "\t\tfmt::Debug,",
@@ -5066,6 +5117,7 @@
       "prefix": "affine_transform.rs",
       "body": [
         "mod affine_transform {",
+        "\t//! アフィン変換",
         "\t/// # AffineMatrix",
         "\t/// アフィン変換（3x3行列）",
         "\t#[derive(Debug, Clone, Copy)]",

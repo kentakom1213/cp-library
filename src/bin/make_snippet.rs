@@ -74,9 +74,12 @@ fn read_file(path: &Path) -> SnippetPiece {
     for line in fs::read_to_string(path).unwrap().split("\n") {
         if line.starts_with("//!") {
             description += line.replace("//! ", "").as_str();
-        } else if line.starts_with("#[cfg(test)]") {
+        }
+        // テストコードは無視
+        if line.starts_with("#[cfg(test)]") {
             break;
-        } else if line != "" {
+        }
+        if line != "" {
             let line = format!("\t{}", line.replace("    ", "\t").replace("$", "\\$"));
             body.push(line);
         }
