@@ -197,7 +197,10 @@ where
 pub mod Alg {
     use crate::modint::{modint::Modint, Mod998};
     use num_traits::{One, Zero};
-    use std::ops::{Add, Mul};
+    use std::{
+        marker::PhantomData,
+        ops::{Add, Mul},
+    };
 
     use super::ExtMonoid;
 
@@ -303,12 +306,12 @@ pub mod Alg {
     /// - 区間を`ax + b`で更新（Affine変換）
     /// - 区間和を取得
     #[derive(Debug)]
-    pub struct Affine1D998;
-    impl ExtMonoid for Affine1D998 {
-        type X = Mod998;
-        type M = (Mod998, Mod998);
-        const IX: Self::X = Modint::<998244353>(0);
-        const IM: Self::M = (Modint::<998244353>(1), Modint::<998244353>(0));
+    pub struct Affine1dMod<const MOD: usize>;
+    impl<const MOD: usize> ExtMonoid for Affine1dMod<MOD> {
+        type X = Modint<MOD>;
+        type M = (Modint<MOD>, Modint<MOD>);
+        const IX: Self::X = Modint::<MOD>(0);
+        const IM: Self::M = (Modint::<MOD>(1), Modint::<MOD>(0));
         fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
             *x + *y
         }
@@ -514,7 +517,7 @@ mod test {
     #[test]
     fn test_range_affine() {
         // [0, 0, 0, 0, 0, 0, 0, 0]
-        let mut seg = LazySegmentTree::<Alg::Affine1D998>::new(8);
+        let mut seg = LazySegmentTree::<Alg::Affine1dMod<998244353>>::new(8);
         eprintln!("{}", seg.show());
 
         assert_eq!(seg.get(..), Mod998::new(0));
