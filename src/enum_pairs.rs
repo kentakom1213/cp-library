@@ -45,7 +45,7 @@ pub fn pairs_usize(n: usize) -> PairsIterator<usize> {
 
 #[cfg(test)]
 mod test_enum_pairs {
-    use super::{pairs_usize, PairsIterator};
+    use super::pairs_usize;
 
     #[test]
     fn test_enum_pairs() {

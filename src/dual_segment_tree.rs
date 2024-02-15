@@ -119,7 +119,7 @@ impl<M: CommutativeMonoid + Debug> Debug for DualSegmentTree<M> {
 }
 
 pub mod Alg {
-    use std::{fmt::Debug, marker::PhantomData};
+    use std::fmt::Debug;
 
     use super::CommutativeMonoid;
 

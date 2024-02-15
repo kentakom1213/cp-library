@@ -35,11 +35,10 @@ pub mod modint {
     impl Sum<Modint> for Modint { fn sum<I: Iterator<Item = Modint>>(iter: I) -> Self { iter.fold(Modint(0), |acc, x| acc + x) } }
     impl Product<Modint> for Modint { fn product<I: Iterator<Item = Modint>>(iter: I) -> Self { iter.fold(Modint(1), |acc, x| acc * x) } }
 }
-use modint::*;
 
 #[cfg(test)]
-mod test {
-    use super::*;
+mod test_modint_for_rollinghash {
+    use super::modint::*;
 
     #[test]
     fn test_neg() {

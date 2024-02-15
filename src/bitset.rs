@@ -2,7 +2,7 @@
 
 use std::{
     fmt::Debug,
-    ops::{Deref, DerefMut, Index, Shl, ShlAssign, Shr, ShrAssign},
+    ops::{Deref, DerefMut, Index},
 };
 
 /// ビット列を高速に処理する
@@ -99,36 +99,6 @@ impl<const SIZE: usize> BitSet<SIZE> {
         } else {
             None
         }
-    }
-}
-
-impl<const SIZE: usize> Shr<usize> for BitSet<SIZE> {
-    type Output = Self;
-    fn shr(self, rhs: usize) -> Self::Output {
-        let mut new_bits = vec![0; Self::ARRAY_SIZE];
-
-        // ビットの更新
-        let offset_bit = rhs % 64;
-        let remain_bit = if offset_bit == 0 { 0 } else { 64 - offset_bit };
-        let offset_idx = rhs / 64;
-        let mut idx = 0;
-        while idx + offset_idx < Self::ARRAY_SIZE {
-            // 右側を移す
-            new_bits[idx] |= self.bits[idx + offset_idx] >> offset_bit;
-            // 左側を移す
-            idx += 1;
-            // if idx + offset_idx < Self::ARRAY_SIZE {
-            //     new_bits[idx] |= (self.bits[idx + offset_idx] & (!0 >> remain_bit)) << remain_bit;
-            // }
-        }
-
-        Self { bits: new_bits }
-    }
-}
-
-impl<const SIZE: usize> ShrAssign<usize> for BitSet<SIZE> {
-    fn shr_assign(&mut self, rhs: usize) {
-        *self = self.clone() >> rhs;
     }
 }
 
@@ -270,34 +240,5 @@ mod test {
             assert_eq!(bitset.all(), false);
             assert_eq!(bitset.count_ones(), i - 25 + 1);
         }
-    }
-
-    #[test]
-    fn test_right_shift() {
-        let mut bitset = BitSet::<150>::new();
-
-        println!("{:?}", bitset);
-
-        for i in 40..60 {
-            bitset.set(i);
-        }
-
-        for i in 80..100 {
-            bitset.set(i);
-        }
-
-        for i in 120..140 {
-            bitset.set(i);
-        }
-
-        println!("{:?}", bitset);
-
-        let rh100 = bitset.clone() >> 100;
-
-        println!("{:?}", rh100);
-
-        let rh50 = bitset.clone() >> 50;
-
-        println!("{:?}", rh50);
     }
 }
