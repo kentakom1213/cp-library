@@ -1,4 +1,4 @@
-//! セグメント木
+//! セグメント木（関数を渡す）
 
 use std::fmt::{self, Debug};
 use std::ops::{

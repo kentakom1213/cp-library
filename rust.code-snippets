@@ -220,28 +220,6 @@
       "description": "UnionFind木"
     },
     {
-      "prefix": "ord_chr.rs",
-      "body": [
-        "mod ord_chr {",
-        "\t//! `char`と`usize`の相互変換",
-        "\t/// ## ord",
-        "\t/// `A`を`0`とするascii文字(`A~Za~z`)のインデックスを返す",
-        "\tpub fn ord(c: char) -> usize {",
-        "\t\tlet a = 'A' as u32;",
-        "\t\tlet c = c as u32;",
-        "\t\t(c - a) as usize",
-        "\t}",
-        "\t/// ## chr",
-        "\t/// `chr(0) = A`であるようなascii文字(`A~Za~z`)を返す",
-        "\tpub fn chr(i: usize) -> char {",
-        "\t\tlet a = 'A' as u32;",
-        "\t\tchar::from_u32(a + i as u32).unwrap()",
-        "\t}",
-        "}"
-      ],
-      "description": "`char`と`usize`の相互変換"
-    },
-    {
       "prefix": "enum_pairs.rs",
       "body": [
         "mod enum_pairs {",
@@ -2318,6 +2296,7 @@
       "prefix": "comb_no_mod.rs",
       "body": [
         "mod comb_no_mod {",
+        "\t//! 再帰関数による愚直な組合せ計算",
         "\tpub fn comb(n: usize, r: usize) -> usize {",
         "\t\tif r == 0 {",
         "\t\t\t1",
@@ -2329,7 +2308,7 @@
         "\t}",
         "}"
       ],
-      "description": ""
+      "description": "再帰関数による愚直な組合せ計算"
     },
     {
       "prefix": "modint_traits.rs",
@@ -2707,7 +2686,7 @@
       "prefix": "segment_tree_mutable.rs",
       "body": [
         "mod segment_tree_mutable {",
-        "\t//! セグメント木",
+        "\t//! セグメント木（関数を渡す）",
         "\tuse std::fmt::{self, Debug};",
         "\tuse std::ops::{",
         "\t\tBound::{Excluded, Included, Unbounded},",
@@ -2903,7 +2882,7 @@
         "\t}",
         "}"
       ],
-      "description": "セグメント木"
+      "description": "セグメント木（関数を渡す）"
     },
     {
       "prefix": "chmax.rs",
@@ -2938,7 +2917,7 @@
       "prefix": "simple_graph.rs",
       "body": [
         "mod simple_graph {",
-        "\t//! 単純グラフの処理",
+        "\t//! 単純グラフの連結成分分解，2部グラフ判定など",
         "\ttype Graph = Vec<Vec<usize>>;",
         "\t/// # 単純グラフ",
         "\t/// 単純グラフに対して",
@@ -3027,7 +3006,7 @@
         "\t}",
         "}"
       ],
-      "description": "単純グラフの処理"
+      "description": "単純グラフの連結成分分解，2部グラフ判定など"
     },
     {
       "prefix": "sparse_table.rs",
@@ -3464,7 +3443,7 @@
       "prefix": "segment_tree.rs",
       "body": [
         "mod segment_tree {",
-        "\t//! セグメント木",
+        "\t//! セグメント木（モノイド）",
         "\tuse std::fmt;",
         "\tuse std::ops::{",
         "\t\tBound::{Excluded, Included, Unbounded},",
@@ -3706,7 +3685,7 @@
         "\t}",
         "}"
       ],
-      "description": "セグメント木"
+      "description": "セグメント木（モノイド）"
     },
     {
       "prefix": "multiset.rs",
