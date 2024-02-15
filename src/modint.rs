@@ -2,8 +2,11 @@
 
 use modint::*;
 
-pub type Mod998 = Modint<998244353>;
-pub type Mod1e9 = Modint<1000000007>;
+pub const M998: usize = 998244353;
+pub const M109: usize = 1000000007;
+
+pub type Mod998 = Modint<M998>;
+pub type Mod109 = Modint<M109>;
 
 // 適当な素数
 pub type P1 = Modint<938472061>;
@@ -117,8 +120,8 @@ mod test {
 
     #[test]
     fn test_sub_assign() {
-        let mut add = Mod1e9::new(0);
-        let mut sub = Mod1e9::new(0);
+        let mut add = Mod109::new(0);
+        let mut sub = Mod109::new(0);
         for i in 0..20 {
             add += i;
             sub -= i;
@@ -149,16 +152,16 @@ mod test {
     #[test]
     fn test_sum() {
         assert_eq!(
-            (0..20).map(|i| Mod1e9::new(2).pow(i)).sum::<Mod1e9>(),
-            Mod1e9::new(2).pow(20) - 1
+            (0..20).map(|i| Mod109::new(2).pow(i)).sum::<Mod109>(),
+            Mod109::new(2).pow(20) - 1
         );
     }
 
     #[test]
     fn test_product() {
         assert_eq!(
-            (0..100).map(|_| 3.into()).product::<Mod1e9>(),
-            Mod1e9::new(3).pow(100)
+            (0..100).map(|_| 3.into()).product::<Mod109>(),
+            Mod109::new(3).pow(100)
         );
     }
 }
