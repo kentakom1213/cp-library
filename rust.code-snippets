@@ -3276,10 +3276,10 @@
       "prefix": "get_macro.rs",
       "body": [
         "mod get_macro {",
-        "\t//! 入力マクロ",
+        "\t//! 入力用マクロ",
         "\t// [Rustで競技プログラミング スターターキット](https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e)",
         "\t#[macro_export]",
-        "\tmacro_rules! get {",
+        "\tmacro_rules! get_ {",
         "\t\t(\\$t:ty) => {",
         "\t\t\t{",
         "\t\t\t\tlet mut line = String::new();",
@@ -3299,12 +3299,12 @@
         "\t\t};",
         "\t\t(\\$t:ty ; \\$n:expr) => {",
         "\t\t\t(0..\\$n).map(|_|",
-        "\t\t\t\tget!(\\$t)",
+        "\t\t\t\tget_!(\\$t)",
         "\t\t\t).collect::<Vec<_>>()",
         "\t\t};",
         "\t\t(\\$(\\$t:ty),* ; \\$n:expr) => {",
         "\t\t\t(0..\\$n).map(|_|",
-        "\t\t\t\tget!(\\$(\\$t),*)",
+        "\t\t\t\tget_!(\\$(\\$t),*)",
         "\t\t\t).collect::<Vec<_>>()",
         "\t\t};",
         "\t\t(\\$t:ty ;;) => {",
@@ -3318,13 +3318,13 @@
         "\t\t};",
         "\t\t(\\$t:ty ;; \\$n:expr) => {",
         "\t\t\t(0..\\$n).map(|_|",
-        "\t\t\t\tget!(\\$t ;;)",
+        "\t\t\t\tget_!(\\$t ;;)",
         "\t\t\t).collect::<Vec<_>>()",
         "\t\t};",
         "\t}",
         "}"
       ],
-      "description": "入力マクロ"
+      "description": "入力用マクロ"
     },
     {
       "prefix": "lca.rs",

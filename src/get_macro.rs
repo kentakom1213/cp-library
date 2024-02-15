@@ -1,8 +1,8 @@
-//! 入力マクロ
+//! 入力用マクロ
 
 // [Rustで競技プログラミング スターターキット](https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e)
 #[macro_export]
-macro_rules! get {
+macro_rules! get_ {
     ($t:ty) => {
         {
             let mut line = String::new();
@@ -22,12 +22,12 @@ macro_rules! get {
     };
     ($t:ty ; $n:expr) => {
         (0..$n).map(|_|
-            get!($t)
+            get_!($t)
         ).collect::<Vec<_>>()
     };
     ($($t:ty),* ; $n:expr) => {
         (0..$n).map(|_|
-            get!($($t),*)
+            get_!($($t),*)
         ).collect::<Vec<_>>()
     };
     ($t:ty ;;) => {
@@ -41,7 +41,7 @@ macro_rules! get {
     };
     ($t:ty ;; $n:expr) => {
         (0..$n).map(|_|
-            get!($t ;;)
+            get_!($t ;;)
         ).collect::<Vec<_>>()
     };
 }
