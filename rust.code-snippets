@@ -62,7 +62,6 @@
       "prefix": "acc2d.rs",
       "body": [
         "mod acc2d {",
-        "\t// ===== acc2D =====",
         "\tuse num_traits::Num;",
         "\t/// ## acc2D",
         "\t/// - 2次元累積和を取る",
@@ -463,7 +462,6 @@
       "prefix": "indexedset.rs",
       "body": [
         "mod indexedset {",
-        "\t// ===== Indexed Set =====",
         "\tuse std::iter::FromIterator;",
         "\tuse std::mem::{replace, swap};",
         "\tuse std::{cmp::Ordering, fmt::Debug};",
@@ -997,7 +995,6 @@
       "prefix": "modint.rs",
       "body": [
         "mod modint {",
-        "\t// ===== Modint =====",
         "\tuse modint::*;",
         "\tpub type Mod998 = Modint<998244353>;",
         "\tpub type Mod1e9 = Modint<1000000007>;",
@@ -1312,7 +1309,6 @@
       "prefix": "scc.rs",
       "body": [
         "mod scc {",
-        "\t// ===== SCC  =====",
         "\ttype Graph = Vec<Vec<usize>>;",
         "\t/// ## SCC (強連結成分分解)",
         "\t/// - Strongly Conneected Components",
@@ -1660,7 +1656,6 @@
       "prefix": "rolling_hash.rs",
       "body": [
         "mod rolling_hash {",
-        "\t// ===== Rolling Hash =====",
         "\t/// # Modint",
         "\tpub trait Modint {",
         "\t\tconst MOD: usize;",
@@ -2629,7 +2624,6 @@
       "prefix": "comb.rs",
       "body": [
         "mod comb {",
-        "\t// ===== Precalculation for Combination =====",
         "\tconst MOD: usize = 998_244_353;",
         "\t// const MOD: usize = 1_000_000_007;",
         "\t/// # Comb",
@@ -3058,7 +3052,6 @@
         "\t\tBound::{Excluded, Included, Unbounded},",
         "\t\tRangeBounds,",
         "\t};",
-        "\t// ===== Sparse Table =====",
         "\tpub trait Semilattice {",
         "\t\t/// 元の型",
         "\t\ttype Val: fmt::Debug + Clone;",
@@ -3426,7 +3419,6 @@
       "prefix": "segment_tree.rs",
       "body": [
         "mod segment_tree {",
-        "\t// ===== Segment Tree =====",
         "\tuse std::fmt;",
         "\tuse std::ops::{",
         "\t\tBound::{Excluded, Included, Unbounded},",
@@ -3674,7 +3666,6 @@
       "prefix": "multiset.rs",
       "body": [
         "mod multiset {",
-        "\t// ===== Multi Set =====",
         "\tuse std::collections::BTreeMap;",
         "\t#[derive(Debug)]",
         "\tpub struct MultiSet<T> {",
@@ -4181,7 +4172,6 @@
       "prefix": "frac.rs",
       "body": [
         "mod frac {",
-        "\t// ===== Fraction =====",
         "\tuse std::{cmp::Ordering, ops::Mul};",
         "\t/// 分数を表す構造体",
         "\t/// - `Frac(a, b)` := a / b",
@@ -4349,7 +4339,6 @@
       "prefix": "run_length.rs",
       "body": [
         "mod run_length {",
-        "\t// ===== Run Length Encode =====",
         "\t/// ## ランレングス圧縮",
         "\t/// - スライスからエンコードを行う",
         "\tpub fn run_length_encode<T>(arr: &[T]) -> Vec<(T, usize)>",
@@ -4599,7 +4588,6 @@
       "prefix": "weighted_union_find.rs",
       "body": [
         "mod weighted_union_find {",
-        "\t// ===== Weighted UnionFind =====",
         "\tuse std::fmt::Debug;",
         "\t/// ## アーベル群",
         "\tpub trait Abel {",
@@ -4764,7 +4752,6 @@
       "prefix": "lazy_segment_tree.rs",
       "body": [
         "mod lazy_segment_tree {",
-        "\t// ===== Lazy Segment Tree =====",
         "\tuse core::fmt;",
         "\tuse std::{",
         "\t\tfmt::Debug,",
@@ -4947,12 +4934,7 @@
         "\t\t}",
         "\t}",
         "\tpub mod Alg {",
-        "\t\tuse crate::modint::{modint::Modint, Mod998};",
-        "\t\tuse num_traits::{One, Zero};",
-        "\t\tuse std::{",
-        "\t\t\tmarker::PhantomData,",
-        "\t\t\tops::{Add, Mul},",
-        "\t\t};",
+        "\t\tuse crate::modint::modint::Modint;",
         "\t\tuse super::ExtMonoid;",
         "\t\t/// ## RSQandRAQ",
         "\t\t/// - 区間加算",

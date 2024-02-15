@@ -6,7 +6,6 @@ use std::ops::{
     RangeBounds,
 };
 
-// ===== Sparse Table =====
 pub trait Semilattice {
     /// 元の型
     type Val: fmt::Debug + Clone;

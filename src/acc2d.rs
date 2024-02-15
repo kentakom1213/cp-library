@@ -1,6 +1,5 @@
 //! 2次元累積和
 
-// ===== acc2D =====
 use num_traits::Num;
 
 /// ## acc2D
@@ -52,11 +51,7 @@ mod test_acc2D {
 
     #[test]
     fn test_acc_2D_overflow() {
-        let arr: Vec<Vec<usize>> = vec![
-            vec![100, 10, 1],
-            vec![20, 1, 3],
-            vec![1, 5, 1],
-        ];
+        let arr: Vec<Vec<usize>> = vec![vec![100, 10, 1], vec![20, 1, 3], vec![1, 5, 1]];
 
         let acc = acc2D(&arr);
 

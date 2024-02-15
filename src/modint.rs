@@ -1,6 +1,5 @@
 //! Modintの構造体
 
-// ===== Modint =====
 use modint::*;
 
 pub type Mod998 = Modint<998244353>;

@@ -1,6 +1,5 @@
 //! 遅延評価セグメント木
 
-// ===== Lazy Segment Tree =====
 use core::fmt;
 use std::{
     fmt::Debug,
@@ -195,12 +194,7 @@ where
 }
 
 pub mod Alg {
-    use crate::modint::{modint::Modint, Mod998};
-    use num_traits::{One, Zero};
-    use std::{
-        marker::PhantomData,
-        ops::{Add, Mul},
-    };
+    use crate::modint::modint::Modint;
 
     use super::ExtMonoid;
 

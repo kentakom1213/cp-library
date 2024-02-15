@@ -1,6 +1,5 @@
 //! インデックス付きの集合
 
-// ===== Indexed Set =====
 use std::iter::FromIterator;
 use std::mem::{replace, swap};
 use std::{cmp::Ordering, fmt::Debug};

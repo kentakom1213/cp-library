@@ -1,6 +1,5 @@
 //! 強連結成分分解
 
-// ===== SCC  =====
 type Graph = Vec<Vec<usize>>;
 
 /// ## SCC (強連結成分分解)
@@ -122,6 +121,9 @@ mod test {
         assert_eq!(scc.group_count, 4);
         assert_eq!(&scc.belongs_to, &vec![3, 1, 2, 3, 1, 0]);
         assert_eq!(&scc.DAG, &vec![vec![2], vec![2], vec![], vec![]]);
-        assert_eq!(&scc.components, &vec![vec![5], vec![1, 4], vec![2], vec![0, 3]]);
+        assert_eq!(
+            &scc.components,
+            &vec![vec![5], vec![1, 4], vec![2], vec![0, 3]]
+        );
     }
 }

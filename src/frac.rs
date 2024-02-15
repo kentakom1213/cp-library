@@ -1,6 +1,5 @@
 //! 比較を実装した分数の実装
 
-// ===== Fraction =====
 use std::{cmp::Ordering, ops::Mul};
 
 /// 分数を表す構造体
