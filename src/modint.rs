@@ -41,7 +41,6 @@ pub mod modint {
     impl<const MOD: usize> Product<Modint<MOD>> for Modint<MOD> { fn product<I: Iterator<Item = Modint<MOD>>>(iter: I) -> Self { iter.fold(Modint::<MOD>(1), |acc, x| acc * x) } }
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -151,9 +150,7 @@ mod test {
     #[test]
     fn test_sum() {
         assert_eq!(
-            (0..20)
-                .map(|i| Mod1e9::new(2).pow(i))
-                .sum::<Mod1e9>(),
+            (0..20).map(|i| Mod1e9::new(2).pow(i)).sum::<Mod1e9>(),
             Mod1e9::new(2).pow(20) - 1
         );
     }
@@ -161,9 +158,7 @@ mod test {
     #[test]
     fn test_product() {
         assert_eq!(
-            (0..100)
-                .map(|_| 3.into())
-                .product::<Mod1e9>(),
+            (0..100).map(|_| 3.into()).product::<Mod1e9>(),
             Mod1e9::new(3).pow(100)
         );
     }

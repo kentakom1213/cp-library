@@ -195,9 +195,9 @@ where
 }
 
 pub mod Alg {
-    use std::ops::{Add, Mul};
-
+    use crate::modint::{modint::Modint, Mod998};
     use num_traits::{One, Zero};
+    use std::ops::{Add, Mul};
 
     use super::ExtMonoid;
 
@@ -303,67 +303,36 @@ pub mod Alg {
     /// - 区間を`ax + b`で更新（Affine変換）
     /// - 区間和を取得
     #[derive(Debug)]
-    pub struct Affine1D;
-    impl ExtMonoid for Affine1D {
-        type X = Mat2x2<isize>;
-        type M = Mat2x2<isize>;
-        const IX: Self::X = Mat2x2([[0, 0], [0, 1]]);
-        const IM: Self::M = Mat2x2([[1, 0], [0, 1]]);
+    pub struct Affine1D998;
+    impl ExtMonoid for Affine1D998 {
+        type X = Mod998;
+        type M = (Mod998, Mod998);
+        const IX: Self::X = Modint::<998244353>(0);
+        const IM: Self::M = (Modint::<998244353>(1), Modint::<998244353>(0));
         fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
-            y.add(x)
+            *x + *y
         }
         fn operate_m(x: &Self::M, y: &Self::M) -> Self::M {
-            y.dot(x)
+            let &(a1, b1) = x;
+            let &(a2, b2) = y;
+            //   a2 * (a1 * x + b1) + b2
+            // = (a2 * a1) * x + (a2 * b1 + b2)
+            (a2 * a1, a2 * b1 + b2)
         }
         fn apply(x: &Self::X, y: &Self::M) -> Self::X {
-            y.dot(x)
+            let &(a, b) = y;
+            a * *x + b
         }
-        fn aggregate(x: &Self::M, _: usize) -> Self::M {
-            x.clone()
-        }
-    }
-
-    /// 2x2行列を表す構造体
-    #[derive(Debug, PartialEq, Clone)]
-    pub struct Mat2x2<T>([[T; 2]; 2]);
-
-    impl<T> Mat2x2<T>
-    where
-        T: Copy + Add<Output = T> + Mul<Output = T> + Zero + One,
-    {
-        /// 和を求める
-        fn add(&self, rhs: &Self) -> Self {
-            let &Mat2x2([[x00, x01], [x10, x11]]) = self;
-            let &Mat2x2([[y00, y01], [y10, y11]]) = rhs;
-            Mat2x2([[x00 + y00, x01 + y01], [x10 + y10, x11 + y11]])
-        }
-
-        /// 積を求める
-        fn dot(&self, rhs: &Self) -> Self {
-            let &Mat2x2([[x00, x01], [x10, x11]]) = self;
-            let &Mat2x2([[y00, y01], [y10, y11]]) = rhs;
-            Mat2x2([
-                [x00 * y00 + x01 * y10, x00 * y01 + x01 * y11],
-                [x10 * y00 + x11 * y10, x10 * y01 + x11 * y11],
-            ])
-        }
-
-        /// `ax + b`を表す行列を生成する
-        pub fn create(a: T, b: T) -> Self {
-            Mat2x2([[a, b], [T::zero(), T::one()]])
-        }
-
-        /// 現在の行列が表している値を取得する
-        pub fn eval(&self) -> T {
-            let &Mat2x2([[a, b], _]) = self;
-            a + b
+        fn aggregate(x: &Self::M, p: usize) -> Self::M {
+            let &(a, b) = x;
+            (a, b * p)
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use test::Alg::Mat2x2;
+    use crate::modint::Mod998;
 
     use super::*;
 
@@ -544,42 +513,73 @@ mod test {
 
     #[test]
     fn test_range_affine() {
-        // 配列arrの[l,r)をa倍し，bを加算
-        let apply = |arr: &mut Vec<isize>, (l, r): (usize, usize), (a, b): (isize, isize)| {
-            for i in l..r {
-                arr[i] *= a;
-                arr[i] += b;
-            }
-        };
-
-        // 配列arrの[l,r)の総和を取得
-        let get =
-            |arr: &Vec<isize>, (l, r): (usize, usize)| -> isize { arr[l..r].iter().sum::<isize>() };
-
-        let N = 6;
-        let mut arr = vec![0; N];
-        let mut seg = LazySegmentTree::<Alg::Affine1D>::new(N);
-        eprintln!("{:?}", seg);
+        // [0, 0, 0, 0, 0, 0, 0, 0]
+        let mut seg = LazySegmentTree::<Alg::Affine1D998>::new(8);
         eprintln!("{}", seg.show());
 
-        for l in 0..N {
-            for r in l..=N {
-                eprintln!("[{}, {}) -> {}", l, r, get(&arr, (l, r)));
-                assert_eq!(get(&arr, (l, r)), seg.get(l..r).eval());
-            }
-        }
+        assert_eq!(seg.get(..), Mod998::new(0));
+        assert_eq!(seg.get(..5), Mod998::new(0));
+        assert_eq!(seg.get(5..), Mod998::new(0));
+        assert_eq!(seg.get(3..6), Mod998::new(0));
 
         // [0, 3) に `x + 2` を作用
-        apply(&mut arr, (0, 3), (1, 2));
-        seg.apply(..3, Mat2x2::create(1, 2));
-        eprintln!("{:?}", seg);
+        // [2, 2, 2, 0, 0, 0, 0, 0]
+        seg.apply(..3, (1.into(), 2.into()));
         eprintln!("{}", seg.show());
 
-        for l in 0..N {
-            for r in l..=N {
-                eprintln!("[{}, {}) -> {}", l, r, get(&arr, (l, r)));
-                assert_eq!(get(&arr, (l, r)), seg.get(l..r).eval());
-            }
-        }
+        assert_eq!(seg.get(..), Mod998::new(6));
+        assert_eq!(seg.get(..5), Mod998::new(6));
+        assert_eq!(seg.get(5..), Mod998::new(0));
+        assert_eq!(seg.get(3..6), Mod998::new(0));
+
+        // [2, 6) に `2x - 1` を作用
+        // [2, 2, 3, -1, -1, -1, 0, 0]
+        seg.apply(2..6, (2.into(), Mod998::new(0) - 1));
+        eprintln!("{}", seg.show());
+
+        assert_eq!(seg.get(..), Mod998::new(4));
+        assert_eq!(seg.get(..5), Mod998::new(5));
+        assert_eq!(seg.get(5..), Mod998::new(0) - 1);
+        assert_eq!(seg.get(3..6), Mod998::new(0) - 3);
+
+        // [4, 7) に `3x + 6` を作用
+        // [2, 2, 3, -1, 3, 3, 6, 0]
+        seg.apply(4..7, (3.into(), 6.into()));
+        eprintln!("{}", seg.show());
+
+        assert_eq!(seg.get(..), Mod998::new(18));
+        assert_eq!(seg.get(..5), Mod998::new(9));
+        assert_eq!(seg.get(5..), Mod998::new(9));
+        assert_eq!(seg.get(3..6), Mod998::new(5));
+
+        // [0, 8) に `-2x - 1` を作用
+        // [-5, -5, -7, 1, -7, -7, -13, -1]
+        seg.apply(.., (Mod998::new(0) - 2, Mod998::new(0) - 1));
+        eprintln!("{}", seg.show());
+
+        assert_eq!(seg.get(..), Mod998::new(0) - 44);
+        assert_eq!(seg.get(..5), Mod998::new(0) - 23);
+        assert_eq!(seg.get(5..), Mod998::new(0) - 21);
+        assert_eq!(seg.get(3..6), Mod998::new(0) - 13);
+
+        // [2, 8) に `-x + 1` を作用
+        // [-5, -5, 8, 0, 8, 8, 14, 2]
+        seg.apply(2.., (Mod998::new(0) - 1, 1.into()));
+        eprintln!("{}", seg.show());
+
+        assert_eq!(seg.get(..), Mod998::new(30));
+        assert_eq!(seg.get(..5), Mod998::new(6));
+        assert_eq!(seg.get(5..), Mod998::new(24));
+        assert_eq!(seg.get(3..6), Mod998::new(16));
+
+        // [0, 5) に `1/2 x` を作用
+        // [-5/2, -5/2, 4, 0, 4, 8, 14, 2]
+        seg.apply(0..5, (Mod998::new(1) / 2, 0.into()));
+        eprintln!("{}", seg.show());
+
+        assert_eq!(seg.get(..), Mod998::new(27));
+        assert_eq!(seg.get(..5), Mod998::new(3));
+        assert_eq!(seg.get(5..), Mod998::new(24));
+        assert_eq!(seg.get(3..6), Mod998::new(12));
     }
 }
