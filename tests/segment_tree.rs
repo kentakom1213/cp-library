@@ -64,7 +64,6 @@ fn test_wrong_range() {
 
 #[test]
 fn test_debug_print() {
-    const INF: isize = -(1 << 31) + 1;
     let arr = vec![20, 4, 5, 6, 8, 9, 100];
     let segtree = SegmentTree::<Alg::Max>::from(&arr);
 

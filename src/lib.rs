@@ -31,6 +31,7 @@ pub mod loop_detection_fold;
 pub mod matrix_exp;
 pub mod mex_set;
 pub mod miller_rabin_test;
+pub mod mod_alg;
 pub mod modint;
 pub mod modint_comb;
 pub mod modint_for_rollinghash;
