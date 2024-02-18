@@ -1,4 +1,4 @@
-use cp_library_rs::modint::{modint::*, *};
+use cp_library_rs::modint::*;
 
 const MOD998: usize = 998244353;
 

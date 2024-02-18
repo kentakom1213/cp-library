@@ -905,7 +905,7 @@
         "\t\timpl Sum<Modint> for Modint { fn sum<I: Iterator<Item = Modint>>(iter: I) -> Self { iter.fold(Modint(0), |acc, x| acc + x) } }",
         "\t\timpl Product<Modint> for Modint { fn product<I: Iterator<Item = Modint>>(iter: I) -> Self { iter.fold(Modint(1), |acc, x| acc * x) } }",
         "\t}",
-        "\tuse modint::*;",
+        "\tpub use modint::*;",
         "}"
       ],
       "description": "Modintの構造体"
@@ -3002,6 +3002,7 @@
         "\t\timpl<const MOD: usize> Sum<Modint<MOD>> for Modint<MOD> { fn sum<I: Iterator<Item = Modint<MOD>>>(iter: I) -> Self { iter.fold(Modint::<MOD>(0), |acc, x| acc + x) } }",
         "\t\timpl<const MOD: usize> Product<Modint<MOD>> for Modint<MOD> { fn product<I: Iterator<Item = Modint<MOD>>>(iter: I) -> Self { iter.fold(Modint::<MOD>(1), |acc, x| acc * x) } }",
         "\t}",
+        "\tpub use modint::*;",
         "}"
       ],
       "description": "Modintの構造体"
