@@ -75,10 +75,6 @@ fn read_file(path: &Path) -> SnippetPiece {
         if line.starts_with("//!") {
             description += line.replace("//! ", "").as_str();
         }
-        // テストコードは無視
-        if line.starts_with("#[cfg(test)]") {
-            break;
-        }
         if !line.is_empty() {
             let line = format!("\t{}", line.replace("    ", "\t").replace('$', "\\$"));
             body.push(line);
