@@ -53,16 +53,3 @@ pub fn is_prime_MR(N: usize) -> bool {
     }
     true
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_algo_method() {
-        assert_eq!(is_prime_MR(4033), false);
-        assert_eq!(is_prime_MR(4681), false);
-        assert_eq!(is_prime_MR(341550054645379), true);
-        assert_eq!(is_prime_MR(347484690041206937), false);
-    }
-}

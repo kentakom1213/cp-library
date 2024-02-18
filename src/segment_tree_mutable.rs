@@ -83,7 +83,7 @@ where
         seg
     }
 
-    fn update(&mut self, index: usize, value: T) {
+    pub fn update(&mut self, index: usize, value: T) {
         let mut i = index + self.offset;
         self.data[i] = value;
         while i > 1 {
@@ -211,71 +211,5 @@ where
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.new_val
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_get_point() {
-        let segtree = SegmentTree::build(&vec![1, 2, 3, 4, 5], 0, |a, b| a + b);
-
-        assert_eq!(segtree[0], 1);
-        assert_eq!(segtree[3], 4);
-    }
-
-    #[test]
-    fn test_RSQ() {
-        let mut segtree = SegmentTree::new(3, 0, |a, b| a + b);
-
-        // segtree.update(0, 1);
-        *segtree.get_mut(0).unwrap() += 1;
-        *segtree.get_mut(1).unwrap() += 2;
-        *segtree.get_mut(2).unwrap() += 3;
-        // [1, 2, 3]
-
-        assert_eq!(segtree.get_range(0..2), 3);
-        assert_eq!(segtree.get_range(1..2), 2);
-        assert_eq!(segtree.get_range(1..=2), 5);
-        assert_eq!(segtree.get_range(..), 6);
-    }
-
-    #[test]
-    fn test_RMQ() {
-        const INF: usize = (1 << 31) - 1;
-        let mut segtree = SegmentTree::new(3, INF, |a, b| *a.min(b));
-
-        assert_eq!(segtree.get_range(..1), (1 << 31) - 1);
-        *segtree.get_mut(0).unwrap() = 5;
-        assert_eq!(segtree.get_range(..1), 5);
-    }
-
-    #[test]
-    fn test_from_slice() {
-        const MINF: isize = -(1 << 31) + 1;
-        let arr = vec![20, 4, 5, 6, 8, 9, 100];
-        let mut segtree = SegmentTree::build(&arr, MINF, |a, b| *a.max(b));
-
-        assert_eq!(segtree.get_range(0..), 100);
-        assert_eq!(segtree.get_range(2..5), 8);
-
-        segtree.update(0, 200);
-
-        assert_eq!(segtree.get_range(..), 200);
-        assert_eq!(segtree.get_range(2..5), 8);
-        assert_eq!(segtree.get_range(5..10), 100);
-        assert_eq!(segtree.get_range(10..20), MINF);
-    }
-
-    #[test]
-    fn test_debug_print() {
-        const MINF: isize = -(1 << 31) + 1;
-        let arr = vec![20, 4, 5, 6, 8, 9, 100];
-        let segtree = SegmentTree::build(&arr, MINF, |a, b| *a.max(b));
-
-        let dbg = format!("{:?}", &segtree);
-        assert_eq!(&dbg, "SegmentTree { [20, 4, 5, 6, 8, 9, 100] }");
     }
 }
