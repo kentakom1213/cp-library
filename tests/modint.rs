@@ -159,4 +159,12 @@ fn test_rational_reconstruction() {
             assert_eq!((n, d), (p, q));
         }
     }
+
+    // 分母1
+    for i in -20..=20 {
+        let x = Mod998::from_isize(i);
+        let (p, q) = x.rational_reconstruction().unwrap();
+        println!("x: {x:?} -> {:?}", (p, q));
+        assert_eq!((i, 1), (p, q));
+    }
 }
