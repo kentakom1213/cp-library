@@ -1,8 +1,8 @@
-use cp_library_rs::lazy_segment_tree::*;
+use cp_library_rs::{lazy_segment_tree_inner::*, lazy_segtree_alg::*};
 
 #[test]
 fn test_RSQ_and_RAQ_hand() {
-    let mut seg = LazySegmentTree::<Alg::RSQandRAQ>::new(10);
+    let mut seg = LazySegmentTree::<RSQandRAQ>::new(10);
     // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     assert_eq!(seg.get(..), 0);
@@ -46,7 +46,7 @@ fn test_RSQ_and_RAQ_hand() {
 #[test]
 fn test_RMQ_and_RUQ_hand() {
     const INF: isize = (1 << 31) - 1;
-    let mut seg = LazySegmentTree::<Alg::RMQandRUQ>::new(10);
+    let mut seg = LazySegmentTree::<RMQandRUQ>::new(10);
     // [INF, INF, INF, INF, INF, INF, INF, INF, INF, INF]
 
     assert_eq!(seg.get(..), INF);
@@ -90,7 +90,7 @@ fn test_RMQ_and_RUQ_hand() {
 /// テストケース: <https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=DSL_2_I&lang=ja>
 #[test]
 fn test_RSQ_and_RUQ() {
-    let mut seg = LazySegmentTree::<Alg::RSQandRUQ>::new(6);
+    let mut seg = LazySegmentTree::<RSQandRUQ>::new(6);
 
     seg.apply(1..=3, Some(1));
     seg.apply(2..=4, Some(-2));
@@ -106,11 +106,11 @@ fn test_RSQ_and_RUQ() {
 
 #[test]
 fn test_from() {
-    const INF: isize = Alg::RMQandRAQ::IX;
+    const INF: isize = RMQandRAQ::IX;
 
     let arr = vec![5, 2, -3, -1, -9, -2, 5, 0, 0, 5];
 
-    let mut seg = LazySegmentTree::<Alg::RMQandRUQ>::from(&arr);
+    let mut seg = LazySegmentTree::<RMQandRUQ>::from(&arr);
     // [5, 2, -3, -1, -9, -2, 5, 0, 0, 5]
 
     assert_eq!(seg.get(..), -9);
@@ -154,7 +154,7 @@ fn test_from() {
 #[test]
 #[should_panic]
 fn get_wrong_range() {
-    let mut seg = LazySegmentTree::<Alg::RMQandRAQ>::from(&vec![0, 1, 2, 3, 4, 5]);
+    let mut seg = LazySegmentTree::<RMQandRAQ>::from(&vec![0, 1, 2, 3, 4, 5]);
 
     seg.get(..7);
 }
@@ -162,7 +162,7 @@ fn get_wrong_range() {
 #[test]
 #[should_panic]
 fn set_wrong_range() {
-    let mut seg = LazySegmentTree::<Alg::RMQandRAQ>::from(&vec![0, 1, 2, 3, 4, 5]);
+    let mut seg = LazySegmentTree::<RMQandRAQ>::from(&vec![0, 1, 2, 3, 4, 5]);
 
     seg.apply(..7, 0);
 }

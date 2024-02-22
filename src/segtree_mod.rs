@@ -1,5 +1,7 @@
+//! modを取るモノイド
+
 use crate::modint::*;
-use crate::segment_tree::Monoid;
+use crate::segment_tree_inner::Monoid;
 
 /// あまりをとる和
 pub struct ModAdd<const MOD: usize>;

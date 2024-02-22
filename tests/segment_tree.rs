@@ -1,8 +1,8 @@
-use cp_library_rs::segment_tree::*;
+use cp_library_rs::{segment_tree_inner::*, segtree_alg::*};
 
 #[test]
 fn test_get_point() {
-    let segtree = SegmentTree::<Alg::Mul>::from(&vec![1, 2, 3, 4, 5]);
+    let segtree = SegmentTree::<Mul>::from(&vec![1, 2, 3, 4, 5]);
 
     assert_eq!(segtree[0], 1);
     assert_eq!(segtree[3], 4);
@@ -10,7 +10,7 @@ fn test_get_point() {
 
 #[test]
 fn test_RSQ() {
-    let mut segtree = SegmentTree::<Alg::Add>::new(3);
+    let mut segtree = SegmentTree::<Add>::new(3);
 
     // segtree.update(0, 1);
     *segtree.get_mut(0).unwrap() += 1;
@@ -27,7 +27,7 @@ fn test_RSQ() {
 #[test]
 fn test_RMQ() {
     const INF: usize = (1 << 31) - 1;
-    let mut segtree = SegmentTree::<Alg::Min>::new(3);
+    let mut segtree = SegmentTree::<Min>::new(3);
 
     assert_eq!(segtree.get_range(..1), (1 << 31) - 1);
     *segtree.get_mut(0).unwrap() = 5;
@@ -38,7 +38,7 @@ fn test_RMQ() {
 fn test_from_slice() {
     const INF: isize = -(1 << 31) + 1;
     let arr = vec![20, 4, 5, 6, 8, 9, 100];
-    let mut segtree = SegmentTree::<Alg::Max>::from(&arr);
+    let mut segtree = SegmentTree::<Max>::from(&arr);
 
     assert_eq!(segtree.get_range(0..), 100);
     assert_eq!(segtree.get_range(2..5), 8);
@@ -53,7 +53,7 @@ fn test_from_slice() {
 #[test]
 #[should_panic]
 fn test_wrong_range() {
-    let segtree = SegmentTree::<Alg::Add>::from(&vec![0, 1, 2, 3, 4, 5]);
+    let segtree = SegmentTree::<Add>::from(&vec![0, 1, 2, 3, 4, 5]);
 
     assert_eq!(segtree.get_range(..), 15);
     assert_eq!(segtree.get_range(..2), 1);
@@ -65,7 +65,7 @@ fn test_wrong_range() {
 #[test]
 fn test_debug_print() {
     let arr = vec![20, 4, 5, 6, 8, 9, 100];
-    let segtree = SegmentTree::<Alg::Max>::from(&arr);
+    let segtree = SegmentTree::<Max>::from(&arr);
 
     let dbg = format!("{:?}", &segtree);
     assert_eq!(&dbg, "SegmentTree { [20, 4, 5, 6, 8, 9, 100] }");
