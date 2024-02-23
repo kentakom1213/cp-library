@@ -2,6 +2,7 @@ use itertools::Itertools;
 use regex::Regex;
 use serde::Serialize;
 use std::{
+    collections::HashMap,
     fs,
     io::{self, Write},
     path::Path,
@@ -16,10 +17,13 @@ struct SnippetPiece {
 }
 
 /// スニペット
+// #[derive(Serialize)]
+// struct Snippets {
+//     kyopro: Vec<SnippetPiece>,
+// }
+
 #[derive(Serialize)]
-struct Snippets {
-    kyopro: Vec<SnippetPiece>,
-}
+struct Snippets(HashMap<String, SnippetPiece>);
 
 const SRC: &str = "./src";
 const TARGET: &str = "./rust.json";
@@ -30,7 +34,7 @@ fn main() -> Result<(), io::Error> {
     let src = fs::read_dir(SRC)?;
 
     // スニペット
-    let mut snippet = Snippets { kyopro: vec![] };
+    let mut snippet = Snippets(HashMap::new());
 
     // ファイルを列挙
     for entry in src {
@@ -47,7 +51,10 @@ fn main() -> Result<(), io::Error> {
         // ファイルの中身
         let snippet_piece = make_snippet_piece(&path);
 
-        snippet.kyopro.push(snippet_piece);
+        // スニペット名
+        let snippet_name = path.file_name().unwrap().to_str().unwrap().to_string();
+
+        snippet.0.insert(snippet_name, snippet_piece);
     }
 
     // 書き込み
@@ -65,7 +72,7 @@ fn main() -> Result<(), io::Error> {
 /// スニペットの各部分を生成
 fn make_snippet_piece(path: &Path) -> SnippetPiece {
     // ファイル名
-    let prefix = path.file_name().unwrap().to_str().unwrap().to_string();
+    let prefix = path.file_stem().unwrap().to_str().unwrap().to_string();
     // コードの説明
     let description = get_snippet_description(path);
     // 中身
