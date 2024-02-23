@@ -22,7 +22,7 @@ struct Snippets {
 }
 
 const SRC: &str = "./src";
-const TARGET: &str = "./rust.code-snippets";
+const TARGET: &str = "./rust.json";
 
 fn main() -> Result<(), io::Error> {
     eprint!("Making snippet file ... ");
