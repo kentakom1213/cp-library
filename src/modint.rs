@@ -3,10 +3,10 @@
 pub use modint::*;
 
 pub const M998: usize = 998244353;
-pub const M109: usize = 1000000007;
+pub const M107: usize = 1000000007;
 
-pub type Mod998 = Modint<M998>;
-pub type Mod109 = Modint<M109>;
+pub type Mint998 = Modint<M998>;
+pub type Mint107 = Modint<M107>;
 
 // 適当な素数
 pub type P1 = Modint<938472061>;
@@ -14,7 +14,7 @@ pub type P2 = Modint<958472071>;
 
 #[rustfmt::skip]
 pub mod modint {
-    fn sqrt(n: usize) -> usize { let (mut ok, mut ng) = (0_usize, 1001001001001001001); while (ng - ok) > 1 { let m = (ok + ng) / 2; if m.saturating_mul(m) <= n { ok = m; } else { ng = m; } } ok }
+    fn sqrt(n: usize) -> usize { (n as f64).sqrt() as usize }
     use std::{fmt::{Debug, Display}, iter::{Sum, Product}, mem::replace, num::ParseIntError, ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign}, str::FromStr};
     #[derive(Clone, Copy, Default, PartialEq, Eq, Hash)] pub struct Modint<const MOD: usize>(pub usize);
     impl<const MOD: usize> Modint<MOD> { pub fn new(n: usize) -> Self { Self(if n < MOD { n } else { n % MOD }) }
