@@ -48,6 +48,7 @@ pub mod run_length;
 pub mod scc;
 pub mod segment_tree_inner;
 pub mod segment_tree_mutable;
+pub mod segmented_sieve;
 pub mod segtree_alg;
 pub mod segtree_mod;
 pub mod simple_graph;
