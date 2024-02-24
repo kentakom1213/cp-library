@@ -1,4 +1,4 @@
-use cp_library_rs::{lazy_segment_tree_inner::*, lazy_segtree_alg::*};
+use cp_library_rs::{extmonoid::ExtMonoid, extmonoid_examples::*, lazy_segment_tree_inner::*};
 
 #[test]
 fn test_RSQ_and_RAQ_hand() {

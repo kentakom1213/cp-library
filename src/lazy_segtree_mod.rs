@@ -1,6 +1,6 @@
 //! modを取る作用付きモノイド
 
-use crate::lazy_segment_tree_inner::ExtMonoid;
+use crate::extmonoid::ExtMonoid;
 use crate::modint::*;
 
 /// ## 1次元Affine変換

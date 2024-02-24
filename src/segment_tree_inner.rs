@@ -1,20 +1,11 @@
 //! セグメント木（モノイド）
 
+use crate::monoid::Monoid;
 use std::fmt;
 use std::ops::{
     Bound::{Excluded, Included, Unbounded},
     Deref, DerefMut, Index, RangeBounds,
 };
-
-/// モノイド
-pub trait Monoid {
-    /// 元の型
-    type Val: fmt::Debug + Clone + PartialEq;
-    /// 単位元
-    const E: Self::Val;
-    /// 演算
-    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val;
-}
 
 /// # SegmentTree (Monoid)
 /// - 抽象化セグメント木

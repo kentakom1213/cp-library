@@ -1,6 +1,6 @@
 //! （遅延セグ木）作用付きモノイド
 
-use crate::lazy_segment_tree_inner::ExtMonoid;
+use crate::extmonoid::ExtMonoid;
 
 /// ## RSQandRAQ
 /// - 区間加算

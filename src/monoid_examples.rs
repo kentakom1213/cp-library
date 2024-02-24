@@ -1,6 +1,6 @@
 //! セグ木用の各種モノイド
 
-use crate::segment_tree_inner::Monoid;
+use crate::monoid::Monoid;
 
 /// 和
 pub struct Add;
