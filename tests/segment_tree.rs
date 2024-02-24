@@ -1,4 +1,4 @@
-use cp_library_rs::{monoid_examples::*, segment_tree_inner::*};
+use cp_library_rs::{monoid::examples::*, segment_tree::*};
 
 #[test]
 fn test_get_point() {
