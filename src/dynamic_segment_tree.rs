@@ -3,7 +3,6 @@
 
 use crate::monoid;
 pub use dynamic_segment_tree::*;
-pub use print_util::*;
 
 mod dynamic_segment_tree {
     //! AA木による動的セグ木

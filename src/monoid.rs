@@ -84,4 +84,16 @@ pub mod examples {
             gcd(b, a % b)
         }
     }
+
+    /// アフィン変換（浮動小数点数）
+    struct Affine;
+    impl Monoid for Affine {
+        type Val = (f64, f64);
+        const E: Self::Val = (1.0, 0.0);
+        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+            let &(a1, b1) = left;
+            let &(a2, b2) = right;
+            (a2 * a1, a2 * b1 + b2)
+        }
+    }
 }
