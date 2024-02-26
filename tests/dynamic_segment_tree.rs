@@ -28,7 +28,7 @@ fn test_random_insert() {
         arr[idx] = new_val;
 
         // セグ木の更新
-        seg.update(idx, new_val);
+        *seg.get_mut(idx) = new_val;
 
         // 表示
         // println!("{:?}", arr);
@@ -42,10 +42,7 @@ fn test_random_insert() {
                 (l, r) = (r, l);
             }
 
-            assert_eq!(
-                arr[l..r].iter().sum::<isize>(),
-                seg.get_range(&l, &r, &0, &SIZE)
-            );
+            assert_eq!(arr[l..r].iter().sum::<isize>(), seg.get_range(l..r));
         }
     }
 }
@@ -76,7 +73,7 @@ fn random_insert_delete() {
         arr[idx_delete] = 0;
 
         // セグ木の更新
-        seg.update(idx_insert, new_val);
+        seg.insert(idx_insert, new_val);
         seg.remove(&idx_delete);
 
         // 表示
@@ -91,10 +88,7 @@ fn random_insert_delete() {
                 (l, r) = (r, l);
             }
 
-            assert_eq!(
-                arr[l..r].iter().sum::<isize>(),
-                seg.get_range(&l, &r, &0, &SIZE)
-            );
+            assert_eq!(arr[l..r].iter().sum::<isize>(), seg.get_range(l..r));
         }
     }
 }
@@ -128,7 +122,7 @@ fn random_delete() {
         arr.insert(idx_insert, (key, val));
 
         // セグ木に追加
-        seg.update(key, val);
+        *seg.get_mut(key) = val;
     }
 
     // println!("{:?}", arr);
@@ -163,7 +157,7 @@ fn random_delete() {
                     .filter(|&&(k, _)| l <= k && k < r)
                     .map(|&(_, v)| v)
                     .sum::<isize>(),
-                seg.get_range(&l, &r, &isize::MIN, &isize::MAX)
+                seg.get_range(l..r)
             );
         }
     }
@@ -199,7 +193,7 @@ fn random_delete_str() {
         arr.insert(idx_insert, (key.clone(), val));
 
         // セグ木に追加
-        seg.update(key, val);
+        seg.insert(key, val);
     }
 
     println!("{:?}", arr);
@@ -235,7 +229,7 @@ fn random_delete_str() {
                     .filter(|(k, _)| &l <= k && k < &r)
                     .map(|&(_, v)| v)
                     .sum::<isize>(),
-                seg.get_range(&l, &r, &"0".repeat(SIZE), &"z".repeat(SIZE))
+                seg.get_range(l..r)
             );
         }
     }
