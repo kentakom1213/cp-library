@@ -1,8 +1,9 @@
 //! 入力用マクロ
+//! 参考：[Rustで競技プログラミング スターターキット](https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e)
 
-// [Rustで競技プログラミング スターターキット](https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e)
+/// 入力用マクロ
 #[macro_export]
-macro_rules! get_ {
+macro_rules! get {
     ($t:ty) => {
         {
             let mut line = String::new();
