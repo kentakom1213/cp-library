@@ -50,6 +50,7 @@ pub mod rolling_hash;
 pub mod run_length;
 pub mod scc;
 pub mod segment_tree;
+pub mod segment_tree_2D;
 pub mod segment_tree_mutable;
 pub mod segmented_sieve;
 pub mod simple_graph;
