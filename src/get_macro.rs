@@ -1,5 +1,5 @@
 //! 入力用マクロ
-//! 参考：[Rustで競技プログラミング スターターキット](https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e)
+//! - 参考：[Rustで競技プログラミング スターターキット](https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e)
 
 /// 入力用マクロ
 #[macro_export]

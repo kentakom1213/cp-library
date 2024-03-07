@@ -140,9 +140,7 @@ pub struct ValMut<'a, M: 'a + Monoid> {
 
 impl<M: Monoid> fmt::Debug for ValMut<'_, M> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("ValMut")
-            .field(&self.segtree.index(self.idx))
-            .finish()
+        f.debug_tuple("ValMut").field(&self.new_val).finish()
     }
 }
 
@@ -155,7 +153,7 @@ impl<M: Monoid> Drop for ValMut<'_, M> {
 impl<M: Monoid> Deref for ValMut<'_, M> {
     type Target = M::Val;
     fn deref(&self) -> &Self::Target {
-        &self.segtree[self.idx]
+        &self.new_val
     }
 }
 

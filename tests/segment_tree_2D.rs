@@ -138,4 +138,51 @@ fn test_from_array() {
     let mut seg = SegmentTree2D::<Max>::from(&arr);
 
     seg.show();
+
+    // 2, 5, 7, 0, 3, 2
+    // 9, 8, 2, 2, 1, 8
+    // 0, 4, 3, 8, 1, 6
+    assert_eq!(seg.get_range(..2, ..), 9);
+    assert_eq!(seg.get_range(2.., ..), 8);
+    assert_eq!(seg.get_range(1..3, ..), 9);
+    assert_eq!(seg.get_range(.., ..3), 9);
+    assert_eq!(seg.get_range(.., 3..), 8);
+    assert_eq!(seg.get_range(1.., 4..), 8);
+    assert_eq!(seg.get_range(..3, ..4), 9);
+    assert_eq!(seg.get_range(1..3, 3..5), 8);
+    assert_eq!(seg.get_range(.., ..), 9);
+
+    // 2, 5, 7, 0, 3, 2
+    // 7, 8, 2, 2, 1, 8
+    // 0, 4, 3, 6, 1, 6
+    *seg.get_mut(1, 0).unwrap() = 7;
+    *seg.get_mut(2, 3).unwrap() -= 2;
+    seg.show();
+
+    assert_eq!(seg.get_range(..2, ..), 8);
+    assert_eq!(seg.get_range(2.., ..), 6);
+    assert_eq!(seg.get_range(1..3, ..), 8);
+    assert_eq!(seg.get_range(.., ..3), 8);
+    assert_eq!(seg.get_range(.., 3..), 8);
+    assert_eq!(seg.get_range(1.., 4..), 8);
+    assert_eq!(seg.get_range(..3, ..4), 8);
+    assert_eq!(seg.get_range(1..3, 3..5), 6);
+    assert_eq!(seg.get_range(.., ..), 8);
+
+    // 2, 5, 7,10, 3, 2
+    // 7, 2, 2, 2, 1, 8
+    // 0, 4, 3, 6, 1, 6
+    *seg.get_mut(0, 3).unwrap() = 10;
+    *seg.get_mut(1, 1).unwrap() -= 6;
+    seg.show();
+
+    assert_eq!(seg.get_range(..2, ..), 10);
+    assert_eq!(seg.get_range(2.., ..), 6);
+    assert_eq!(seg.get_range(1..3, ..), 8);
+    assert_eq!(seg.get_range(.., ..3), 7);
+    assert_eq!(seg.get_range(.., 3..), 10);
+    assert_eq!(seg.get_range(1.., 4..), 8);
+    assert_eq!(seg.get_range(..3, ..4), 10);
+    assert_eq!(seg.get_range(1..3, 3..5), 6);
+    assert_eq!(seg.get_range(.., ..), 10);
 }

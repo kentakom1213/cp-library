@@ -16,7 +16,7 @@ use crate::monoid::Monoid;
 use std::fmt::{self, Debug};
 use std::ops::{
     Bound::{Excluded, Included, Unbounded},
-    Deref, DerefMut, Index, RangeBounds,
+    Deref, DerefMut, RangeBounds,
 };
 
 /// # SegmentTree2D (Monoid)
@@ -26,13 +26,6 @@ pub struct SegmentTree2D<M: Monoid> {
     pub ow: usize,
     pub data: Vec<M::Val>,
 }
-
-// impl<M: Monoid> Index<usize> for SegmentTree2D<M> {
-//     type Output = M::Val;
-//     fn index(&self, idx: usize) -> &Self::Output {
-//         &self.data[self.offset + idx]
-//     }
-// }
 
 impl<M: Monoid> SegmentTree2D<M> {
     #[inline]
@@ -97,19 +90,20 @@ impl<M: Monoid> SegmentTree2D<M> {
         }}
     }
 
-    // /// 可変な参照を返す
-    // pub fn get_mut(&mut self, i: usize) -> Option<ValMut<'_, M>> {
-    //     if i < self.offset {
-    //         let default = self.index(i).clone();
-    //         Some(ValMut {
-    //             segtree: self,
-    //             idx: i,
-    //             new_val: default,
-    //         })
-    //     } else {
-    //         None
-    //     }
-    // }
+    /// 可変な参照を返す
+    pub fn get_mut(&mut self, r: usize, c: usize) -> Option<ValMut<'_, M>> {
+        if r < self.oh && c < self.ow {
+            let old_val = self.data[self.idx(r, c)].clone();
+            Some(ValMut {
+                segtree: self,
+                r,
+                c,
+                new_val: old_val,
+            })
+        } else {
+            None
+        }
+    }
 
     /// row方向での集約を行う
     fn aggregate_row(&self, r: usize, mut cs: usize, mut ce: usize) -> M::Val {
@@ -200,39 +194,37 @@ impl<M: Monoid> From<&Vec<Vec<M::Val>>> for SegmentTree2D<M> {
     }
 }
 
-// pub struct ValMut<'a, M: 'a + Monoid> {
-//     segtree: &'a mut SegmentTree2D<M>,
-//     i: usize,
-//     j: usize,
-//     new_val: M::Val,
-// }
+pub struct ValMut<'a, M: 'a + Monoid> {
+    segtree: &'a mut SegmentTree2D<M>,
+    r: usize,
+    c: usize,
+    new_val: M::Val,
+}
 
-// impl<M: Monoid> fmt::Debug for ValMut<'_, M> {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         f.debug_tuple("ValMut")
-//             .field(&self.segtree[self.index(self.i, self.j)])
-//             .finish()
-//     }
-// }
+impl<M: Monoid> fmt::Debug for ValMut<'_, M> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("ValMut").field(&self.new_val).finish()
+    }
+}
 
-// impl<M: Monoid> Drop for ValMut<'_, M> {
-//     fn drop(&mut self) {
-//         self.segtree.update(self.idx, self.new_val.clone());
-//     }
-// }
+impl<M: Monoid> Drop for ValMut<'_, M> {
+    fn drop(&mut self) {
+        self.segtree.update(self.r, self.c, self.new_val.clone());
+    }
+}
 
-// impl<M: Monoid> Deref for ValMut<'_, M> {
-//     type Target = M::Val;
-//     fn deref(&self) -> &Self::Target {
-//         &self.segtree[self.idx]
-//     }
-// }
+impl<M: Monoid> Deref for ValMut<'_, M> {
+    type Target = M::Val;
+    fn deref(&self) -> &Self::Target {
+        &self.new_val
+    }
+}
 
-// impl<M: Monoid> DerefMut for ValMut<'_, M> {
-//     fn deref_mut(&mut self) -> &mut Self::Target {
-//         &mut self.new_val
-//     }
-// }
+impl<M: Monoid> DerefMut for ValMut<'_, M> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.new_val
+    }
+}
 
 impl<M> SegmentTree2D<M>
 where
@@ -254,7 +246,6 @@ where
                 let mut c = 1;
                 let mut w = 1;
                 while c + w <= 2 * W {
-                    // println!("{}{:?}", "  ".repeat(h - 1), ((r, i - 1), (c, w)));
                     eprintln!(
                         "{}{:?}",
                         "  ".repeat(logh),
