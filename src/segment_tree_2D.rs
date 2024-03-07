@@ -93,7 +93,7 @@ impl<M: Monoid> SegmentTree2D<M> {
     /// 可変な参照を返す
     pub fn get_mut(&mut self, r: usize, c: usize) -> Option<ValMut<'_, M>> {
         if r < self.oh && c < self.ow {
-            let old_val = self.data[self.idx(r, c)].clone();
+            let old_val = self.data[self.idx(r + self.oh, c + self.ow)].clone();
             Some(ValMut {
                 segtree: self,
                 r,
@@ -203,7 +203,11 @@ pub struct ValMut<'a, M: 'a + Monoid> {
 
 impl<M: Monoid> fmt::Debug for ValMut<'_, M> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("ValMut").field(&self.new_val).finish()
+        f.debug_struct("ValMut")
+            .field("r", &self.r)
+            .field("c", &self.c)
+            .field("new_val", &self.new_val)
+            .finish()
     }
 }
 

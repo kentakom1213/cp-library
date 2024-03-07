@@ -186,3 +186,59 @@ fn test_from_array() {
     assert_eq!(seg.get_range(1..3, 3..5), 6);
     assert_eq!(seg.get_range(.., ..), 10);
 }
+
+#[test]
+fn test_imos() {
+    let mut seg = SegmentTree2D::<Add>::new(4, 4);
+
+    seg.show();
+
+    {
+        let mut p = seg.get_mut(0, 0).unwrap();
+        eprintln!("{:?}", p);
+        *p += 1;
+    }
+
+    seg.show();
+
+    {
+        let mut p = seg.get_mut(0, 2).unwrap();
+        eprintln!("{:?}", p);
+        *p -= 1;
+    }
+
+    seg.show();
+
+    {
+        let mut p = seg.get_mut(2, 0).unwrap();
+        eprintln!("{:?}", p);
+        *p -= 1;
+    }
+
+    seg.show();
+
+    {
+        let mut p = seg.get_mut(2, 2).unwrap();
+        eprintln!("{:?}", p);
+        *p += 1;
+    }
+
+    seg.show();
+
+    assert_eq!(seg.get_range(..=0, ..=0), 1);
+    assert_eq!(seg.get_range(..=0, ..=1), 1);
+    assert_eq!(seg.get_range(..=0, ..=2), 0);
+    assert_eq!(seg.get_range(..=0, ..=3), 0);
+    assert_eq!(seg.get_range(..=1, ..=0), 1);
+    assert_eq!(seg.get_range(..=1, ..=1), 1);
+    assert_eq!(seg.get_range(..=1, ..=2), 0);
+    assert_eq!(seg.get_range(..=1, ..=3), 0);
+    assert_eq!(seg.get_range(..=2, ..=0), 0);
+    assert_eq!(seg.get_range(..=2, ..=1), 0);
+    assert_eq!(seg.get_range(..=2, ..=2), 0);
+    assert_eq!(seg.get_range(..=2, ..=3), 0);
+    assert_eq!(seg.get_range(..=3, ..=0), 0);
+    assert_eq!(seg.get_range(..=3, ..=1), 0);
+    assert_eq!(seg.get_range(..=3, ..=2), 0);
+    assert_eq!(seg.get_range(..=3, ..=3), 0);
+}

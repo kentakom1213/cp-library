@@ -1,7 +1,7 @@
 //! セグメント木（モノイド）
 
 use crate::monoid::Monoid;
-use std::fmt;
+use std::fmt::{self, Debug};
 use std::ops::{
     Bound::{Excluded, Included, Unbounded},
     Deref, DerefMut, Index, RangeBounds,
@@ -78,7 +78,7 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// 区間`range`の集約を行う
-    pub fn get_range<R: RangeBounds<usize> + fmt::Debug>(&self, range: R) -> M::Val {
+    pub fn get_range<R: RangeBounds<usize> + Debug>(&self, range: R) -> M::Val {
         let Some((start, end)) = self.parse_range(&range) else {
             panic!("The given range is wrong: {:?}", range);
         };
@@ -118,7 +118,7 @@ impl<M: Monoid> From<&Vec<M::Val>> for SegmentTree<M> {
     }
 }
 
-impl<M: Monoid> std::fmt::Debug for SegmentTree<M> {
+impl<M: Monoid> Debug for SegmentTree<M> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "SegmentTree {{ [").ok();
         for i in 0..self.size {
@@ -138,7 +138,7 @@ pub struct ValMut<'a, M: 'a + Monoid> {
     new_val: M::Val,
 }
 
-impl<M: Monoid> fmt::Debug for ValMut<'_, M> {
+impl<M: Monoid> Debug for ValMut<'_, M> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_tuple("ValMut").field(&self.new_val).finish()
     }
@@ -160,5 +160,25 @@ impl<M: Monoid> Deref for ValMut<'_, M> {
 impl<M: Monoid> DerefMut for ValMut<'_, M> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.new_val
+    }
+}
+
+impl<M> SegmentTree<M>
+where
+    M: Monoid,
+    M::Val: Debug,
+{
+    /// セグ木を簡易的に表示する
+    /// **サイズが2べきのときのみ**
+    pub fn show(&self) {
+        #![cfg(debug_assertions)]
+        let mut i = 1;
+        let mut w = 1;
+        while i + w <= 2 * self.offset {
+            eprintln!("{:?}", &self.data[i..i + w]);
+            i += w;
+            w <<= 1;
+        }
+        eprintln!();
     }
 }
