@@ -1,4 +1,4 @@
-//! セグメント木（モノイド）
+//! セグメント木
 
 use crate::monoid::Monoid;
 use std::fmt::{self, Debug};

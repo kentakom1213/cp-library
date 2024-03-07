@@ -1,4 +1,4 @@
-//! セグメント木（二次元）
+//! 二次元セグメント木
 //! - 参考：[二次元セグメント木 - Nyaan's Library](https://nyaannyaan.github.io/library/data-structure-2d/2d-segment-tree.hpp.html)
 
 /// cfor! {}

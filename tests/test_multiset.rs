@@ -12,6 +12,8 @@ fn test_usize() {
     mset.insert(10);
     mset.insert(3);
 
+    assert_eq!(mset.len(), 5);
+
     // remove value
     assert_eq!(mset.remove(&7), true);
     assert_eq!(mset.remove(&7), true);
@@ -38,10 +40,33 @@ fn test_usize() {
     mset.insert(20);
     mset.insert(20);
     /*
-     * MultiSet { 3, 5, 10, 20, 20, 20 }
+     * MultiSet { 5, 10, 20, 20, 20 }
      */
+
+    assert_eq!(mset.len(), 5);
 
     assert_eq!(mset.count(&5), 1);
     assert_eq!(mset.count(&20), 3);
     assert_eq!(mset.count(&1000), 0);
+
+    // clear all elements
+    mset.clear();
+
+    assert!(mset.is_empty());
+    assert_eq!(mset.len(), 0);
+}
+
+#[test]
+fn test_iterator() {
+    let mut arr = vec![0, 9, 4, 4, 5, 5, 10, 10, 3, 3, 0, 0, 2, 1];
+
+    let mset: MultiSet<usize> = arr.iter().cloned().collect();
+
+    assert_eq!(mset.len(), 14);
+
+    arr.sort();
+
+    for (a, b) in mset.iter().zip(arr.iter()) {
+        assert_eq!(a, b);
+    }
 }

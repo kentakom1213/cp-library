@@ -5,16 +5,16 @@
 /// - 前計算: `O(NloglogN)`
 /// - クエリ: `O(logN)`
 /// で行う。
-pub struct Factors {
+pub struct FactorTable {
     n: usize,
     sieve: Vec<usize>,
 }
 
-impl Factors {
+impl FactorTable {
     /// 前計算を行う
     /// - `O(NloglogN)`で篩を作成
     pub fn new(n: usize) -> Self {
-        let mut facs = Factors {
+        let mut facs = FactorTable {
             n,
             sieve: vec![1; n + 1],
         };

@@ -1,8 +1,8 @@
-use cp_library_rs::factors::*;
+use cp_library_rs::factorize_fast::*;
 
 #[test]
 fn test_factorize() {
-    let f = Factors::new(200_000);
+    let f = FactorTable::new(200_000);
 
     assert_eq!(f.factorize(200), vec![2, 2, 2, 5, 5]);
     assert_eq!(f.factorize(123450), vec![2, 3, 5, 5, 823]);
@@ -12,7 +12,7 @@ fn test_factorize() {
 
 #[test]
 fn test_factorize_pairs() {
-    let f = Factors::new(200_000);
+    let f = FactorTable::new(200_000);
 
     assert_eq!(f.factorize_pairs(200), vec![(2, 3), (5, 2)]);
     assert_eq!(
