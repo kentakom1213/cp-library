@@ -26,6 +26,7 @@ pub mod indexedset;
 pub mod lazy_segment_tree;
 pub mod lca_doubling;
 pub mod lcs;
+pub mod lineartime_merging;
 pub mod loop_detection;
 pub mod loop_detection_fold;
 pub mod matrix_exp;
