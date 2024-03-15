@@ -10,6 +10,7 @@ mod chmin;
 pub mod comb;
 pub mod comb_no_mod;
 pub mod coordinate_compression;
+mod debug_macro;
 pub mod dijkstra;
 pub mod dual_segment_tree;
 pub mod dynamic_segment_tree;
