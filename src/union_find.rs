@@ -1,11 +1,11 @@
 //! UnionFind木
 
-/// # UnionFind
+/// UnionFind木
 pub struct UnionFind {
     par: Vec<usize>,
     siz: Vec<usize>,
     /// 連結成分の個数
-    pub group_count: usize,
+    count: usize,
 }
 
 impl UnionFind {
@@ -14,28 +14,28 @@ impl UnionFind {
         UnionFind {
             par: (0..n).collect(),
             siz: vec![1; n],
-            group_count: n,
+            count: n,
         }
     }
 
     /// 根を求める
-    pub fn root(&mut self, x: usize) -> usize {
+    pub fn get_root(&mut self, x: usize) -> usize {
         if self.par[x] == x {
             return x;
         }
-        self.par[x] = self.root(self.par[x]); // 経路圧縮
+        self.par[x] = self.get_root(self.par[x]); // 経路圧縮
         self.par[x]
     }
 
     /// 同一の集合に所属するか判定
-    pub fn issame(&mut self, x: usize, y: usize) -> bool {
-        self.root(x) == self.root(y)
+    pub fn is_same(&mut self, x: usize, y: usize) -> bool {
+        self.get_root(x) == self.get_root(y)
     }
 
     /// 要素を結合
     pub fn unite(&mut self, mut parent: usize, mut child: usize) -> bool {
-        parent = self.root(parent);
-        child = self.root(child);
+        parent = self.get_root(parent);
+        child = self.get_root(child);
 
         if parent == child {
             return false;
@@ -48,13 +48,18 @@ impl UnionFind {
 
         self.par[child] = parent;
         self.siz[parent] += self.siz[child];
-        self.group_count -= 1;
+        self.count -= 1;
         true
     }
 
     /// 連結成分の大きさを求める
-    pub fn size(&mut self, x: usize) -> usize {
-        let root = self.root(x);
-        self.siz[root]
+    pub fn get_size(&mut self, x: usize) -> usize {
+        let get_root = self.get_root(x);
+        self.siz[get_root]
+    }
+
+    /// 連結成分の数を返す
+    pub fn group_count(&self) -> usize {
+        self.count
     }
 }
