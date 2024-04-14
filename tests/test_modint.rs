@@ -5,11 +5,11 @@ const MOD998: usize = 998244353;
 
 #[test]
 fn test_add() {
-    let x: Mint998 = 998244355.into();
+    let x: M998 = 998244355.into();
     let y: usize = 998244359;
     assert_eq!(x + y, 8 + MOD998);
 
-    let a: Mint998 = MOD998.into();
+    let a: M998 = MOD998.into();
     let b = 1000000007;
     let c = 20021213;
     assert_eq!(a + b + c, 21776867);
@@ -18,48 +18,48 @@ fn test_add() {
 
 #[test]
 fn test_neg() {
-    let x: Mint998 = 0.into();
+    let x: M998 = 0.into();
     assert_eq!(-x, 0);
 
-    let y = Mint998::new(10);
+    let y = M998::new(10);
     assert_eq!(-y, MOD998 - 10);
 
-    let z = Mint998::new(MOD998 + 200);
+    let z = M998::new(MOD998 + 200);
     assert_eq!(-z, MOD998 - 200);
 }
 
 #[test]
 fn test_sub() {
-    let x = Mint998::new(0);
+    let x = M998::new(0);
     let y = 1000000007;
     assert_eq!(x - y, 996488699);
 
-    let a: Mint998 = 288230376151711744.into(); // 1 << 58
+    let a: M998 = 288230376151711744.into(); // 1 << 58
     let b: usize = 576460752303423488; // 1 << 59
     let c: usize = 1152921504606846976; // 1 << 60
     assert_eq!(-a - b - c, 553154679);
 
-    let zero = Mint998::new(0) + 1 - 1;
+    let zero = M998::new(0) + 1 - 1;
     assert_eq!(zero.0, 0);
 }
 
 #[test]
 fn test_pow() {
-    let x = Mint998::new(2);
+    let x = M998::new(2);
     let y: usize = 1000000007;
     assert_eq!(x.pow(y), 132727571);
 
-    let a: Mint998 = MOD998.into();
+    let a: M998 = MOD998.into();
     let b: usize = 1024;
     assert_eq!(a.pow(b), 0);
 }
 
 #[test]
 fn test_inv() {
-    assert_eq!(Mint998::new(1).inv(), 1);
-    assert_eq!(Mint998::new(2).inv(), 499122177);
-    assert_eq!(Mint998::new(1000).inv(), 981274199);
-    assert_eq!(Mint998::new(998244352).inv(), 998244352);
+    assert_eq!(M998::new(1).inv(), 1);
+    assert_eq!(M998::new(2).inv(), 499122177);
+    assert_eq!(M998::new(1000).inv(), 981274199);
+    assert_eq!(M998::new(998244352).inv(), 998244352);
 }
 
 #[test]
@@ -74,8 +74,8 @@ fn test_add_assign() {
 
 #[test]
 fn test_sub_assign() {
-    let mut add = Mint107::new(0);
-    let mut sub = Mint107::new(0);
+    let mut add = M107::new(0);
+    let mut sub = M107::new(0);
     for i in 0..20 {
         add += i;
         sub -= i;
@@ -86,7 +86,7 @@ fn test_sub_assign() {
 
 #[test]
 fn test_mul_assign() {
-    let mut fact = vec![Mint998::new(1); 20];
+    let mut fact = vec![M998::new(1); 20];
 
     // 階乗
     for i in 1..20 {
@@ -106,16 +106,16 @@ fn test_mul_assign() {
 #[test]
 fn test_sum() {
     assert_eq!(
-        (0..20).map(|i| Mint107::new(2).pow(i)).sum::<Mint107>(),
-        Mint107::new(2).pow(20) - 1
+        (0..20).map(|i| M107::new(2).pow(i)).sum::<M107>(),
+        M107::new(2).pow(20) - 1
     );
 }
 
 #[test]
 fn test_product() {
     assert_eq!(
-        (0..100).map(|_| 3.into()).product::<Mint107>(),
-        Mint107::new(3).pow(100)
+        (0..100).map(|_| 3.into()).product::<M107>(),
+        M107::new(3).pow(100)
     );
 }
 
@@ -123,8 +123,8 @@ fn test_product() {
 fn test_from_isize() {
     for _ in 0..200 {
         let x: isize = random();
-        let x_mod = (M998 as isize + x % M998 as isize) as usize % M998;
-        let y = Mint998::from_isize(x);
+        let x_mod = (998244353 as isize + x % 998244353 as isize) as usize % 998244353;
+        let y = M998::from_isize(x);
         assert_eq!(x_mod, y.0);
     }
 }
@@ -138,13 +138,13 @@ fn gcd(a: isize, b: isize) -> isize {
 }
 
 /// ランダムな分数を生成する
-fn generate_random_fraction(rng: &mut ThreadRng) -> ((isize, isize), Mint998) {
+fn generate_random_fraction(rng: &mut ThreadRng) -> ((isize, isize), M998) {
     let n = rng.gen_range(-1000..=1000);
     let d = rng.gen_range(1..=2000);
     let g = gcd(n, d).abs();
     let (n, d) = (n / g, d / g);
     // modintを生成
-    let m = Mint998::from_isize(n) / d as usize;
+    let m = M998::from_isize(n) / d as usize;
     ((n, d), m)
 }
 
@@ -162,7 +162,7 @@ fn test_rational_reconstruction() {
 
     // 分母1
     for i in -20..=20 {
-        let x = Mint998::from_isize(i);
+        let x = M998::from_isize(i);
         let (p, q) = x.rational_reconstruction().unwrap();
         println!("x: {x:?} -> {:?}", (p, q));
         assert_eq!((i, 1), (p, q));

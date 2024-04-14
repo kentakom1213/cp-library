@@ -2,11 +2,8 @@
 
 pub use modint::*;
 
-pub const M998: usize = 998244353;
-pub const M107: usize = 1000000007;
-
-pub type Mint998 = Modint<M998>;
-pub type Mint107 = Modint<M107>;
+pub type M998 = Modint<998244353>;
+pub type M107 = Modint<1000000007>;
 
 // 適当な素数
 pub type P1 = Modint<938472061>;
