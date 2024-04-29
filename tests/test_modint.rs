@@ -104,6 +104,19 @@ fn test_mul_assign() {
 }
 
 #[test]
+fn test_div_assign() {
+    let mut iota: Vec<M998> = (0..10).map(|i| i.into()).collect();
+
+    eprintln!("{:?}", iota);
+
+    for i in 0..10 {
+        iota[i] /= 2;
+    }
+
+    eprintln!("{:?}", iota);
+}
+
+#[test]
 fn test_sum() {
     assert_eq!(
         (0..20).map(|i| M107::new(2).pow(i)).sum::<M107>(),
@@ -129,7 +142,7 @@ fn test_from_isize() {
     }
 }
 
-fn gcd(a: isize, b: isize) -> isize {
+fn gcd(a: usize, b: usize) -> usize {
     if b == 0 {
         a
     } else {
@@ -138,13 +151,13 @@ fn gcd(a: isize, b: isize) -> isize {
 }
 
 /// ランダムな分数を生成する
-fn generate_random_fraction(rng: &mut ThreadRng) -> ((isize, isize), M998) {
-    let n = rng.gen_range(-1000..=1000);
-    let d = rng.gen_range(1..=2000);
-    let g = gcd(n, d).abs();
+fn generate_random_fraction(rng: &mut ThreadRng) -> ((usize, usize), M998) {
+    let n = rng.gen_range(0..=4000);
+    let d = rng.gen_range(1..=4000);
+    let g = gcd(n, d);
     let (n, d) = (n / g, d / g);
     // modintを生成
-    let m = M998::from_isize(n) / d as usize;
+    let m = M998::new(n) / d;
     ((n, d), m)
 }
 
@@ -161,10 +174,18 @@ fn test_rational_reconstruction() {
     }
 
     // 分母1
-    for i in -20..=20 {
-        let x = M998::from_isize(i);
+    for i in 0..=20 {
+        let x = M998::new(i);
         let (p, q) = x.rational_reconstruction().unwrap();
         println!("x: {x:?} -> {:?}", (p, q));
         assert_eq!((i, 1), (p, q));
+    }
+
+    // 分母1
+    for i in 1..23 {
+        let x = M998::new(i) / 23;
+        let (p, q) = x.rational_reconstruction().unwrap();
+        println!("x: {x:?} -> {:?}", (p, q));
+        assert_eq!((i, 23), (p, q));
     }
 }
