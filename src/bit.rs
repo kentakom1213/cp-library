@@ -193,6 +193,29 @@ pub mod Alg {
     }
 
     #[derive(Debug)]
+    pub struct UAdd;
+    impl Monoid for UAdd {
+        type Val = usize;
+        const E: Self::Val = 0;
+        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+            left.wrapping_add(*right)
+        }
+    }
+    impl InversableMonoid for UAdd {
+        fn inv(val: &Self::Val) -> Self::Val {
+            val.wrapping_neg()
+        }
+    }
+    impl OrderedMonoid for UAdd {
+        fn lt(left: &Self::Val, right: &Self::Val) -> bool {
+            left < right
+        }
+        fn le(left: &Self::Val, right: &Self::Val) -> bool {
+            left <= right
+        }
+    }
+
+    #[derive(Debug)]
     pub struct Mul;
     impl Monoid for Mul {
         type Val = isize;

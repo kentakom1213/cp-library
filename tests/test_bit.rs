@@ -46,6 +46,26 @@ fn test_sum() {
 }
 
 #[test]
+fn test_new_usize() {
+    let mut bit = BIT::<Alg::UAdd>::new(5);
+
+    bit.add(0, 20);
+    bit.add(2, 5_usize.wrapping_neg());
+
+    let sum_5 = bit.prefix_sum(5);
+    assert_eq!(sum_5, 15);
+
+    bit.add(4, 10);
+    bit.add(1, 20_usize.wrapping_neg());
+
+    let sum_2 = bit.prefix_sum(2);
+    assert_eq!(sum_2, 0);
+
+    let sum_all = bit.prefix_sum(5);
+    assert_eq!(sum_all, 5);
+}
+
+#[test]
 fn test_lower_bound() {
     let bit = BIT::<Alg::Add>::from(&vec![1, 2, 3, 4, 0, 5]);
 
