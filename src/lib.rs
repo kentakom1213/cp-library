@@ -4,6 +4,7 @@
 pub mod acc2d;
 pub mod affine_transform;
 pub mod bit;
+pub mod bit_2d;
 pub mod bitset;
 pub mod comb;
 pub mod comb_no_mod;
@@ -48,7 +49,7 @@ pub mod rolling_hash;
 pub mod run_length;
 pub mod scc;
 pub mod segment_tree;
-pub mod segment_tree_2D;
+pub mod segment_tree_2d;
 pub mod segment_tree_mutable;
 pub mod segmented_sieve;
 pub mod simple_graph;

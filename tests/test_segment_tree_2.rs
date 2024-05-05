@@ -2,7 +2,7 @@
 
 use cp_library_rs::{
     monoid::examples::{Add, Max},
-    segment_tree_2D::SegmentTree2D,
+    segment_tree_2d::SegmentTree2D,
 };
 
 #[test]
