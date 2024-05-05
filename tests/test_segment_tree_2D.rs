@@ -8,7 +8,7 @@ use cp_library_rs::{
 #[test]
 fn test_small() {
     let mut seg = SegmentTree2D::<Add>::new(4, 4);
-    seg.show();
+    eprintln!("{}", seg.show());
 
     // 0, 0, 0, 0
     // 0, 0, 0, 0
@@ -29,7 +29,7 @@ fn test_small() {
     // 0, 0, 2, 0
     // 0, 0, 0, 0
     seg.update(2, 2, 2);
-    seg.show();
+    eprintln!("{}", seg.show());
 
     assert_eq!(seg.get_range(..2, ..), 0);
     assert_eq!(seg.get_range(2.., ..), 2);
@@ -46,7 +46,7 @@ fn test_small() {
     // 0, 0, 2, 0
     // 0, 0, 0, 0
     seg.update(1, 3, 8);
-    seg.show();
+    eprintln!("{}", seg.show());
 
     assert_eq!(seg.get_range(..2, ..), 8);
     assert_eq!(seg.get_range(2.., ..), 2);
@@ -63,7 +63,7 @@ fn test_small() {
     // 0, 0, 2, 0
     // 0, 0, 0, 0
     seg.update(0, 0, 3);
-    seg.show();
+    eprintln!("{}", seg.show());
 
     assert_eq!(seg.get_range(..2, ..), 11);
     assert_eq!(seg.get_range(2.., ..), 2);
@@ -80,7 +80,7 @@ fn test_small() {
     // 6, 0, 2, 0
     // 0, 0, 0, 0
     seg.update(2, 0, 6);
-    seg.show();
+    eprintln!("{}", seg.show());
 
     assert_eq!(seg.get_range(..2, ..), 11);
     assert_eq!(seg.get_range(2.., ..), 8);
@@ -97,7 +97,7 @@ fn test_small() {
     // 6, 0, 2, 0
     // 0, 0, 1, 0
     seg.update(3, 2, 1);
-    seg.show();
+    eprintln!("{}", seg.show());
 
     assert_eq!(seg.get_range(..2, ..), 11);
     assert_eq!(seg.get_range(2.., ..), 9);
@@ -114,7 +114,7 @@ fn test_small() {
     // 6, 0, 10, 0
     // 0, 0, 1, 0
     seg.update(2, 2, 10);
-    seg.show();
+    eprintln!("{}", seg.show());
 
     assert_eq!(seg.get_range(..2, ..), 11);
     assert_eq!(seg.get_range(2.., ..), 17);
@@ -137,7 +137,7 @@ fn test_from_array() {
 
     let mut seg = SegmentTree2D::<Max>::from(&arr);
 
-    seg.show();
+    eprintln!("{}", seg.show());
 
     // 2, 5, 7, 0, 3, 2
     // 9, 8, 2, 2, 1, 8
@@ -157,7 +157,7 @@ fn test_from_array() {
     // 0, 4, 3, 6, 1, 6
     *seg.get_mut(1, 0).unwrap() = 7;
     *seg.get_mut(2, 3).unwrap() -= 2;
-    seg.show();
+    eprintln!("{}", seg.show());
 
     assert_eq!(seg.get_range(..2, ..), 8);
     assert_eq!(seg.get_range(2.., ..), 6);
@@ -174,7 +174,7 @@ fn test_from_array() {
     // 0, 4, 3, 6, 1, 6
     *seg.get_mut(0, 3).unwrap() = 10;
     *seg.get_mut(1, 1).unwrap() -= 6;
-    seg.show();
+    eprintln!("{}", seg.show());
 
     assert_eq!(seg.get_range(..2, ..), 10);
     assert_eq!(seg.get_range(2.., ..), 6);
@@ -191,7 +191,7 @@ fn test_from_array() {
 fn test_imos() {
     let mut seg = SegmentTree2D::<Add>::new(4, 4);
 
-    seg.show();
+    eprintln!("{}", seg.show());
 
     {
         let mut p = seg.get_mut(0, 0).unwrap();
@@ -199,7 +199,7 @@ fn test_imos() {
         *p += 1;
     }
 
-    seg.show();
+    eprintln!("{}", seg.show());
 
     {
         let mut p = seg.get_mut(0, 2).unwrap();
@@ -207,7 +207,7 @@ fn test_imos() {
         *p -= 1;
     }
 
-    seg.show();
+    eprintln!("{}", seg.show());
 
     {
         let mut p = seg.get_mut(2, 0).unwrap();
@@ -215,7 +215,7 @@ fn test_imos() {
         *p -= 1;
     }
 
-    seg.show();
+    eprintln!("{}", seg.show());
 
     {
         let mut p = seg.get_mut(2, 2).unwrap();
@@ -223,7 +223,7 @@ fn test_imos() {
         *p += 1;
     }
 
-    seg.show();
+    eprintln!("{}", seg.show());
 
     assert_eq!(seg.get_range(..=0, ..=0), 1);
     assert_eq!(seg.get_range(..=0, ..=1), 1);

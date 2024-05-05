@@ -236,8 +236,9 @@ where
     M::Val: Debug,
 {
     /// セグ木を簡易的に表示する
-    pub fn show(&self) {
-        #![cfg(debug_assertions)]
+    pub fn show(&self) -> String {
+        let mut res = String::new();
+
         let H = self.oh;
         let W = self.ow;
         let idx = |r: usize, c: usize| -> usize { 2 * r * W + c };
@@ -250,8 +251,8 @@ where
                 let mut c = 1;
                 let mut w = 1;
                 while c + w <= 2 * W {
-                    eprintln!(
-                        "{}{:?}",
+                    res += &format!(
+                        "{}{:?}\n",
                         "  ".repeat(logh),
                         &self.data[idx(r + i - 1, c)..idx(r + i - 1, c + w)]
                     );
@@ -263,6 +264,6 @@ where
             h <<= 1;
             logh += 1;
         }
-        eprintln!();
+        res
     }
 }
