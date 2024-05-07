@@ -2,6 +2,7 @@
 #![allow(dead_code)]
 
 pub mod acc2d;
+pub mod acc2d_cyclic;
 pub mod affine_transform;
 pub mod bit;
 pub mod bit_2d;
