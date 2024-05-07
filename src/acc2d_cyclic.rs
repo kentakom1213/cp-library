@@ -1,3 +1,5 @@
+//! トーラス上での区間和取得ができる2次元累積和
+
 use std::{
     convert::{TryFrom, TryInto},
     fmt::Debug,
