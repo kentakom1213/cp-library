@@ -125,6 +125,10 @@ fn make_snippet_body(path: &Path, body: &mut Vec<String>) {
 
     // コードの中身（modに切り分け）
     body.push(format!("mod {stem} {{"));
+
+    // 不要なコードをwarnしない
+    body.push("\t#![allow(dead_code)]".to_string());
+
     // 必要部分の置換
     for line in contents.split('\n') {
         if !line.is_empty() {
