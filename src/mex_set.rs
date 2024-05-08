@@ -12,9 +12,12 @@ pub struct MexSet {
 }
 
 impl MexSet {
+    const INF: isize = isize::MIN;
+    const SUP: isize = isize::MAX;
+
     /// MexSetを初期化する
     pub fn new() -> Self {
-        let ranges = [(isize::MIN, isize::MIN), (isize::MAX, isize::MAX)]
+        let ranges = [(Self::INF, Self::INF), (Self::SUP, Self::SUP)]
             .into_iter()
             .collect();
         Self { ranges }
@@ -25,6 +28,10 @@ impl MexSet {
     /// - `true`: `x`が追加された場合
     /// - `false`: `x`がすでに存在していた場合
     pub fn insert(&mut self, x: isize) -> bool {
+        // 範囲が`(INF, SUP)` である場合 → 追加されない
+        if self.ranges.len() == 1 {
+            return false;
+        }
         let &(ll, l) = self.ranges.range(..(x + 1, x + 1)).next_back().unwrap();
         let &(r, rr) = self.ranges.range((x + 1, x + 1)..).next().unwrap();
         if x <= l {
@@ -80,12 +87,12 @@ impl MexSet {
     #[inline]
     fn parse_range<R: RangeBounds<isize>>(range: R) -> (isize, isize) {
         let start = match range.start_bound() {
-            Unbounded => isize::MIN,
+            Unbounded => Self::INF,
             Included(&s) => s,
             Excluded(&s) => s + 1,
         };
         let end = match range.end_bound() {
-            Unbounded => isize::MAX,
+            Unbounded => Self::SUP,
             Included(&e) => e,
             Excluded(&e) => e - 1,
         };
@@ -98,6 +105,17 @@ impl MexSet {
         let (start, end) = Self::parse_range(range);
         if start > end {
             return false;
+        }
+        // 範囲が`(INF, SUP)` である場合 → 追加されない
+        if self.ranges.len() == 1 {
+            return false;
+        }
+        // 全範囲を追加する場合
+        if (start, end) == (Self::INF, Self::SUP) {
+            let len = self.ranges.len();
+            self.ranges.clear();
+            self.ranges.insert((Self::INF, Self::SUP));
+            return len != self.ranges.len();
         }
         if start == end {
             return self.insert(start);
@@ -150,6 +168,14 @@ impl MexSet {
         if start > end {
             return false;
         }
+        // 全範囲の場合
+        if (start, end) == (Self::INF, Self::SUP) {
+            let len = self.ranges.len();
+            self.ranges.clear();
+            self.ranges.insert((Self::INF, Self::INF));
+            self.ranges.insert((Self::SUP, Self::SUP));
+            return len != self.ranges.len();
+        }
         if start == end {
             return self.delete(start);
         }
@@ -174,7 +200,6 @@ impl MexSet {
             .range((Unbounded, Included((end, end))))
             .next_back()
             .unwrap();
-        println!("{:?}", ((ll, l), (r, rr)));
         if l < start && end < r {
             return false;
         }
@@ -198,7 +223,7 @@ impl MexSet {
             self.ranges.remove(&(r, rr));
             self.ranges.insert((end.saturating_add(1), rr));
         }
-        todo!()
+        true
     }
 
     /// **集合に含まれない**`x`以上で最小の整数を調べる

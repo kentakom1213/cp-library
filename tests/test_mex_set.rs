@@ -89,16 +89,50 @@ fn test_insert_range() {
     eprintln!("{:?}", mex);
 }
 
-// #[test]
-// fn test_delete_range() {
-//     let mut mex = MexSet::new();
+#[test]
+fn test_delete_range() {
+    let mut mex = MexSet::new();
+    eprintln!("{:?}", mex);
 
-//     mex.insert_range(2..=4);
-//     mex.insert(8);
-//     mex.insert(10);
-//     mex.insert_range(20..=40);
-//     eprintln!("{:?}", mex);
+    assert_eq!(mex.delete(200), false);
+    eprintln!("{:?}", mex);
 
-//     mex.delete_range(..);
-//     eprintln!("{:?}", mex);
-// }
+    assert_eq!(mex.insert_range(..), true);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.insert_range(2..=4), false);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.insert(8), false);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.insert(10), false);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.insert_range(20..=40), false);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.delete_range(..), true);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.insert_range(1000..2000), true);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.insert_range(0..=5000), true);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.insert_range(..2000), true);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.insert_range(8000..), true);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.delete_range(3000..4000), true);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.delete_range(100100..), true);
+    eprintln!("{:?}", mex);
+
+    assert_eq!(mex.insert_range(..), true);
+    eprintln!("{:?}", mex);
+}
