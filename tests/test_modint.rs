@@ -73,6 +73,14 @@ fn test_add_assign() {
 }
 
 #[test]
+fn test_add_usize() {
+    let a = M998::new(998244333);
+    let y: usize = 1001001001001001001;
+
+    assert_eq!(a + y, a + M998::new(y));
+}
+
+#[test]
 fn test_sub_assign() {
     let mut add = M107::new(0);
     let mut sub = M107::new(0);
