@@ -79,7 +79,7 @@ where
 
         // 繰り返し回数
         let hrep: T = (height / self.H).try_into().unwrap();
-        let wrep: T = (width / self.H).try_into().unwrap();
+        let wrep: T = (width / self.W).try_into().unwrap();
 
         // 右下の座標
         let bottom = (top + height) % self.H;
