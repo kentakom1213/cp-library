@@ -15,5 +15,5 @@
 cargo run --bin make_snippet
 
 # ステージング
-git add rust.json
+git add rust.code-snippets
 ```
