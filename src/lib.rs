@@ -10,6 +10,7 @@ pub mod bitset;
 pub mod comb;
 pub mod comb_no_mod;
 pub mod coordinate_compression;
+pub mod crt;
 pub mod dijkstra;
 pub mod dual_segment_tree;
 pub mod dynamic_segment_tree;
