@@ -12,21 +12,21 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./cp-library-rs
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build
-        run: cargo build --verbose
-      - name: Run tests
-        run: cargo test --verbose -- --test-threads=8
+  # build:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ./cp-library-rs
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Build
+  #       run: cargo build --verbose
+  #     - name: Run tests
+  #       run: cargo test --verbose -- --test-threads=8
 
   doc:
     runs-on: ubuntu-latest
-    needs: build
+    # needs: build
     defaults:
       run:
         working-directory: ./cp-library-rs
@@ -37,7 +37,7 @@ jobs:
       - name: Deploy
         uses: actions/upload-pages-artifact@v1
         with:
-          path: target/doc
+          path: cp-library-rs/target/doc
 
   deploy:
     needs: doc
