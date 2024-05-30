@@ -26,7 +26,7 @@ struct SnippetPiece {
 struct Snippets(HashMap<String, SnippetPiece>);
 
 const SRC: &str = "./src";
-const TARGET: &str = "./rust.json";
+const TARGET: &str = "../rust.json";
 
 fn main() -> Result<(), io::Error> {
     eprint!("Making snippet file ... ");
