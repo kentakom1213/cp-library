@@ -70,11 +70,11 @@ path = "./{{ contest }}"
 # for Library-Checker
 [add]
 url = "https://judge.yosupo.jp/problem/{{ args[0] }}"
-#is-contest = ["false"] # optional
-#target-kind = "bin" # ["bin", "example"]. default to "bin"
+# is-contest = ["false"] # optional
+# target-kind = "bin" # ["bin", "example"]. default to "bin"
 bin-name = '{{ args[0] }}'
-#bin-alias = '{{ args[0] }}' # optional
-#bin-src-path = './src/bin/{{ bin_alias }}.rs' # optional
+# bin-alias = '{{ args[0] }}' # optional
+# bin-src-path = './src/bin/{{ bin_alias }}.rs' # optional
 
 # for yukicoder
 #[add]
@@ -88,11 +88,11 @@ bin-name = '{{ args[0] }}'
 [test]
 # Toolchain for the test. (optional)
 toolchain = "1.70.0"
+
 # Profile for `cargo build`. ("dev" | "release")
 #
 # Defaults to `"dev"`.
 #profile = "dev"
-
 # [submit]
 # kind = "file"
 # path = "{{ src_path }}"

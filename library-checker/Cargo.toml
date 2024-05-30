@@ -2,10 +2,14 @@
 name = "library-checker"
 version = "0.1.0"
 edition = "2021"
-metadata = { cargo-compete = { bin = { aplusb = { problem = "https://judge.yosupo.jp/problem/aplusb"}, unionfind = { problem = "https://judge.yosupo.jp/problem/unionfind"}}}}
+
+[package.metadata.cargo-compete.bin]
+aplusb = { problem = "https://judge.yosupo.jp/problem/aplusb" }
+unionfind = { problem = "https://judge.yosupo.jp/problem/unionfind" }
+point_add_range_sum = { problem = "https://judge.yosupo.jp/problem/point_add_range_sum"}
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 proconio = "0.4.5"
-cp-library-rs = { path = "../cp-library-rs"}
+cp-library-rs = { path = "../cp-library-rs" }
