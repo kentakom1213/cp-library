@@ -1,8 +1,10 @@
 # python
 __pycache__/
+.venv/
 
 # rust
 target/
 
-# mac
-.DS_Store
+# library-checker
+testcases/
+

@@ -1,0 +1,10 @@
+[package]
+name = "library-checker"
+version = "0.1.0"
+edition = "2021"
+metadata = { cargo-compete = { bin = { aplusb = { problem = "https://judge.yosupo.jp/problem/aplusb"}}}}
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+proconio = "0.4.5"
