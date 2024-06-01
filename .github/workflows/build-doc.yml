@@ -4,9 +4,15 @@ name: build-doc
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
+    branches:
+      - main
+    paths:
+      - "cp-library-rs/**"
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
+    paths:
+      - "cp-library-rs/**"
 
 env:
   CARGO_TERM_COLOR: always
