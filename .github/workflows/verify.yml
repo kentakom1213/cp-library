@@ -17,8 +17,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: install oj-api
         run: pip install -r requirements.txt
-      - name: install rust-toolchain
-        run: rustup install $(cat rust-toolchain)
+      - name: setup rust
+        run: |
+          rustup install $(cat rust-toolchain)
+          cargo install cargo-compete
       - name: run tests
         run: python test.py
       - name: commit README
