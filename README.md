@@ -11,6 +11,8 @@
 ```sh
 #!/bin/zsh
 
+cd cp-library-rs
+
 # snippetの修正
 cargo run --bin make_snippet
 

@@ -1,0 +1,28 @@
+name: verify
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./library-checker
+    steps:
+      - uses: actions/checkout@v3
+      - name: install oj-api
+        run: pip install -r requirements.txt
+      - name: run tests
+        run: python test.py
+      - name: commit README
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Update README.md"
+          git push

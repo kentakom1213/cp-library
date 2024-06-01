@@ -1,9 +1,10 @@
 # python
 __pycache__/
+.venv/
 
 # rust
-Cargo.lock
 target/
 
-# mac
-.DS_Store
+# library-checker
+testcases/
+
