@@ -38,16 +38,16 @@ def run_test(problem: str):
 if __name__ == "__main__":
 
     # テストケースのダウンロード
-    # subprocess.run(
-    #     [
-    #         "cargo",
-    #         "compete",
-    #         "download",
-    #         "--full",
-    #         "--overwrite",
-    #     ],
-    #     cwd=CWD
-    # )
+    subprocess.run(
+        [
+            "cargo",
+            "compete",
+            "download",
+            "--full",
+            "--overwrite",
+        ],
+        cwd=CWD
+    )
 
     # テストケースの実行
     with ProcessPoolExecutor() as executor:
