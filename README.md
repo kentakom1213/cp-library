@@ -17,5 +17,5 @@ cd cp-library-rs
 cargo run --bin make_snippet
 
 # ステージング
-git add rust.json
+git add ../rust.json
 ```

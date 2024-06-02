@@ -21,14 +21,18 @@ jobs:
         working-directory: ./library-checker
     steps:
       - uses: actions/checkout@v3
+
       - name: install oj-api
         run: pip install -r requirements.txt
+
       - name: setup rust
         run: |
           rustup install $(cat rust-toolchain)
           cargo install cargo-compete --locked
+
       - name: run tests
         run: python test.py
+
       - name: commit README
         run: |
           git config --global user.name "github-actions[bot]"
