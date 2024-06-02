@@ -8,6 +8,11 @@ aplusb = { problem = "https://judge.yosupo.jp/problem/aplusb" }
 unionfind = { problem = "https://judge.yosupo.jp/problem/unionfind" }
 point_add_range_sum = { problem = "https://judge.yosupo.jp/problem/point_add_range_sum"}
 point_set_range_composite = { problem = "https://judge.yosupo.jp/problem/point_set_range_composite"}
+associative_array = { problem = "https://judge.yosupo.jp/problem/associative_array"}
+predecessor_problem = { problem = "https://judge.yosupo.jp/problem/predecessor_problem"}
+range_affine_point_get = { problem = "https://judge.yosupo.jp/problem/range_affine_point_get"}
+shortest_path = { problem = "https://judge.yosupo.jp/problem/shortest_path"}
+staticrmq = { problem = "https://judge.yosupo.jp/problem/staticrmq"}
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
