@@ -4,7 +4,9 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
-use cp_library_rs::{modint::M998, monoid_mod::Affine1dMod, segment_tree::SegmentTree};
+use cp_library_rs::{
+    affine1d::AffineTransform, modint::M998, monoid_mod::Affine1dMod, segment_tree::SegmentTree,
+};
 use proconio::{fastout, input};
 
 #[fastout]
@@ -28,8 +30,8 @@ fn main() {
                 *seg.get_mut(p).unwrap() = (c.into(), d.into());
             }
             &(1, l, r, x) => {
-                let (a, b) = seg.get_range(l..r);
-                println!("{}", a * x + b);
+                let f = seg.get_range(l..r);
+                println!("{}", f.apply(x.into()));
             }
             _ => (),
         }
