@@ -2,7 +2,7 @@ use cp_library_rs::{extmonoid::examples::*, extmonoid::ExtMonoid, lazy_segment_t
 
 #[test]
 fn test_RSQ_and_RAQ_hand() {
-    let mut seg = LazySegmentTree::<RSQandRAQ>::new(10);
+    let mut seg = LazySegmentTree::<AddSum>::new(10);
     // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     assert_eq!(seg.get(..), 0);
@@ -45,8 +45,8 @@ fn test_RSQ_and_RAQ_hand() {
 
 #[test]
 fn test_RMQ_and_RUQ_hand() {
-    const INF: isize = (1 << 31) - 1;
-    let mut seg = LazySegmentTree::<RMQandRUQ>::new(10);
+    const INF: isize = isize::MAX;
+    let mut seg = LazySegmentTree::<UpdateMin>::new(10);
     // [INF, INF, INF, INF, INF, INF, INF, INF, INF, INF]
 
     assert_eq!(seg.get(..), INF);
@@ -90,7 +90,7 @@ fn test_RMQ_and_RUQ_hand() {
 /// テストケース: <https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=DSL_2_I&lang=ja>
 #[test]
 fn test_RSQ_and_RUQ() {
-    let mut seg = LazySegmentTree::<RSQandRUQ>::new(6);
+    let mut seg = LazySegmentTree::<UpdateSum>::new(6);
 
     seg.apply(1..=3, Some(1));
     seg.apply(2..=4, Some(-2));
@@ -106,11 +106,11 @@ fn test_RSQ_and_RUQ() {
 
 #[test]
 fn test_from() {
-    const INF: isize = RMQandRAQ::IX;
+    const INF: isize = AddMin::IX;
 
     let arr = vec![5, 2, -3, -1, -9, -2, 5, 0, 0, 5];
 
-    let mut seg = LazySegmentTree::<RMQandRUQ>::from(&arr);
+    let mut seg = LazySegmentTree::<UpdateMin>::from(&arr);
     // [5, 2, -3, -1, -9, -2, 5, 0, 0, 5]
 
     assert_eq!(seg.get(..), -9);
@@ -154,7 +154,7 @@ fn test_from() {
 #[test]
 #[should_panic]
 fn get_wrong_range() {
-    let mut seg = LazySegmentTree::<RMQandRAQ>::from(&vec![0, 1, 2, 3, 4, 5]);
+    let mut seg = LazySegmentTree::<AddMin>::from(&vec![0, 1, 2, 3, 4, 5]);
 
     seg.get(..7);
 }
@@ -162,7 +162,7 @@ fn get_wrong_range() {
 #[test]
 #[should_panic]
 fn set_wrong_range() {
-    let mut seg = LazySegmentTree::<RMQandRAQ>::from(&vec![0, 1, 2, 3, 4, 5]);
+    let mut seg = LazySegmentTree::<AddMin>::from(&vec![0, 1, 2, 3, 4, 5]);
 
     seg.apply(..7, 0);
 }

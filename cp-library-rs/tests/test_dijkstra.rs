@@ -11,6 +11,6 @@ fn test_dijkstra() {
         vec![(2, 4), (4, 6)],
     ];
 
-    let dist = dijkstra(&graph, 0);
+    let (_, dist) = dijkstra(&graph, 0);
     assert_eq!(dist, vec![0, 2, 6, 4, 5, 10]);
 }

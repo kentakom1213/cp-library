@@ -25,13 +25,13 @@ pub mod examples {
 
     use super::ExtMonoid;
 
-    /// ## RSQandRAQ
+    /// ## AddSum
     /// - 区間加算
     /// - 区間和
     #[derive(Debug)]
-    pub struct RSQandRAQ;
+    pub struct AddSum;
 
-    impl ExtMonoid for RSQandRAQ {
+    impl ExtMonoid for AddSum {
         type X = isize;
         type M = isize;
         const IX: Self::X = 0;
@@ -50,17 +50,17 @@ pub mod examples {
         }
     }
 
-    /// ## RMQandRUQ
+    /// ## UpdateMin
     /// - 区間更新
     /// - 区間最小値
     #[derive(Debug)]
-    pub struct RMQandRUQ;
+    pub struct UpdateMin;
 
-    impl ExtMonoid for RMQandRUQ {
+    impl ExtMonoid for UpdateMin {
         type X = isize;
         type M = isize;
-        const IM: Self::M = (1 << 31) - 1;
-        const IX: Self::X = (1 << 31) - 1;
+        const IM: Self::M = isize::MAX;
+        const IX: Self::X = isize::MAX;
         fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
             *x.min(y)
         }
@@ -75,12 +75,37 @@ pub mod examples {
         }
     }
 
-    /// ## RMQandRAQ
+    /// ## UpdateMax
+    /// - 区間更新
+    /// - 区間最大値
+    #[derive(Debug)]
+    pub struct UpdateMax;
+
+    impl ExtMonoid for UpdateMax {
+        type X = isize;
+        type M = isize;
+        const IM: Self::M = isize::MIN;
+        const IX: Self::X = isize::MIN;
+        fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
+            *x.max(y)
+        }
+        fn apply(_x: &Self::X, y: &Self::M) -> Self::X {
+            *y
+        }
+        fn operate_m(_x: &Self::M, y: &Self::M) -> Self::M {
+            *y
+        }
+        fn aggregate(x: &Self::M, _p: usize) -> Self::M {
+            *x
+        }
+    }
+
+    /// ## AddMin
     /// - 区間加算
     /// - 区間最小値
     #[derive(Debug)]
-    pub struct RMQandRAQ;
-    impl ExtMonoid for RMQandRAQ {
+    pub struct AddMin;
+    impl ExtMonoid for AddMin {
         type X = isize;
         type M = isize;
         const IM: Self::M = 0;
@@ -99,12 +124,12 @@ pub mod examples {
         }
     }
 
-    /// ## RSQandRUQ
+    /// ## UpdateSum
     /// - 区間更新
     /// - 区間和取得
     #[derive(Debug)]
-    pub struct RSQandRUQ;
-    impl ExtMonoid for RSQandRUQ {
+    pub struct UpdateSum;
+    impl ExtMonoid for UpdateSum {
         type X = isize;
         type M = Option<isize>;
         const IX: Self::X = 0;
