@@ -1,5 +1,6 @@
 //! モノイド
 
+use crate::affine1d::{Affine, AffineTransform};
 use std::fmt::Debug;
 
 /// モノイド
@@ -14,8 +15,7 @@ pub trait Monoid {
 
 /// 各種モノイド
 pub mod examples {
-
-    use super::Monoid;
+    use super::*;
 
     /// 和
     pub struct Add;
@@ -86,14 +86,12 @@ pub mod examples {
     }
 
     /// アフィン変換（浮動小数点数）
-    struct Affine;
-    impl Monoid for Affine {
-        type Val = (f64, f64);
+    struct Affine1d;
+    impl Monoid for Affine1d {
+        type Val = Affine<f64>;
         const E: Self::Val = (1.0, 0.0);
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            let &(a1, b1) = left;
-            let &(a2, b2) = right;
-            (a2 * a1, a2 * b1 + b2)
+            left.compose(&right)
         }
     }
 }

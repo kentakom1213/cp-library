@@ -1,4 +1,4 @@
-use cp_library_rs::{extmonoid_mod::Affine1dMod, lazy_segment_tree::LazySegmentTree, modint::M998};
+use cp_library_rs::{extmonoid_mod::AffineSum, lazy_segment_tree::LazySegmentTree, modint::M998};
 use proconio::{fastout, input};
 
 #[fastout]
@@ -9,7 +9,7 @@ fn main() {
         A: [M998; N]
     }
 
-    let mut seg = LazySegmentTree::<Affine1dMod<998244353>>::from(&A);
+    let mut seg = LazySegmentTree::<AffineSum<998244353>>::from(&A);
 
     for _ in 0..Q {
         input! {

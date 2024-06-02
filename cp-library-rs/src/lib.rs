@@ -3,7 +3,8 @@
 
 pub mod acc2d;
 pub mod acc2d_cyclic;
-pub mod affine_transform;
+pub mod affine1d;
+pub mod affine2d;
 pub mod bit;
 pub mod bit_2d;
 pub mod bitset;

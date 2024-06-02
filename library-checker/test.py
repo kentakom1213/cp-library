@@ -10,6 +10,9 @@ TEMPLATE = """\
 
 """
 
+# 3分で停止させる
+KILL_TIME = 180
+
 
 def run_test(problem: str):
     """テストを実行する
@@ -21,18 +24,23 @@ def run_test(problem: str):
         Bool: 成功したかどうか
     """
     # テストケースの実行
-    result = subprocess.run(
-        [
-            "cargo",
-            "compete",
-            "test",
-            problem,
-        ],
-        cwd=CWD
-    )
+    try:
+        result = subprocess.run(
+            [
+                "cargo",
+                "compete",
+                "test",
+                problem,
+            ],
+            cwd=CWD,
+            timeout=KILL_TIME
+        )
 
-    # テストケースの結果を返す
-    return result.returncode == 0
+        # テストケースの結果を返す
+        return result.returncode == 0
+    except:
+        # TIMEOUT
+        return 1
 
 
 if __name__ == "__main__":

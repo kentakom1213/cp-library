@@ -4,7 +4,7 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
-use cp_library_rs::{modint::M998, monoid_mod::Affine, segment_tree::SegmentTree};
+use cp_library_rs::{modint::M998, monoid_mod::Affine1dMod, segment_tree::SegmentTree};
 use proconio::{fastout, input};
 
 #[fastout]
@@ -16,7 +16,7 @@ fn main() {
         queries: [(usize, usize, usize, usize); Q]
     }
 
-    let mut seg = SegmentTree::<Affine<998244353>>::from(
+    let mut seg = SegmentTree::<Affine1dMod<998244353>>::from(
         &AB.iter()
             .map(|&(a, b)| (M998::new(a), M998::new(b)))
             .collect(),
