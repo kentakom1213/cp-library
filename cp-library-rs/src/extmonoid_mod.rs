@@ -23,7 +23,7 @@ impl<const MOD: usize> ExtMonoid for AffineSum<MOD> {
         *x + *y
     }
     fn operate_m(x: &Self::M, y: &Self::M) -> Self::M {
-        x.compose(y)
+        y.compose(x)
     }
     fn apply(x: &Self::X, y: &Self::M) -> Self::X {
         y.apply(*x)

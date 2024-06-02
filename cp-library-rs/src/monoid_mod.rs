@@ -30,6 +30,6 @@ impl<const MOD: usize> Monoid for Affine1dMod<MOD> {
     type Val = (Modint<MOD>, Modint<MOD>);
     const E: Self::Val = (Modint::<MOD>(1), Modint::<MOD>(0));
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-        left.compose(right)
+        right.compose(left)
     }
 }
