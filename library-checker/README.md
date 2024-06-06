@@ -11,4 +11,3 @@
 - :x: [predecessor_problem](https://judge.yosupo.jp/problem/predecessor_problem)
 - :white_check_mark: [staticrmq](https://judge.yosupo.jp/problem/staticrmq)
 - :white_check_mark: [associative_array](https://judge.yosupo.jp/problem/associative_array)
-- :x: [range_affine_range_sum_](https://judge.yosupo.jp/problem/range_affine_range_sum_)
