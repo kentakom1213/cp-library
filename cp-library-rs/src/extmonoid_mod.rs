@@ -33,3 +33,30 @@ impl<const MOD: usize> ExtMonoid for AffineSum<MOD> {
         (a, b * p)
     }
 }
+
+
+/// ## 一次関数のupdate + 関数合成
+/// - 区間を`ax + b`で更新
+/// - 区間を関数として合成
+#[derive(Debug)]
+pub struct AffineUpdateComposite<const MOD: usize>;
+impl<const MOD: usize> ExtMonoid for AffineUpdateComposite<MOD> {
+    type X = Affine<Modint<MOD>>;
+    type M = Affine<Modint<MOD>>;
+    const IX: Self::X = Self::X::I;
+    const IM: Self::M = Self::M::I;
+    fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
+        y.compose(x)
+    }
+    fn operate_m(_x: &Self::M, y: &Self::M) -> Self::M {
+        *y
+    }
+    fn apply(_x: &Self::X, y: &Self::M) -> Self::X {
+        *y
+    }
+    fn aggregate(x: &Self::M, p: usize) -> Self::M {
+        x.pow(p)
+    }
+}
+
+

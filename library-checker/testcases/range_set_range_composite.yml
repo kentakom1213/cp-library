@@ -3,30 +3,7 @@ type: Batch
 timelimit: ~
 match: Exact
 
-cases:
-  - in: |
-      5 7
-      1 2
-      3 4
-      5 6
-      7 8
-      9 10
-      1 0 5 11
-      1 2 4 12
-      0 1 2 13 14
-      1 0 4 15
-      1 2 5 16
-      0 0 5 10 1
-      1 0 5 1
-    out: |
-      14005
-      470
-      8275
-      5500
-      111111
+cases: []
 
 extend:
-  - type: Text
-    path: "./range_set_range_composite"
-    in: /in/*.txt
-    out: /out/*.txt
+  - type: SystemTestCases
