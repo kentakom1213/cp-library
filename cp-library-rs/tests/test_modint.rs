@@ -1,4 +1,5 @@
 use cp_library_rs::modint::*;
+use num_traits::{One, Zero};
 use rand::prelude::*;
 
 const MOD998: usize = 998244353;
@@ -18,7 +19,7 @@ fn test_add() {
 
 #[test]
 fn test_neg() {
-    let x: M998 = 0.into();
+    let x = M998::zero();
     assert_eq!(-x, 0);
 
     let y = M998::new(10);
@@ -30,7 +31,7 @@ fn test_neg() {
 
 #[test]
 fn test_sub() {
-    let x = M998::new(0);
+    let x = M998::zero();
     let y = 1000000007;
     assert_eq!(x - y, 996488699);
 
@@ -39,7 +40,7 @@ fn test_sub() {
     let c: usize = 1152921504606846976; // 1 << 60
     assert_eq!(-a - b - c, 553154679);
 
-    let zero = M998::new(0) + 1 - 1;
+    let zero = M998::zero() + 1 - 1;
     assert_eq!(zero.0, 0);
 }
 
@@ -56,7 +57,7 @@ fn test_pow() {
 
 #[test]
 fn test_inv() {
-    assert_eq!(M998::new(1).inv(), 1);
+    assert_eq!(M998::one().inv(), 1);
     assert_eq!(M998::new(2).inv(), 499122177);
     assert_eq!(M998::new(1000).inv(), 981274199);
     assert_eq!(M998::new(998244352).inv(), 998244352);
@@ -82,8 +83,8 @@ fn test_add_usize() {
 
 #[test]
 fn test_sub_assign() {
-    let mut add = M107::new(0);
-    let mut sub = M107::new(0);
+    let mut add = M107::zero();
+    let mut sub = M107::zero();
     for i in 0..20 {
         add += i;
         sub -= i;
@@ -94,7 +95,7 @@ fn test_sub_assign() {
 
 #[test]
 fn test_mul_assign() {
-    let mut fact = vec![M998::new(1); 20];
+    let mut fact = vec![M998::one(); 20];
 
     // 階乗
     for i in 1..20 {
