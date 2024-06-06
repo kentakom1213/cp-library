@@ -30,7 +30,7 @@ impl<M: Monoid> BIT2D<M> {
         Self {
             H,
             W,
-            data: vec![vec![M::E; W + 1]; H + 1],
+            data: vec![vec![M::id(); W + 1]; H + 1],
         }
     }
 
@@ -52,7 +52,7 @@ impl<M: Monoid> BIT2D<M> {
     /// 左上からの和を求める
     /// - `(r,c)`: 領域 `0<=i<r, 0<=j<c` に対しての総和（`0-indexed`）
     pub fn prefix_sum(&self, r: usize, c: usize) -> M::Val {
-        let mut res = M::E;
+        let mut res = M::id();
 
         cfor! {let mut i = r; i > 0; i -= Self::lsb(i) ;; {
             cfor! {let mut j = c; j > 0; j -= Self::lsb(j) ;; {

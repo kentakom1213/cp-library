@@ -8,7 +8,7 @@ pub trait Monoid {
     /// 元の型
     type Val: Debug + Clone + PartialEq;
     /// 単位元
-    const E: Self::Val;
+    fn id() -> Self::Val;
     /// 演算
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val;
 }
@@ -21,7 +21,9 @@ pub mod examples {
     pub struct Add;
     impl Monoid for Add {
         type Val = isize;
-        const E: Self::Val = 0;
+        fn id() -> Self::Val {
+            0
+        }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
             left + right
         }
@@ -31,7 +33,9 @@ pub mod examples {
     pub struct Mul;
     impl Monoid for Mul {
         type Val = isize;
-        const E: Self::Val = 1;
+        fn id() -> Self::Val {
+            1
+        }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
             left * right
         }
@@ -41,7 +45,9 @@ pub mod examples {
     pub struct Xor;
     impl Monoid for Xor {
         type Val = usize;
-        const E: Self::Val = 0;
+        fn id() -> Self::Val {
+            0
+        }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
             left ^ right
         }
@@ -51,7 +57,9 @@ pub mod examples {
     pub struct Min;
     impl Monoid for Min {
         type Val = isize;
-        const E: Self::Val = (1 << 31) - 1;
+        fn id() -> Self::Val {
+            Self::Val::MAX
+        }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
             *left.min(right)
         }
@@ -61,7 +69,9 @@ pub mod examples {
     pub struct Max;
     impl Monoid for Max {
         type Val = isize;
-        const E: Self::Val = -((1 << 31) - 1);
+        fn id() -> Self::Val {
+            Self::Val::MIN
+        }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
             *left.max(right)
         }
@@ -71,7 +81,9 @@ pub mod examples {
     pub struct GCD;
     impl Monoid for GCD {
         type Val = usize;
-        const E: Self::Val = 0;
+        fn id() -> Self::Val {
+            Self::Val::MAX
+        }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
             gcd(*left, *right)
         }
@@ -89,7 +101,9 @@ pub mod examples {
     struct Affine1d;
     impl Monoid for Affine1d {
         type Val = Affine<f64>;
-        const E: Self::Val = (1.0, 0.0);
+        fn id() -> Self::Val {
+            (1.0, 0.0)
+        }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
             left.compose(&right)
         }

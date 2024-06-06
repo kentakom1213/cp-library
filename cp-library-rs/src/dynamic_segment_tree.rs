@@ -34,7 +34,7 @@ mod dynamic_segment_tree {
             Self {
                 root: None,
                 size: 0,
-                tmp_e: M::E,
+                tmp_e: M::id(),
             }
         }
 
@@ -66,7 +66,7 @@ mod dynamic_segment_tree {
                 NodeEntry {
                     root: &mut self.root,
                     key: Some(key),
-                    value: Some(M::E),
+                    value: Some(M::id()),
                 }
             }
         }
@@ -339,11 +339,11 @@ mod node {
         end: Bound<&K>,
     ) -> M::Val {
         let Some(T) = root else {
-            return M::E;
+            return M::id();
         };
         // 区間を含まない
         if has_no_intersection((l, r), (begin, end)) {
-            M::E
+            M::id()
         }
         // 区間を包含する
         else if includes((l, r), (begin, end)) {
@@ -356,7 +356,7 @@ mod node {
             let m_val = if includes((l, r), (Included(mid), Included(mid))) {
                 T.value.clone()
             } else {
-                M::E
+                M::id()
             };
             let r_val = get_range(&T.right, l, r, Excluded(mid), end);
             M::op(&M::op(&l_val, &m_val), &r_val)

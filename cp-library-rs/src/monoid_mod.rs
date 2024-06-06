@@ -3,12 +3,15 @@
 use crate::affine1d::AffineTransform;
 use crate::modint::*;
 use crate::monoid::Monoid;
+use num_traits::{One, Zero};
 
 /// あまりをとる和
 pub struct ModAdd<const MOD: usize>;
 impl<const MOD: usize> Monoid for ModAdd<MOD> {
     type Val = Modint<MOD>;
-    const E: Self::Val = Modint::<MOD>(0);
+    fn id() -> Self::Val {
+        Self::Val::zero()
+    }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
         *left + *right
     }
@@ -18,7 +21,9 @@ impl<const MOD: usize> Monoid for ModAdd<MOD> {
 pub struct ModMul<const MOD: usize>;
 impl<const MOD: usize> Monoid for ModMul<MOD> {
     type Val = Modint<MOD>;
-    const E: Self::Val = Modint::<MOD>(1);
+    fn id() -> Self::Val {
+        Self::Val::one()
+    }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
         *left * *right
     }
@@ -28,7 +33,9 @@ impl<const MOD: usize> Monoid for ModMul<MOD> {
 pub struct Affine1dMod<const MOD: usize>;
 impl<const MOD: usize> Monoid for Affine1dMod<MOD> {
     type Val = (Modint<MOD>, Modint<MOD>);
-    const E: Self::Val = (Modint::<MOD>(1), Modint::<MOD>(0));
+    fn id() -> Self::Val {
+        Self::Val::I
+    }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
         right.compose(left)
     }

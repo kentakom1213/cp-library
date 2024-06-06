@@ -49,7 +49,7 @@ impl<M: Monoid> SegmentTree<M> {
         Self {
             size: n,
             offset,
-            data: vec![M::E; offset << 1],
+            data: vec![M::id(); offset << 1],
         }
     }
 
@@ -85,7 +85,7 @@ impl<M: Monoid> SegmentTree<M> {
         // 値の取得
         let mut l = self.offset + start;
         let mut r = self.offset + end;
-        let (mut res_l, mut res_r) = (M::E, M::E);
+        let (mut res_l, mut res_r) = (M::id(), M::id());
 
         while l < r {
             if l & 1 == 1 {

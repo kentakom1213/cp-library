@@ -5,7 +5,9 @@ struct Set;
 
 impl Monoid for Set {
     type Val = usize;
-    const E: Self::Val = 0;
+    fn id() -> Self::Val {
+        0
+    }
     fn op(_left: &Self::Val, _right: &Self::Val) -> Self::Val {
         0
     }
