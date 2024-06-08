@@ -16,24 +16,27 @@ impl<const MOD: usize> RingId for Modint<MOD> {
 pub struct AffineSum<const MOD: usize>;
 impl<const MOD: usize> ExtMonoid for AffineSum<MOD> {
     type X = Modint<MOD>;
-    type M = Affine<Modint<MOD>>;
-    const IX: Self::X = Self::X::ZERO;
-    const IM: Self::M = Self::M::I;
-    fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
+    type F = Affine<Modint<MOD>>;
+    fn id_x() -> Self::X {
+        Self::X::ZERO
+    }
+    fn id_f() -> Self::F {
+        Self::F::I
+    }
+    fn op(x: &Self::X, y: &Self::X) -> Self::X {
         *x + *y
     }
-    fn operate_m(x: &Self::M, y: &Self::M) -> Self::M {
+    fn composition(x: &Self::F, y: &Self::F) -> Self::F {
         y.compose(x)
     }
-    fn apply(x: &Self::X, y: &Self::M) -> Self::X {
+    fn mapping(x: &Self::X, y: &Self::F) -> Self::X {
         y.apply(*x)
     }
-    fn aggregate(x: &Self::M, p: usize) -> Self::M {
+    fn aggregate(x: &Self::F, p: usize) -> Self::F {
         let &(a, b) = x;
         (a, b * p)
     }
 }
-
 
 /// ## 一次関数のupdate + 関数合成
 /// - 区間を`ax + b`で更新
@@ -42,21 +45,23 @@ impl<const MOD: usize> ExtMonoid for AffineSum<MOD> {
 pub struct AffineUpdateComposite<const MOD: usize>;
 impl<const MOD: usize> ExtMonoid for AffineUpdateComposite<MOD> {
     type X = Affine<Modint<MOD>>;
-    type M = Affine<Modint<MOD>>;
-    const IX: Self::X = Self::X::I;
-    const IM: Self::M = Self::M::I;
-    fn operate_x(x: &Self::X, y: &Self::X) -> Self::X {
+    type F = Affine<Modint<MOD>>;
+    fn id_x() -> Self::X {
+        Self::X::I
+    }
+    fn id_f() -> Self::F {
+        Self::F::I
+    }
+    fn op(x: &Self::X, y: &Self::X) -> Self::X {
         y.compose(x)
     }
-    fn operate_m(_x: &Self::M, y: &Self::M) -> Self::M {
+    fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
         *y
     }
-    fn apply(_x: &Self::X, y: &Self::M) -> Self::X {
+    fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
         *y
     }
-    fn aggregate(x: &Self::M, p: usize) -> Self::M {
+    fn aggregate(x: &Self::F, p: usize) -> Self::F {
         x.pow(p)
     }
 }
-
-

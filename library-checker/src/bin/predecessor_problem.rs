@@ -1,7 +1,6 @@
 use cp_library_rs::multiset_splay_tree::MultiSet;
 use proconio::input;
 
-// main
 fn main() {
     input! {
         N: usize,

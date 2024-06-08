@@ -16,7 +16,7 @@ pub struct LazySegmentTree<M: ExtMonoid> {
     pub size: usize,
     offset: usize,
     data: Vec<M::X>,
-    lazy: Vec<M::M>,
+    lazy: Vec<M::F>,
 }
 
 impl<M: ExtMonoid> LazySegmentTree<M> {
@@ -46,29 +46,29 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
         Self {
             size: n,
             offset,
-            data: vec![M::IX; offset << 1],
-            lazy: vec![M::IM; offset << 1],
+            data: vec![M::id_x(); offset << 1],
+            lazy: vec![M::id_f(); offset << 1],
         }
     }
 
     /// 遅延値を評価
     fn eval(&mut self, idx: usize, len: usize) {
-        if self.lazy[idx] == M::IM {
+        if self.lazy[idx] == M::id_f() {
             return;
         }
         // 葉でなければ子に伝搬
         if idx < self.offset {
-            self.lazy[idx * 2] = M::operate_m(&self.lazy[idx * 2], &self.lazy[idx]);
-            self.lazy[idx * 2 + 1] = M::operate_m(&self.lazy[idx * 2 + 1], &self.lazy[idx]);
+            self.lazy[idx * 2] = M::composition(&self.lazy[idx * 2], &self.lazy[idx]);
+            self.lazy[idx * 2 + 1] = M::composition(&self.lazy[idx * 2 + 1], &self.lazy[idx]);
         }
         // 自身を更新
-        self.data[idx] = M::apply(&self.data[idx], &M::aggregate(&self.lazy[idx], len));
-        self.lazy[idx] = M::IM;
+        self.data[idx] = M::mapping(&self.data[idx], &M::aggregate(&self.lazy[idx], len));
+        self.lazy[idx] = M::id_f();
     }
 
     /// 区間に`val`を作用させる
     /// - `range`: `[left, right)`
-    pub fn apply<R: RangeBounds<usize> + fmt::Debug>(&mut self, range: R, val: M::M) {
+    pub fn apply<R: RangeBounds<usize> + fmt::Debug>(&mut self, range: R, val: M::F) {
         let Some((left, right)) = self.parse_range(&range) else {
             panic!("The given range is wrong: {:?}", range);
         };
@@ -79,7 +79,7 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
         &mut self,
         left: usize,
         right: usize,
-        val: M::M,
+        val: M::F,
         begin: usize,
         end: usize,
         idx: usize,
@@ -88,7 +88,7 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
         self.eval(idx, end - begin);
         // 区間を内包するとき
         if left <= begin && end <= right {
-            self.lazy[idx] = M::operate_m(&self.lazy[idx], &val);
+            self.lazy[idx] = M::composition(&self.lazy[idx], &val);
             self.eval(idx, end - begin);
         }
         // 区間が重なるとき
@@ -99,7 +99,7 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
             // 右の子を更新
             self.apply_inner(left, right, val, mid, end, idx * 2 + 1);
             // 値を更新
-            self.data[idx] = M::operate_x(&self.data[idx * 2], &self.data[idx * 2 + 1]);
+            self.data[idx] = M::op(&self.data[idx * 2], &self.data[idx * 2 + 1]);
         }
     }
 
@@ -124,7 +124,7 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
         self.eval(idx, end - begin);
         // 区間を含まない
         if end <= left || right <= begin {
-            M::IX
+            M::id_x()
         }
         // 区間を包含する
         else if left <= begin && end <= right {
@@ -135,7 +135,7 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
             let mid = (begin + end) / 2;
             let l_val = self.get_inner(left, right, begin, mid, idx * 2);
             let r_val = self.get_inner(left, right, mid, end, idx * 2 + 1);
-            M::operate_x(&l_val, &r_val)
+            M::op(&l_val, &r_val)
         }
     }
 }
@@ -148,7 +148,7 @@ impl<M: ExtMonoid> From<&Vec<M::X>> for LazySegmentTree<M> {
         }
         for i in (0..seg.offset).rev() {
             let lch = i << 1;
-            seg.data[i] = M::operate_x(&seg.data[lch], &seg.data[lch + 1]);
+            seg.data[i] = M::op(&seg.data[lch], &seg.data[lch + 1]);
         }
         seg
     }
@@ -157,7 +157,7 @@ impl<M: ExtMonoid> From<&Vec<M::X>> for LazySegmentTree<M> {
 impl<M> LazySegmentTree<M>
 where
     M: ExtMonoid,
-    M::M: Debug,
+    M::F: Debug,
     M::X: Debug,
 {
     pub fn show(&mut self) -> String {

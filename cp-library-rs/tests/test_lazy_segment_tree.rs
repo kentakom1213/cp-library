@@ -106,7 +106,7 @@ fn test_RSQ_and_RUQ() {
 
 #[test]
 fn test_from() {
-    const INF: isize = AddMin::IX;
+    let INF = AddMin::id_x();
 
     let arr = vec![5, 2, -3, -1, -9, -2, 5, 0, 0, 5];
 

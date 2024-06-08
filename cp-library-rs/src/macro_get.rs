@@ -23,12 +23,12 @@ macro_rules! get {
     };
     ($t:ty ; $n:expr) => {
         (0..$n).map(|_|
-            get_!($t)
+            get!($t)
         ).collect::<Vec<_>>()
     };
     ($($t:ty),* ; $n:expr) => {
         (0..$n).map(|_|
-            get_!($($t),*)
+            get!($($t),*)
         ).collect::<Vec<_>>()
     };
     ($t:ty ;;) => {
@@ -42,7 +42,7 @@ macro_rules! get {
     };
     ($t:ty ;; $n:expr) => {
         (0..$n).map(|_|
-            get_!($t ;;)
+            get!($t ;;)
         ).collect::<Vec<_>>()
     };
 }
