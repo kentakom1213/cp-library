@@ -25,7 +25,7 @@ struct SnippetPiece {
 #[derive(Serialize)]
 struct Snippets(HashMap<String, SnippetPiece>);
 
-const SRC: &str = "./src";
+const SRC: &str = "../cp-library-rs/src";
 const TARGET: &str = "../rust.json";
 
 fn main() -> Result<(), io::Error> {
@@ -101,14 +101,15 @@ fn get_snippet_description(path: &Path) -> String {
 /// （依存関係を解析して再帰的に生成）
 fn make_snippet_body(path: &Path, body: &mut Vec<String>) {
     // 依存関係を解決
-    let contents = fs::read_to_string(path).unwrap();
+    let Ok(contents) = fs::read_to_string(path) else {
+        panic!("No such file {:?}.", path);
+    };
 
     // 参照されているクレートを列挙
     let re = Regex::new(r"crate::(?<stem>.*?)::").unwrap();
     for c in re.captures_iter(&contents) {
         // 参照されているパス
-        let mut ref_path = String::new();
-        c.expand("./src/$stem.rs", &mut ref_path);
+        let ref_path = format!("{}/{}.rs", SRC, &c["stem"]);
         // 再帰呼び出し
         let ref_path = Path::new(&ref_path);
         make_snippet_body(ref_path, body);
