@@ -25,8 +25,8 @@ struct SnippetPiece {
 #[derive(Serialize)]
 struct Snippets(HashMap<String, SnippetPiece>);
 
-const SRC: &str = "../cp-library-rs/src";
-const TARGET: &str = "../rust.json";
+const SRC: &str = "./cp-library-rs/src";
+const TARGET: &str = "./rust.json";
 
 fn main() -> Result<(), io::Error> {
     eprint!("Making snippet file ... ");
