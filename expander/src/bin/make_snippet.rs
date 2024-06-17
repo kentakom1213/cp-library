@@ -16,12 +16,6 @@ struct SnippetPiece {
     description: String,
 }
 
-/// スニペット
-// #[derive(Serialize)]
-// struct Snippets {
-//     kyopro: Vec<SnippetPiece>,
-// }
-
 #[derive(Serialize)]
 struct Snippets(HashMap<String, SnippetPiece>);
 
