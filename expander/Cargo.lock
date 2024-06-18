@@ -143,9 +143,11 @@ dependencies = [
  "env_logger",
  "itertools",
  "log",
+ "quote",
  "regex",
  "serde",
  "serde_json",
+ "syn",
 ]
 
 [[package]]
