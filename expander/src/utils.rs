@@ -5,8 +5,7 @@ macro_rules! debug {
     }};
 }
 
-use std::{collections::HashSet, fs};
-use syn::{visit::Visit, File, Item, UseTree};
+use syn::{visit::Visit, UseTree};
 
 struct UseVisitor {
     uses: Vec<Vec<String>>,
@@ -57,12 +56,13 @@ use cp_library_rs::{
     segment_tree::SegmentTree,
 };
 use cp_library_rs::monoid::{Monoid, examples::*};
+use std::collections::BTreeMap;
 
 fn main() {
 
 }
 "#;
-    let syntax_tree: File = syn::parse_file(&content).expect("Unable to parse file");
+    let syntax_tree = syn::parse_file(&content).expect("Unable to parse file");
 
     let mut visitor = UseVisitor { uses: vec![] };
     visitor.visit_file(&syntax_tree);
