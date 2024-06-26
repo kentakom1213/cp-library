@@ -1,6 +1,5 @@
-//! Ford-Fulkerson法
-
 use num_traits::PrimInt;
+use rustc_hash::FxHashMap;
 
 #[derive(Debug, Clone)]
 pub struct Edge<T> {
@@ -27,10 +26,13 @@ impl<T: Clone> Edge<T> {
 type Graph<T> = Vec<Vec<Edge<T>>>;
 
 /// FordFulkerson法を実行する
+#[derive(Debug)]
 pub struct FordFulkerson<T> {
     N: usize,
     /// 残余ネットワーク
     pub G: Graph<T>,
+    /// 辺の番号
+    edge_id: FxHashMap<(usize, usize), usize>,
 }
 
 impl<T: PrimInt> FordFulkerson<T> {
@@ -38,6 +40,7 @@ impl<T: PrimInt> FordFulkerson<T> {
         Self {
             N: n,
             G: vec![vec![]; n],
+            edge_id: FxHashMap::default(),
         }
     }
 
@@ -46,8 +49,10 @@ impl<T: PrimInt> FordFulkerson<T> {
         let rev = self.G[to].len();
         self.G[from].push(Edge::new(rev, from, to, cap));
         // 逆向き辺を追加
-        let rev = self.G[from].len() - 1;
-        self.G[to].push(Edge::new(rev, to, from, T::zero()));
+        let rrev = self.G[from].len() - 1;
+        self.G[to].push(Edge::new(rrev, to, from, T::zero()));
+        // 辺のidを追加
+        self.edge_id.insert((from, to), rrev);
     }
 
     /// uからtへのフロー追加路を見つける
@@ -90,5 +95,13 @@ impl<T: PrimInt> FordFulkerson<T> {
             flow = flow + f;
         }
         flow
+    }
+
+    /// 現在の状態での辺(u,v)の流量を求める
+    pub fn get_flow(&self, u: usize, v: usize) -> T {
+        let i = self.edge_id[&(u, v)];
+        let cap = self.G[u][i].cap;
+        let original = self.G[u][i].original_cap;
+        original - cap
     }
 }

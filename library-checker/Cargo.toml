@@ -15,6 +15,7 @@ shortest_path = { problem = "https://judge.yosupo.jp/problem/shortest_path"}
 staticrmq = { problem = "https://judge.yosupo.jp/problem/staticrmq"}
 range_affine_range_sum = { problem = "https://judge.yosupo.jp/problem/range_affine_range_sum"}
 range_set_range_composite = { problem = "https://judge.yosupo.jp/problem/range_set_range_composite"}
+bipartitematching = { problem = "https://judge.yosupo.jp/problem/bipartitematching"}
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
