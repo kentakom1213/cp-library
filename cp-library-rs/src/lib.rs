@@ -31,6 +31,7 @@ pub mod lcs;
 pub mod lineartime_merging;
 pub mod loop_detection;
 pub mod loop_detection_fold;
+mod macro_cfor;
 mod macro_chmax;
 mod macro_chmin;
 mod macro_debug;
