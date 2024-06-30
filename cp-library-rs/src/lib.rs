@@ -63,4 +63,5 @@ pub mod trie;
 pub mod union_find;
 pub mod vec2;
 pub mod weighted_union_find;
+pub mod yesno;
 pub mod zigzag;
