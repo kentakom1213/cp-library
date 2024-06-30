@@ -1,24 +1,25 @@
-use cp_library_rs::matrix_exp::*;
+use cp_library_rs::{matrix_exp::*, modint::M998};
+use num_traits::Zero;
 use rand::{prelude::*, rngs::ThreadRng};
 
 const REPEAT_TIME: usize = 100;
 
 /// ランダムな値で埋められたDIMxDIM行列を生成する
-fn gen_random_matrix(rng: &mut ThreadRng) -> [[usize; DIM]; DIM] {
-    let mut res = [[0; DIM]; DIM];
+fn gen_random_matrix(rng: &mut ThreadRng) -> [[M998; DIM]; DIM] {
+    let mut res = [[M998::zero(); DIM]; DIM];
     for i in 0..DIM {
         for j in 0..DIM {
-            res[i][j] = rng.gen::<usize>() % MOD;
+            res[i][j] = rng.gen::<usize>().into();
         }
     }
     res
 }
 
 /// ランダムな1bitの値で埋められたDIM次元行列を生成する
-fn gen_random_vector(rng: &mut ThreadRng) -> [usize; DIM] {
-    let mut res = [0; DIM];
+fn gen_random_vector(rng: &mut ThreadRng) -> [M998; DIM] {
+    let mut res = [M998::zero(); DIM];
     for i in 0..DIM {
-        res[i] = rng.gen::<bool>() as usize;
+        res[i] = (rng.gen::<bool>() as usize).into();
     }
     res
 }
@@ -39,9 +40,9 @@ fn test_dot() {
         let v = gen_random_vector(&mut rng);
 
         // left = (A @ B) @ v
-        let left = A.dot(B).apply(v);
+        let left = A.dot(&B).apply(&v);
         // right = A @ (B @ v)
-        let right = A.apply(B.apply(v));
+        let right = A.apply(&B.apply(&v));
 
         assert_eq!(left, right);
     }
@@ -52,13 +53,18 @@ fn test_dot() {
 #[test]
 fn test_pow() {
     // テトラナッチ数
-    let tetra = [[0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [1, 1, 1, 1]];
+    let tetra: [[M998; 4]; 4] = [
+        [0, 1, 0, 0].map(M998::new),
+        [0, 0, 1, 0].map(M998::new),
+        [0, 0, 0, 1].map(M998::new),
+        [1, 1, 1, 1].map(M998::new),
+    ];
 
     // 初期値
-    let init = [0, 0, 0, 1];
+    let init = [0, 0, 0, 1].map(M998::new);
 
     // T_{35}を求める
-    let T_35 = tetra.pow(35).apply(init)[0];
+    let T_35 = tetra.pow(35).apply(&init)[0];
 
     assert_eq!(T_35, 747044834);
 }
