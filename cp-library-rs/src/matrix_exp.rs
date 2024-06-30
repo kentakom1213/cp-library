@@ -2,45 +2,41 @@
 
 use num_traits::{One, Zero};
 
-/* 行列累乗 */
-pub const DIM: usize = 4;
-pub type V<T> = [T; DIM];
-pub type M<T> = [[T; DIM]; DIM];
+#[derive(Debug, Clone)]
+pub struct Matrix<const D: usize, T>([[T; D]; D]);
 
-pub trait MatrixExp<T> {
-    /// 単位行列を返す
-    fn e() -> Self;
-    /// ベクトル`x`と行列`A`について、`Ax`を返す
-    fn dot(&self, other: &Self) -> Self;
-    /// 行列の累乗を返す（繰り返し2乗法）
-    fn pow(&self, e: usize) -> Self;
-    /// 行列のドット積
-    fn apply(&self, v: &V<T>) -> V<T>;
-}
-
-impl<T> MatrixExp<T> for M<T>
+impl<const D: usize, T> Matrix<D, T>
 where
     T: One + Zero + Copy,
 {
-    fn e() -> Self {
-        let mut res = [[T::zero(); DIM]; DIM];
-        for i in 0..DIM {
+    pub fn new(data: [[T; D]; D]) -> Self {
+        Self(data)
+    }
+
+    /// 単位行列を返す
+    pub fn id() -> Self {
+        let mut res = [[T::zero(); D]; D];
+        for i in 0..D {
             res[i][i] = T::one();
         }
-        res
+        Self(res)
     }
-    fn apply(&self, v: &V<T>) -> V<T> {
-        let mut res = [T::zero(); DIM];
-        for i in 0..DIM {
-            for j in 0..DIM {
-                res[i] = res[i] + self[i][j] * v[j];
+
+    /// ベクトル`x`と行列`A`について、`Ax`を返す
+    pub fn apply(&self, v: &[T; D]) -> [T; D] {
+        let mut res = [T::zero(); D];
+        for i in 0..D {
+            for j in 0..D {
+                res[i] = res[i] + self.0[i][j] * v[j];
             }
         }
         res
     }
-    fn pow(&self, mut p: usize) -> Self {
-        let mut res = Self::e();
-        let mut tmp = *self;
+
+    /// 行列の累乗を返す（繰り返し2乗法）
+    pub fn pow(&self, mut p: usize) -> Self {
+        let mut res = Self::id();
+        let mut tmp = self.clone();
         while p > 0 {
             if p & 1 == 1 {
                 res = tmp.dot(&res);
@@ -50,15 +46,17 @@ where
         }
         res
     }
-    fn dot(&self, other: &Self) -> Self {
-        let mut res = [[T::zero(); DIM]; DIM];
-        for i in 0..DIM {
-            for j in 0..DIM {
-                for k in 0..DIM {
-                    res[i][j] = res[i][j] + self[i][k] * other[k][j];
+
+    /// 行列のドット積
+    pub fn dot(&self, other: &Self) -> Self {
+        let mut res = [[T::zero(); D]; D];
+        for i in 0..D {
+            for j in 0..D {
+                for k in 0..D {
+                    res[i][j] = res[i][j] + self.0[i][k] * other.0[k][j];
                 }
             }
         }
-        res
+        Self(res)
     }
 }
