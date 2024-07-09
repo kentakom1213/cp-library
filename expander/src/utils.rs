@@ -1,32 +1,40 @@
-macro_rules! debug {
-    ( $($val:expr),* $(,)* ) => {{
-        #[cfg(debug_assertions)]
-        eprintln!( concat!($(stringify!($val), " = {:?}, "),*), $($val),* );
-    }};
-}
+use std::{
+    collections::HashSet,
+    env,
+    path::{Path, PathBuf},
+};
 
 use syn::{visit::Visit, UseTree};
 
-struct UseVisitor {
-    uses: Vec<Vec<String>>,
+/// ライブラリのパスを取得する
+pub fn get_library_path() -> PathBuf {
+    let mut cur = env::current_dir().unwrap();
+    cur.pop();
+    cur.push("cp-library-rs");
+    cur
+}
+
+/// use文のパーサー
+pub struct UseVisitor {
+    pub uses: Vec<Vec<String>>,
 }
 
 impl<'ast> Visit<'ast> for UseVisitor {
     fn visit_item_use(&mut self, item_use: &'ast syn::ItemUse) {
         let use_tree = &item_use.tree;
         let mut paths = Vec::new();
-        use_tree_to_vec(use_tree, &mut paths, Vec::new());
+        deps_to_vec(use_tree, &mut paths, Vec::new());
         self.uses.extend(paths);
         // Continue visiting the rest of the file
         syn::visit::visit_item_use(self, item_use);
     }
 }
 
-fn use_tree_to_vec(tree: &UseTree, paths: &mut Vec<Vec<String>>, mut current_path: Vec<String>) {
+fn deps_to_vec(tree: &UseTree, paths: &mut Vec<Vec<String>>, mut current_path: Vec<String>) {
     match tree {
         UseTree::Path(path) => {
             current_path.push(path.ident.to_string());
-            use_tree_to_vec(&*path.tree, paths, current_path);
+            deps_to_vec(&*path.tree, paths, current_path);
         }
         UseTree::Name(name) => {
             current_path.push(name.ident.to_string());
@@ -42,30 +50,34 @@ fn use_tree_to_vec(tree: &UseTree, paths: &mut Vec<Vec<String>>, mut current_pat
         }
         UseTree::Group(group) => {
             for item in &group.items {
-                use_tree_to_vec(item, paths, current_path.clone());
+                deps_to_vec(item, paths, current_path.clone());
             }
         }
     }
 }
 
-#[test]
-fn test() {
-    let content = r#"
-use cp_library_rs::{
-    modint::{M998, M109},
-    segment_tree::SegmentTree,
-};
-use cp_library_rs::monoid::{Monoid, examples::*};
-use std::collections::BTreeMap;
-
-fn main() {
-
+pub struct ModuleParser {
+    /// 呼び出し元のファイル
+    pub entry_file: PathBuf,
+    /// 使用しているライブラリのパス（ライブラリのパス以降）
+    pub dependancies: Option<HashSet<String>>,
+    /// ライブラリのパス
+    lib_path: PathBuf,
 }
-"#;
-    let syntax_tree = syn::parse_file(&content).expect("Unable to parse file");
 
-    let mut visitor = UseVisitor { uses: vec![] };
-    visitor.visit_file(&syntax_tree);
+impl ModuleParser {
+    /// パーサーの初期化
+    pub fn new(entry_file: PathBuf) -> Self {
+        ModuleParser {
+            entry_file,
+            dependancies: None,
+            lib_path: get_library_path(),
+        }
+    }
 
-    debug!(visitor.uses);
+    /// 再帰的に依存関係を解析する
+    /// 結果を`self.dependancies`に保存する
+    pub fn solve_dependancies(&mut self) {}
+
+    pub fn dfs() {}
 }
