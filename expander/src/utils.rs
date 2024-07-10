@@ -152,7 +152,7 @@ impl ModuleExpander {
         let backup = self.entry_file.with_extension("bak.rs");
 
         // 元のファイルをコピー
-        fs::copy(&self.entry_file, backup)?;
+        fs::copy(&self.entry_file, &backup)?;
 
         // 元ファイルを編集
         let mut contents = fs::read_to_string(&self.entry_file)?;
@@ -204,7 +204,7 @@ impl ModuleExpander {
         let backup = self.entry_file.with_extension("bak.rs");
 
         // 元のファイルを復元
-        fs::rename(backup, &self.entry_file)?;
+        fs::rename(&backup, &self.entry_file).expect(&format!("No such file: {backup:?}"));
 
         Ok(())
     }
