@@ -35,11 +35,21 @@ fn main() -> Result<(), Box<io::Error>> {
     let mut expander = ModuleExpander::new(input_path, library_path);
 
     if !args.restore {
-        expander.expand()?;
-        log::info!("expand");
+        match expander.expand() {
+            Ok(_) => log::info!("expand complete"),
+            Err(err) => {
+                log::error!("expand failed");
+                log::error!("{err}");
+            }
+        }
     } else {
-        expander.restore()?;
-        log::info!("restore");
+        match expander.restore() {
+            Ok(_) => log::info!("restore complete"),
+            Err(err) => {
+                log::error!("restore failed");
+                log::error!("{err}");
+            }
+        }
     }
 
     Ok(())

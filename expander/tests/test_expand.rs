@@ -77,7 +77,7 @@ fn test_parser() {
     let p = PathBuf::from("../cp-library-rs/tests/test_segment_tree.rs");
     let mut res = ModuleExpander::new(p, get_library_path());
 
-    res.solve_dependancies();
+    res.solve_dependancies().ok();
 
     debug!(res.dependancies);
     assert_eq!(
@@ -92,7 +92,7 @@ fn test_parser() {
     let p = PathBuf::from("../cp-library-rs/tests/test_modint_comb.rs");
     let mut res = ModuleExpander::new(p, get_library_path());
 
-    res.solve_dependancies();
+    res.solve_dependancies().ok();
 
     debug!(res.dependancies);
     assert_eq!(
@@ -112,17 +112,13 @@ fn test_get_module() {
 }
 
 #[test]
-fn test_expand() {
+fn test_expand_restore() {
     let p = PathBuf::from("../cp-library-rs/tests/test_modint_comb.rs");
     let mut res = ModuleExpander::new(p, get_library_path());
 
+    // 展開
     res.expand().ok();
-}
 
-#[test]
-fn test_restore() {
-    let p = PathBuf::from("../cp-library-rs/tests/test_modint_comb.rs");
-    let res = ModuleExpander::new(p, get_library_path());
-
+    // 復元
     res.restore().ok();
 }

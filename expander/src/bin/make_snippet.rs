@@ -48,7 +48,7 @@ fn main() -> Result<(), io::Error> {
         // スニペット名
         let snippet_name = path.file_name().unwrap().to_str().unwrap().to_string();
 
-        snippet.0.insert(snippet_name, snippet_piece);
+        snippet.0.insert(snippet_name, snippet_piece?);
     }
 
     // 書き込み
@@ -64,20 +64,20 @@ fn main() -> Result<(), io::Error> {
 }
 
 /// スニペットの各部分を生成
-fn make_snippet_piece(path: &Path) -> SnippetPiece {
+fn make_snippet_piece(path: &Path) -> Result<SnippetPiece, io::Error> {
     // ファイル名
     let prefix = path.file_stem().unwrap().to_str().unwrap().to_string();
     // コードの説明
     let description = get_snippet_description(path);
     // 中身
     let mut body = vec![];
-    make_snippet_body(path, &mut body);
+    make_snippet_body(path, &mut body)?;
 
-    SnippetPiece {
+    Ok(SnippetPiece {
         prefix,
         body,
         description,
-    }
+    })
 }
 
 /// スニペットの概要を取得
@@ -93,10 +93,11 @@ fn get_snippet_description(path: &Path) -> String {
 
 /// ファイルを読み込み、不要な部分を削除する
 /// （依存関係を解析して再帰的に生成）
-fn make_snippet_body(path: &Path, body: &mut Vec<String>) {
+fn make_snippet_body(path: &Path, body: &mut Vec<String>) -> Result<(), io::Error> {
     // 依存関係を解決
-    let Ok(contents) = fs::read_to_string(path) else {
-        panic!("No such file {:?}.", path);
+    let contents = match fs::read_to_string(path) {
+        Ok(c) => c,
+        Err(err) => return Err(err),
     };
 
     // 参照されているクレートを列挙
@@ -106,7 +107,7 @@ fn make_snippet_body(path: &Path, body: &mut Vec<String>) {
         let ref_path = format!("{}/{}.rs", SRC, &c["stem"]);
         // 再帰呼び出し
         let ref_path = Path::new(&ref_path);
-        make_snippet_body(ref_path, body);
+        make_snippet_body(ref_path, body)?;
     }
 
     // スニペットの生成
@@ -132,4 +133,6 @@ fn make_snippet_body(path: &Path, body: &mut Vec<String>) {
         }
     }
     body.push("}".to_string());
+
+    Ok(())
 }
