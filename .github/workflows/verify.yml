@@ -6,12 +6,12 @@ on:
     branches:
       - main
     paths:
-      - "library-checker/**"
+      - "library-checker/src/**"
   pull_request:
     branches:
       - main
     paths:
-      - "library-checker/**"
+      - "library-checker/src/**"
 
 jobs:
   verify:

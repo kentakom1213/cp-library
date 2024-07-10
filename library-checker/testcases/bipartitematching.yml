@@ -3,24 +3,7 @@ type: Batch
 timelimit: ~
 match: Exact
 
-cases:
-  - in: |
-      4 4 7
-      1 1
-      2 2
-      0 0
-      3 1
-      1 2
-      2 0
-      3 2
-    out: |
-      3
-      0 0
-      1 1
-      2 2
+cases: []
 
 extend:
-  - type: Text
-    path: "./bipartitematching"
-    in: /in/*.txt
-    out: /out/*.txt
+  - type: SystemTestCases

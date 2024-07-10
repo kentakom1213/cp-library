@@ -10,8 +10,8 @@ TEMPLATE = """\
 
 """
 
-# 3分で停止させる
-KILL_TIME = 180
+# 1分で停止させる
+KILL_TIME = 60
 
 
 def run_test(problem: str):
@@ -62,7 +62,7 @@ if __name__ == "__main__":
         results = list(executor.map(run_test, TESTCASES))
 
     # テストケースの結果をTEMPLATEに追記
-    for problem, result in zip(TESTCASES, results):
+    for problem, result in sorted(zip(TESTCASES, results)):
         TEMPLATE += f"""\
 - :{'white_check_mark' if result else 'x'}: [{problem}](https://judge.yosupo.jp/problem/{problem})
 """
