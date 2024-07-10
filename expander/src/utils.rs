@@ -157,6 +157,12 @@ impl ModuleExpander {
             self.solve_dependancies()?;
         }
 
+        // 依存していない場合
+        if self.dependancies.as_ref().unwrap().is_empty() {
+            log::info!("non dependancies");
+            return Ok(());
+        }
+
         // backupの拡張子
         let backup = self.entry_file.with_extension("bak.rs");
 
