@@ -44,6 +44,7 @@ pub mod modint_comb;
 pub mod modint_for_rollinghash;
 pub mod modint_traits;
 pub mod monoid;
+pub mod monoid_examples;
 pub mod monoid_mod;
 pub mod multiset;
 pub mod multiset_splay_tree;

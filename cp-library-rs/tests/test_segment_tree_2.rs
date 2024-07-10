@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    monoid::examples::{Add, Max},
+    monoid_examples::{Add, Max},
     segment_tree_2d::SegmentTree2D,
 };
 
