@@ -158,14 +158,16 @@ impl ModuleExpander {
         let backup = self.entry_file.with_extension("bak.rs");
 
         if backup.exists() {
-            return Err(Error::new(
-                ErrorKind::AlreadyExists,
-                format!("Backup already exists: {:?}", backup),
-            ));
+            // backupを復元
+            fs::copy(&backup, &self.entry_file)?;
+            log::info!("restore backup");
+            // 再度依存関係を解析
+            self.solve_dependancies()?;
+        } else {
+            // 元のファイルをコピー
+            fs::copy(&self.entry_file, &backup)?;
+            log::info!("make backup");
         }
-
-        // 元のファイルをコピー
-        fs::copy(&self.entry_file, &backup)?;
 
         // 元ファイルを編集
         let mut contents = fs::read_to_string(&self.entry_file)?;
@@ -199,7 +201,10 @@ mod cp_library_rs {
     /// ファイルをモジュールに出力
     pub fn get_module(&self, dep: &str) -> Result<String, io::Error> {
         let p = Self::make_path(dep, &self.lib_path);
-        let file = fs::read_to_string(p)?;
+        let mut file = fs::read_to_string(p)?;
+
+        // "crate" -> "crate::cp_library_rs"
+        file = file.replace("crate", "crate::cp_library_rs");
 
         let mut res = format!("\n    pub mod {dep} {{\n");
 
