@@ -1,6 +1,8 @@
 use std::{
     collections::HashSet,
     env,
+    fs::{self, File},
+    io::{self, Write},
     path::{Path, PathBuf},
 };
 
@@ -8,13 +10,13 @@ use syn::{visit::Visit, UseTree};
 
 /// ライブラリのパスを取得する
 pub fn get_library_path() -> PathBuf {
-    let mut cur = env::current_dir().unwrap();
-    cur.pop();
-    cur.push("cp-library-rs");
-    cur
+    let mut buf = env::current_dir().unwrap();
+    buf.pop();
+    buf.push("cp-library-rs");
+    buf
 }
 
-/// use文のパーサー
+/// use文の解析器
 pub struct UseVisitor {
     pub uses: Vec<Vec<String>>,
 }
@@ -56,7 +58,30 @@ fn deps_to_vec(tree: &UseTree, paths: &mut Vec<Vec<String>>, mut current_path: V
     }
 }
 
-pub struct ModuleParser {
+/// ファイルの文字列から，クレート内での依存関係を抜き出す
+pub fn get_deps(source: &str, target: &str) -> HashSet<String> {
+    // 構文木を構築
+    let syntax_tree = syn::parse_file(source).expect("Unable to parse file");
+    // 解析
+    let mut visitor = UseVisitor { uses: vec![] };
+    visitor.visit_file(&syntax_tree);
+
+    // 内部の依存関係を調べる
+    let mut local_deps = HashSet::new();
+
+    for p in &visitor.uses {
+        if let [dep, file, ..] = &p[..] {
+            if dep == target {
+                local_deps.insert(file.clone());
+            }
+        }
+    }
+
+    local_deps
+}
+
+#[derive(Debug)]
+pub struct ModuleExpander {
     /// 呼び出し元のファイル
     pub entry_file: PathBuf,
     /// 使用しているライブラリのパス（ライブラリのパス以降）
@@ -65,19 +90,129 @@ pub struct ModuleParser {
     lib_path: PathBuf,
 }
 
-impl ModuleParser {
+impl ModuleExpander {
     /// パーサーの初期化
-    pub fn new(entry_file: PathBuf) -> Self {
-        ModuleParser {
+    pub fn new(entry_file: PathBuf, mut lib_path: PathBuf) -> Self {
+        lib_path.push("src");
+
+        ModuleExpander {
             entry_file,
             dependancies: None,
-            lib_path: get_library_path(),
+            lib_path,
         }
     }
 
     /// 再帰的に依存関係を解析する
     /// 結果を`self.dependancies`に保存する
-    pub fn solve_dependancies(&mut self) {}
+    pub fn solve_dependancies(&mut self) {
+        let mut deps = HashSet::new();
 
-    pub fn dfs() {}
+        // entry_fileを解析
+        let Ok(source) = fs::read_to_string(&self.entry_file) else {
+            panic!("Cannot read file: {:?}.", self.entry_file);
+        };
+
+        for dep in get_deps(&source, "cp_library_rs") {
+            deps.insert(dep.clone());
+            Self::dfs(&dep, &self.lib_path, &mut deps)
+        }
+
+        self.dependancies = Some(deps);
+    }
+
+    /// 再帰的に依存関係を解析し，depsに追加する
+    fn dfs(dep: &str, lib_path: &Path, deps: &mut HashSet<String>) {
+        // パスの生成
+        let p = Self::make_path(dep, lib_path);
+
+        let Ok(source) = fs::read_to_string(&p) else {
+            panic!("Cannot read file: {p:?}.");
+        };
+
+        for dep in get_deps(&source, "crate") {
+            if deps.contains(&dep) {
+                continue;
+            }
+            deps.insert(dep.clone());
+            // 再帰的に探索
+            Self::dfs(&dep, lib_path, deps);
+        }
+    }
+
+    /// 依存関係を展開する
+    /// - 元のファイル`file.rs`を`file.bak.rs`に保存
+    /// - `file.rs`に，依存関係を展開
+    pub fn expand(&mut self) -> Result<(), Box<io::Error>> {
+        // 依存関係の解析
+        if self.dependancies.is_none() {
+            self.solve_dependancies();
+        }
+
+        // backupの拡張子
+        let backup = self.entry_file.with_extension("bak.rs");
+
+        // 元のファイルをコピー
+        fs::copy(&self.entry_file, backup)?;
+
+        // 元ファイルを編集
+        let mut contents = fs::read_to_string(&self.entry_file)?;
+        let mut file = File::create(&self.entry_file)?;
+
+        // "cp_library_rs" -> "crate"
+        contents = contents.replace("cp_library_rs", "crate");
+
+        // 書き換えた内容を書き込み
+        file.write_all(contents.as_bytes())?;
+
+        file.write_all("\n// ==================== cp-library-rs ====================".as_bytes())?;
+
+        // 各モジュールを展開
+        for dep in self.dependancies.as_ref().unwrap() {
+            let dep_str = self.get_module(dep)?;
+            file.write_all(dep_str.as_bytes())?;
+        }
+
+        Ok(())
+    }
+
+    /// ファイルをモジュールに出力
+    pub fn get_module(&self, dep: &str) -> Result<String, io::Error> {
+        let p = Self::make_path(dep, &self.lib_path);
+        let file = fs::read_to_string(p)?;
+
+        let mut res = format!(
+            "\nmod {dep} {{
+    #![allow(dead_code)]
+"
+        );
+
+        // 各行を追加
+        for line in file.lines().filter(|l| !l.is_empty()) {
+            res += "    ";
+            res += line;
+            res += "\n";
+        }
+
+        res += "}\n";
+
+        Ok(res)
+    }
+
+    /// 復元する
+    pub fn restore(&self) -> Result<(), Box<io::Error>> {
+        // backupの拡張子
+        let backup = self.entry_file.with_extension("bak.rs");
+
+        // 元のファイルを復元
+        fs::rename(backup, &self.entry_file)?;
+
+        Ok(())
+    }
+
+    /// ファイル名からパスを構成する
+    fn make_path(dep: &str, lib_path: &Path) -> PathBuf {
+        let mut p = PathBuf::from(&lib_path);
+        p.push(format!("{}.rs", dep));
+        p
+    }
 }

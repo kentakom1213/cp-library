@@ -1,24 +1,18 @@
 use clap::Parser;
-use log;
-use std::{env, fs, path::Path};
+use expander::utils::{get_library_path, ModuleExpander};
+use std::{io, path::PathBuf};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
     /// Input file
-    #[arg(short, long)]
     input: String,
+    /// Restore file
+    #[arg(short, long)]
+    restore: bool,
 }
 
-/// ライブラリのパスを取得する
-fn get_library_path() -> String {
-    let mut cur = env::current_dir().unwrap();
-    cur.pop();
-    cur.push("cp-library-rs");
-    cur.to_str().unwrap().to_string()
-}
-
-fn main() {
+fn main() -> Result<(), Box<io::Error>> {
     // ロガーの初期化
     env_logger::init();
 
@@ -29,13 +23,24 @@ fn main() {
     let library_path = get_library_path();
     log::info!("library_path: {:?}", library_path);
 
-    let input_path = Path::new(&args.input);
+    assert!(library_path.exists());
+
+    // 入力ファイルのパスを取得
+    let input_path = PathBuf::from(&args.input);
     log::info!("input_path: {:?}", input_path);
 
-    // ファイルの中身を取得
-    let Ok(input_file) = fs::read_to_string(&input_path) else {
-        panic!("No such file: {:?}.", &input_path);
-    };
+    assert!(input_path.exists());
 
-    
+    // expanderの初期化
+    let mut expander = ModuleExpander::new(input_path, library_path);
+
+    if !args.restore {
+        expander.expand()?;
+        log::info!("expand");
+    } else {
+        expander.restore()?;
+        log::info!("restore");
+    }
+
+    Ok(())
 }
