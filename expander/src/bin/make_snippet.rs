@@ -1,11 +1,12 @@
+#![allow(non_snake_case)]
+
 use itertools::Itertools;
-use regex::Regex;
 use serde::Serialize;
 use std::{
     collections::HashMap,
-    fs,
+    env, fs,
     io::{self, Write},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 /// スニペットの断片
@@ -19,10 +20,11 @@ struct SnippetPiece {
 #[derive(Serialize)]
 struct Snippets(HashMap<String, SnippetPiece>);
 
-const SRC: &str = "./cp-library-rs/src";
-const TARGET: &str = "./rust.json";
-
 fn main() -> Result<(), io::Error> {
+    let ROOT = env::var("CARGO_MANIFEST_DIR").unwrap();
+    let SRC: PathBuf = [&ROOT, "..", "cp-library-rs", "src"].iter().collect();
+    let TARGET: PathBuf = [&ROOT, "..", "rust.json"].iter().collect();
+
     eprint!("Making snippet file ... ");
 
     let src = fs::read_dir(SRC)?;
@@ -32,7 +34,7 @@ fn main() -> Result<(), io::Error> {
 
     // ファイルを列挙
     for entry in src {
-        let path = entry.unwrap().path();
+        let path = entry?.path();
 
         // ディレクトリはskip
         if path.is_dir() {
@@ -53,11 +55,7 @@ fn main() -> Result<(), io::Error> {
 
     // 書き込み
     let target = fs::File::create(TARGET)?;
-    write!(
-        &target,
-        "{}",
-        &serde_json::to_string_pretty(&snippet).unwrap()
-    )?;
+    write!(&target, "{}", &serde_json::to_string_pretty(&snippet)?)?;
 
     eprintln!("Complete!");
     Ok(())
@@ -68,7 +66,7 @@ fn make_snippet_piece(path: &Path) -> Result<SnippetPiece, io::Error> {
     // ファイル名
     let prefix = path.file_stem().unwrap().to_str().unwrap().to_string();
     // コードの説明
-    let description = get_snippet_description(path);
+    let description = get_snippet_description(path)?;
     // 中身
     let mut body = vec![];
     make_snippet_body(path, &mut body)?;
@@ -81,14 +79,14 @@ fn make_snippet_piece(path: &Path) -> Result<SnippetPiece, io::Error> {
 }
 
 /// スニペットの概要を取得
-fn get_snippet_description(path: &Path) -> String {
+fn get_snippet_description(path: &Path) -> Result<String, io::Error> {
     // 先頭の`//!`から始まっている部分を抽出
-    fs::read_to_string(path)
-        .unwrap()
+    Ok(fs::read_to_string(path)
+        .map_err(|_| io::Error::new(io::ErrorKind::NotFound, format!("No such file: {:?}", path)))?
         .split('\n')
         .take_while(|s| s.starts_with("//!"))
         .map(|s| s.replace("//! ", ""))
-        .join("\n")
+        .join("\n"))
 }
 
 /// ファイルを読み込み、不要な部分を削除する
@@ -97,18 +95,13 @@ fn make_snippet_body(path: &Path, body: &mut Vec<String>) -> Result<(), io::Erro
     // 依存関係を解決
     let contents = match fs::read_to_string(path) {
         Ok(c) => c,
-        Err(err) => return Err(err),
+        Err(_) => {
+            return Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                format!("No such file: {:?}", path),
+            ));
+        }
     };
-
-    // 参照されているクレートを列挙
-    let re = Regex::new(r"crate::(?<stem>.*?)::").unwrap();
-    for c in re.captures_iter(&contents) {
-        // 参照されているパス
-        let ref_path = format!("{}/{}.rs", SRC, &c["stem"]);
-        // 再帰呼び出し
-        let ref_path = Path::new(&ref_path);
-        make_snippet_body(ref_path, body)?;
-    }
 
     // スニペットの生成
     // pathからstemを取り出す

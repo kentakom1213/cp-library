@@ -144,7 +144,6 @@ dependencies = [
  "itertools",
  "log",
  "quote",
- "regex",
  "serde",
  "serde_json",
  "syn",

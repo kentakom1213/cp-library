@@ -1,17 +1,6 @@
 //! 2次元BIT
 
-/// cfor! {}
-macro_rules! cfor {
-    ($def:stmt ; $fin:expr ; $incr:stmt ;; $bl:block) => {{
-        $def
-        while $fin {
-            $bl
-            $incr
-        }
-    }}
-}
-
-use crate::monoid::Monoid;
+use crate::{cfor, monoid::Monoid};
 
 pub struct BIT2D<M: Monoid> {
     pub H: usize,

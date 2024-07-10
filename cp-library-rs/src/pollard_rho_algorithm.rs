@@ -1,15 +1,8 @@
 //! ポラード・ロー法による素因数分解
 
-use crate::miller_rabin_test::is_prime_MR;
+use num::integer::gcd;
 
-/// `a`,`b`の最大公約数を求める
-pub fn gcd(a: usize, b: usize) -> usize {
-    if b == 0 {
-        a
-    } else {
-        gcd(b, a % b)
-    }
-}
+use crate::miller_rabin_test::is_prime_MR;
 
 /// ## pollard_rho
 /// ポラード・ロー法を適用し、約数を見つける

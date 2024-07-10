@@ -4,13 +4,13 @@ use std::fmt::Debug;
 
 // 定数
 const ORIGIN: char = 'a'; // 基準となる文字
-const ORIGIN_ID: usize = ORIGIN as u32 as usize; // 基準となる文字のID
+const ORIGIN_ID: usize = ORIGIN as usize; // 基準となる文字のID
 const KINDS: usize = 26; // 文字の種類数
 type NodePointer<T> = Option<Box<TrieNode<T>>>;
 
 /// 何番目の文字かを判定する
 fn ord(c: char) -> usize {
-    let num = c as u32 as usize;
+    let num = c as usize;
     num - ORIGIN_ID
 }
 
