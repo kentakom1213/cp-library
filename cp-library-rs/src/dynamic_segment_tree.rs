@@ -510,9 +510,6 @@ mod print_util {
     use super::{dynamic_segment_tree::DynamicSegmentTree, monoid::Monoid, node::Node};
     use std::fmt::Debug;
 
-    const GREEN: &str = "\x1b[92m";
-    const BLUE: &str = "\x1b[94m";
-    const END: &str = "\x1b[0m";
     const LEFT: &str = " ┌──";
     const MID: &str = " │  ";
     const RIGHT: &str = " └──";
@@ -522,10 +519,12 @@ mod print_util {
     impl<K: Ord + Debug, M: Monoid> DynamicSegmentTree<K, M> {
         /// 2分木として出力する
         pub fn print_as_binary_tree(&self) {
-            #![cfg(debug_assertions)]
-            eprintln!("{BLUE}┌─ BinaryTree ──────────────────────{END}");
-            fmt_inner_binary_tree(&self.root, &mut vec![], NULL);
-            eprintln!("{BLUE}└───────────────────────────────────{END}");
+            #[cfg(debug_assertions)]
+            {
+                eprintln!("┌─ BinaryTree ──────────────────────");
+                fmt_inner_binary_tree(&self.root, &mut vec![], NULL);
+                eprintln!("└───────────────────────────────────");
+            }
         }
     }
 
@@ -553,7 +552,7 @@ mod print_util {
             fmt_inner_binary_tree(&node.left, fill, LEFT);
             // 自分を出力
             eprintln!(
-                "{BLUE}│{END}{} {:?}",
+                "│{} {:?}",
                 fill.iter().fold(String::new(), |s, x| s + x),
                 node
             );

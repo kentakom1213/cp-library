@@ -1,4 +1,4 @@
-use cp_library_rs::{monoid::examples::Add, segment_tree::SegmentTree};
+use cp_library_rs::{monoid_examples::Add, segment_tree::SegmentTree};
 use proconio::{fastout, input};
 
 #[fastout]

@@ -171,14 +171,16 @@ where
     /// セグ木を簡易的に表示する
     /// **サイズが2べきのときのみ**
     pub fn show(&self) {
-        #![cfg(debug_assertions)]
-        let mut i = 1;
-        let mut w = 1;
-        while i + w <= 2 * self.offset {
-            eprintln!("{:?}", &self.data[i..i + w]);
-            i += w;
-            w <<= 1;
+        #[cfg(debug_assertions)]
+        {
+            let mut i = 1;
+            let mut w = 1;
+            while i + w <= 2 * self.offset {
+                eprintln!("{:?}", &self.data[i..i + w]);
+                i += w;
+                w <<= 1;
+            }
+            eprintln!();
         }
-        eprintln!();
     }
 }

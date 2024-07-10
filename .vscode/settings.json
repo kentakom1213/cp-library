@@ -1,6 +1,7 @@
 {
   "rust-analyzer.linkedProjects": [
     "./library-checker/Cargo.toml",
-    "./cp-library-rs/Cargo.toml"
+    "./cp-library-rs/Cargo.toml",
+    "./expander/Cargo.toml"
   ]
 }

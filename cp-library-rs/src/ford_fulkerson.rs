@@ -1,3 +1,5 @@
+//! Ford-Fulkerson法
+
 use num_traits::PrimInt;
 use rustc_hash::FxHashMap;
 
