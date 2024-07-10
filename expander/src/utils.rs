@@ -8,11 +8,14 @@ use std::{
 
 use syn::{visit::Visit, UseTree};
 
+const LIBRARY_NAME: &str = "cp-library-rs";
+const IMPORT_NAME: &str = "cp_library_rs";
+
 /// ライブラリのパスを取得する
 pub fn get_library_path() -> PathBuf {
     let mut buf = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     buf.pop();
-    buf.push("cp-library-rs");
+    buf.push(LIBRARY_NAME);
     buf
 }
 
@@ -113,7 +116,7 @@ impl ModuleExpander {
             Err(err) => return Err(err),
         };
 
-        for dep in get_deps(&source, "cp_library_rs") {
+        for dep in get_deps(&source, IMPORT_NAME) {
             deps.insert(dep.clone());
             Self::dfs(&dep, &self.lib_path, &mut deps)?;
         }
@@ -173,18 +176,19 @@ impl ModuleExpander {
         let mut contents = fs::read_to_string(&self.entry_file)?;
         let mut file = File::create(&self.entry_file)?;
 
-        // "cp_library_rs" -> "crate"
-        contents = contents.replace("cp_library_rs", "crate::cp_library_rs");
+        // "${IMPORT_NAME}" -> "crate"
+        contents = contents.replace(IMPORT_NAME, &format!("crate::{IMPORT_NAME}"));
 
         // 書き換えた内容を書き込み
         file.write_all(contents.as_bytes())?;
 
-        file.write_all(
+        write!(
+            file,
             "
 // ==================== cp-library-rs ====================
-mod cp_library_rs {
-    #![allow(dead_code)]"
-                .as_bytes(),
+mod {} {{
+    #![allow(dead_code)]",
+            IMPORT_NAME
         )?;
 
         // 各モジュールを展開
@@ -203,8 +207,8 @@ mod cp_library_rs {
         let p = Self::make_path(dep, &self.lib_path);
         let mut file = fs::read_to_string(p)?;
 
-        // "crate" -> "crate::cp_library_rs"
-        file = file.replace("crate", "crate::cp_library_rs");
+        // "crate" -> "crate::${IMPORT_NAME}"
+        file = file.replace("crate", &format!("crate::{IMPORT_NAME}"));
 
         let mut res = format!("\n    pub mod {dep} {{\n");
 

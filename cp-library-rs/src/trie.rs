@@ -43,6 +43,7 @@ where
 /// - トライ木の実装
 #[derive(Debug)]
 pub struct Trie<T> {
+    size: usize,
     root: NodePointer<T>,
 }
 
@@ -55,6 +56,7 @@ where
 
     pub fn new() -> Self {
         Trie {
+            size: 0,
             root: Some(Box::new(TrieNode {
                 data: None,
                 children: vec![NodePointer::None; KINDS],
@@ -62,8 +64,16 @@ where
         }
     }
 
-    pub fn insert(&mut self, key: &str, data: T) {
-        *self.get_or_insert_mut(key) = Some(data);
+    pub fn len(&self) -> usize {
+        self.size
+    }
+
+    pub fn insert(&mut self, key: &str, data: T) -> Option<T> {
+        let res = self.get_or_insert_mut(key).replace(data);
+        if res.is_none() {
+            self.size += 1;
+        }
+        res
     }
 
     pub fn get(&self, key: &str) -> Option<&T> {

@@ -1,10 +1,7 @@
-use proconio::input;
+use cp_library_rs::get;
 
 fn main() {
-    input! {
-        a: usize,
-        b: usize,
-    }
+    let (a, b) = get!(isize, isize);
 
     println!("{}", a + b);
 }
