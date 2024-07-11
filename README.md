@@ -11,11 +11,9 @@
 ```sh
 #!/bin/zsh
 
-cd cp-library-rs
-
 # snippetの修正
-cargo run --bin make_snippet
+cargo run --bin make_snippet --manifest-path expander/Cargo.toml || exit 1
 
 # ステージング
-git add ../rust.json
+git add rust.json
 ```
