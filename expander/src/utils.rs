@@ -193,7 +193,8 @@ impl ModuleExpander {
             "
 // ==================== cp-library-rs ====================
 mod {} {{
-    #![allow(dead_code)]",
+    #![allow(dead_code)]
+",
             IMPORT_NAME
         )?;
 
@@ -216,7 +217,7 @@ mod {} {{
         // "crate" -> "crate::${IMPORT_NAME}"
         file = file.replace("crate", &format!("crate::{IMPORT_NAME}"));
 
-        let mut res = format!("\n    pub mod {dep} {{\n");
+        let mut res = format!("    pub mod {dep} {{\n");
 
         // 各行を追加
         for line in file.lines().filter(|l| !l.is_empty()) {
