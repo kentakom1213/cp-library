@@ -6,6 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use itertools::Itertools;
 use syn::{visit::Visit, UseTree};
 
 const LIBRARY_NAME: &str = "cp-library-rs";
@@ -149,8 +150,6 @@ impl ModuleExpander {
     }
 
     /// 依存関係を展開する
-    /// - 元のファイル`file.rs`を`file.bak.rs`に保存
-    /// - `file.rs`に，依存関係を展開
     pub fn expand(&mut self) -> Result<(), io::Error> {
         // 依存関係の解析
         if self.dependancies.is_none() {
@@ -161,21 +160,6 @@ impl ModuleExpander {
         if self.dependancies.as_ref().unwrap().is_empty() {
             log::info!("non dependancies");
             return Ok(());
-        }
-
-        // backupの拡張子
-        let backup = self.entry_file.with_extension("bak.rs");
-
-        if backup.exists() {
-            // backupを復元
-            fs::copy(&backup, &self.entry_file)?;
-            log::info!("restore backup");
-            // 再度依存関係を解析
-            self.solve_dependancies()?;
-        } else {
-            // 元のファイルをコピー
-            fs::copy(&self.entry_file, &backup)?;
-            log::info!("make backup");
         }
 
         // 元ファイルを編集
@@ -191,11 +175,11 @@ impl ModuleExpander {
         write!(
             file,
             "
-// ==================== cp-library-rs ====================
+// ==================== {} ====================
 mod {} {{
     #![allow(dead_code)]
 ",
-            IMPORT_NAME
+            LIBRARY_NAME, IMPORT_NAME
         )?;
 
         // 各モジュールを展開
@@ -233,17 +217,25 @@ mod {} {{
 
     /// 復元する
     pub fn restore(&self) -> Result<(), io::Error> {
-        // backupの拡張子
-        let backup = self.entry_file.with_extension("bak.rs");
+        // 現在のファイルの内容
+        let mut file = fs::read_to_string(&self.entry_file)?;
 
-        // 元のファイルを復元
-        match fs::rename(&backup, &self.entry_file) {
-            Ok(_) => Ok(()),
-            Err(_) => Err(Error::new(
-                ErrorKind::NotFound,
-                format!("Backup file not found: {:?}", backup),
-            )),
-        }
+        // "crate::${IMPORT_NAME}" -> "${IMPORT_NAME}"
+        file = file.replace(&format!("crate::{IMPORT_NAME}"), IMPORT_NAME);
+
+        // ライブラリの位置
+        let library_begin = format!(
+            "// ==================== {} ====================",
+            LIBRARY_NAME
+        );
+
+        // library以降を削除
+        file = file.lines().take_while(|&l| l != &library_begin).join("\n");
+
+        // 元のファイルに書き出し
+        fs::write(&self.entry_file, file)?;
+
+        Ok(())
     }
 
     /// ファイル名からパスを構成する

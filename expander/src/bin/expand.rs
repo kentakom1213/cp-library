@@ -64,7 +64,9 @@ fn main() -> Result<(), Box<io::Error>> {
                 exit(1);
             }
         }
-    } else {
+    }
+
+    if args.restore {
         match expander.restore() {
             Ok(_) => log::info!("restore complete"),
             Err(err) => {
