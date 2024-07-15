@@ -2,7 +2,7 @@ use std::{
     collections::HashSet,
     env,
     fs::{self, File},
-    io::{self, Error, ErrorKind, Write},
+    io::{self, Write},
     path::{Path, PathBuf},
 };
 
@@ -14,8 +14,7 @@ const IMPORT_NAME: &str = "cp_library_rs";
 
 /// ライブラリのパスを取得する
 pub fn get_library_path() -> PathBuf {
-    let mut buf = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    buf.pop();
+    let mut buf = PathBuf::from(env::var("KYOPURO_LIBRARY_DIR").unwrap());
     buf.push(LIBRARY_NAME);
     buf
 }
