@@ -9,7 +9,7 @@ pub mod modint {
     fn mul(a: usize, b: usize) -> usize { let (au, ad) = (a >> 31, a & MASK31); let (bu, bd) = (b >> 31, b & MASK31); let m = ad * bu + au * bd; let (mu, md) = (m >> 30, m & MASK30); calcmod(au * bu * 2 + mu + (md << 31) + ad * bd) }
     fn calcmod(x: usize) -> usize { let xu = x >> 61; let xd = x & MASK61; let res = xu + xd; if res >= MOD { res - MOD } else { res } }
     use std::{fmt::Display,ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign}, str::FromStr, num::ParseIntError, iter::{Sum, Product}};
-    #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)] pub struct Modint(pub usize);
+    #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)] pub struct Modint(pub usize);
     impl Modint { pub fn new(n: usize) -> Self { Self(calcmod(n)) } }
     impl Neg for Modint { type Output = Self; fn neg(self) -> Self { Modint(if self.0 == 0 { 0 } else { MOD - self.0 }) } }
     impl Add for Modint { type Output = Self; fn add(self, rhs: Self) -> Self { let mut res = self.0 + rhs.0; if res >= MOD { res -= MOD; } Modint(res) } }
