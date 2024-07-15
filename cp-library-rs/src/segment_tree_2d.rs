@@ -1,12 +1,22 @@
 //! 二次元セグメント木
 //! - 参考：[二次元セグメント木 - Nyaan's Library](https://nyaannyaan.github.io/library/data-structure-2d/2d-segment-tree.hpp.html)
 
-use crate::{cfor, monoid::Monoid};
+use crate::monoid::Monoid;
 use std::fmt::{self, Debug};
 use std::ops::{
     Bound::{Excluded, Included, Unbounded},
     Deref, DerefMut, RangeBounds,
 };
+
+macro_rules! cfor {
+    ($def:stmt ; $fin:expr ; $incr:stmt ;; $bl:block) => {{
+        $def
+        while $fin {
+            $bl
+            $incr
+        }
+    }}
+}
 
 /// # SegmentTree2D (Monoid)
 /// - 2次元セグメント木
