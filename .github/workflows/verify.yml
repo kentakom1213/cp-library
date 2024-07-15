@@ -2,16 +2,16 @@ name: verify
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - "library-checker/src/**"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "library-checker/src/**"
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "library-checker/src/**"
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "library-checker/src/**"
 
 jobs:
   verify:

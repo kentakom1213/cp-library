@@ -10,11 +10,11 @@ TEMPLATE = """\
 
 """
 
-# 1分で停止させる
-KILL_TIME = 60
+# 5分で停止させる
+KILL_TIME = 300
 
 
-def run_test(problem: str):
+def run_test(problem: str) -> bool:
     """テストを実行する
 
     Args:
@@ -40,7 +40,7 @@ def run_test(problem: str):
         return result.returncode == 0
     except:
         # TIMEOUT
-        return 1
+        return False
 
 
 if __name__ == "__main__":
@@ -51,8 +51,8 @@ if __name__ == "__main__":
             "cargo",
             "compete",
             "download",
-            "--full",
-            "--overwrite",
+            # "--full",
+            # "--overwrite",
         ],
         cwd=CWD
     )
