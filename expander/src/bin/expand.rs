@@ -32,7 +32,19 @@ fn main() -> Result<(), Box<io::Error>> {
 
     // 存在しない場合はエイリアスとして処理
     if !input_path.exists() {
-        let &[contest, bin, ..] = &args.input.split('-').collect::<Vec<&str>>()[..] else {
+        // 最後の'-'をスペースに置換
+        let dir_file = args
+            .input
+            .chars()
+            .rev()
+            .collect::<String>()
+            .replacen('-', " ", 1)
+            .chars()
+            .rev()
+            .collect::<String>();
+
+        // ディレクトリ名部分とファイル名部分に分割
+        let &[contest, bin, ..] = &dir_file.split(' ').collect::<Vec<&str>>()[..] else {
             panic!("No such contest or binary.");
         };
 
