@@ -3,9 +3,9 @@ use crate::consts::INF;
 /// EulerTour
 #[derive(Debug)]
 pub struct EulerTour {
-    G: Vec<Vec<usize>>,
-    in_: Vec<usize>,
-    out: Vec<usize>,
+    pub G: Vec<Vec<usize>>,
+    pub in_: Vec<usize>,
+    pub out: Vec<usize>,
 }
 
 impl EulerTour {
