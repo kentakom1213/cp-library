@@ -79,8 +79,9 @@ impl<M: Monoid> SegmentTree<M> {
 
     /// 区間`range`の集約を行う
     pub fn get_range<R: RangeBounds<usize> + Debug>(&self, range: R) -> M::Val {
-        let Some((start, end)) = self.parse_range(&range) else {
-            panic!("The given range is wrong: {:?}", range);
+        let (start, end) = match self.parse_range(&range) {
+            Some(r) => r,
+            None => panic!("The given range is wrong: {:?}", range),
         };
         // 値の取得
         let mut l = self.offset + start;

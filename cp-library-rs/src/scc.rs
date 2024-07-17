@@ -20,14 +20,14 @@ impl SCC {
     const INF: usize = std::usize::MAX;
 
     /// 頂点`V`のグラフを構築する
-    pub fn new(V: usize) -> Self {
+    pub fn new(N: usize) -> Self {
         Self {
-            V,
+            V: N,
             E: 0,
-            G: vec![vec![]; V],
-            rG: vec![vec![]; V],
+            G: vec![vec![]; N],
+            rG: vec![vec![]; N],
             group_count: 0,
-            belongs_to: vec![0; V],
+            belongs_to: vec![0; N],
             components: vec![],
             DAG: vec![],
         }

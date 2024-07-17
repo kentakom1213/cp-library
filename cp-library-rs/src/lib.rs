@@ -22,6 +22,7 @@ pub mod dijkstra;
 pub mod dual_segment_tree;
 pub mod dynamic_segment_tree;
 pub mod enum_pairs;
+pub mod euler_tour;
 pub mod extmonoid;
 pub mod extmonoid_mod;
 pub mod factorize;
