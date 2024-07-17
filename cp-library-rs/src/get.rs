@@ -4,45 +4,26 @@
 /// 入力用マクロ
 #[macro_export]
 macro_rules! get {
-    ($t:ty) => {
-        {
+    (parse, $val:expr, usize1) => {(get!(parse, $val, usize) - 1)};
+    (parse, $val:expr, chars) => {get!(parse, $val, String).chars().collect::<Vec<_>>()};
+    (parse, $val:expr, $t:ty) => {$val.parse::<$t>().unwrap()};
+    ($p:tt) => {{
             let mut line = String::new();
-            std::io::stdin().read_line(&mut line).unwrap();
-            line.trim().parse::<$t>().unwrap()
-        }
-    };
-    ($($t:ty),*) => {
-        {
+            std::io::stdin().read_line(&mut line).ok();
+            get!(parse, line.trim(), $p)
+    }};
+    ($($p:tt),*) => {{
             let mut line = String::new();
-            std::io::stdin().read_line(&mut line).unwrap();
+            std::io::stdin().read_line(&mut line).ok();
             let mut iter = line.split_whitespace();
-            (
-                $(iter.next().unwrap().parse::<$t>().unwrap(),)*
-            )
-        }
-    };
-    ($t:ty ; $n:expr) => {
-        (0..$n).map(|_|
-            get!($t)
-        ).collect::<Vec<_>>()
-    };
-    ($($t:ty),* ; $n:expr) => {
-        (0..$n).map(|_|
-            get!($($t),*)
-        ).collect::<Vec<_>>()
-    };
-    ($t:ty ;;) => {
-        {
+            ( $(get!(parse, iter.next().unwrap(), $p),)* )
+    }};
+    ($t:tt ; $n:expr) => {(0..$n).map(|_| get!($t)).collect::<Vec<_>>()};
+    ($($t:tt),* ; $n:expr) => {(0..$n).map(|_| get!($($t),*)).collect::<Vec<_>>()};
+    ($t:tt ;;) => {{
             let mut line = String::new();
-            std::io::stdin().read_line(&mut line).unwrap();
-            line.split_whitespace()
-                .map(|t| t.parse::<$t>().unwrap())
-                .collect::<Vec<_>>()
-        }
-    };
-    ($t:ty ;; $n:expr) => {
-        (0..$n).map(|_|
-            get!($t ;;)
-        ).collect::<Vec<_>>()
-    };
+            std::io::stdin().read_line(&mut line).ok();
+            line.split_whitespace().map(|v| get!(parse, v, $t)).collect::<Vec<_>>()
+    }};
+    ($t:tt ;; $n:expr) => {(0..$n).map(|_| get!($t ;;)).collect::<Vec<_>>()};
 }
