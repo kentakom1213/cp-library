@@ -1,8 +1,14 @@
 //! ポラード・ロー法による素因数分解
 
-use num::integer::gcd;
-
 use crate::miller_rabin_test::is_prime_MR;
+
+fn gcd(a: usize, b: usize) -> usize {
+    if b == 0 {
+        a
+    } else {
+        gcd(b, a % b)
+    }
+}
 
 /// ## pollard_rho
 /// ポラード・ロー法を適用し、約数を見つける
@@ -13,12 +19,15 @@ pub fn pollard_rho(N: usize) -> usize {
     if is_prime_MR(N) {
         return N;
     }
-    let f = |x: usize| -> usize { (((x as u128).pow(2) + 1) % N as u128) as usize };
+    let tmp = &mut 0;
+    let f =
+        |x: usize, tmp: &mut u128| -> usize { (((x as u128).pow(2) + *tmp) % N as u128) as usize };
     let mut step = 0;
     loop {
+        *tmp += 1;
         step += 1;
         let mut x = step;
-        let mut y = f(x);
+        let mut y = f(x, tmp);
         loop {
             let p = gcd(N + y - x, N);
             if p == 0 || p == N {
@@ -27,8 +36,8 @@ pub fn pollard_rho(N: usize) -> usize {
             if p != 1 {
                 return p;
             }
-            x = f(x);
-            y = f(f(y));
+            x = f(x, tmp);
+            y = f(f(y, tmp), tmp);
         }
     }
 }

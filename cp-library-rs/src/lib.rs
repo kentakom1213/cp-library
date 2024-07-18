@@ -33,6 +33,7 @@ pub mod frac;
 mod get;
 pub mod grid;
 pub mod indexedset;
+pub mod iterutil;
 pub mod lazy_segment_tree;
 pub mod lca_doubling;
 pub mod lcs;

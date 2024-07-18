@@ -18,6 +18,7 @@ range_set_range_composite = { problem = "https://judge.yosupo.jp/problem/range_s
 bipartitematching = { problem = "https://judge.yosupo.jp/problem/bipartitematching"}
 suffixarray = { problem = "https://judge.yosupo.jp/problem/suffixarray"}
 minimum_spanning_tree = { problem = "https://judge.yosupo.jp/problem/minimum_spanning_tree"}
+factorize = { problem = "https://judge.yosupo.jp/problem/factorize"}
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
