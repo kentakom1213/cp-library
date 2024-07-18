@@ -6,6 +6,7 @@ pub struct EulerTour {
     pub G: Vec<Vec<usize>>,
     pub in_: Vec<usize>,
     pub out: Vec<usize>,
+    pub depth: Vec<usize>,
 }
 
 impl EulerTour {
@@ -15,6 +16,7 @@ impl EulerTour {
             G: vec![vec![]; N],
             in_: vec![INF; N],
             out: vec![INF; N],
+            depth: vec![INF; N],
         }
     }
 
@@ -26,12 +28,15 @@ impl EulerTour {
 
     /// 順序付けを行う
     pub fn build(&mut self, root: usize) {
-        self.dfs(INF, root, &mut 0);
+        self.dfs(INF, root, &mut 0, &mut 0);
     }
 
     /// 行きがけ順，帰りがけ順で順序付け
-    fn dfs(&mut self, p: usize, u: usize, id: &mut usize) {
+    fn dfs(&mut self, p: usize, u: usize, id: &mut usize, depth: &mut usize) {
         self.in_[u] = *id;
+        self.depth[u] = *depth;
+
+        *depth += 1;
 
         for i in 0..self.G[u].len() {
             let v = self.G[u][i];
@@ -39,10 +44,12 @@ impl EulerTour {
                 continue;
             }
             *id += 1;
-            self.dfs(u, v, id);
+            self.dfs(u, v, id, depth);
         }
 
+        *depth -= 1;
         *id += 1;
+
         self.out[u] = *id;
     }
 }

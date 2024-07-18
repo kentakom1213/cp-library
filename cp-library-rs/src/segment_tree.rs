@@ -43,11 +43,11 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// セグメント木を初期化する
-    pub fn new(n: usize) -> Self {
-        let offset = n;
+    pub fn new(N: usize) -> Self {
+        let offset = N;
 
         Self {
-            size: n,
+            size: N,
             offset,
             data: vec![M::id(); offset << 1],
         }

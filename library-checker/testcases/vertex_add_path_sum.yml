@@ -1,0 +1,29 @@
+---
+type: Batch
+timelimit: ~
+match: Exact
+
+cases:
+  - in: |
+      5 5
+      1 10 100 1000 10000
+      0 1
+      1 2
+      2 3
+      1 4
+      1 0 3
+      1 2 4
+      0 1 100000
+      1 1 3
+      1 3 2
+    out: |
+      1111
+      10110
+      101110
+      1100
+
+extend:
+  - type: Text
+    path: "./vertex_add_path_sum"
+    in: /in/*.txt
+    out: /out/*.txt
