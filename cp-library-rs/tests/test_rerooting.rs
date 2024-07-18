@@ -19,13 +19,14 @@ struct Diameter;
 
 impl TreeMonoid for Diameter {
     type T = isize;
+    type W = isize;
     fn id() -> Self::T {
         0
     }
     fn merge(x: &Self::T, y: &Self::T) -> Self::T {
         *x.max(y)
     }
-    fn put_edge(x: &Self::T, weight: &Self::T) -> Self::T {
+    fn put_edge(x: &Self::T, weight: &Self::W) -> Self::T {
         x + weight
     }
 }
