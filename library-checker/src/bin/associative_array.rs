@@ -1,5 +1,4 @@
-use cp_library_rs::{dynamic_segment_tree::DynamicSegmentTree, monoid::Monoid};
-use proconio::{fastout, input};
+use cp_library_rs::{dynamic_segment_tree::DynamicSegmentTree, get, monoid::Monoid};
 
 struct Set;
 
@@ -13,30 +12,20 @@ impl Monoid for Set {
     }
 }
 
-#[fastout]
 fn main() {
-    input! {
-        Q: usize
-    }
+    let Q = get!(usize);
 
     let mut tree = DynamicSegmentTree::<usize, Set>::new();
 
     for _ in 0..Q {
-        input! {
-            t: usize
-        }
+        let q = get!(usize;;);
 
-        if t == 0 {
-            input! {
-                k: usize,
-                v: usize
-            }
+        if let &[0, k, v] = &q[..] {
             // 挿入
             *tree.get_mut(k) = v;
-        } else {
-            input! {
-                k: usize
-            }
+        }
+
+        if let &[1, k] = &q[..] {
             let ans = tree.get(&k);
             println!("{ans}");
         }

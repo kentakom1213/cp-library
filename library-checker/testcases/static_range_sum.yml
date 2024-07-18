@@ -1,0 +1,26 @@
+---
+type: Batch
+timelimit: ~
+match: Exact
+
+cases:
+  - in: |
+      5 5
+      1 10 100 1000 10000
+      2 3
+      0 3
+      2 5
+      3 4
+      0 5
+    out: |
+      100
+      111
+      11100
+      1000
+      11111
+
+extend:
+  - type: Text
+    path: "./static_range_sum"
+    in: /in/*.txt
+    out: /out/*.txt

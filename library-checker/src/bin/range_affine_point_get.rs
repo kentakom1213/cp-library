@@ -1,33 +1,23 @@
-use cp_library_rs::{extmonoid_mod::AffineSum, lazy_segment_tree::LazySegmentTree, modint::M998};
-use proconio::{fastout, input};
+#![allow(non_snake_case)]
 
-#[fastout]
+use cp_library_rs::{
+    extmonoid_mod::AffineSum, get, lazy_segment_tree::LazySegmentTree, modint::M998,
+};
+
 fn main() {
-    input! {
-        N: usize,
-        Q: usize,
-        A: [M998; N]
-    }
+    let (N, Q) = get!(usize, usize);
+    let A = get!(M998;;);
 
     let mut seg = LazySegmentTree::<AffineSum<998244353>>::from(&A);
 
     for _ in 0..Q {
-        input! {
-            t: usize
+        let q = get!(usize;;);
+
+        if let &[0, l, r, b, c] = &q[..] {
+            seg.apply(l..r, (b.into(), c.into()));
         }
 
-        if t == 0 {
-            input! {
-                l: usize,
-                r: usize,
-                b: M998,
-                c: M998,
-            }
-            seg.apply(l..r, (b.into(), c.into()));
-        } else {
-            input! {
-                i: usize
-            }
+        if let &[1, i] = &q[..] {
             println!("{}", seg.get(i..=i));
         }
     }

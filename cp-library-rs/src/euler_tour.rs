@@ -52,4 +52,9 @@ impl EulerTour {
 
         self.out[u] = *id;
     }
+
+    /// 頂点`v`の (行きがけ順,帰りがけ順) のタプルを返す
+    pub fn get_id(&self, v: usize) -> (usize, usize) {
+        (self.in_[v], self.out[v])
+    }
 }

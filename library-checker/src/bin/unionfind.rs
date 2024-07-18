@@ -1,20 +1,12 @@
-use cp_library_rs::union_find::UnionFind;
-use proconio::input;
+use cp_library_rs::{get, union_find::UnionFind};
 
 fn main() {
-    input! {
-        n: usize,
-        q: usize,
-    }
+    let (n, q) = get!(usize, usize);
 
     let mut uf = UnionFind::new(n);
 
     for _ in 0..q {
-        input! {
-            t: usize,
-            u: usize,
-            v: usize,
-        }
+        let (t, u, v) = get!(usize, usize, usize);
 
         if t == 0 {
             uf.unite(u, v);

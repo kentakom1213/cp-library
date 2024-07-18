@@ -13,7 +13,6 @@ pub type P2 = Modint<958472071>;
 pub mod modint {
     fn sqrt(n: usize) -> usize { (n as f64).sqrt() as usize }
     use std::{fmt::{Debug, Display}, iter::{Sum, Product}, mem::replace, num::ParseIntError, ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign}, str::FromStr};
-
     use num_traits::{One, Zero};
     #[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Debug)] pub struct Modint<const MOD: usize>(pub usize);
     impl<const MOD: usize> Modint<MOD> { pub fn new(n: usize) -> Self { Self(if n < MOD { n } else { n % MOD }) }

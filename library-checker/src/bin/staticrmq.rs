@@ -1,14 +1,14 @@
-use cp_library_rs::sparse_table::{Alg::Min, SparseTable};
-use proconio::{fastout, input};
+#![allow(non_snake_case)]
 
-#[fastout]
+use cp_library_rs::{
+    get,
+    sparse_table::{Alg::Min, SparseTable},
+};
+
 fn main() {
-    input! {
-        N: usize,
-        Q: usize,
-        A: [isize; N],
-        LR: [(usize, usize); Q]
-    }
+    let (N, Q) = get!(usize, usize);
+    let A = get!(isize;;);
+    let LR = get!(usize, usize; Q);
 
     let tb = SparseTable::<Min>::build(&A);
 

@@ -45,7 +45,7 @@ fn main() -> Result<(), Box<io::Error>> {
 
         // ディレクトリ名部分とファイル名部分に分割
         let &[contest, bin, ..] = &dir_file.split(' ').collect::<Vec<&str>>()[..] else {
-            panic!("No such contest or binary.");
+            panic!("No such contest or binary: {:?}", input_path);
         };
 
         let mut buf = PathBuf::from(env::var("KYOPRO_DIR").unwrap());

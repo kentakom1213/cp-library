@@ -4,6 +4,3 @@ __pycache__/
 
 # rust
 target/
-
-# snippet
-library-checker/.vscode/

@@ -1,19 +1,27 @@
 # cp-library
 
+## cp-library-rs
+
 競技プログラミング用のライブラリ
 
 ドキュメント：https://kentakom1213.github.io/cp-library/cp_library_rs/
 
-## 使い方
+## expander
 
-`.git/hooks/pre-commit`に以下を記述
+以下のエイリアスを設定します．
+
+```
+alias bundle='<clone先のパス>/cp-library/expander/target/release/expand'
+```
+
+### 展開
 
 ```sh
-#!/bin/zsh
+$ bundle <展開するRustファイル>
+```
 
-# snippetの修正
-cargo run --bin make_snippet --manifest-path expander/Cargo.toml || exit 1
+### 復元
 
-# ステージング
-git add rust.json
+```sh
+$ bundle <復元するRustファイルのパス> -r
 ```

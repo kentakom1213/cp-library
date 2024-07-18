@@ -1,13 +1,10 @@
-use cp_library_rs::{debug2D, ford_fulkerson::FordFulkerson};
-use proconio::input;
+#![allow(non_snake_case)]
+
+use cp_library_rs::{debug2D, ford_fulkerson::FordFulkerson, get};
 
 fn main() {
-    input! {
-        L: usize,
-        R: usize,
-        M: usize,
-        AB: [(usize, usize); M]
-    }
+    let (L, R, M) = get!(usize, usize, usize);
+    let AB = get!(usize, usize; M);
 
     let UV: Vec<(usize, usize)> = AB.iter().map(|&(a, b)| (a, L + b)).collect();
 

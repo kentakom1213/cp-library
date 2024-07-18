@@ -1,17 +1,17 @@
-use cp_library_rs::multiset_splay_tree::MultiSet;
-use proconio::input;
+#![allow(non_snake_case)]
+
+use std::collections::BTreeSet;
+
+use cp_library_rs::get;
 
 fn main() {
-    input! {
-        N: usize,
-        Q: usize,
-        T: String
-    }
+    let (N, Q) = get!(usize, usize);
+    let T = get!(String);
 
     let mut set = T
         .chars()
         .enumerate()
-        .fold(MultiSet::new(), |mut set, (x, e)| {
+        .fold(BTreeSet::new(), |mut set, (x, e)| {
             if e == '1' {
                 set.insert(x as isize);
             }
@@ -19,27 +19,26 @@ fn main() {
         });
 
     for _ in 0..Q {
-        input! {
-            c: usize,
-            k: isize
-        }
+        let (c, k) = get!(usize, isize);
 
         match c {
             0 => {
-                set.insert(k);
+                if set.get(&k).is_none() {
+                    set.insert(k);
+                }
             }
             1 => {
-                set.delete(&k);
+                set.remove(&k);
             }
             2 => {
-                println!("{}", set.get(&k).is_some() as usize);
+                println!("{}", set.contains(&k) as usize);
             }
             3 => {
-                let res = *set.lower_bound(&k).unwrap_or(&(-1));
+                let res = *set.range(k..).next().unwrap_or(&(-1));
                 println!("{res}");
             }
             4 => {
-                let res = *set.lower_bound_rev(&k).unwrap_or(&(-1));
+                let res = *set.range(..=k).next_back().unwrap_or(&(-1));
                 println!("{res}");
             }
             _ => (),

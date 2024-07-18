@@ -5,18 +5,14 @@
 #![allow(unused_macros)]
 
 use cp_library_rs::{
-    affine1d::AffineTransform, modint::M998, monoid_mod::Affine1dMod, segment_tree::SegmentTree,
+    affine1d::AffineTransform, get, modint::M998, monoid_mod::Affine1dMod,
+    segment_tree::SegmentTree,
 };
-use proconio::{fastout, input};
 
-#[fastout]
 fn main() {
-    input! {
-        N: usize,
-        Q: usize,
-        AB: [(usize, usize); N],
-        queries: [(usize, usize, usize, usize); Q]
-    }
+    let (N, Q) = get!(usize, usize);
+    let AB = get!(usize, usize; N);
+    let queries = get!(usize, usize, usize, usize; Q);
 
     let mut seg = SegmentTree::<Affine1dMod<998244353>>::from(
         &AB.iter()

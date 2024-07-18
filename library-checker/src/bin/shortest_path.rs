@@ -1,18 +1,13 @@
-use cp_library_rs::{
-    debug,
-    dijkstra::{dijkstra, path_reconstruction},
-};
-use proconio::{fastout, input};
+#![allow(non_snake_case)]
 
-#[fastout]
+use cp_library_rs::{
+    dijkstra::{dijkstra, path_reconstruction},
+    get,
+};
+
 fn main() {
-    input! {
-        N: usize,
-        M: usize,
-        s: usize,
-        t: usize,
-        UVW: [(usize, usize, usize); M]
-    }
+    let (N, M, S, T) = get!(usize, usize, usize, usize);
+    let UVW = get!(usize, usize, usize; M);
 
     let mut G = vec![vec![]; N];
 
@@ -20,10 +15,10 @@ fn main() {
         G[u].push((v, w));
     }
 
-    let (prev, dist) = dijkstra(&G, s);
-    let ans = dist[t];
+    let (prev, dist) = dijkstra(&G, S);
+    let ans = dist[T];
 
-    let path = path_reconstruction(s, t, &prev);
+    let path = path_reconstruction(S, T, &prev);
 
     if let Some(path) = path {
         // 経路の表示

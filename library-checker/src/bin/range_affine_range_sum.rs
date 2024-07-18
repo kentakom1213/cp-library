@@ -5,47 +5,27 @@
 #![allow(unused_macros)]
 
 use cp_library_rs::{
-    extmonoid::ExtMonoid, extmonoid_mod::AffineSum, lazy_segment_tree::LazySegmentTree,
-    modint::M998,
+    consts::MOD998, extmonoid::ExtMonoid, extmonoid_mod::AffineSum, get,
+    lazy_segment_tree::LazySegmentTree, modint::M998,
 };
-use proconio::{fastout, input};
 
-const MOD: usize = 998244353;
-
-#[fastout]
 fn main() {
-    input! {
-        N: usize,
-        Q: usize,
-        A: [M998; N],
-    }
+    let (N, Q) = get!(usize, usize);
+    let A = get!(M998;;);
 
-    let mut seg = LazySegmentTree::<AffineSum<MOD>>::from(&A);
+    let mut seg = LazySegmentTree::<AffineSum<MOD998>>::from(&A);
 
     for _ in 0..Q {
-        input! {
-            t: usize
+        let q = get!(usize;;);
+
+        if let &[0, l, r, b, c] = &q[..] {
+            seg.apply(l..r, (b.into(), c.into()));
         }
 
-        if t == 0 {
-            input! {
-                l: usize,
-                r: usize,
-                b: usize,
-                c: usize,
-            }
-            seg.apply(l..r, (b.into(), c.into()));
-        } else if t == 1 {
-            input! {
-                l: usize,
-                r: usize,
-            }
+        if let &[1, l, r] = &q[..] {
             println!("{}", seg.get(l..r));
         }
 
-        if cfg!(debug_assertions) {
-            eprintln!("{:?}", seg);
-            eprintln!("seg: {}", seg.show());
-        }
+        seg.show();
     }
 }

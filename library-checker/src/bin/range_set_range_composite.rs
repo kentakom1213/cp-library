@@ -1,41 +1,24 @@
-use cp_library_rs::{
-    extmonoid::ExtMonoid,
-    extmonoid_mod::AffineUpdateComposite,
-    lazy_segment_tree::LazySegmentTree,
-    modint::{Modint, M998},
-};
-use proconio::input;
+#![allow(non_snake_case)]
 
-const M: usize = 998244353;
+use cp_library_rs::{
+    consts::MOD998, extmonoid_mod::AffineUpdateComposite, get, lazy_segment_tree::LazySegmentTree,
+    modint::M998,
+};
 
 fn main() {
-    input! {
-        N: usize,
-        Q: usize,
-        AB: [(M998, M998); N]
-    }
+    let (N, Q) = get!(usize, usize);
+    let AB = get!(M998, M998; N);
 
-    let mut seg = LazySegmentTree::<AffineUpdateComposite<M>>::from(&AB);
+    let mut seg = LazySegmentTree::<AffineUpdateComposite<MOD998>>::from(&AB);
 
     for _ in 0..Q {
-        input! {
-            t: usize,
+        let q = get!(usize;;);
+
+        if let &[0, l, r, c, d] = &q[..] {
+            seg.apply(l..r, (c.into(), d.into()));
         }
 
-        if t == 0 {
-            input! {
-                l: usize,
-                r: usize,
-                c: M998,
-                d: M998,
-            }
-            seg.apply(l..r, (c, d));
-        } else {
-            input! {
-                l: usize,
-                r: usize,
-                x: M998,
-            }
+        if let &[1, l, r, x] = &q[..] {
             let (a, b) = seg.get(l..r);
             let ans = a * x + b;
             println!("{ans}");

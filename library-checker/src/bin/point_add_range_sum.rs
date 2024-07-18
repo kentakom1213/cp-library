@@ -1,34 +1,21 @@
-use cp_library_rs::{monoid_examples::Add, segment_tree::SegmentTree};
-use proconio::{fastout, input};
+#![allow(non_snake_case)]
 
-#[fastout]
+use cp_library_rs::{get, monoid_examples::Add, segment_tree::SegmentTree};
+
 fn main() {
-    input! {
-        N: usize,
-        Q: usize,
-        A: [isize; N],
-    }
+    let (N, Q) = get!(usize, usize);
+    let A = get!(isize;;);
 
     let mut seg = SegmentTree::<Add>::from(&A);
 
     for _ in 0..Q {
-        input! {
-            t: usize,
+        let q = get!(usize;;);
+
+        if let &[0, p, x] = &q[..] {
+            *seg.get_mut(p).unwrap() += x as isize;
         }
 
-        if t == 0 {
-            input! {
-                p: usize,
-                x: isize,
-            }
-
-            *seg.get_mut(p).unwrap() += x;
-        } else {
-            input! {
-                l: usize,
-                r: usize,
-            }
-
+        if let &[1, l, r] = &q[..] {
             let ans = seg.get_range(l..r);
 
             println!("{ans}");
