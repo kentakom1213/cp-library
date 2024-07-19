@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: download KaTeX
-        run: curl https://raw.githubusercontent.com/CAD97/katex-doc/master/katex.html -O katex.html
+        run: curl -O https://raw.githubusercontent.com/CAD97/katex-doc/master/katex.html
       - name: Run doc
         run: cargo rustdoc --no-deps -- --html-in-header katex.html
       - name: Deploy
