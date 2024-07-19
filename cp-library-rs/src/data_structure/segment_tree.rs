@@ -43,6 +43,7 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// セグメント木を初期化する
+    /// - 計算量 : $`O(1)`$
     pub fn new(N: usize) -> Self {
         let offset = N;
 
@@ -53,6 +54,8 @@ impl<M: Monoid> SegmentTree<M> {
         }
     }
 
+    /// `index`番目の要素を`value`に更新する
+    /// - 計算量 : $`O(\lg N)`$
     pub fn update(&mut self, index: usize, value: M::Val) {
         let mut i = index + self.offset;
         self.data[i] = value;
@@ -63,7 +66,8 @@ impl<M: Monoid> SegmentTree<M> {
         }
     }
 
-    /// 可変な参照を返す
+    /// `i`番目の要素の可変な参照を返す
+    /// - 計算量 : $`O(\lg N)`$
     pub fn get_mut(&mut self, i: usize) -> Option<ValMut<'_, M>> {
         if i < self.offset {
             let default = self.index(i).clone();
@@ -78,6 +82,7 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// 区間`range`の集約を行う
+    /// - 計算量 : $`O(\lg N)`$
     pub fn get_range<R: RangeBounds<usize> + Debug>(&self, range: R) -> M::Val {
         let (start, end) = match self.parse_range(&range) {
             Some(r) => r,

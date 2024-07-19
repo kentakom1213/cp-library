@@ -38,8 +38,10 @@ jobs:
         working-directory: ./cp-library-rs
     steps:
       - uses: actions/checkout@v3
+      - name: download KaTeX
+        run: curl https://raw.githubusercontent.com/CAD97/katex-doc/master/katex.html -O katex.html
       - name: Run doc
-        run: cargo doc --no-deps
+        run: cargo rustdoc --no-deps -- --html-in-header katex.html
       - name: Deploy
         uses: actions/upload-pages-artifact@v1
         with:
