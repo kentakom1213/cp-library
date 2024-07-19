@@ -155,7 +155,7 @@ mod {} {{
                         if !prev_category.is_empty() {
                             writeln!(file, "{}}}", TAB.repeat(1))?;
                         }
-                        writeln!(file, "{}pub mod {category} {{\n", TAB.repeat(1))?;
+                        writeln!(file, "{}pub mod {category} {{", TAB.repeat(1))?;
                         file.write_all(self.get_module(dep, 2)?.as_bytes())?;
                     }
                     &category

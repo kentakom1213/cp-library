@@ -4,8 +4,9 @@ use crate::utils::num_traits::{One, Zero};
 
 #[derive(Debug, Clone)]
 pub struct Matrix<T> {
-    N: usize,
-    arr: Vec<Vec<T>>,
+    pub R: usize,
+    pub C: usize,
+    pub arr: Vec<Vec<T>>,
 }
 
 impl<T> Matrix<T>
@@ -13,28 +14,30 @@ where
     T: One + Zero + Copy,
 {
     pub fn new(data: Vec<Vec<T>>) -> Self {
-        assert_eq!(data.len(), data[0].len());
-        let N = data.len();
-        Self { N, arr: data }
+        let R = data.len();
+        let C = data[0].len();
+        Self { R, C, arr: data }
     }
 
     /// 単位行列を返す
     pub fn id(&self) -> Self {
-        let mut res = vec![vec![T::zero(); self.N]; self.N];
-        for i in 0..self.N {
+        let mut res = vec![vec![T::zero(); self.C]; self.R];
+        for i in 0..self.R {
             res[i][i] = T::one();
         }
         Self {
-            N: self.N,
+            R: self.R,
+            C: self.C,
             arr: res,
         }
     }
 
     /// ベクトル`x`と行列`A`について、`Ax`を返す
     pub fn apply(&self, v: &[T]) -> Vec<T> {
-        let mut res = vec![T::zero(); self.N];
-        for i in 0..self.N {
-            for j in 0..self.N {
+        assert_eq!(v.len(), self.C);
+        let mut res = vec![T::zero(); self.R];
+        for i in 0..self.R {
+            for j in 0..self.R {
                 res[i] = res[i] + self.arr[i][j] * v[j];
             }
         }
@@ -55,18 +58,20 @@ where
         res
     }
 
-    /// 行列のドット積
+    /// 行列`A`,`B`のドット積`AB`を求める
     pub fn dot(&self, other: &Self) -> Self {
-        let mut res = vec![vec![T::zero(); self.N]; self.N];
-        for i in 0..self.N {
-            for j in 0..self.N {
-                for k in 0..self.N {
+        assert_eq!(self.C, other.R);
+        let mut res = vec![vec![T::zero(); other.C]; self.R];
+        for i in 0..self.R {
+            for j in 0..other.C {
+                for k in 0..self.C {
                     res[i][j] = res[i][j] + self.arr[i][k] * other.arr[k][j];
                 }
             }
         }
         Self {
-            N: self.N,
+            R: self.R,
+            C: other.C,
             arr: res,
         }
     }

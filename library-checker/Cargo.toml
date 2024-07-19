@@ -23,6 +23,8 @@ vertex_add_path_sum = { problem = "https://judge.yosupo.jp/problem/vertex_add_pa
 tree_diameter = { problem = "https://judge.yosupo.jp/problem/tree_diameter" }
 vertex_add_subtree_sum = { problem = "https://judge.yosupo.jp/problem/vertex_add_subtree_sum" }
 static_range_sum = { problem = "https://judge.yosupo.jp/problem/static_range_sum"}
+pow_of_matrix = { problem = "https://judge.yosupo.jp/problem/pow_of_matrix"}
+matrix_product = { problem = "https://judge.yosupo.jp/problem/matrix_product"}
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
