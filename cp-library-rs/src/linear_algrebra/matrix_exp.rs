@@ -1,32 +1,32 @@
 //! 行列累乗
 
-use num_traits::{One, Zero};
+use crate::utils::num_traits::{One, Zero};
 
 #[derive(Debug, Clone)]
-pub struct Matrix<const D: usize, T>([[T; D]; D]);
+pub struct Matrix<const N: usize, T>([[T; N]; N]);
 
-impl<const D: usize, T> Matrix<D, T>
+impl<const N: usize, T> Matrix<N, T>
 where
     T: One + Zero + Copy,
 {
-    pub fn new(data: [[T; D]; D]) -> Self {
+    pub fn new(data: [[T; N]; N]) -> Self {
         Self(data)
     }
 
     /// 単位行列を返す
     pub fn id() -> Self {
-        let mut res = [[T::zero(); D]; D];
-        for i in 0..D {
+        let mut res = [[T::zero(); N]; N];
+        for i in 0..N {
             res[i][i] = T::one();
         }
         Self(res)
     }
 
     /// ベクトル`x`と行列`A`について、`Ax`を返す
-    pub fn apply(&self, v: &[T; D]) -> [T; D] {
-        let mut res = [T::zero(); D];
-        for i in 0..D {
-            for j in 0..D {
+    pub fn apply(&self, v: &[T; N]) -> [T; N] {
+        let mut res = [T::zero(); N];
+        for i in 0..N {
+            for j in 0..N {
                 res[i] = res[i] + self.0[i][j] * v[j];
             }
         }
@@ -49,10 +49,10 @@ where
 
     /// 行列のドット積
     pub fn dot(&self, other: &Self) -> Self {
-        let mut res = [[T::zero(); D]; D];
-        for i in 0..D {
-            for j in 0..D {
-                for k in 0..D {
+        let mut res = [[T::zero(); N]; N];
+        for i in 0..N {
+            for j in 0..N {
+                for k in 0..N {
                     res[i][j] = res[i][j] + self.0[i][k] * other.0[k][j];
                 }
             }

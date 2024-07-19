@@ -61,6 +61,7 @@ pub mod graph {
 
 /// 線形代数
 pub mod linear_algrebra {
+    pub mod dynamic_matrix_exp;
     pub mod matrix_exp;
 }
 
@@ -102,6 +103,7 @@ pub mod utils {
     pub mod grid;
     pub mod iterutil;
     pub mod lineartime_merging;
+    pub mod num_traits;
     pub mod run_length;
     pub mod yesno;
     pub mod zigzag;

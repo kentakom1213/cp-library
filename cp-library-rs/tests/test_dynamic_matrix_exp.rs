@@ -1,13 +1,11 @@
 use cp_library_rs::{
-    linear_algrebra::matrix_exp::*, number_theory::modint::M998, utils::num_traits::Zero,
+    linear_algrebra::dynamic_matrix_exp::*, number_theory::modint::M998, utils::num_traits::Zero,
 };
 use rand::{prelude::*, rngs::ThreadRng};
 
-const REPEAT_TIME: usize = 100;
-
 /// ランダムな値で埋められたDIMxDIM行列を生成する
-fn gen_random_matrix<const D: usize>(rng: &mut ThreadRng) -> Matrix<D, M998> {
-    let mut res = [[M998::zero(); D]; D];
+fn gen_random_matrix(rng: &mut ThreadRng, D: usize) -> Matrix<M998> {
+    let mut res = vec![vec![M998::zero(); D]; D];
     for i in 0..D {
         for j in 0..D {
             res[i][j] = rng.gen::<usize>().into();
@@ -33,12 +31,12 @@ fn test_dot() {
     let mut rng = rand::thread_rng();
 
     // ランダムな行列を生成
-    let A = gen_random_matrix(&mut rng);
-    let B = gen_random_matrix(&mut rng);
+    let A = gen_random_matrix(&mut rng, 100);
+    let B = gen_random_matrix(&mut rng, 100);
 
-    for _ in 0..REPEAT_TIME {
+    for _ in 0..10 {
         // ランダムなベクトルを生成
-        let v: [M998; 4] = gen_random_vector(&mut rng);
+        let v: [M998; 100] = gen_random_vector(&mut rng);
 
         // left = (A @ B) @ v
         let left = A.dot(&B).apply(&v);
@@ -54,11 +52,11 @@ fn test_dot() {
 #[test]
 fn test_pow() {
     // テトラナッチ数
-    let tetra: Matrix<4, M998> = Matrix::new([
-        [0, 1, 0, 0].map(M998::new),
-        [0, 0, 1, 0].map(M998::new),
-        [0, 0, 0, 1].map(M998::new),
-        [1, 1, 1, 1].map(M998::new),
+    let tetra: Matrix<M998> = Matrix::new(vec![
+        vec![0.into(), 1.into(), 0.into(), 0.into()],
+        vec![0.into(), 0.into(), 1.into(), 0.into()],
+        vec![0.into(), 0.into(), 0.into(), 1.into()],
+        vec![1.into(), 1.into(), 1.into(), 1.into()],
     ]);
 
     // 初期値
