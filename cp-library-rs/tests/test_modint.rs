@@ -1,3 +1,5 @@
+use std::{num::ParseIntError, str::FromStr};
+
 use cp_library_rs::number_theory::modint::*;
 use num_traits::{One, Zero};
 use rand::prelude::*;
@@ -139,6 +141,21 @@ fn test_product() {
         (0..100).map(|_| 3.into()).product::<M107>(),
         M107::new(3).pow(100)
     );
+}
+
+#[test]
+fn test_from_str() {
+    assert_eq!(M998::from_str("0"), Ok(M998::new(0)));
+    assert_eq!(M998::from_str("1"), Ok(M998::new(1)));
+    assert_eq!(M998::from_str("998244353"), Ok(M998::new(0)));
+    assert_eq!(M998::from_str("998244353998244354"), Ok(M998::new(1)));
+    assert_eq!(
+        M998::from_str("998244353998244353998244353998244353998244353998244353998"),
+        Ok(M998::new(998))
+    );
+    assert!(M998::from_str(" ").is_err());
+    assert!(M998::from_str("998a44353").is_err());
+    assert!(M998::from_str("11=12nc12").is_err());
 }
 
 #[test]

@@ -8,18 +8,7 @@ use std::{
     },
 };
 
-use crate::algebraic_structure::monoid::Monoid;
-
-/// モノイドに対する逆元の実装
-pub trait InversableMonoid: Monoid {
-    fn inv(val: &Self::Val) -> Self::Val;
-}
-
-/// モノイドに対する順序の実装
-pub trait OrderedMonoid: Monoid {
-    fn lt(left: &Self::Val, right: &Self::Val) -> bool;
-    fn le(left: &Self::Val, right: &Self::Val) -> bool;
-}
+use crate::algebraic_structure::{group::Group, monoid::Monoid, ordered_monoid::OrderedMonoid};
 
 /// # BinaryIndexedTree
 /// - `0-indexed`なインターフェースを持つBIT
@@ -66,7 +55,7 @@ impl<T: Monoid> BIT<T> {
     }
 }
 
-impl<T: InversableMonoid> BIT<T> {
+impl<T: Group> BIT<T> {
     #[inline]
     fn parse_range<R: RangeBounds<usize>>(&self, range: R) -> Option<(usize, usize)> {
         let start = match range.start_bound() {
@@ -147,95 +136,12 @@ impl<T: OrderedMonoid> BIT<T> {
     }
 }
 
-impl<T: InversableMonoid> Debug for BIT<T> {
+impl<T: Group> Debug for BIT<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "BIT {{ [")?;
         for i in 0..self.size - 1 {
             write!(f, "{:?}, ", self.sum(i..i + 1))?;
         }
         write!(f, "{:?}] }}", self.sum(self.size - 1..self.size))
-    }
-}
-
-pub mod Alg {
-    use super::{InversableMonoid, Monoid, OrderedMonoid};
-
-    #[derive(Debug)]
-    pub struct Add;
-    impl Monoid for Add {
-        type Val = isize;
-        fn id() -> Self::Val {
-            0
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left + right
-        }
-    }
-    impl InversableMonoid for Add {
-        fn inv(val: &Self::Val) -> Self::Val {
-            -val
-        }
-    }
-    impl OrderedMonoid for Add {
-        fn lt(left: &Self::Val, right: &Self::Val) -> bool {
-            left < right
-        }
-        fn le(left: &Self::Val, right: &Self::Val) -> bool {
-            left <= right
-        }
-    }
-
-    #[derive(Debug)]
-    pub struct UAdd;
-    impl Monoid for UAdd {
-        type Val = usize;
-        fn id() -> Self::Val {
-            0
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left.wrapping_add(*right)
-        }
-    }
-    impl InversableMonoid for UAdd {
-        fn inv(val: &Self::Val) -> Self::Val {
-            val.wrapping_neg()
-        }
-    }
-    impl OrderedMonoid for UAdd {
-        fn lt(left: &Self::Val, right: &Self::Val) -> bool {
-            left < right
-        }
-        fn le(left: &Self::Val, right: &Self::Val) -> bool {
-            left <= right
-        }
-    }
-
-    #[derive(Debug)]
-    pub struct Mul;
-    impl Monoid for Mul {
-        type Val = isize;
-        fn id() -> Self::Val {
-            1
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left + right
-        }
-    }
-
-    #[derive(Debug)]
-    pub struct Xor;
-    impl Monoid for Xor {
-        type Val = usize;
-        fn id() -> Self::Val {
-            0
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left ^ right
-        }
-    }
-    impl InversableMonoid for Xor {
-        fn inv(val: &Self::Val) -> Self::Val {
-            *val
-        }
     }
 }

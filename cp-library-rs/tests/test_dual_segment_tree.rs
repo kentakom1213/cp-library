@@ -1,8 +1,11 @@
-use cp_library_rs::data_structure::dual_segment_tree::*;
+use cp_library_rs::{
+    algebraic_structure::commutative::examples::{Add, Min},
+    data_structure::dual_segment_tree::*,
+};
 
 #[test]
 fn test_add() {
-    let mut seg = DualSegmentTree::<Alg::Add>::new(8);
+    let mut seg = DualSegmentTree::<Add>::new(8);
     eprintln!("{:?}", seg);
 
     // [0, 5) : +1
@@ -60,7 +63,7 @@ fn test_add() {
 
 #[test]
 fn test_min() {
-    let mut seg = DualSegmentTree::<Alg::Min>::new(8);
+    let mut seg = DualSegmentTree::<Min>::new(8);
     eprintln!("{:?}", seg);
 
     // [0, 5) : +1
@@ -118,7 +121,7 @@ fn test_min() {
 
 #[test]
 fn test_add_build() {
-    let mut seg = DualSegmentTree::<Alg::Add>::build(&vec![0, 6, 4, 3, 7, 1, 5, 2]);
+    let mut seg = DualSegmentTree::<Add>::build(&vec![0, 6, 4, 3, 7, 1, 5, 2]);
     eprintln!("{:?}", seg);
 
     // [0, 5) : +1

@@ -6,15 +6,7 @@ use std::ops::{
     RangeBounds,
 };
 
-/// 可換モノイド
-pub trait CommutativeMonoid {
-    /// 元の型
-    type Val: fmt::Debug + Clone + PartialEq;
-    /// 単位元
-    const E: Self::Val;
-    /// 演算
-    fn op(arg1: &Self::Val, arg2: &Self::Val) -> Self::Val;
-}
+use crate::algebraic_structure::commutative::CommutativeMonoid;
 
 /// 双対セグ木
 /// - 区間への作用
@@ -53,7 +45,7 @@ impl<M: CommutativeMonoid> DualSegmentTree<M> {
         Self {
             size: n,
             offset,
-            data: vec![M::E; offset << 1],
+            data: vec![M::id(); offset << 1],
         }
     }
 
@@ -115,43 +107,5 @@ impl<M: CommutativeMonoid + Debug> Debug for DualSegmentTree<M> {
             }
         }
         write!(f, "] }}")
-    }
-}
-
-pub mod Alg {
-    use std::fmt::Debug;
-
-    use super::CommutativeMonoid;
-
-    /// 整数の和
-    #[derive(Debug)]
-    pub struct Add;
-    impl CommutativeMonoid for Add {
-        type Val = isize;
-        const E: Self::Val = 0;
-        fn op(arg1: &Self::Val, arg2: &Self::Val) -> Self::Val {
-            arg1 + arg2
-        }
-    }
-
-    /// bit単位の排他的論理和
-    pub struct Xor;
-    impl CommutativeMonoid for Xor {
-        type Val = usize;
-        const E: Self::Val = 0;
-        fn op(arg1: &Self::Val, arg2: &Self::Val) -> Self::Val {
-            arg1 ^ arg2
-        }
-    }
-
-    /// chmin操作
-    #[derive(Debug)]
-    pub struct Min;
-    impl CommutativeMonoid for Min {
-        type Val = isize;
-        const E: Self::Val = isize::MAX;
-        fn op(arg1: &Self::Val, arg2: &Self::Val) -> Self::Val {
-            *arg1.min(arg2)
-        }
     }
 }

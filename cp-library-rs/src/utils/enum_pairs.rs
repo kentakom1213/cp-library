@@ -1,9 +1,12 @@
 //! N人をペアに分ける組合せを全列挙する
 
+/// ペアのベクタ型
+pub type Pairs<T> = Vec<(T, T)>;
+
 /// ペアを列挙する
 #[derive(Debug)]
 pub struct PairsIterator<T: Clone> {
-    stack: Vec<(Vec<T>, Vec<(T, T)>)>,
+    stack: Vec<(Vec<T>, Pairs<T>)>,
 }
 
 impl<T: Clone> FromIterator<T> for PairsIterator<T> {
@@ -15,12 +18,11 @@ impl<T: Clone> FromIterator<T> for PairsIterator<T> {
 }
 
 impl<T: Clone> Iterator for PairsIterator<T> {
-    type Item = Vec<(T, T)>;
+    type Item = Pairs<T>;
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            let Some((rem, pairs)) = self.stack.pop() else {
-                return None;
-            };
+            let (rem, pairs) = self.stack.pop()?;
+
             if rem.len() < 2 {
                 return Some(pairs);
             }

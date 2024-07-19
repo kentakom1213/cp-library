@@ -1,9 +1,8 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    data_structure::{bit::Alg::Add, segment_tree::SegmentTree},
-    debug, get,
-    graph::euler_tour::EulerTour,
+    algebraic_structure::monoid_examples::Add, data_structure::segment_tree::SegmentTree, debug,
+    get, graph::euler_tour::EulerTour,
 };
 
 fn main() {

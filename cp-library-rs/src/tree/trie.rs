@@ -51,21 +51,12 @@ impl<T> Trie<T>
 where
     T: Clone + Debug,
 {
-    // self.originを基準にした文字の番号を返す
-    // fn ord()
-
-    pub fn new() -> Self {
-        Trie {
-            size: 0,
-            root: Some(Box::new(TrieNode {
-                data: None,
-                children: vec![NodePointer::None; KINDS],
-            })),
-        }
-    }
-
     pub fn len(&self) -> usize {
         self.size
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.size == 0
     }
 
     pub fn insert(&mut self, key: &str, data: T) -> Option<T> {
@@ -115,6 +106,18 @@ where
         let mut cur = String::new();
         traverse_inner(&self.root, &mut cur, &mut res);
         res
+    }
+}
+
+impl<T: Clone> Default for Trie<T> {
+    fn default() -> Self {
+        Trie {
+            size: 0,
+            root: Some(Box::new(TrieNode {
+                data: None,
+                children: vec![NodePointer::None; KINDS],
+            })),
+        }
     }
 }
 

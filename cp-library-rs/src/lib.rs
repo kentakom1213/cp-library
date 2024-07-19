@@ -5,11 +5,14 @@
 pub mod algebraic_structure {
     pub mod affine1d;
     pub mod affine2d;
+    pub mod commutative;
     pub mod extmonoid;
     pub mod extmonoid_mod;
+    pub mod group;
     pub mod monoid;
     pub mod monoid_examples;
     pub mod monoid_mod;
+    pub mod ordered_monoid;
 }
 
 /// データ構造

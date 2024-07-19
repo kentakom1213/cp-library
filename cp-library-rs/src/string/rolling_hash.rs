@@ -25,8 +25,8 @@ impl RollingHash {
         for i in 0..size {
             h = arr[i] + (h * base);
             p *= base;
-            hash[i + 1] = h.into();
-            power[i + 1] = p.into();
+            hash[i + 1] = h;
+            power[i + 1] = p;
         }
 
         Self {

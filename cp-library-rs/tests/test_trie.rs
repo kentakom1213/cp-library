@@ -2,7 +2,7 @@ use cp_library_rs::tree::trie::*;
 
 #[test]
 fn test_trie_node() {
-    let mut trie: Trie<usize> = Trie::new();
+    let mut trie: Trie<usize> = Trie::default();
 
     // 文字列の挿入
     // trie.insert("powell", 5);
