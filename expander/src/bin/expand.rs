@@ -1,5 +1,5 @@
 use clap::Parser;
-use expander::utils::{get_library_path, ModuleExpander};
+use expander::expander::{get_library_path, ModuleExpander};
 use std::{env, fs, io, path::PathBuf, process::exit};
 
 #[derive(Parser, Debug)]
