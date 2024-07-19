@@ -1,4 +1,4 @@
-use cp_library_rs::acc2d::acc2D;
+use cp_library_rs::data_structure::acc2d::acc2D;
 
 #[test]
 fn test_acc2_isize() {

@@ -1,7 +1,7 @@
 //! AA木による動的セグ木
 //! - 遅延評価なし
 
-use crate::monoid;
+use crate::algebraic_structure::monoid;
 pub use dynamic_segment_tree::*;
 
 mod dynamic_segment_tree {
@@ -155,7 +155,8 @@ mod node {
 
     #![allow(non_snake_case)]
 
-    use crate::monoid::Monoid;
+    use crate::algebraic_structure::monoid::Monoid;
+
     use std::{
         cmp::Ordering,
         fmt::Debug,

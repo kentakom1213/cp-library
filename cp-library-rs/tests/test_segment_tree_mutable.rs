@@ -1,4 +1,4 @@
-use cp_library_rs::segment_tree_mutable::*;
+use cp_library_rs::data_structure::segment_tree_mutable::*;
 
 #[test]
 fn test_get_point() {

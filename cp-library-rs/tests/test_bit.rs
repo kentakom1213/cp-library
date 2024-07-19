@@ -1,4 +1,4 @@
-use cp_library_rs::bit::*;
+use cp_library_rs::data_structure::bit::*;
 
 #[test]
 fn test_new() {

@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::{debug2D, ford_fulkerson::FordFulkerson, get};
+use cp_library_rs::{debug2D, get, graph::ford_fulkerson::FordFulkerson};
 
 fn main() {
     let (L, R, M) = get!(usize, usize, usize);

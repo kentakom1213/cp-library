@@ -1,4 +1,4 @@
-use cp_library_rs::scc::*;
+use cp_library_rs::graph::scc::*;
 
 #[test]
 fn test_scc() {

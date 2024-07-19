@@ -1,4 +1,4 @@
-use cp_library_rs::suffix_array::SuffixArray;
+use cp_library_rs::string::suffix_array::SuffixArray;
 
 #[test]
 fn test_build() {

@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::{get, pollard_rho_algorithm::factorize};
+use cp_library_rs::{get, number_theory::pollard_rho_algorithm::factorize};
 
 fn main() {
     let Q = get!(usize);

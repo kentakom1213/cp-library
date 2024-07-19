@@ -1,4 +1,4 @@
-use cp_library_rs::run_length::*;
+use cp_library_rs::utils::run_length::*;
 
 #[test]
 fn test_usize() {

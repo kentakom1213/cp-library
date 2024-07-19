@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    monoid_examples::{Add, Max},
-    segment_tree_2d::SegmentTree2D,
+    algebraic_structure::monoid_examples::{Add, Max},
+    data_structure::segment_tree_2d::SegmentTree2D,
 };
 
 #[test]

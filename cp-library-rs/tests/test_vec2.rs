@@ -1,4 +1,4 @@
-use cp_library_rs::vec2::*;
+use cp_library_rs::geometry::vec2::*;
 
 #[test]
 fn test_add_sub_mul_vec2() {

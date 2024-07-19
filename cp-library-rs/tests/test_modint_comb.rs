@@ -1,4 +1,4 @@
-use cp_library_rs::modint_comb::*;
+use cp_library_rs::number_theory::modint_comb::*;
 const SIZE: usize = 5050505;
 #[test]
 fn test_permutation() {

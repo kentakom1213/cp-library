@@ -1,4 +1,4 @@
-use cp_library_rs::rolling_hash::*;
+use cp_library_rs::string::rolling_hash::*;
 
 #[test]
 fn test_pattern_match() {

@@ -1,4 +1,4 @@
-use cp_library_rs::comb::*;
+use cp_library_rs::number_theory::comb::*;
 
 const SIZE: usize = 5050505;
 

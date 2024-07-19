@@ -1,4 +1,4 @@
-use cp_library_rs::factorize_fast::*;
+use cp_library_rs::number_theory::factorize_fast::*;
 
 #[test]
 fn test_factorize() {

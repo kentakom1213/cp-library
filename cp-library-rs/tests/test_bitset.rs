@@ -1,4 +1,4 @@
-use cp_library_rs::bitset::*;
+use cp_library_rs::data_structure::bitset::*;
 
 #[test]
 fn test_get_mut() {

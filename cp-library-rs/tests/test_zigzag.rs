@@ -1,4 +1,4 @@
-use cp_library_rs::zigzag::zigzag;
+use cp_library_rs::utils::zigzag::zigzag;
 
 #[test]
 fn test_zigzag_3x3() {

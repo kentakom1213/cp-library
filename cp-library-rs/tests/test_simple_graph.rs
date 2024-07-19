@@ -1,4 +1,4 @@
-use cp_library_rs::simple_graph::*;
+use cp_library_rs::graph::simple_graph::*;
 
 #[test]
 fn test_decompose() {

@@ -1,4 +1,4 @@
-use cp_library_rs::dual_segment_tree::*;
+use cp_library_rs::data_structure::dual_segment_tree::*;
 
 #[test]
 fn test_add() {

@@ -1,8 +1,12 @@
 //! modを取る作用付きモノイド
 
-use crate::affine1d::{Affine, AffineTransform, RingId};
-use crate::extmonoid::ExtMonoid;
-use crate::modint::*;
+use crate::{
+    algebraic_structure::{
+        affine1d::{Affine, AffineTransform, RingId},
+        extmonoid::ExtMonoid,
+    },
+    number_theory::modint::*,
+};
 
 impl<const MOD: usize> RingId for Modint<MOD> {
     const ZERO: Self = Modint::<MOD>(0);

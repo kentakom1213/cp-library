@@ -1,4 +1,4 @@
-use cp_library_rs::lineartime_merging::*;
+use cp_library_rs::utils::lineartime_merging::*;
 use itertools::Itertools;
 
 #[test]

@@ -1,4 +1,4 @@
-use cp_library_rs::modint_traits::*;
+use cp_library_rs::number_theory::modint_traits::*;
 
 #[test]
 fn test_madd() {

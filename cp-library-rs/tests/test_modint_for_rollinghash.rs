@@ -1,4 +1,4 @@
-use cp_library_rs::modint_for_rollinghash::*;
+use cp_library_rs::number_theory::modint_for_rollinghash::*;
 
 #[test]
 fn test_neg() {

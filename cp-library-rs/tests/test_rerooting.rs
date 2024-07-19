@@ -1,4 +1,4 @@
-use cp_library_rs::rerooting::{Rerooting, TreeMonoid};
+use cp_library_rs::graph::rerooting::{Rerooting, TreeMonoid};
 
 #[test]
 fn test_diameter() {

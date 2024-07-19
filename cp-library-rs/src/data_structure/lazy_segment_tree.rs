@@ -1,6 +1,6 @@
 //! 遅延評価セグメント木
 
-use crate::extmonoid::ExtMonoid;
+use crate::algebraic_structure::extmonoid::ExtMonoid;
 use core::fmt;
 use std::{
     fmt::Debug,

@@ -2,7 +2,7 @@
 
 use std::fmt::Debug;
 
-use crate::consts::INF;
+use crate::utils::consts::INF;
 
 pub trait TreeMonoid {
     /// データの型

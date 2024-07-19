@@ -1,4 +1,4 @@
-use cp_library_rs::modint::*;
+use cp_library_rs::number_theory::modint::*;
 use num_traits::{One, Zero};
 use rand::prelude::*;
 

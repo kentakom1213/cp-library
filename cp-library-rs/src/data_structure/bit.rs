@@ -8,7 +8,7 @@ use std::{
     },
 };
 
-use crate::monoid::Monoid;
+use crate::algebraic_structure::monoid::Monoid;
 
 /// モノイドに対する逆元の実装
 pub trait InversableMonoid: Monoid {

@@ -1,6 +1,6 @@
 //! 2次元BIT
 
-use crate::monoid::Monoid;
+use crate::algebraic_structure::monoid::Monoid;
 
 macro_rules! cfor {
     ($def:stmt ; $fin:expr ; $incr:stmt ;; $bl:block) => {{

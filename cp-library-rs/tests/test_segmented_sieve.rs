@@ -1,4 +1,4 @@
-use cp_library_rs::segmented_sieve::segmented_sieve;
+use cp_library_rs::data_structure::segmented_sieve::segmented_sieve;
 
 #[test]
 fn test_small() {

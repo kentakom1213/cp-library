@@ -1,4 +1,4 @@
-use cp_library_rs::iterutil::IterUtil;
+use cp_library_rs::utils::iterutil::IterUtil;
 
 #[test]
 fn test_join() {

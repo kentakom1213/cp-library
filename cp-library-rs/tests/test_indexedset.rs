@@ -1,4 +1,4 @@
-use cp_library_rs::indexedset::*;
+use cp_library_rs::data_structure::indexedset::*;
 
 #[test]
 fn test_indexing() {

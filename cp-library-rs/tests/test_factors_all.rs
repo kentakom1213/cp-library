@@ -1,4 +1,4 @@
-use cp_library_rs::factors_all::*;
+use cp_library_rs::number_theory::factors_all::*;
 
 #[test]
 fn test_factors_all() {

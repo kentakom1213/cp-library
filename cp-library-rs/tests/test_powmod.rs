@@ -1,4 +1,4 @@
-use cp_library_rs::powmod::*;
+use cp_library_rs::number_theory::powmod::*;
 
 #[test]
 fn test_powmod_998244353() {
