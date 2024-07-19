@@ -1,6 +1,6 @@
 //! セグメント木
 
-use crate::monoid::Monoid;
+use crate::algebraic_structure::monoid::Monoid;
 use std::fmt::{self, Debug};
 use std::ops::{
     Bound::{Excluded, Included, Unbounded},

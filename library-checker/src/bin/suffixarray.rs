@@ -1,4 +1,4 @@
-use cp_library_rs::{get, suffix_array::SuffixArray};
+use cp_library_rs::{get, string::suffix_array::SuffixArray};
 
 fn main() {
     let S = get!(String);

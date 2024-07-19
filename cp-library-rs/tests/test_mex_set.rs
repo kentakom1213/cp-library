@@ -1,4 +1,4 @@
-use cp_library_rs::mex_set::*;
+use cp_library_rs::data_structure::mex_set::*;
 
 #[test]
 fn test_insert() {

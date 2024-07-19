@@ -1,4 +1,4 @@
-use cp_library_rs::yesno::YesNo;
+use cp_library_rs::utils::yesno::YesNo;
 
 #[test]
 fn yesno() {

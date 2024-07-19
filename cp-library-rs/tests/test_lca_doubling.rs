@@ -1,4 +1,4 @@
-use cp_library_rs::lca_doubling::*;
+use cp_library_rs::graph::lca_doubling::*;
 
 #[test]
 fn test_lca() {

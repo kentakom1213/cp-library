@@ -1,13 +1,14 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    consts::INF,
-    debug,
-    euler_tour::EulerTour,
-    get,
-    monoid_examples::Add,
-    segment_tree::SegmentTree,
-    sparse_table::{Semilattice, SparseTable},
+    algebraic_structure::monoid_examples::Add,
+    data_structure::{
+        segment_tree::SegmentTree,
+        sparse_table::{Semilattice, SparseTable},
+    },
+    debug, get,
+    graph::euler_tour::EulerTour,
+    utils::consts::INF,
 };
 
 fn main() {

@@ -1,4 +1,4 @@
-use cp_library_rs::crt::garner_algorithm;
+use cp_library_rs::number_theory::crt::garner_algorithm;
 use itertools::Itertools;
 use rand::{thread_rng, Rng};
 

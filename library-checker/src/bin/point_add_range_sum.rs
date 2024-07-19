@@ -1,6 +1,8 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::{get, monoid_examples::Add, segment_tree::SegmentTree};
+use cp_library_rs::{
+    algebraic_structure::monoid_examples::Add, data_structure::segment_tree::SegmentTree, get,
+};
 
 fn main() {
     let (N, Q) = get!(usize, usize);

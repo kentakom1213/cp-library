@@ -1,8 +1,9 @@
 //! modを取るモノイド
 
-use crate::affine1d::AffineTransform;
-use crate::modint::*;
-use crate::monoid::Monoid;
+use crate::{
+    algebraic_structure::{affine1d::AffineTransform, monoid::Monoid},
+    number_theory::modint::*,
+};
 
 /// あまりをとる和
 pub struct ModAdd<const MOD: usize>;

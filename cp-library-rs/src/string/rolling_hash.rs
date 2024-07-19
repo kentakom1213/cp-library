@@ -1,6 +1,6 @@
 //! ローリングハッシュ
 
-use crate::modint_for_rollinghash::modint::Modint;
+use crate::number_theory::modint_for_rollinghash::modint::Modint;
 
 /// # RollingHash
 /// 文字列の比較を高速に行う

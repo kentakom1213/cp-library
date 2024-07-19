@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::{get, union_find::UnionFind};
+use cp_library_rs::{data_structure::union_find::UnionFind, get};
 
 fn main() {
     let (N, M) = get!(usize, usize);

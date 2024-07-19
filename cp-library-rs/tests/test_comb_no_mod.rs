@@ -1,4 +1,4 @@
-use cp_library_rs::comb_no_mod::comb;
+use cp_library_rs::number_theory::comb_no_mod::comb;
 
 #[test]
 fn test_comb_random() {

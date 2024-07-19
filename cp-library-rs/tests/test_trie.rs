@@ -1,4 +1,4 @@
-use cp_library_rs::trie::*;
+use cp_library_rs::tree::trie::*;
 
 #[test]
 fn test_trie_node() {

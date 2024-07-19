@@ -1,4 +1,4 @@
-use cp_library_rs::euler_tour::EulerTour;
+use cp_library_rs::graph::euler_tour::EulerTour;
 
 #[test]
 fn test_euler_tour() {

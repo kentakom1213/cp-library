@@ -1,4 +1,4 @@
-use cp_library_rs::coordinate_compression::*;
+use cp_library_rs::utils::coordinate_compression::*;
 
 #[test]
 fn test_compression_i32() {

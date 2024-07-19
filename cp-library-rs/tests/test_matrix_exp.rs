@@ -1,4 +1,4 @@
-use cp_library_rs::{matrix_exp::*, modint::M998};
+use cp_library_rs::{linear_algrebra::matrix_exp::*, number_theory::modint::M998};
 use num_traits::Zero;
 use rand::{prelude::*, rngs::ThreadRng};
 
@@ -37,7 +37,7 @@ fn test_dot() {
 
     for _ in 0..REPEAT_TIME {
         // ランダムなベクトルを生成
-        let v: [cp_library_rs::modint::Modint<998244353>; 4] = gen_random_vector(&mut rng);
+        let v: [M998; 4] = gen_random_vector(&mut rng);
 
         // left = (A @ B) @ v
         let left = A.dot(&B).apply(&v);

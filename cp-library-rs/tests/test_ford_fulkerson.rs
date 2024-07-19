@@ -1,6 +1,6 @@
 use std::mem;
 
-use cp_library_rs::ford_fulkerson::FordFulkerson;
+use cp_library_rs::graph::ford_fulkerson::FordFulkerson;
 use itertools::Itertools;
 
 fn fill_grid(S: &Vec<&str>) -> usize {

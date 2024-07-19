@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::{bit_2d::BIT2D, monoid_examples::Add};
+use cp_library_rs::{algebraic_structure::monoid_examples::Add, data_structure::bit_2d::BIT2D};
 
 #[test]
 fn test_small() {

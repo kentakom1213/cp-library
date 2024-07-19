@@ -1,4 +1,4 @@
-use cp_library_rs::loop_detection_fold::*;
+use cp_library_rs::graph::loop_detection_fold::*;
 use num_bigint::BigUint;
 use std::str::FromStr;
 

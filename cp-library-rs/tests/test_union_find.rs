@@ -1,4 +1,4 @@
-use cp_library_rs::union_find::*;
+use cp_library_rs::data_structure::union_find::*;
 
 #[test]
 fn test_unionfind() {

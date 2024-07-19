@@ -1,6 +1,6 @@
 //! ポラード・ロー法による素因数分解
 
-use crate::miller_rabin_test::is_prime_MR;
+use crate::number_theory::miller_rabin_test::is_prime_MR;
 
 fn gcd(a: usize, b: usize) -> usize {
     if b == 0 {

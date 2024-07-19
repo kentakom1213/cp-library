@@ -1,7 +1,8 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    extmonoid_mod::AffineSum, get, lazy_segment_tree::LazySegmentTree, modint::M998,
+    algebraic_structure::extmonoid_mod::AffineSum,
+    data_structure::lazy_segment_tree::LazySegmentTree, get, number_theory::modint::M998,
 };
 
 fn main() {

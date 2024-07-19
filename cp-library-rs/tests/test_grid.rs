@@ -1,4 +1,4 @@
-use cp_library_rs::grid::*;
+use cp_library_rs::utils::grid::*;
 use std::collections::VecDeque;
 
 const INF: usize = usize::MAX;

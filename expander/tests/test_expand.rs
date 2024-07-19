@@ -1,6 +1,10 @@
-use std::{collections::HashSet, path::PathBuf};
+use std::{collections::BTreeSet, path::PathBuf};
 
-use expander::utils::{get_deps, get_library_path, ModuleExpander, UseVisitor};
+use expander::{
+    expander::{get_library_path, ModuleExpander},
+    module_path::ModulePath,
+    parser::{get_deps, UseVisitor},
+};
 use syn::visit::Visit;
 
 macro_rules! debug {
@@ -9,6 +13,19 @@ macro_rules! debug {
         eprintln!( concat!($(stringify!($val), " = {:?}, "),*), $($val),* );
     }};
 }
+
+const SOURCE: &str = r#"
+use cp_library_rs::{
+    number_theory::modint::{M998, M109},
+    data_structure::segment_tree::SegmentTree,
+};
+use cp_library_rs::algebraic_structure::monoid::{Monoid, examples::*};
+use std::collections::BTreeMap;
+
+fn main() {
+
+}
+"#;
 
 #[test]
 fn test_get_library_path() {
@@ -19,20 +36,7 @@ fn test_get_library_path() {
 
 #[test]
 fn test_enum_modules() {
-    let source = r#"
-use cp_library_rs::{
-    modint::{M998, M109},
-    segment_tree::SegmentTree,
-};
-use cp_library_rs::monoid::{Monoid, examples::*};
-use std::collections::BTreeMap;
-
-fn main() {
-
-}
-"#;
-
-    let syntax_tree = syn::parse_file(&source).expect("Unable to parse file");
+    let syntax_tree = syn::parse_file(&SOURCE).expect("Unable to parse file");
 
     let mut visitor = UseVisitor { uses: vec![] };
     visitor.visit_file(&syntax_tree);
@@ -42,34 +46,25 @@ fn main() {
 
 #[test]
 fn test_local_deps() {
-    let source = r#"
-use cp_library_rs::{
-    modint::{M998, M109},
-    segment_tree::SegmentTree,
-};
-use cp_library_rs::monoid::{Monoid, examples::*};
-use std::collections::BTreeMap;
-
-fn main() {
-
-}
-"#;
-
     assert_eq!(
-        get_deps(&source, "cp_library_rs"),
-        HashSet::from([
-            "modint".to_string(),
-            "segment_tree".to_string(),
-            "monoid".to_string()
+        get_deps(&SOURCE, "cp_library_rs"),
+        BTreeSet::from([
+            ModulePath::Module {
+                category: "number_theory".to_string(),
+                file: "modint".to_string()
+            },
+            ModulePath::Module {
+                category: "data_structure".to_string(),
+                file: "segment_tree".to_string()
+            },
+            ModulePath::Module {
+                category: "algebraic_structure".to_string(),
+                file: "monoid".to_string()
+            },
         ])
     );
 
-    assert_eq!(
-        get_deps(&source, "std"),
-        HashSet::from(["collections".to_string(),])
-    );
-
-    assert_eq!(get_deps(&source, "crate"), HashSet::new());
+    assert_eq!(get_deps(&SOURCE, "crate"), BTreeSet::new());
 }
 
 #[test]
@@ -82,10 +77,23 @@ fn test_parser() {
     debug!(res.dependancies);
     assert_eq!(
         res.dependancies,
-        Some(HashSet::from([
-            "segment_tree".to_string(),
-            "monoid".to_string(),
-            "affine1d".to_string()
+        Some(BTreeSet::from([
+            ModulePath::Module {
+                category: "algebraic_structure".to_string(),
+                file: "affine1d".to_string()
+            },
+            ModulePath::Module {
+                category: "algebraic_structure".to_string(),
+                file: "monoid".to_string()
+            },
+            ModulePath::Module {
+                category: "algebraic_structure".to_string(),
+                file: "monoid_examples".to_string()
+            },
+            ModulePath::Module {
+                category: "data_structure".to_string(),
+                file: "segment_tree".to_string()
+            },
         ]))
     );
 
@@ -97,9 +105,15 @@ fn test_parser() {
     debug!(res.dependancies);
     assert_eq!(
         res.dependancies,
-        Some(HashSet::from([
-            "modint".to_string(),
-            "modint_comb".to_string()
+        Some(BTreeSet::from([
+            ModulePath::Module {
+                category: "number_theory".to_string(),
+                file: "modint".to_string()
+            },
+            ModulePath::Module {
+                category: "number_theory".to_string(),
+                file: "modint_comb".to_string()
+            },
         ]))
     );
 }
@@ -108,7 +122,17 @@ fn test_parser() {
 fn test_get_module() {
     let res = ModuleExpander::new(PathBuf::new(), get_library_path());
 
-    eprintln!("{}", res.get_module("monoid").unwrap());
+    eprintln!(
+        "{}",
+        res.get_module(
+            &ModulePath::Module {
+                category: "algebraic_structure".to_string(),
+                file: "monoid".to_string()
+            },
+            1
+        )
+        .unwrap()
+    );
 }
 
 #[test]

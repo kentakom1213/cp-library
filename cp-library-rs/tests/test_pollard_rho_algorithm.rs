@@ -1,4 +1,4 @@
-use cp_library_rs::pollard_rho_algorithm::*;
+use cp_library_rs::number_theory::pollard_rho_algorithm::*;
 
 #[test]
 fn test_algo_method() {

@@ -1,4 +1,4 @@
-use cp_library_rs::sparse_table::*;
+use cp_library_rs::data_structure::sparse_table::*;
 use rand::random;
 
 #[test]

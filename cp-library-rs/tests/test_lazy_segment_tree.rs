@@ -1,4 +1,7 @@
-use cp_library_rs::{extmonoid::examples::*, extmonoid::ExtMonoid, lazy_segment_tree::*};
+use cp_library_rs::{
+    algebraic_structure::extmonoid::{examples::*, ExtMonoid},
+    data_structure::lazy_segment_tree::*,
+};
 
 #[test]
 fn test_RSQ_and_RAQ_hand() {

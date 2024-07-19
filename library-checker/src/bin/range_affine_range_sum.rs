@@ -5,8 +5,11 @@
 #![allow(unused_macros)]
 
 use cp_library_rs::{
-    consts::MOD998, extmonoid::ExtMonoid, extmonoid_mod::AffineSum, get,
-    lazy_segment_tree::LazySegmentTree, modint::M998,
+    algebraic_structure::{extmonoid::ExtMonoid, extmonoid_mod::AffineSum},
+    data_structure::lazy_segment_tree::LazySegmentTree,
+    get,
+    number_theory::modint::M998,
+    utils::consts::MOD998,
 };
 
 fn main() {

@@ -1,7 +1,7 @@
 //! 二次元セグメント木
 //! - 参考：[二次元セグメント木 - Nyaan's Library](https://nyaannyaan.github.io/library/data-structure-2d/2d-segment-tree.hpp.html)
 
-use crate::monoid::Monoid;
+use crate::algebraic_structure::monoid::Monoid;
 use std::fmt::{self, Debug};
 use std::ops::{
     Bound::{Excluded, Included, Unbounded},

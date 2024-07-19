@@ -1,4 +1,4 @@
-use cp_library_rs::miller_rabin_test::*;
+use cp_library_rs::number_theory::miller_rabin_test::*;
 
 #[test]
 fn test_algo_method() {

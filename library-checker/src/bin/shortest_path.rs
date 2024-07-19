@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    dijkstra::{dijkstra, path_reconstruction},
     get,
+    graph::dijkstra::{dijkstra, path_reconstruction},
 };
 
 fn main() {

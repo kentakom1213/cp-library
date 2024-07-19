@@ -1,4 +1,7 @@
-use cp_library_rs::{dynamic_segment_tree::DynamicSegmentTree, get, monoid::Monoid};
+use cp_library_rs::{
+    algebraic_structure::monoid::Monoid, data_structure::dynamic_segment_tree::DynamicSegmentTree,
+    get,
+};
 
 struct Set;
 

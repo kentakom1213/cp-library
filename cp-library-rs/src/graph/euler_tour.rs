@@ -1,4 +1,6 @@
-use crate::consts::INF;
+//! オイラーツアー
+
+use crate::utils::consts::INF;
 
 /// EulerTour
 #[derive(Debug)]

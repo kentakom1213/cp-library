@@ -5,8 +5,10 @@
 #![allow(unused_macros)]
 
 use cp_library_rs::{
-    affine1d::AffineTransform, get, modint::M998, monoid_mod::Affine1dMod,
-    segment_tree::SegmentTree,
+    algebraic_structure::{affine1d::AffineTransform, monoid_mod::Affine1dMod},
+    data_structure::segment_tree::SegmentTree,
+    get,
+    number_theory::modint::M998,
 };
 
 fn main() {

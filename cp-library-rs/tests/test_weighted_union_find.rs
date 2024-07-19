@@ -1,4 +1,4 @@
-use cp_library_rs::weighted_union_find::*;
+use cp_library_rs::data_structure::weighted_union_find::*;
 
 #[test]
 fn test_weighted_unionfind() {

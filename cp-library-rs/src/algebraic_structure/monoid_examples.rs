@@ -1,6 +1,6 @@
 //! モノイドの例
 
-use crate::{
+use crate::algebraic_structure::{
     affine1d::{Affine, AffineTransform},
     monoid::Monoid,
 };

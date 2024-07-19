@@ -1,4 +1,4 @@
-use cp_library_rs::multiset_splay_tree::*;
+use cp_library_rs::data_structure::multiset_splay_tree::*;
 use rand::*;
 use std::collections::BTreeMap;
 

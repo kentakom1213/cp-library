@@ -1,4 +1,4 @@
-use cp_library_rs::multiset::*;
+use cp_library_rs::data_structure::multiset::*;
 
 #[test]
 fn test_usize() {

@@ -1,4 +1,4 @@
-use cp_library_rs::acc2d_cyclic::Acc2D;
+use cp_library_rs::data_structure::acc2d_cyclic::Acc2D;
 
 #[test]
 fn test_cyclic_simple() {

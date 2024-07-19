@@ -1,4 +1,4 @@
-use cp_library_rs::dijkstra::*;
+use cp_library_rs::graph::dijkstra::*;
 
 #[test]
 fn test_dijkstra() {

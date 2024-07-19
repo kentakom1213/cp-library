@@ -1,4 +1,4 @@
-use cp_library_rs::{get, union_find::UnionFind};
+use cp_library_rs::{data_structure::union_find::UnionFind, get};
 
 fn main() {
     let (n, q) = get!(usize, usize);

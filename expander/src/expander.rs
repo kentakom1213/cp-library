@@ -1,5 +1,5 @@
 use std::{
-    collections::HashSet,
+    collections::BTreeSet,
     env,
     fs::{self, File},
     io::{self, Write},
@@ -7,10 +7,17 @@ use std::{
 };
 
 use itertools::Itertools;
-use syn::{visit::Visit, UseTree};
 
-const LIBRARY_NAME: &str = "cp-library-rs";
-const IMPORT_NAME: &str = "cp_library_rs";
+use crate::{module_path::ModulePath, parser::get_deps};
+
+/// ライブラリの名前
+pub const LIBRARY_NAME: &str = "cp-library-rs";
+
+/// インポートされる場合の名前
+pub const IMPORT_NAME: &str = "cp_library_rs";
+
+/// タブ文字
+const TAB: &str = "    ";
 
 /// ライブラリのパスを取得する
 pub fn get_library_path() -> PathBuf {
@@ -19,76 +26,12 @@ pub fn get_library_path() -> PathBuf {
     buf
 }
 
-/// use文の解析器
-pub struct UseVisitor {
-    pub uses: Vec<Vec<String>>,
-}
-
-impl<'ast> Visit<'ast> for UseVisitor {
-    fn visit_item_use(&mut self, item_use: &'ast syn::ItemUse) {
-        let use_tree = &item_use.tree;
-        let mut paths = Vec::new();
-        deps_to_vec(use_tree, &mut paths, Vec::new());
-        self.uses.extend(paths);
-        // Continue visiting the rest of the file
-        syn::visit::visit_item_use(self, item_use);
-    }
-}
-
-fn deps_to_vec(tree: &UseTree, paths: &mut Vec<Vec<String>>, mut current_path: Vec<String>) {
-    match tree {
-        UseTree::Path(path) => {
-            current_path.push(path.ident.to_string());
-            deps_to_vec(&path.tree, paths, current_path);
-        }
-        UseTree::Name(name) => {
-            current_path.push(name.ident.to_string());
-            paths.push(current_path);
-        }
-        UseTree::Rename(rename) => {
-            current_path.push(rename.ident.to_string());
-            paths.push(current_path);
-        }
-        UseTree::Glob(_) => {
-            current_path.push("*".to_string());
-            paths.push(current_path);
-        }
-        UseTree::Group(group) => {
-            for item in &group.items {
-                deps_to_vec(item, paths, current_path.clone());
-            }
-        }
-    }
-}
-
-/// ファイルの文字列から，クレート内での依存関係を抜き出す
-pub fn get_deps(source: &str, target: &str) -> HashSet<String> {
-    // 構文木を構築
-    let syntax_tree = syn::parse_file(source).expect("Unable to parse file");
-    // 解析
-    let mut visitor = UseVisitor { uses: vec![] };
-    visitor.visit_file(&syntax_tree);
-
-    // 内部の依存関係を調べる
-    let mut local_deps = HashSet::new();
-
-    for p in &visitor.uses {
-        if let [dep, file, ..] = &p[..] {
-            if dep == target {
-                local_deps.insert(file.clone());
-            }
-        }
-    }
-
-    local_deps
-}
-
 #[derive(Debug)]
 pub struct ModuleExpander {
     /// 呼び出し元のファイル
     pub entry_file: PathBuf,
     /// 使用しているライブラリのパス（ライブラリのパス以降）
-    pub dependancies: Option<HashSet<String>>,
+    pub dependancies: Option<BTreeSet<ModulePath>>,
     /// ライブラリのパス
     lib_path: PathBuf,
 }
@@ -108,7 +51,7 @@ impl ModuleExpander {
     /// 再帰的に依存関係を解析する
     /// 結果を`self.dependancies`に保存する
     pub fn solve_dependancies(&mut self) -> Result<(), io::Error> {
-        let mut deps = HashSet::new();
+        let mut deps = BTreeSet::new();
 
         // entry_fileを解析
         let source = match fs::read_to_string(&self.entry_file) {
@@ -127,9 +70,13 @@ impl ModuleExpander {
     }
 
     /// 再帰的に依存関係を解析し，depsに追加する
-    fn dfs(dep: &str, lib_path: &Path, deps: &mut HashSet<String>) -> Result<(), io::Error> {
+    fn dfs(
+        dep: &ModulePath,
+        lib_path: &Path,
+        deps: &mut BTreeSet<ModulePath>,
+    ) -> Result<(), io::Error> {
         // パスの生成
-        let p = Self::make_path(dep, lib_path);
+        let p = dep.to_pathbuf(lib_path.to_path_buf());
 
         let source = match fs::read_to_string(p) {
             Ok(source) => source,
@@ -181,35 +128,67 @@ mod {} {{
             LIBRARY_NAME, IMPORT_NAME
         )?;
 
-        // 各モジュールを展開
+        // // 各モジュールを展開
+        // for dep in self.dependancies.as_ref().unwrap() {
+        //     let dep_str = self.get_module(dep)?;
+        //     file.write_all(dep_str.as_bytes())?;
+        // }
+
+        // file.write_all("}".as_bytes())?;
+
+        // カテゴリごとに展開
+        let mut prev_category = "";
+
         for dep in self.dependancies.as_ref().unwrap() {
-            let dep_str = self.get_module(dep)?;
-            file.write_all(dep_str.as_bytes())?;
+            prev_category = match dep {
+                ModulePath::Macro { .. } => {
+                    if !prev_category.is_empty() {
+                        writeln!(file, "{}}}", TAB.repeat(1))?;
+                    }
+                    file.write_all(self.get_module(dep, 1)?.as_bytes())?;
+                    ""
+                }
+                ModulePath::Module { category, .. } => {
+                    if category == prev_category {
+                        file.write_all(self.get_module(dep, 2)?.as_bytes())?;
+                    } else {
+                        if !prev_category.is_empty() {
+                            writeln!(file, "{}}}", TAB.repeat(1))?;
+                        }
+                        writeln!(file, "{}pub mod {category} {{\n", TAB.repeat(1))?;
+                        file.write_all(self.get_module(dep, 2)?.as_bytes())?;
+                    }
+                    &category
+                }
+            };
         }
 
+        if !prev_category.is_empty() {
+            writeln!(file, "{}}}", TAB.repeat(1))?;
+        }
         file.write_all("}".as_bytes())?;
 
         Ok(())
     }
 
     /// ファイルをモジュールに出力
-    pub fn get_module(&self, dep: &str) -> Result<String, io::Error> {
-        let p = Self::make_path(dep, &self.lib_path);
+    pub fn get_module(&self, dep: &ModulePath, indent: usize) -> Result<String, io::Error> {
+        let p = dep.to_pathbuf(self.lib_path.to_path_buf());
         let mut file = fs::read_to_string(p)?;
 
         // "crate" -> "crate::${IMPORT_NAME}"
         file = file.replace("crate", &format!("crate::{IMPORT_NAME}"));
 
-        let mut res = format!("    pub mod {dep} {{\n");
+        let mut res = format!("{}pub mod {dep} {{\n", TAB.repeat(indent));
 
         // 各行を追加
         for line in file.lines().filter(|l| !l.is_empty()) {
-            res += "        ";
+            res += &TAB.repeat(indent + 1);
             res += line;
             res += "\n";
         }
 
-        res += "    }\n";
+        res += &format!("{}}}\n", TAB.repeat(indent));
 
         Ok(res)
     }

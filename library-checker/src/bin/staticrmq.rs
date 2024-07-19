@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
+    data_structure::sparse_table::{Alg::Min, SparseTable},
     get,
-    sparse_table::{Alg::Min, SparseTable},
 };
 
 fn main() {

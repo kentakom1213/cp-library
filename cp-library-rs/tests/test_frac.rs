@@ -1,4 +1,4 @@
-use cp_library_rs::frac::*;
+use cp_library_rs::number_theory::frac::*;
 
 #[test]
 fn test_eq() {

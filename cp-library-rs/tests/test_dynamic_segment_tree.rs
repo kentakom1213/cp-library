@@ -1,4 +1,7 @@
-use cp_library_rs::{dynamic_segment_tree::DynamicSegmentTree, monoid_examples::*};
+use cp_library_rs::{
+    algebraic_structure::monoid_examples::*,
+    data_structure::dynamic_segment_tree::DynamicSegmentTree,
+};
 use rand::{
     distributions::{Alphanumeric, DistString},
     prelude::*,

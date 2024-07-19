@@ -1,4 +1,4 @@
-use cp_library_rs::enum_pairs::*;
+use cp_library_rs::utils::enum_pairs::*;
 
 #[test]
 fn test_enum_pairs() {

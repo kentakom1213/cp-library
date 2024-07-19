@@ -1,6 +1,6 @@
 //! 階乗を前計算する（Modint構造体に依存）
 
-use crate::modint::modint::Modint;
+use crate::number_theory::modint::modint::Modint;
 
 /// 二項係数を高速に求める
 /// - 前計算: `O(N)`
