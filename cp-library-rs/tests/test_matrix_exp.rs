@@ -13,7 +13,7 @@ fn gen_random_matrix<const D: usize>(rng: &mut ThreadRng) -> Matrix<D, M998> {
             res[i][j] = rng.gen::<usize>().into();
         }
     }
-    Matrix::new(res)
+    Matrix(res)
 }
 
 /// ランダムな1bitの値で埋められたDIM次元行列を生成する
@@ -54,7 +54,7 @@ fn test_dot() {
 #[test]
 fn test_pow() {
     // テトラナッチ数
-    let tetra: Matrix<4, M998> = Matrix::new([
+    let tetra: Matrix<4, M998> = Matrix([
         [0, 1, 0, 0].map(M998::new),
         [0, 0, 1, 0].map(M998::new),
         [0, 0, 0, 1].map(M998::new),

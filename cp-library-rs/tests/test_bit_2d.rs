@@ -1,10 +1,10 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::{algebraic_structure::monoid_examples::Add, data_structure::bit_2d::BIT2D};
+use cp_library_rs::{algebraic_structure::monoid::examples::Add, data_structure::bit_2d::BIT2D};
 
 #[test]
 fn test_small() {
-    let mut seg = BIT2D::<Add>::new(4, 4);
+    let mut seg = BIT2D::<Add<isize>>::new(4, 4);
 
     // 0, 0, 0, 0
     // 0, 0, 0, 0
@@ -84,7 +84,7 @@ fn test_small() {
 
 #[test]
 fn test_imos() {
-    let mut bit = BIT2D::<Add>::new(4, 4);
+    let mut bit = BIT2D::<Add<isize>>::new(4, 4);
 
     bit.add(0, 0, 1);
     bit.add(0, 2, -1);

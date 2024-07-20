@@ -1,11 +1,11 @@
 use cp_library_rs::{
-    algebraic_structure::{monoid::Monoid, monoid_examples::*},
+    algebraic_structure::monoid::{examples::*, Monoid},
     data_structure::segment_tree::*,
 };
 
 #[test]
 fn test_get_point() {
-    let segtree = SegmentTree::<Mul>::from(&vec![1, 2, 3, 4, 5]);
+    let segtree = SegmentTree::<Mul<isize>>::from(&vec![1, 2, 3, 4, 5]);
 
     assert_eq!(segtree[0], 1);
     assert_eq!(segtree[3], 4);
@@ -13,7 +13,7 @@ fn test_get_point() {
 
 #[test]
 fn test_RSQ() {
-    let mut segtree = SegmentTree::<Add>::new(3);
+    let mut segtree = SegmentTree::<Add<isize>>::new(3);
 
     // segtree.update(0, 1);
     *segtree.get_mut(0).unwrap() += 1;
@@ -56,7 +56,7 @@ fn test_from_slice() {
 #[test]
 #[should_panic]
 fn test_wrong_range() {
-    let segtree = SegmentTree::<Add>::from(&vec![0, 1, 2, 3, 4, 5]);
+    let segtree = SegmentTree::<Add<isize>>::from(&vec![0, 1, 2, 3, 4, 5]);
 
     assert_eq!(segtree.get_range(..), 15);
     assert_eq!(segtree.get_range(..2), 1);

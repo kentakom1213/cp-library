@@ -5,7 +5,10 @@
 #![allow(unused_macros)]
 
 use cp_library_rs::{
-    algebraic_structure::{affine1d::AffineTransform, monoid_mod::Affine1dMod},
+    algebraic_structure::{
+        affine1d::{Affine, AffineTransform},
+        monoid::Monoid,
+    },
     data_structure::segment_tree::SegmentTree,
     get,
     number_theory::modint::M998,
@@ -16,7 +19,7 @@ fn main() {
     let AB = get!(usize, usize; N);
     let queries = get!(usize, usize, usize, usize; Q);
 
-    let mut seg = SegmentTree::<Affine1dMod<998244353>>::from(
+    let mut seg: SegmentTree<Affine<M998>> = SegmentTree::from(
         &AB.iter()
             .map(|&(a, b)| (M998::new(a), M998::new(b)))
             .collect(),

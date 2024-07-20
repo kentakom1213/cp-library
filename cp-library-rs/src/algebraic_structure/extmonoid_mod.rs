@@ -2,16 +2,12 @@
 
 use crate::{
     algebraic_structure::{
-        affine1d::{Affine, AffineTransform, RingId},
+        affine1d::{Affine, AffineTransform},
         extmonoid::ExtMonoid,
     },
     number_theory::modint::*,
+    utils::num_traits::Zero,
 };
-
-impl<const MOD: usize> RingId for Modint<MOD> {
-    const ZERO: Self = Modint::<MOD>(0);
-    const ONE: Self = Modint::<MOD>(1);
-}
 
 /// ## 1次元Affine変換
 /// - 区間を`ax + b`で更新（Affine変換）
@@ -22,10 +18,10 @@ impl<const MOD: usize> ExtMonoid for AffineSum<MOD> {
     type X = Modint<MOD>;
     type F = Affine<Modint<MOD>>;
     fn id_x() -> Self::X {
-        Self::X::ZERO
+        Self::X::zero()
     }
     fn id_f() -> Self::F {
-        Self::F::I
+        Self::F::id()
     }
     fn op(x: &Self::X, y: &Self::X) -> Self::X {
         *x + *y
@@ -51,10 +47,10 @@ impl<const MOD: usize> ExtMonoid for AffineUpdateComposite<MOD> {
     type X = Affine<Modint<MOD>>;
     type F = Affine<Modint<MOD>>;
     fn id_x() -> Self::X {
-        Self::X::I
+        Self::X::id()
     }
     fn id_f() -> Self::F {
-        Self::F::I
+        Self::F::id()
     }
     fn op(x: &Self::X, y: &Self::X) -> Self::X {
         y.compose(x)

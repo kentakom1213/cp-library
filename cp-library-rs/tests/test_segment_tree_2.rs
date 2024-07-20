@@ -1,13 +1,13 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    algebraic_structure::monoid_examples::{Add, Max},
+    algebraic_structure::monoid::examples::{Add, Max},
     data_structure::segment_tree_2d::SegmentTree2D,
 };
 
 #[test]
 fn test_small() {
-    let mut seg = SegmentTree2D::<Add>::new(4, 4);
+    let mut seg = SegmentTree2D::<Add<isize>>::new(4, 4);
     eprintln!("{}", seg.show());
 
     // 0, 0, 0, 0
@@ -189,7 +189,7 @@ fn test_from_array() {
 
 #[test]
 fn test_imos() {
-    let mut seg = SegmentTree2D::<Add>::new(4, 4);
+    let mut seg = SegmentTree2D::<Add<isize>>::new(4, 4);
 
     eprintln!("{}", seg.show());
 

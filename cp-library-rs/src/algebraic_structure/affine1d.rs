@@ -1,34 +1,24 @@
 //! 1次元Affine変換
 
-use std::ops::{Add, Mul};
+use std::{
+    fmt::Debug,
+    ops::{Add, Mul},
+};
 
-pub trait RingId {
-    const ZERO: Self;
-    const ONE: Self;
-}
+use crate::{
+    algebraic_structure::monoid::Monoid,
+    linear_algrebra::matrix_exp::Matrix,
+    utils::num_traits::{One, Zero},
+};
 
-impl RingId for usize {
-    const ZERO: Self = 0;
-    const ONE: Self = 1;
-}
-
-impl RingId for isize {
-    const ZERO: Self = 0;
-    const ONE: Self = 1;
-}
-
-impl RingId for f64 {
-    const ZERO: Self = 0.0;
-    const ONE: Self = 1.0;
-}
-
-/// Affine変換を表す型
+/// 1次元のAffine変換を表す型
 pub type Affine<T> = (T, T);
 
+/// Affine変換の実装
 pub trait AffineTransform<T> {
-    const I: Self;
+    /// 単位元を返す
+    fn id() -> Self;
     /// affine変換をマージする
-    ///
     /// - `self.compose(rhs)`：`self(rhs(x))`
     fn compose(&self, rhs: &Self) -> Self;
     /// スカラ値xに対し，affine変換を適用する
@@ -39,9 +29,11 @@ pub trait AffineTransform<T> {
 
 impl<T> AffineTransform<T> for Affine<T>
 where
-    T: Add<Output = T> + Mul<Output = T> + RingId + Copy,
+    T: Add<Output = T> + Mul<Output = T> + Zero + One + Copy,
 {
-    const I: Self = (T::ONE, T::ZERO);
+    fn id() -> Self {
+        (T::one(), T::zero())
+    }
     fn compose(&self, rhs: &Self) -> Self {
         let &(a1, b1) = rhs;
         let &(a2, b2) = self;
@@ -56,29 +48,30 @@ where
     fn pow(&self, mut p: usize) -> Self {
         // 繰り返し2乗法
         let &(a, b) = self;
-        let mut tmp = [[a, b], [T::ZERO, T::ONE]];
-        let mut res = [[T::ONE, T::ZERO], [T::ZERO, T::ONE]];
+        let mut tmp = Matrix([[a, b], [T::zero(), T::one()]]);
+        let mut res = Matrix::id();
         while p > 0 {
             if p & 1 == 1 {
-                res = dot(&tmp, &res);
+                res = tmp.dot(&res);
             }
-            tmp = dot(&tmp, &tmp);
+            tmp = tmp.dot(&tmp);
             p >>= 1;
         }
-        (res[0][0], res[0][1])
+        (res.0[0][0], res.0[0][1])
     }
 }
 
-type M2x2<T> = [[T; 2]; 2];
-
-fn dot<T>(x: &M2x2<T>, y: &M2x2<T>) -> M2x2<T>
+// モノイドの実装
+impl<T> Monoid for Affine<T>
 where
-    T: Add<Output = T> + Mul<Output = T> + Copy,
+    T: Clone + Debug,
+    Affine<T>: AffineTransform<T>,
 {
-    let &[[x11, x12], [x21, x22]] = x;
-    let &[[y11, y12], [y21, y22]] = y;
-    [
-        [x11 * y11 + x12 * y21, x11 * y12 + x12 * y22],
-        [x21 * y11 + x22 * y21, x21 * y12 + x22 * y22],
-    ]
+    type Val = Affine<T>;
+    fn id() -> Self::Val {
+        AffineTransform::id()
+    }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        right.compose(left)
+    }
 }

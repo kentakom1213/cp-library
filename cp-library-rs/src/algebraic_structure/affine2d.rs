@@ -1,10 +1,12 @@
 //! 2次元Affine変換
+//!
+//! 2次元平面上の点の回転
 
 /// # AffineMatrix
 /// アフィン変換（3x3行列）
 #[derive(Debug, Clone, Copy)]
 pub struct AffineMatrix {
-    arr: [[isize; 3]; 3],
+    pub arr: [[isize; 3]; 3],
 }
 
 impl AffineMatrix {

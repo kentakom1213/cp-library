@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    algebraic_structure::monoid_examples::Add,
+    algebraic_structure::monoid::examples::Add,
     data_structure::{
         segment_tree::SegmentTree,
         sparse_table::{Semilattice, SparseTable},
@@ -64,7 +64,7 @@ fn main() {
     let lca = SparseTable::<LCA>::build(&arr);
 
     // 区間処理用のセグ木
-    let mut seg = SegmentTree::<Add>::new(2 * N + 2);
+    let mut seg = SegmentTree::<Add<isize>>::new(2 * N + 2);
 
     for v in 0..N {
         let (f, b) = tree.get_id(v);

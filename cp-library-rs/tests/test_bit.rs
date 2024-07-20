@@ -1,11 +1,8 @@
-use cp_library_rs::{
-    algebraic_structure::group::examples::{Add, UAdd},
-    data_structure::bit::*,
-};
+use cp_library_rs::{algebraic_structure::monoid::examples::Add, data_structure::bit::*};
 
 #[test]
 fn test_new() {
-    let mut bit = BIT::<Add>::new(5);
+    let mut bit = BIT::<Add<isize>>::new(5);
 
     bit.add(0, 20);
     bit.add(2, -5);
@@ -25,7 +22,7 @@ fn test_new() {
 
 #[test]
 fn test_build() {
-    let mut bit = BIT::<Add>::from(&vec![1, 2, 3, 4, 5]);
+    let mut bit = BIT::<Add<isize>>::from(&vec![1, 2, 3, 4, 5]);
 
     assert_eq!(bit.prefix_sum(4), 10);
     assert_eq!(bit.prefix_sum(5), 15);
@@ -38,7 +35,7 @@ fn test_build() {
 
 #[test]
 fn test_sum() {
-    let bit = BIT::<Add>::from(&vec![1, 2, 3, 4, 5]);
+    let bit = BIT::<Add<isize>>::from(&vec![1, 2, 3, 4, 5]);
 
     assert_eq!(bit.sum(0..5), 15);
     assert_eq!(bit.sum(1..5), 14);
@@ -50,7 +47,7 @@ fn test_sum() {
 
 #[test]
 fn test_new_usize() {
-    let mut bit = BIT::<UAdd>::new(5);
+    let mut bit = BIT::<Add<usize>>::new(5);
 
     bit.add(0, 20);
     bit.add(2, 5_usize.wrapping_neg());
@@ -70,7 +67,7 @@ fn test_new_usize() {
 
 #[test]
 fn test_lower_bound() {
-    let bit = BIT::<Add>::from(&vec![1, 2, 3, 4, 0, 5]);
+    let bit = BIT::<Add<usize>>::from(&vec![1, 2, 3, 4, 0, 5]);
 
     assert_eq!(bit.lower_bound(0), 0);
     assert_eq!(bit.lower_bound(1), 0);
@@ -82,7 +79,7 @@ fn test_lower_bound() {
 
 #[test]
 fn test_upper_bound() {
-    let bit = BIT::<Add>::from(&vec![1, 2, 3, 4, 0, 5]);
+    let bit = BIT::<Add<isize>>::from(&vec![1, 2, 3, 4, 0, 5]);
 
     assert_eq!(bit.upper_bound(0), 0);
     assert_eq!(bit.upper_bound(1), 1);
@@ -94,6 +91,6 @@ fn test_upper_bound() {
 
 #[test]
 fn test_debugprint() {
-    let bit1 = BIT::<Add>::from(&vec![1, 2, 3, 4, 5]);
+    let bit1 = BIT::<Add<isize>>::from(&vec![1, 2, 3, 4, 5]);
     println!("{:?}", bit1);
 }

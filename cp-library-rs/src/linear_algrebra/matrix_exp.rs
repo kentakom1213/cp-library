@@ -3,16 +3,12 @@
 use crate::utils::num_traits::{One, Zero};
 
 #[derive(Debug, Clone)]
-pub struct Matrix<const N: usize, T>([[T; N]; N]);
+pub struct Matrix<const N: usize, T>(pub [[T; N]; N]);
 
 impl<const N: usize, T> Matrix<N, T>
 where
     T: One + Zero + Copy,
 {
-    pub fn new(data: [[T; N]; N]) -> Self {
-        Self(data)
-    }
-
     /// 単位行列を返す
     pub fn id() -> Self {
         let mut res = [[T::zero(); N]; N];

@@ -1,4 +1,12 @@
-//! セグメント木
+//! # セグメント木
+//!
+//! 集合 $`S`$ と演算 $`\circ`$ の組 $`(S,\circ)`$ がモノイド（[`Monoid`]）であるとき，
+//! $`S`$ の要素の列 $`A`$ に対し，
+//!
+//! - 区間積の取得 ： $`A[l] \circ A[l+1] \circ \cdots \circ A[r]`$
+//! - 要素の更新 ： $`A[i] \leftarrow x`$
+//!
+//! をそれぞれ $`O(\log N)`$ で行う．（$`N = |A|`$）
 
 use crate::algebraic_structure::monoid::Monoid;
 use std::fmt::{self, Debug};
@@ -7,9 +15,9 @@ use std::ops::{
     Deref, DerefMut, Index, RangeBounds,
 };
 
-/// # SegmentTree (Monoid)
-/// - 抽象化セグメント木
+/// セグメント木
 pub struct SegmentTree<M: Monoid> {
+    /// 要素数
     pub size: usize,
     offset: usize,
     data: Vec<M::Val>,
@@ -55,7 +63,7 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// `index`番目の要素を`value`に更新する
-    /// - 計算量 : $`O(\lg N)`$
+    /// - 計算量 : $`O(\log N)`$
     pub fn update(&mut self, index: usize, value: M::Val) {
         let mut i = index + self.offset;
         self.data[i] = value;
@@ -67,7 +75,7 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// `i`番目の要素の可変な参照を返す
-    /// - 計算量 : $`O(\lg N)`$
+    /// - 計算量 : $`O(\log N)`$
     pub fn get_mut(&mut self, i: usize) -> Option<ValMut<'_, M>> {
         if i < self.offset {
             let default = self.index(i).clone();
@@ -82,7 +90,7 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// 区間`range`の集約を行う
-    /// - 計算量 : $`O(\lg N)`$
+    /// - 計算量 : $`O(\log N)`$
     pub fn get_range<R: RangeBounds<usize> + Debug>(&self, range: R) -> M::Val {
         let (start, end) = match self.parse_range(&range) {
             Some(r) => r,
@@ -138,6 +146,7 @@ impl<M: Monoid> Debug for SegmentTree<M> {
     }
 }
 
+/// セグメント木の要素の可変参照
 pub struct ValMut<'a, M: 'a + Monoid> {
     segtree: &'a mut SegmentTree<M>,
     idx: usize,
@@ -176,6 +185,7 @@ where
 {
     /// セグ木を簡易的に表示する
     /// **サイズが2べきのときのみ**
+    /// - 計算量 : $`O(N)`$
     pub fn show(&self) {
         #[cfg(debug_assertions)]
         {
