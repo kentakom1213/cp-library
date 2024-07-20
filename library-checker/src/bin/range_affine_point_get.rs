@@ -6,7 +6,7 @@ use cp_library_rs::{
 };
 
 fn main() {
-    let (N, Q) = get!(usize, usize);
+    let (_N, Q) = get!(usize, usize);
     let A = get!(M998;;);
 
     let mut seg = LazySegmentTree::<AffineSum<998244353>>::from(&A);

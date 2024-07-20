@@ -5,7 +5,7 @@ use std::collections::BTreeSet;
 use cp_library_rs::get;
 
 fn main() {
-    let (N, Q) = get!(usize, usize);
+    let (_N, Q) = get!(usize, usize);
     let T = get!(String);
 
     let mut set = T

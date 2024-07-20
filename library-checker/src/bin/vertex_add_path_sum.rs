@@ -76,14 +76,14 @@ fn main() {
     for _ in 0..Q {
         let q = get!(usize;;);
 
-        match &q[..] {
-            &[0, p, x] => {
+        match q[..] {
+            [0, p, x] => {
                 let (f, b) = tree.get_id(p);
                 *seg.get_mut(f).unwrap() += x as isize;
                 *seg.get_mut(b).unwrap() -= x as isize;
                 A[p] += x as isize;
             }
-            &[1, u, v] => {
+            [1, u, v] => {
                 // lca
                 let mut fu = tree.in_[u];
                 let mut fv = tree.in_[v];

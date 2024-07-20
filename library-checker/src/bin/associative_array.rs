@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::{
     algebraic_structure::monoid::Monoid, data_structure::dynamic_segment_tree::DynamicSegmentTree,
     get,
@@ -18,7 +20,7 @@ impl Monoid for Set {
 fn main() {
     let Q = get!(usize);
 
-    let mut tree = DynamicSegmentTree::<usize, Set>::new();
+    let mut tree = DynamicSegmentTree::<usize, Set>::default();
 
     for _ in 0..Q {
         let q = get!(usize;;);

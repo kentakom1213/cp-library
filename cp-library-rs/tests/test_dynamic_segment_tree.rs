@@ -19,7 +19,7 @@ fn test_random_insert() {
     let mut arr: [isize; SIZE] = [0; SIZE];
 
     // セグ木
-    let mut seg: DynamicSegmentTree<usize, Add<isize>> = DynamicSegmentTree::new();
+    let mut seg: DynamicSegmentTree<usize, Add<isize>> = DynamicSegmentTree::default();
 
     for _ in 0..ITER {
         // 一点更新クエリ
@@ -62,7 +62,7 @@ fn random_insert_delete() {
     let mut arr: [isize; SIZE] = [0; SIZE];
 
     // セグ木
-    let mut seg: DynamicSegmentTree<usize, Add<isize>> = DynamicSegmentTree::new();
+    let mut seg: DynamicSegmentTree<usize, Add<isize>> = DynamicSegmentTree::default();
 
     for _ in 0..ITER {
         // 一点更新クエリ
@@ -107,7 +107,7 @@ fn random_delete() {
     let mut arr: Vec<(isize, isize)> = vec![];
 
     // セグ木
-    let mut seg: DynamicSegmentTree<isize, Add<isize>> = DynamicSegmentTree::new();
+    let mut seg: DynamicSegmentTree<isize, Add<isize>> = DynamicSegmentTree::default();
 
     // ランダムな値を追加
     for _ in 0..ITER {
@@ -178,7 +178,7 @@ fn random_delete_str() {
     let mut arr: Vec<(String, isize)> = vec![];
 
     // セグ木
-    let mut seg: DynamicSegmentTree<String, Add<isize>> = DynamicSegmentTree::new();
+    let mut seg: DynamicSegmentTree<String, Add<isize>> = DynamicSegmentTree::default();
 
     // ランダムな値を追加
     for _ in 0..ITER {

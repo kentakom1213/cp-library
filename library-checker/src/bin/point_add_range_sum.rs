@@ -5,7 +5,7 @@ use cp_library_rs::{
 };
 
 fn main() {
-    let (N, Q) = get!(usize, usize);
+    let (_N, Q) = get!(usize, usize);
     let A = get!(isize;;);
 
     let mut seg = SegmentTree::<Add<isize>>::from(&A);

@@ -29,15 +29,6 @@ mod dynamic_segment_tree {
     }
 
     impl<K: Ord, M: Monoid> DynamicSegmentTree<K, M> {
-        /// 動的セグ木の初期化
-        pub fn new() -> Self {
-            Self {
-                root: None,
-                size: 0,
-                tmp_e: M::id(),
-            }
-        }
-
         /// 1点取得（不変参照）
         /// - 値 `key` を持つノードの不変参照を取得する
         pub fn get(&self, key: &K) -> &M::Val {
@@ -109,6 +100,10 @@ mod dynamic_segment_tree {
         pub fn len(&self) -> usize {
             self.size
         }
+
+        pub fn is_empty(&self) -> bool {
+            self.size == 0
+        }
     }
 
     /// ノードの可変参照
@@ -146,6 +141,17 @@ mod dynamic_segment_tree {
     impl<K: Ord, M: Monoid> DerefMut for NodeEntry<'_, K, M> {
         fn deref_mut(&mut self) -> &mut Self::Target {
             self.value.as_mut().unwrap()
+        }
+    }
+
+    impl<K: Ord, M: Monoid> Default for DynamicSegmentTree<K, M> {
+        /// 動的セグ木の初期化
+        fn default() -> Self {
+            Self {
+                root: None,
+                size: 0,
+                tmp_e: M::id(),
+            }
         }
     }
 }

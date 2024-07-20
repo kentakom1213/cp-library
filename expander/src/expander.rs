@@ -215,11 +215,4 @@ mod {} {{
 
         Ok(())
     }
-
-    /// ファイル名からパスを構成する
-    fn make_path(dep: &str, lib_path: &Path) -> PathBuf {
-        let mut p = PathBuf::from(&lib_path);
-        p.push(format!("{}.rs", dep));
-        p
-    }
 }

@@ -6,7 +6,7 @@ use cp_library_rs::{
 };
 
 fn main() {
-    let (N, M, K) = get!(usize, usize, usize);
+    let (N, M, _K) = get!(usize, usize, usize);
     let A = Matrix::new(get!(M998;; N));
     let B = Matrix::new(get!(M998;; M));
 
