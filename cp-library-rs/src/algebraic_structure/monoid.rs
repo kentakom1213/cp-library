@@ -23,23 +23,41 @@ pub trait Monoid {
 /// モノイドの例
 pub mod examples {
 
-    use std::{fmt::Debug, marker::PhantomData};
+    use std::{fmt::Debug, marker::PhantomData, ops::Neg};
 
-    use crate::{
-        algebraic_structure::monoid::Monoid,
-        number_theory::num_traits::{One, Zero},
-    };
+    use num_traits::WrappingAdd;
+
+    use crate::{algebraic_structure::monoid::Monoid, number_theory::num_traits::One};
 
     /// 和
     #[derive(Debug, Clone)]
     pub struct Add<T>(PhantomData<T>);
-    impl<T: Zero + Clone + Debug> Monoid for Add<T> {
-        type Val = T;
+
+    impl Monoid for Add<isize> {
+        type Val = isize;
         fn id() -> Self::Val {
-            T::zero()
+            0
         }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left.clone() + right.clone()
+            left + right
+        }
+    }
+    impl Monoid for Add<f64> {
+        type Val = f64;
+        fn id() -> Self::Val {
+            0.0
+        }
+        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+            left + right
+        }
+    }
+    impl Monoid for Add<usize> {
+        type Val = usize;
+        fn id() -> Self::Val {
+            0
+        }
+        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+            left.wrapping_add(right)
         }
     }
 
