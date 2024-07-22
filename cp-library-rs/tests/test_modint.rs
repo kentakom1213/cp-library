@@ -1,6 +1,6 @@
-use std::{num::ParseIntError, str::FromStr};
+use std::str::FromStr;
 
-use cp_library_rs::{number_theory::modint::*, utils::num_traits::*};
+use cp_library_rs::number_theory::{modint::*, num_traits::*};
 use rand::prelude::*;
 
 const MOD998: usize = 998244353;

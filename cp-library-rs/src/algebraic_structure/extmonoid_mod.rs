@@ -5,8 +5,7 @@ use crate::{
         affine1d::{Affine, AffineTransform},
         extmonoid::ExtMonoid,
     },
-    number_theory::modint::*,
-    utils::num_traits::Zero,
+    number_theory::{modint::*, num_traits::Zero},
 };
 
 /// ## 1次元Affine変換

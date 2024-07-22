@@ -1,6 +1,6 @@
 //! 行列累乗
 
-use crate::utils::num_traits::{One, Zero};
+use crate::number_theory::num_traits::{One, Zero};
 
 #[derive(Debug, Clone)]
 pub struct Matrix<const N: usize, T>(pub [[T; N]; N]);

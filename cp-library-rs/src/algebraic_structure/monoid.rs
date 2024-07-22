@@ -27,7 +27,7 @@ pub mod examples {
 
     use crate::{
         algebraic_structure::monoid::Monoid,
-        utils::num_traits::{One, Zero},
+        number_theory::num_traits::{One, Zero},
     };
 
     /// 和
