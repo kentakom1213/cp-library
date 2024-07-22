@@ -23,7 +23,7 @@ pub trait Monoid {
 /// モノイドの例
 pub mod examples {
 
-    use std::{fmt::Debug, marker::PhantomData, ops::Neg};
+    use std::{fmt::Debug, marker::PhantomData};
 
     use num_traits::WrappingAdd;
 
