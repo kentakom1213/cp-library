@@ -1,61 +1,114 @@
 //! 幾何ライブラリ
 
-use std::ops::{Add, Mul, Neg, Sub};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
-pub type Pos<T> = (T, T);
-pub type Line<T> = (Pos<T>, Pos<T>);
+use crate::utils::num_traits::{Num, PrimInt};
 
-/// ベクトル演算を行う
-pub trait Vec2<T> {
-    fn mul(&self, scalar: T) -> Self;
-    fn add(&self, other: Self) -> Self;
-    fn sub(&self, other: Self) -> Self;
-    /// ドット積
-    fn dot(&self, other: Self) -> T;
-    /// クロス積
-    fn cross(&self, other: Self) -> T;
-    /// L2-ノルム（の2乗）
-    fn dist2(&self, other: Self) -> T;
+/// 2次元ベクトル
+#[derive(Debug, Hash, Clone, Copy)]
+pub struct Vec2<T>(pub T, pub T);
+
+impl<T: PrimInt> PartialEq for Vec2<T> {
+    fn eq(&self, other: &Self) -> bool {
+        let Self(ax, ay) = self;
+        let Self(bx, by) = &other;
+        ax == bx && ay == by
+    }
 }
 
-impl<T> Vec2<T> for Pos<T>
+impl<T: PrimInt> Eq for Vec2<T> {}
+
+impl<T> Add for Vec2<T>
 where
-    T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Neg,
+    T: Add<Output = T>,
 {
-    fn mul(&self, scalar: T) -> Self {
-        (self.0 * scalar, self.1 * scalar)
-    }
-    fn add(&self, other: Self) -> Self {
-        (self.0 + other.0, self.1 + other.1)
-    }
-    fn sub(&self, other: Self) -> Self {
-        (self.0 - other.0, self.1 - other.1)
-    }
-    fn dot(&self, other: Self) -> T {
-        self.0 * other.0 + self.1 * other.1
-    }
-    fn cross(&self, other: Self) -> T {
-        (self.0 * other.1) - (other.0 * self.1)
-    }
-    fn dist2(&self, other: Self) -> T {
-        (self.0 - other.0) * (self.0 - other.0) + (self.1 - other.1) * (self.1 - other.1)
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0, self.1 + rhs.1)
     }
 }
 
-/// 線分abと線分xyが衝突しているかどうか
-pub fn is_collided(ab: Line<isize>, xy: Line<isize>) -> bool {
-    let (a, b) = ab;
-    let (x, y) = xy;
+impl<T> Sub for Vec2<T>
+where
+    T: Sub<Output = T>,
+{
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self(self.0 - rhs.0, self.1 - rhs.1)
+    }
+}
 
-    // Aから見たとき
-    let AX = x.sub(a);
-    let AY = y.sub(a);
-    let AB = b.sub(a);
+impl<T> Neg for Vec2<T>
+where
+    T: Neg<Output = T>,
+{
+    type Output = Self;
+    fn neg(self) -> Self::Output {
+        Self(-self.0, -self.1)
+    }
+}
 
-    // Xから見たとき
-    let XA = a.sub(x);
-    let XB = b.sub(x);
-    let XY = y.sub(x);
+impl<T> Mul<T> for Vec2<T>
+where
+    T: Mul<Output = T> + Clone,
+{
+    type Output = Self;
+    fn mul(self, rhs: T) -> Self::Output {
+        Self(self.0 * rhs.clone(), self.1 * rhs)
+    }
+}
 
-    AB.cross(AX) * AB.cross(AY) < 0 && XY.cross(XA) * XY.cross(XB) < 0
+impl<T> Div<T> for Vec2<T>
+where
+    T: Div<Output = T> + Clone,
+{
+    type Output = Self;
+    fn div(self, rhs: T) -> Self::Output {
+        Self(self.0 / rhs.clone(), self.1 / rhs)
+    }
+}
+
+impl<T: Num + Copy> Vec2<T> {
+    /// ドット積
+    ///
+    /// ```math
+    /// \bm{a}\cdot\bm{b} = a_x b_x + a_y b_y
+    /// ```
+    pub fn dot(&self, other: Self) -> T {
+        let Self(ax, ay) = *self;
+        let Self(bx, by) = other;
+        ax * bx + ay * by
+    }
+
+    /// ノルムの2乗
+    ///
+    /// ```math
+    /// \|\bm{a}\|
+    /// ```
+    pub fn norm2(&self) -> T {
+        self.dot(*self)
+    }
+
+    /// ベクトル同士の距離の2乗
+    ///
+    /// ```math
+    /// \|\bm{a} - \bm{b}\|^2 = (a_x - b_x)^2 + (a_y - b_y)^2
+    /// ```
+    pub fn dist2(&self, other: Self) -> T {
+        let diff = *self - other;
+        diff.norm2()
+    }
+
+    /// クロス積
+    ///
+    /// 2次元ベクトルのクロス積はスカラー
+    ///
+    /// ```math
+    /// \bm{a} \times \bm{b} = a_x b_y - a_y b_x
+    /// ```
+    pub fn cross(&self, other: Self) -> T {
+        let Self(ax, ay) = *self;
+        let Self(bx, by) = other;
+        ax * by - ay * bx
+    }
 }

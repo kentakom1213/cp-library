@@ -27,7 +27,7 @@ pub mod examples {
 
     use num_traits::WrappingAdd;
 
-    use crate::{algebraic_structure::monoid::Monoid, number_theory::num_traits::One};
+    use crate::{algebraic_structure::monoid::Monoid, utils::num_traits::One};
 
     /// 和
     #[derive(Debug, Clone)]

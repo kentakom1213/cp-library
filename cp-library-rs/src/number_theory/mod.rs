@@ -12,6 +12,5 @@ pub mod modint;
 pub mod modint_comb;
 pub mod modint_for_rollinghash;
 pub mod modint_traits;
-pub mod num_traits;
 pub mod pollard_rho_algorithm;
 pub mod powmod;

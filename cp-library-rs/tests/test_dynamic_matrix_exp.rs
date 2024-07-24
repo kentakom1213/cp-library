@@ -1,6 +1,5 @@
 use cp_library_rs::{
-    linear_algrebra::dynamic_matrix_exp::*,
-    number_theory::{modint::M998, num_traits::Zero},
+    linear_algrebra::dynamic_matrix_exp::*, number_theory::modint::M998, utils::num_traits::Zero,
 };
 use rand::{prelude::*, rngs::ThreadRng};
 
