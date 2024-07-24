@@ -12,22 +12,42 @@ where
     /// 隣接する8方向
     const ADJ8: [(T, T); 8];
     /// 座標`(i,j)`に上下左右で隣接する座標を取得
-    /// - グリッドサイズ`HxW`でバリデーション
+    /// （グリッドサイズ`HxW`でバリデーション）
+    ///
+    /// **探索順**
+    ///
+    /// > ```text
+    /// >    2
+    /// >    ↑
+    /// > 3 ← → 1
+    /// >    ↓
+    /// >    4
+    /// > ```
     fn get_adj_4(&self, H: usize, W: usize) -> Vec<Self>;
     /// 座標`(i,j)`に8方向で隣接する座標を取得
-    /// - グリッドサイズ`HxW`でバリデーション
+    /// （グリッドサイズ`HxW`でバリデーション）
+    ///
+    /// **探索順**
+    ///
+    /// > ```text
+    /// > 4  3  2
+    /// >   ↖↑↗
+    /// > 5 ← → 1
+    /// >   ↙↓➘
+    /// > 6  7  8
+    /// > ```
     fn get_adj_8(&self, H: usize, W: usize) -> Vec<Self>;
 }
 
 impl Grid<usize> for (usize, usize) {
     const NEG1: usize = 1_usize.wrapping_neg();
-    const ADJ4: [(usize, usize); 4] = [(0, Self::NEG1), (Self::NEG1, 0), (0, 1), (1, 0)];
+    const ADJ4: [(usize, usize); 4] = [(0, 1), (Self::NEG1, 0), (0, Self::NEG1), (1, 0)];
     const ADJ8: [(usize, usize); 8] = [
-        (Self::NEG1, Self::NEG1),
-        (Self::NEG1, 0),
-        (Self::NEG1, 1),
-        (0, Self::NEG1),
         (0, 1),
+        (Self::NEG1, 1),
+        (Self::NEG1, 0),
+        (Self::NEG1, Self::NEG1),
+        (0, Self::NEG1),
         (1, Self::NEG1),
         (1, 0),
         (1, 1),

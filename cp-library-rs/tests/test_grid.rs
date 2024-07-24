@@ -96,3 +96,26 @@ fn test_grid_8() {
         ]
     );
 }
+
+#[test]
+fn test_ord() {
+    let mut grid3x3 = [[0; 3]; 3];
+    let mut cnt = 1;
+
+    for (r, c) in (1, 1).get_adj_4(3, 3) {
+        grid3x3[r][c] = cnt;
+        cnt += 1;
+    }
+
+    assert_eq!(grid3x3, [[0, 2, 0], [3, 0, 1], [0, 4, 0]]);
+
+    // 8方向
+    cnt = 1;
+
+    for (r, c) in (1, 1).get_adj_8(3, 3) {
+        grid3x3[r][c] = cnt;
+        cnt += 1;
+    }
+
+    assert_eq!(grid3x3, [[4, 3, 2], [5, 0, 1], [6, 7, 8]]);
+}
