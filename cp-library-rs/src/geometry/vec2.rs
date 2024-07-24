@@ -72,7 +72,7 @@ impl<T: Num + Copy> Vec2<T> {
     /// ドット積
     ///
     /// ```math
-    /// \bm{a}\cdot\bm{b} = a_x b_x + a_y b_y
+    /// \boldsymbol{a}\cdot\boldsymbol{b} = a_x b_x + a_y b_y
     /// ```
     pub fn dot(&self, other: Self) -> T {
         let Self(ax, ay) = *self;
@@ -83,7 +83,7 @@ impl<T: Num + Copy> Vec2<T> {
     /// ノルムの2乗
     ///
     /// ```math
-    /// \|\bm{a}\|
+    /// \|\boldsymbol{a}\|
     /// ```
     pub fn norm2(&self) -> T {
         self.dot(*self)
@@ -92,7 +92,7 @@ impl<T: Num + Copy> Vec2<T> {
     /// ベクトル同士の距離の2乗
     ///
     /// ```math
-    /// \|\bm{a} - \bm{b}\|^2 = (a_x - b_x)^2 + (a_y - b_y)^2
+    /// \|\boldsymbol{a} - \boldsymbol{b}\|^2 = (a_x - b_x)^2 + (a_y - b_y)^2
     /// ```
     pub fn dist2(&self, other: Self) -> T {
         let diff = *self - other;
@@ -104,7 +104,7 @@ impl<T: Num + Copy> Vec2<T> {
     /// 2次元ベクトルのクロス積はスカラー
     ///
     /// ```math
-    /// \bm{a} \times \bm{b} = a_x b_y - a_y b_x
+    /// \boldsymbol{a} \times \boldsymbol{b} = a_x b_y - a_y b_x
     /// ```
     pub fn cross(&self, other: Self) -> T {
         let Self(ax, ay) = *self;
