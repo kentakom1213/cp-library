@@ -1,5 +1,6 @@
 //! # グラフアルゴリズム
 
+pub mod bellman_ford;
 pub mod centroid;
 pub mod dijkstra;
 pub mod euler_tour;
