@@ -135,7 +135,7 @@ fn test_from_array() {
         vec![0, 4, 3, 8, 1, 6],
     ];
 
-    let mut seg = SegmentTree2D::<Max>::from(&arr);
+    let mut seg = SegmentTree2D::<Max<i32>>::from(&arr);
 
     eprintln!("{}", seg.show());
 

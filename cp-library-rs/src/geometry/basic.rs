@@ -63,6 +63,7 @@ pub struct Line(pub Point, pub Point);
 impl Line {
     /// 射影
     /// （直線`l`に対して点`p`から引いた垂線の足）
+    /// を求める
     pub fn projection(&self, p: Point) -> Point {
         let Self(a, b) = *self;
         let t = (p - a).dot(a - b) / (a - b).norm2();
@@ -71,6 +72,7 @@ impl Line {
 
     /// 反射
     /// （直線`l`に対して点`p`に対称な点）
+    /// を求める
     pub fn reflection(&self, p: Point) -> Point {
         p + (self.projection(p) - p) * 2.0
     }
@@ -83,6 +85,27 @@ impl Line {
     /// 2直線の平行判定
     pub fn is_parallel(&self, other: &Self) -> bool {
         (self.1 - self.0).cross(other.1 - other.0).abs() < EPS
+    }
+
+    /// 2直線の交点を求める
+    ///
+    /// **戻り値**
+    /// - `Point` : 交点
+    pub fn cross_point(&self, other: &Self) -> Point {
+        let d1 = (self.1 - self.0).cross(other.1 - other.0);
+        let d2 = (self.1 - self.0).cross(self.1 - other.0);
+
+        if d1.abs() < EPS && d2.abs() < EPS {
+            return other.0;
+        }
+
+        other.0 + (other.1 - other.0) * (d2 / d1)
+    }
+
+    /// 点`p`と直線の距離を求める
+    pub fn dist_point(&self, p: Point) -> f64 {
+        let Self(a, b) = *self;
+        (b - a).cross(p - a).abs() / a.dist(b)
     }
 }
 
@@ -108,7 +131,7 @@ pub enum Orientation {
     /// B, O, A がこの順で同一直線上にある場合
     ///
     /// > ```text
-    /// >  B ← O → A
+    /// > B ← O → A
     /// > ```
     OnlineBack,
     /// O, A, B がこの順で同一直線上にある場合
@@ -167,7 +190,7 @@ impl Orientation {
 pub struct Segment(pub Point, pub Point);
 
 impl Segment {
-    /// 2つの線分が衝突しているかどうか
+    /// 2つの線分が衝突しているかどうかを判定する
     pub fn has_intersection(&self, other: &Self) -> bool {
         (Orientation::calc(self.0, self.1, other.0).val()
             * Orientation::calc(self.0, self.1, other.1).val())
@@ -175,5 +198,61 @@ impl Segment {
             && (Orientation::calc(other.0, other.1, self.0).val()
                 * Orientation::calc(other.0, other.1, self.1).val())
                 <= 0.0
+    }
+
+    /// 2つの線分の交点を求める
+    ///
+    /// **戻り値**
+    /// - 2つの線分が点`x`で交わるとき → Some(`x`)
+    /// - 2つの線分が交点を持たないとき → None
+    pub fn cross_point(&self, other: &Self) -> Option<Point> {
+        self.has_intersection(&other).then(|| {
+            let l1 = self.to_line();
+            let l2 = other.to_line();
+            l1.cross_point(&l2)
+        })
+    }
+
+    /// 点`p`と線分の距離を求める
+    pub fn dist_point(&self, p: Point) -> f64 {
+        let Self(a, b) = *self;
+
+        if (b - a).dot(p - a) < EPS {
+            return p.dist(a);
+        }
+
+        if (a - b).dot(p - b) < EPS {
+            return p.dist(b);
+        }
+
+        self.to_line().dist_point(p)
+    }
+
+    /// 線分同士の距離を求める
+    pub fn dist_segment(&self, other: &Self) -> f64 {
+        if self.has_intersection(other) {
+            return 0.0;
+        }
+
+        let mut res = f64::MAX;
+
+        for d in [
+            self.dist_point(other.0),
+            self.dist_point(other.1),
+            other.dist_point(self.0),
+            other.dist_point(self.1),
+        ] {
+            if res > d {
+                res = d;
+            }
+        }
+
+        res
+    }
+
+    /// 直線に変換する
+    pub fn to_line(&self) -> Line {
+        let Self(a, b) = *self;
+        Line(a, b)
     }
 }

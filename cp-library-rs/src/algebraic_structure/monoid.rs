@@ -25,9 +25,10 @@ pub mod examples {
 
     use std::{fmt::Debug, marker::PhantomData};
 
-    use num_traits::WrappingAdd;
-
-    use crate::{algebraic_structure::monoid::Monoid, utils::num_traits::One};
+    use crate::{
+        algebraic_structure::monoid::Monoid,
+        utils::num_traits::{Bounded, One},
+    };
 
     /// 和
     #[derive(Debug, Clone)]
@@ -57,7 +58,7 @@ pub mod examples {
             0
         }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left.wrapping_add(right)
+            left.wrapping_add(*right)
         }
     }
 
@@ -89,27 +90,27 @@ pub mod examples {
 
     /// 最小値
     #[derive(Debug, Clone)]
-    pub struct Min;
-    impl Monoid for Min {
-        type Val = isize;
+    pub struct Min<T>(PhantomData<T>);
+    impl<T: Ord + Bounded + Clone + Debug> Monoid for Min<T> {
+        type Val = T;
         fn id() -> Self::Val {
-            Self::Val::MAX
+            Self::Val::max_value()
         }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            *left.min(right)
+            left.min(right).clone()
         }
     }
 
     /// 最大値
     #[derive(Debug, Clone)]
-    pub struct Max;
-    impl Monoid for Max {
-        type Val = isize;
+    pub struct Max<T>(PhantomData<T>);
+    impl<T: Ord + Bounded + Clone + Debug> Monoid for Max<T> {
+        type Val = T;
         fn id() -> Self::Val {
-            Self::Val::MIN
+            Self::Val::min_value()
         }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            *left.max(right)
+            left.max(right).clone()
         }
     }
 

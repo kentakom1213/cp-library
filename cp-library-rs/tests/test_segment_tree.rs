@@ -29,8 +29,8 @@ fn test_RSQ() {
 
 #[test]
 fn test_RMQ() {
-    let INF = Min::id();
-    let mut segtree = SegmentTree::<Min>::new(3);
+    let INF = i32::MAX;
+    let mut segtree = SegmentTree::<Min<_>>::new(3);
 
     assert_eq!(segtree.get_range(..1), INF);
     *segtree.get_mut(0).unwrap() = 5;
@@ -39,9 +39,9 @@ fn test_RMQ() {
 
 #[test]
 fn test_from_slice() {
-    let INF = Max::id();
+    let INF = i32::MIN;
     let arr = vec![20, 4, 5, 6, 8, 9, 100];
-    let mut segtree = SegmentTree::<Max>::from(&arr);
+    let mut segtree = SegmentTree::<Max<_>>::from(&arr);
 
     assert_eq!(segtree.get_range(0..), 100);
     assert_eq!(segtree.get_range(2..5), 8);
@@ -68,7 +68,7 @@ fn test_wrong_range() {
 #[test]
 fn test_debug_print() {
     let arr = vec![20, 4, 5, 6, 8, 9, 100];
-    let segtree = SegmentTree::<Max>::from(&arr);
+    let segtree = SegmentTree::<Max<_>>::from(&arr);
 
     let dbg = format!("{:?}", &segtree);
     assert_eq!(&dbg, "SegmentTree { [20, 4, 5, 6, 8, 9, 100] }");

@@ -63,7 +63,7 @@ fn test_add() {
 
 #[test]
 fn test_min() {
-    let mut seg = DualSegmentTree::<Min>::new(8);
+    let mut seg = DualSegmentTree::<Min<isize>>::new(8);
     eprintln!("{:?}", seg);
 
     // [0, 5) : +1
