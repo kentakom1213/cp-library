@@ -1,4 +1,4 @@
-/// デバッグ用マクロ
+/// 変数をデバッグ出力する
 #[macro_export]
 macro_rules! debug {
     ( $($val:expr),* $(,)* ) => {{

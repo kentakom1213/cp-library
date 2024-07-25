@@ -1,4 +1,4 @@
-/// 配列用マクロ
+/// 2次元配列をデバッグ出力する
 #[macro_export]
 macro_rules! debug2D {
     ( $array:expr ) => {{

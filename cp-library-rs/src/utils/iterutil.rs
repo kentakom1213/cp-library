@@ -2,6 +2,7 @@
 
 use std::fmt::Display;
 
+/// イテレータのツール
 pub trait IterUtil: Iterator
 where
     Self::Item: Display,

@@ -5,11 +5,11 @@ pub type Pairs<T> = Vec<(T, T)>;
 
 /// ペアを列挙する
 #[derive(Debug)]
-pub struct PairsIterator<T: Clone> {
+pub struct ListPairs<T: Clone> {
     stack: Vec<(Vec<T>, Pairs<T>)>,
 }
 
-impl<T: Clone> FromIterator<T> for PairsIterator<T> {
+impl<T: Clone> FromIterator<T> for ListPairs<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         Self {
             stack: vec![(iter.into_iter().collect::<Vec<T>>(), vec![])],
@@ -17,7 +17,7 @@ impl<T: Clone> FromIterator<T> for PairsIterator<T> {
     }
 }
 
-impl<T: Clone> Iterator for PairsIterator<T> {
+impl<T: Clone> Iterator for ListPairs<T> {
     type Item = Pairs<T>;
     fn next(&mut self) -> Option<Self::Item> {
         loop {
@@ -39,8 +39,10 @@ impl<T: Clone> Iterator for PairsIterator<T> {
     }
 }
 
-/// (0〜n-1)のn個の要素からなる系列
-/// をペアにする組合せを列挙する
-pub fn pairs_usize(n: usize) -> PairsIterator<usize> {
-    (0..n).collect()
+impl ListPairs<usize> {
+    /// (0〜n-1)のn個の要素からなる系列
+    /// をペアにする組合せを列挙する
+    pub fn pairs_usize(n: usize) -> Self {
+        (0..n).collect()
+    }
 }

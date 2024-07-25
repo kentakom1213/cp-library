@@ -2,20 +2,25 @@
 
 use std::iter::Peekable;
 
-/// ソート済み配列を O(N+M) でマージする
-pub fn merge<T, I, J>(A: I, B: J) -> MergeIterator<T, I, J>
+pub trait Merge: Iterator
 where
-    T: Ord,
-    I: Iterator<Item = T>,
-    J: Iterator<Item = T>,
+    Self::Item: Ord,
+    Self: Sized,
 {
-    MergeIterator {
-        itr_a: A.peekable(),
-        itr_b: B.peekable(),
+    /// ソート済み配列をマージする
+    ///
+    /// - 計算量 : $`O(N + M)`$
+    fn merge_linear(self, other: Self) -> MergeIterator<Self::Item, Self, Self> {
+        MergeIterator {
+            itr_a: self.peekable(),
+            itr_b: other.peekable(),
+        }
     }
 }
 
-/// マージ後の値を順に返すイテレータ
+impl<I: Iterator> Merge for I where I::Item: Ord {}
+
+/// 2つのソート済みイテレータを，整列順に返す
 pub struct MergeIterator<T, I, J>
 where
     T: Ord,

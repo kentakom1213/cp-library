@@ -7,12 +7,18 @@ fn test_merge_usize() {
     let b = vec![1, 3, 5, 7];
 
     assert_eq!(
-        merge(a.iter(), b.iter()).cloned().collect::<Vec<usize>>(),
+        a.iter()
+            .merge_linear(b.iter())
+            .cloned()
+            .collect::<Vec<usize>>(),
         vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 10]
     );
 
     assert_eq!(
-        merge(b.iter(), a.iter()).cloned().collect::<Vec<usize>>(),
+        b.iter()
+            .merge_linear(a.iter())
+            .cloned()
+            .collect::<Vec<usize>>(),
         vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 10]
     );
 }
@@ -23,12 +29,12 @@ fn test_char() {
     let b = "bbccceeeegh";
 
     assert_eq!(
-        merge(a.chars(), b.chars()).collect::<String>(),
+        a.chars().merge_linear(b.chars()).collect::<String>(),
         "aabbbbbccccddeeeeefgh".to_string(),
     );
 
     assert_eq!(
-        merge(b.chars(), a.chars()).collect::<String>(),
+        b.chars().merge_linear(a.chars()).collect::<String>(),
         "aabbbbbccccddeeeeefgh".to_string(),
     );
 
@@ -36,16 +42,20 @@ fn test_char() {
     let lower = "abcde";
 
     assert_eq!(
-        merge(upper.chars(), lower.chars()).collect::<String>(),
+        upper
+            .chars()
+            .merge_linear(lower.chars())
+            .collect::<String>(),
         "ABCDEabcde".to_string(),
     );
 
     assert_eq!(
-        merge(
-            upper.repeat(2).chars().sorted(),
-            lower.repeat(3).chars().sorted()
-        )
-        .collect::<String>(),
+        upper
+            .repeat(2)
+            .chars()
+            .sorted()
+            .merge_linear(lower.repeat(3).chars().sorted())
+            .collect::<String>(),
         "AABBCCDDEEaaabbbcccdddeee".to_string(),
     );
 }

@@ -48,7 +48,7 @@ fn test_iter_pairs_4() {
     let mut pairs4 = vec![];
     dfs((0..4).collect(), vec![], &mut pairs4);
 
-    assert_eq!(pairs_usize(4).collect::<Vec<_>>(), pairs4);
+    assert_eq!(ListPairs::pairs_usize(4).collect::<Vec<_>>(), pairs4);
 }
 
 #[test]
@@ -56,5 +56,5 @@ fn test_iter_pairs_12() {
     let mut pairs12 = vec![];
     dfs((0..12).collect(), vec![], &mut pairs12);
 
-    assert_eq!(pairs_usize(12).collect::<Vec<_>>(), pairs12);
+    assert_eq!(ListPairs::pairs_usize(12).collect::<Vec<_>>(), pairs12);
 }

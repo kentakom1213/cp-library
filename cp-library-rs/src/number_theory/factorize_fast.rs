@@ -1,15 +1,15 @@
-//! 前計算ありの高速素因数分解
+//! ## 前計算ありの素因数分解
+//!
+//! $`N`$ までの数の素因数分解を
+//! - 前計算 : $`O(N \log\log N)`$
+//! - クエリ : $`O(\log N)`$
+//!
+//! で行う。
 
 /// 前計算ありの素因数分解
-///
-/// $`N`$ までの数の素因数分解を
-/// - 前計算 : $`O(N \log\log N)`$
-/// - クエリ : $`O(\log N)`$
-///
-/// で行う。
 pub struct FactorTable {
-    n: usize,
-    sieve: Vec<usize>,
+    pub n: usize,
+    pub sieve: Vec<usize>,
 }
 
 impl FactorTable {
