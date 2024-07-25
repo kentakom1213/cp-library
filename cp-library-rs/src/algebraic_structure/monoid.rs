@@ -114,13 +114,13 @@ pub mod examples {
         }
     }
 
-    /// 最小公倍数
+    /// 最大公約数
     #[derive(Debug, Clone)]
     pub struct GCD;
     impl Monoid for GCD {
         type Val = usize;
         fn id() -> Self::Val {
-            Self::Val::MAX
+            0
         }
         fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
             gcd(*left, *right)
