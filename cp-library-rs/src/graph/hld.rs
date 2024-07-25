@@ -145,7 +145,12 @@ impl HLD {
     }
 
     /// 頂点`u,v`間のパス上のパス断片を順に返すイテレータを返す．
-    // pub fn get_path<'a>(&'a self, u: usize, v: usize) -> PathSegment<'a> {
+    ///
+    /// **戻り値 (Item)**
+    /// - `i (usize)` : 最も根側の頂点
+    /// - `j (usize)` : 最も葉側の頂点
+    /// - `last (bool)` : 最後のpath segmentであるか
+    /// - `rev (bool)` : 取得するpathの向きに対してpath segmentが逆方向かどうか
     pub fn get_path(&self, u: usize, v: usize) -> PathSegment<'_> {
         PathSegment {
             hld: &self,

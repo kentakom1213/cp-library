@@ -21,7 +21,7 @@ impl<const MOD: usize> ExtMonoid for AffineSum<MOD> {
         Self::X::zero()
     }
     fn id_f() -> Self::F {
-        Self::F::id()
+        Self::F::id_()
     }
     fn op(x: &Self::X, y: &Self::X) -> Self::X {
         *x + *y
@@ -47,10 +47,10 @@ impl<const MOD: usize> ExtMonoid for AffineUpdateComposite<MOD> {
     type X = Affine<Modint<MOD>>;
     type F = Affine<Modint<MOD>>;
     fn id_x() -> Self::X {
-        Self::X::id()
+        Self::X::id_()
     }
     fn id_f() -> Self::F {
-        Self::F::id()
+        Self::F::id_()
     }
     fn op(x: &Self::X, y: &Self::X) -> Self::X {
         y.compose(x)

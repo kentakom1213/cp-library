@@ -17,7 +17,7 @@ pub type Affine<T> = (T, T);
 /// Affine変換の実装
 pub trait AffineTransform<T> {
     /// 単位元を返す
-    fn id() -> Self;
+    fn id_() -> Self;
     /// affine変換をマージする
     /// - `self.compose(rhs)`：`self(rhs(x))`
     fn compose(&self, rhs: &Self) -> Self;
@@ -31,7 +31,7 @@ impl<T> AffineTransform<T> for Affine<T>
 where
     T: Add<Output = T> + Mul<Output = T> + Zero + One + Copy,
 {
-    fn id() -> Self {
+    fn id_() -> Self {
         (T::one(), T::zero())
     }
     fn compose(&self, rhs: &Self) -> Self {
@@ -69,7 +69,7 @@ where
 {
     type Val = Affine<T>;
     fn id() -> Self::Val {
-        AffineTransform::id()
+        AffineTransform::id_()
     }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
         right.compose(left)
