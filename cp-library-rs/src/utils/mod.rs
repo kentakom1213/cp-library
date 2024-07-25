@@ -2,7 +2,7 @@
 
 pub mod consts;
 pub mod coordinate_compression;
-pub mod enum_pairs;
+pub mod list_pairs;
 pub mod grid;
 pub mod iterutil;
 pub mod lineartime_merging;
