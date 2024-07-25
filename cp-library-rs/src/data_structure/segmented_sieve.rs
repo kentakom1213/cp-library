@@ -1,7 +1,7 @@
 //! 区間篩
 
-/// 区間 [l,r) の素数を列挙する
-/// - 計算量：`O((√B + (B - A)) log log B)`
+/// 区間 $`[l,r)`$ の素数を列挙する
+/// - 計算量 : $`O((\sqrt{r} + (r - l)) \log \log r)`$
 pub fn segmented_sieve(l: usize, r: usize) -> Vec<usize> {
     let l = l.max(2);
     let r = r.max(l);

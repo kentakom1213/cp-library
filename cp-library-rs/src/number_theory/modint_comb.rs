@@ -3,8 +3,8 @@
 use crate::number_theory::modint::modint::Modint;
 
 /// 二項係数を高速に求める
-/// - 前計算: `O(N)`
-/// - クエリ: `O(1)`
+/// - 前計算:  $`O(N)`$
+/// - クエリ:  $`O(1)`$
 pub struct Comb<const MOD: usize> {
     fac: Vec<Modint<MOD>>,
     finv: Vec<Modint<MOD>>,

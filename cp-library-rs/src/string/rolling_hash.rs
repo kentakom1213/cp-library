@@ -2,9 +2,9 @@
 
 use crate::number_theory::modint_for_rollinghash::modint::Modint;
 
-/// # RollingHash
-/// 文字列の比較を高速に行う
-/// - 計算量: `O(n+m)`
+/// ローリングハッシュ
+///
+/// 文字列をハッシュし，連続部分列の一致判定を $`O(1)`$ で行う．
 #[derive(Debug)]
 pub struct RollingHash {
     pub size: usize,
@@ -44,19 +44,19 @@ impl RollingHash {
     }
 
     /// `l..r`のハッシュを取得
-    /// - 計算量: `O(1)`
+    /// - 計算量: $`O(1)`$
     pub fn get(&self, l: usize, r: usize) -> Modint {
         self.hash[r] - self.hash[l] * self.power[r - l]
     }
 
     /// `0..size`のハッシュを取得
-    /// - 計算量: `O(1)`
+    /// - 計算量: $`O(1)`$
     pub fn full(&self) -> Modint {
         self.hash[self.size]
     }
 
     /// a,bからの最長共通接頭辞の長さを調べる
-    /// - 計算量: `O(log N)`
+    /// - 計算量: $`O(\log N)`$
     pub fn getLCP(&self, a: usize, b: usize) -> usize {
         let len = self.size.saturating_sub(a.max(b));
         let (mut lo, mut hi) = (0, len + 1);
@@ -72,7 +72,7 @@ impl RollingHash {
     }
 
     /// ハッシュ同士を連結
-    /// - 計算量: `O(1)`
+    /// - 計算量: $`O(1)`$
     pub fn concat(&self, h1: Modint, h2: Modint, h2_len: usize) -> Modint {
         h1 * self.power[h2_len] + h2
     }

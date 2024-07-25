@@ -10,7 +10,6 @@ fn gcd(a: usize, b: usize) -> usize {
     }
 }
 
-/// ## pollard_rho
 /// ポラード・ロー法を適用し、約数を見つける
 pub fn pollard_rho(N: usize) -> usize {
     if N % 2 == 0 {
@@ -42,9 +41,9 @@ pub fn pollard_rho(N: usize) -> usize {
     }
 }
 
-/// ## factorize
-/// ポラード・ロー法による高速素因数分解
-/// `O(n^(1/4))`
+/// ポラード・ロー法により素因数分解を行う
+///
+/// - 計算量 : $`O(n^{1/4})`$
 pub fn factorize(N: usize) -> Vec<usize> {
     if N == 1 {
         return vec![];

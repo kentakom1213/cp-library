@@ -15,29 +15,38 @@ impl PartialEq for Point {
 }
 
 impl Point {
-    /// ユークリッド距離
+    /// 2点間のユークリッド距離を求める
+    ///
+    /// ```math
+    /// \|\boldsymbol{a} - \boldsymbol{b}\| = \sqrt{(a_x - b_x)^2 + (a_y - b_y)^2}
+    /// ```
     pub fn dist(&self, other: Self) -> f64 {
         self.dist2(other).sqrt()
     }
 
-    /// ノルム
+    /// ノルムを求める
+    ///
+    /// ```math
+    /// \|\boldsymbol{a}\| = \sqrt{a_x^2 + a_y^2}
+    /// ```
     pub fn norm(&self) -> f64 {
         self.norm2().sqrt()
     }
 
-    /// 同じ向きの単位ベクトル
+    /// 同じ向きの単位ベクトルを求める
     pub fn unit(&self) -> Self {
         self.clone() / self.norm()
     }
 
     /// 法線ベクトル
     /// （90度回転させたベクトル）
+    /// を求める
     pub fn normal(&self) -> Self {
         let Self(x, y) = *self;
         Self(-y, x)
     }
 
-    /// 原点周りに $`\theta`$ 回転させる
+    /// 原点周りに $`\theta`$ 回転させた点を求める
     pub fn rotate_o(&self, theta: f64) -> Self {
         let Self(x, y) = *self;
         Self(

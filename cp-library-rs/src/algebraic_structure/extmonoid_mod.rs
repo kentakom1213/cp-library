@@ -10,7 +10,7 @@ use crate::{
 };
 
 /// ## 1次元Affine変換
-/// - 区間を`ax + b`で更新（Affine変換）
+/// - 区間を $`ax + b`$ で更新（Affine変換）
 /// - 区間和を取得
 #[derive(Debug)]
 pub struct AffineSum<const MOD: usize>;
@@ -39,7 +39,7 @@ impl<const MOD: usize> ExtMonoid for AffineSum<MOD> {
 }
 
 /// ## 一次関数のupdate + 関数合成
-/// - 区間を`ax + b`で更新
+/// - 区間を $`ax + b`$ で更新
 /// - 区間を関数として合成
 #[derive(Debug)]
 pub struct AffineUpdateComposite<const MOD: usize>;

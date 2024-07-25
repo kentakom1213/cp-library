@@ -5,8 +5,8 @@ const MOD: usize = 998_244_353;
 
 /// # Comb
 /// 二項係数を高速に求める
-/// - 前計算: `O(N)`
-/// - クエリ: `O(1)`
+/// - 前計算 : $`O(N)`$
+/// - クエリ : $`O(1)`$
 pub struct Comb {
     fac: Vec<usize>,
     finv: Vec<usize>,

@@ -2,8 +2,12 @@
 //!
 //! Garnerのアルゴリズムによる中国剰余定理の解復元
 
-/// 拡張ユークリッド互除法
-/// - `ax + by = gcd(a, b)` を満たす `(x, y, gcd(a,b))` を返す
+/// 拡張ユークリッド互除法により，
+/// $`ax + by = \gcd(a, b)`$ を満たす $`(x, y, \gcd(a,b))`$
+/// を求める．
+///
+/// **戻り値**
+/// - `(x, y, gcd(a, b))`
 pub fn ext_gcd(a: isize, b: isize) -> (isize, isize, isize) {
     if b == 0 {
         return (1, 0, a);
@@ -15,24 +19,29 @@ pub fn ext_gcd(a: isize, b: isize) -> (isize, isize, isize) {
     (x, y, d)
 }
 
-/// 拡張ユークリッド互除法によるモジュラ逆元の計算
-/// - `ax ≡ 1 (mod m)` を満たす`x`を求める．
-/// - `m`が素数である必要はないが，`a`と`m`は互いに素である必要がある．
+/// 拡張ユークリッド互除法によりモジュラ逆元を計算する．
+/// - $`ax \equiv 1 (\mod m)`$ を満たす $`x`$ を求める．
+/// - $`a`$ と $`m`$ は互いに素である必要がある
+///
+/// **戻り値**
+/// - `a`と`m`が互いに素 → Some($`a^{-1} (\mod m)`$)
+/// - `a`と`m`が互いに素でない → None
 pub fn inv(a: isize, m: isize) -> Option<isize> {
     let (x, _, d) = ext_gcd(a, m);
     (d == 1).then_some(x.rem_euclid(m))
 }
 
-/// 中国剰余定理
+/// 中国剰余定理により，
 ///
-/// `rems: [r1, r2, ..., rn], mods: [m1, m2, ..., mn]`に対し，
-/// - `x ≡ r1 (mod m1)`
-/// - `x ≡ r2 (mod m2)`
-/// - ...
-/// - `x ≡ rn (mod mn)`
+/// $`\mathrm{rems} = [r_1, r_2, \ldots, r_n], \mathrm{mods} = [m_1, m_2, \ldots, m_n]`$ に対し，
+/// - $`x \equiv r_1 (\mod m_1)`$
+/// - $`x \equiv r_2 (\mod m_2)`$
+/// - $`\vdots`$
+/// - $`x \equiv r_n (\mod m_n)`$
 ///
-/// を満たす`x`を求める．
-/// - ただし，任意の`(i,j)`に対し`mi`と`mj`は互いに素である必要がある．
+/// を満たす $`x`$ を求める．
+///
+/// ただし，任意の $`(i,j)`$ に対し $`m_i`$ と $`m_j`$ は互いに素である必要がある．
 pub fn garner_algorithm(rems: &[usize], mods: &[usize]) -> usize {
     let mut m = 1;
     let mut x = (rems[0] % mods[0]) as isize;

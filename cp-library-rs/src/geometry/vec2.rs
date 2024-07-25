@@ -69,7 +69,7 @@ where
 }
 
 impl<T: Num + Copy> Vec2<T> {
-    /// ドット積
+    /// 2つのベクトルのドット積を求める
     ///
     /// ```math
     /// \boldsymbol{a}\cdot\boldsymbol{b} = a_x b_x + a_y b_y
@@ -80,16 +80,16 @@ impl<T: Num + Copy> Vec2<T> {
         ax * bx + ay * by
     }
 
-    /// ノルムの2乗
+    /// ノルムの2乗を求める
     ///
     /// ```math
-    /// \|\boldsymbol{a}\|
+    /// \|\boldsymbol{a}\|^2 = a_x^2 + a_y^2
     /// ```
     pub fn norm2(&self) -> T {
         self.dot(*self)
     }
 
-    /// ベクトル同士の距離の2乗
+    /// ベクトル同士の距離の2乗を求める
     ///
     /// ```math
     /// \|\boldsymbol{a} - \boldsymbol{b}\|^2 = (a_x - b_x)^2 + (a_y - b_y)^2
@@ -99,9 +99,7 @@ impl<T: Num + Copy> Vec2<T> {
         diff.norm2()
     }
 
-    /// クロス積
-    ///
-    /// 2次元ベクトルのクロス積はスカラー
+    /// クロス積を求める
     ///
     /// ```math
     /// \boldsymbol{a} \times \boldsymbol{b} = a_x b_y - a_y b_x

@@ -1,9 +1,11 @@
 //! 前計算ありの高速素因数分解
 
-/// # 前計算ありの高速素因数分解
-/// `N`までの数の素因数分解を
-/// - 前計算: `O(NloglogN)`
-/// - クエリ: `O(logN)`
+/// 前計算ありの素因数分解
+///
+/// $`N`$ までの数の素因数分解を
+/// - 前計算 : $`O(N \log\log N)`$
+/// - クエリ : $`O(\log N)`$
+///
 /// で行う。
 pub struct FactorTable {
     n: usize,
@@ -12,7 +14,7 @@ pub struct FactorTable {
 
 impl FactorTable {
     /// 前計算を行う
-    /// - `O(NloglogN)`で篩を作成
+    /// - $`O(N \log\log N)`$ で篩を作成
     pub fn new(n: usize) -> Self {
         let mut facs = FactorTable {
             n,
@@ -31,9 +33,13 @@ impl FactorTable {
         facs
     }
 
-    /// 素因数分解を`O(logn)`で行う
-    /// ### 戻り値
-    /// - `Vec<usize>`: 素因数のリスト
+    /// 素因数分解を行い，素因数のベクタを返す
+    ///
+    /// **戻り値**
+    /// - 素因数のリスト
+    ///
+    /// **計算量**
+    /// - $`O(\log x)`$
     pub fn factorize(&self, mut x: usize) -> Vec<usize> {
         assert!(1 <= x && x <= self.n);
         let mut factors = vec![];
@@ -44,9 +50,13 @@ impl FactorTable {
         factors
     }
 
-    /// 素因数分解を`O(logn)`で行う
-    /// ### 戻り値
-    /// - `Vec<(usize, usize)>`: (素因数, その個数)
+    /// 素因数分解を行い，(素因数, 指数) のベクタを返す
+    ///
+    /// **戻り値**
+    /// - (素因数, 指数) のベクタ
+    ///
+    /// **計算量**
+    /// - $`O(\log x)`$
     pub fn factorize_pairs(&self, mut x: usize) -> Vec<(usize, usize)> {
         assert!(1 <= x && x <= self.n);
         let mut pairs: Vec<(usize, usize)> = vec![];
