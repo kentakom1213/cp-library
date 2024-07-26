@@ -39,7 +39,10 @@ impl UnionFind {
         self.get_root(x) == self.get_root(y)
     }
 
-    /// 要素を結合
+    /// 集合`x,y`を併合する．
+    ///
+    /// **戻り値**
+    /// - すでに併合済みだった場合`false`，そうでない場合`true`を返す
     pub fn unite(&mut self, x: usize, y: usize) -> bool {
         let mut parent = self.get_root(x);
         let mut child = self.get_root(y);
@@ -56,6 +59,7 @@ impl UnionFind {
         self.parent[child] = parent;
         self.siz[parent] += self.siz[child];
         self.count -= 1;
+
         true
     }
 
