@@ -1,11 +1,13 @@
-use cp_library_rs::data_structure::weighted_union_find::*;
+use cp_library_rs::{
+    algebraic_structure::monoid::examples::Add, data_structure::weighted_union_find::*,
+};
 
 #[test]
 fn test_weighted_unionfind() {
     // 問題例:
     // https://judge.u-aizu.ac.jp/onlinejudge/review.jsp?rid=7971476#3
 
-    let mut uf = WeightedUnionFind::<Alg::Add>::new(8);
+    let mut uf = WeightedUnionFind::<Add<isize>>::new(8);
 
     uf.unite(1, 3, 6);
     uf.unite(4, 6, 4);

@@ -1,20 +1,12 @@
 //! 重み付きUnionFind
 
-use std::fmt::Debug;
+use crate::algebraic_structure::abel::Abel;
 
-/// ## アーベル群
-pub trait Abel {
-    type E: Debug + Clone;
-    const I: Self::E;
-    fn op(x: &Self::E, y: &Self::E) -> Self::E;
-    fn inv(x: &Self::E) -> Self::E;
-}
-
-/// # 重み付きUnionFind
+/// 重み付きUnionFind
 pub struct WeightedUnionFind<G: Abel> {
     par: Vec<usize>,
     rank: Vec<usize>,
-    weight: Vec<G::E>,
+    weight: Vec<G::Val>,
     pub group_count: usize,
 }
 
@@ -24,7 +16,7 @@ impl<G: Abel> WeightedUnionFind<G> {
         WeightedUnionFind {
             par: (0..n).collect(),
             rank: vec![1; n],
-            weight: vec![G::I; n],
+            weight: vec![G::id(); n],
             group_count: n,
         }
     }
@@ -43,7 +35,7 @@ impl<G: Abel> WeightedUnionFind<G> {
     }
 
     /// 重みを求める
-    pub fn weight(&mut self, x: usize) -> G::E {
+    pub fn weight(&mut self, x: usize) -> G::Val {
         self.root(x); // 経路圧縮
         self.weight[x].clone()
     }
@@ -55,7 +47,7 @@ impl<G: Abel> WeightedUnionFind<G> {
 
     /// 重みの差を求める
     /// - 同じグループにいない場合にはNone
-    pub fn diff(&mut self, x: usize, y: usize) -> Option<G::E> {
+    pub fn diff(&mut self, x: usize, y: usize) -> Option<G::Val> {
         if self.issame(x, y) {
             let res = G::op(&self.weight(y), &G::inv(&self.weight(x)));
             return Some(res);
@@ -64,7 +56,7 @@ impl<G: Abel> WeightedUnionFind<G> {
     }
 
     /// 要素を結合
-    pub fn unite(&mut self, mut x: usize, mut y: usize, mut weight: G::E) -> bool {
+    pub fn unite(&mut self, mut x: usize, mut y: usize, mut weight: G::Val) -> bool {
         // x,yそれぞれについて重み差分を補正
         weight = G::op(&weight, &self.weight(x));
         weight = G::op(&weight, &G::inv(&self.weight(y)));
@@ -95,21 +87,5 @@ impl<G: Abel> WeightedUnionFind<G> {
     pub fn size(&mut self, x: usize) -> usize {
         let root = self.root(x);
         self.rank[root]
-    }
-}
-
-pub mod Alg {
-    use super::Abel;
-
-    pub struct Add;
-    impl Abel for Add {
-        type E = isize;
-        const I: Self::E = 0;
-        fn op(x: &Self::E, y: &Self::E) -> Self::E {
-            x + y
-        }
-        fn inv(x: &Self::E) -> Self::E {
-            -x
-        }
     }
 }

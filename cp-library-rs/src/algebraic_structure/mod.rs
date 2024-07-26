@@ -2,6 +2,7 @@
 //!
 //! データ構造に載せる代数的構造
 
+pub mod abel;
 pub mod affine1d;
 pub mod affine2d;
 pub mod commutative;

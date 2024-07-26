@@ -19,7 +19,7 @@ pub trait AffineTransform<T> {
     /// 単位元を返す
     fn id_() -> Self;
     /// affine変換をマージする
-    /// - `self.compose(rhs)`：`self(rhs(x))`
+    /// - `f.compose(g)` = $`f \circ g`$ = $`f(g(x))`$
     fn compose(&self, rhs: &Self) -> Self;
     /// スカラ値xに対し，affine変換を適用する
     fn apply(&self, x: T) -> T;
