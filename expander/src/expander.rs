@@ -1,5 +1,6 @@
 use std::{
     collections::BTreeSet,
+    fmt::Write,
     fs,
     io::{self},
     path::{Path, PathBuf},
@@ -117,14 +118,16 @@ impl ModuleExpander {
         // "${IMPORT_NAME}" -> "crate"
         contents = contents.replace(&self.import_name, &format!("crate::{}", self.import_name));
 
-        contents += &format!(
+        write!(
+            &mut contents,
             "
 // ==================== {} ====================
 mod {} {{
     #![allow(dead_code)]
 ",
             self.library_name, self.import_name
-        );
+        )
+        .unwrap();
 
         // カテゴリごとに展開
         let mut prev_category = "";
@@ -133,20 +136,20 @@ mod {} {{
             prev_category = match dep {
                 ModulePath::Macro { .. } => {
                     if !prev_category.is_empty() {
-                        contents += &format!("{}}}", TAB.repeat(1));
+                        write!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
                     }
-                    contents += &self.get_module(dep, 1)?;
+                    contents.push_str(&self.get_module(dep, 1)?);
                     ""
                 }
                 ModulePath::Module { category, .. } => {
                     if category == prev_category {
-                        contents += &self.get_module(dep, 2)?;
+                        contents.push_str(&self.get_module(dep, 2)?);
                     } else {
                         if !prev_category.is_empty() {
-                            contents += &format!("{}}}", TAB.repeat(1));
+                            write!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
                         }
-                        contents += &format!("{}pub mod {category} {{", TAB.repeat(1));
-                        contents += &self.get_module(dep, 2)?;
+                        write!(&mut contents, "{}pub mod {category} {{", TAB.repeat(1)).unwrap();
+                        contents.push_str(&self.get_module(dep, 2)?);
                     }
                     &category
                 }
@@ -154,9 +157,9 @@ mod {} {{
         }
 
         if !prev_category.is_empty() {
-            contents += &format!("{}}}", TAB.repeat(1));
+            write!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
         }
-        contents += "}";
+        contents.push_str("}");
 
         Ok(contents)
     }
@@ -173,12 +176,12 @@ mod {} {{
 
         // 各行を追加
         for line in file.lines().filter(|l| !l.is_empty()) {
-            res += &TAB.repeat(indent + 1);
-            res += line;
-            res += "\n";
+            res.push_str(&TAB.repeat(indent + 1));
+            res.push_str(line);
+            res.push_str("\n");
         }
 
-        res += &format!("{}}}\n", TAB.repeat(indent));
+        write!(&mut res, "{}}}\n", TAB.repeat(indent)).unwrap();
 
         Ok(res)
     }
