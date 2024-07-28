@@ -1,6 +1,5 @@
 use std::{
     collections::BTreeSet,
-    env,
     fs::{self, File},
     io::{self, Write},
     path::{Path, PathBuf},
@@ -10,21 +9,8 @@ use itertools::Itertools;
 
 use crate::{module_path::ModulePath, parser::get_deps};
 
-/// ライブラリの名前
-pub const LIBRARY_NAME: &str = "cp-library-rs";
-
-/// インポートされる場合の名前
-pub const IMPORT_NAME: &str = "cp_library_rs";
-
 /// タブ文字
 const TAB: &str = "    ";
-
-/// ライブラリのパスを取得する
-pub fn get_library_path() -> PathBuf {
-    let mut buf = PathBuf::from(env::var("KYOPURO_LIBRARY_DIR").unwrap());
-    buf.push(LIBRARY_NAME);
-    buf
-}
 
 #[derive(Debug)]
 pub struct ModuleExpander {
@@ -33,19 +19,36 @@ pub struct ModuleExpander {
     /// 使用しているライブラリのパス（ライブラリのパス以降）
     pub dependancies: Option<BTreeSet<ModulePath>>,
     /// ライブラリのパス
-    lib_path: PathBuf,
+    library_path: PathBuf,
+    /// インポート時の名前
+    import_name: String,
+    /// ライブラリ自体の名前
+    library_name: String,
 }
 
 impl ModuleExpander {
     /// パーサーの初期化
-    pub fn new(entry_file: PathBuf, mut lib_path: PathBuf) -> Self {
-        lib_path.push("src");
+    pub fn new(entry_file: PathBuf, mut library_path: PathBuf) -> Result<Self, String> {
+        // ライブラリ名
+        let Some(library_name) = library_path
+            .file_name()
+            .map(|s| s.to_str().unwrap().to_string())
+        else {
+            return Err("No such library: {library_path:?}".to_string());
+        };
 
-        ModuleExpander {
+        // インポート時の名前
+        let import_name = library_name.replace('-', "_");
+
+        library_path.push("src");
+
+        Ok(ModuleExpander {
             entry_file,
             dependancies: None,
-            lib_path,
-        }
+            library_path,
+            import_name,
+            library_name,
+        })
     }
 
     /// 再帰的に依存関係を解析する
@@ -59,9 +62,9 @@ impl ModuleExpander {
             Err(err) => return Err(err),
         };
 
-        for dep in get_deps(&source, IMPORT_NAME) {
+        for dep in get_deps(&source, &self.import_name) {
             deps.insert(dep.clone());
-            Self::dfs(&dep, &self.lib_path, &mut deps)?;
+            Self::dfs(&dep, &self.library_path, &mut deps)?;
         }
 
         self.dependancies = Some(deps);
@@ -72,11 +75,11 @@ impl ModuleExpander {
     /// 再帰的に依存関係を解析し，depsに追加する
     fn dfs(
         dep: &ModulePath,
-        lib_path: &Path,
+        library_path: &Path,
         deps: &mut BTreeSet<ModulePath>,
     ) -> Result<(), io::Error> {
         // パスの生成
-        let p = dep.to_pathbuf(lib_path.to_path_buf());
+        let p = dep.to_pathbuf(library_path.to_path_buf());
 
         let source = match fs::read_to_string(p) {
             Ok(source) => source,
@@ -89,7 +92,7 @@ impl ModuleExpander {
             }
             deps.insert(dep.clone());
             // 再帰的に探索
-            Self::dfs(&dep, lib_path, deps)?;
+            Self::dfs(&dep, library_path, deps)?;
         }
 
         Ok(())
@@ -113,7 +116,7 @@ impl ModuleExpander {
         let mut file = File::create(&self.entry_file)?;
 
         // "${IMPORT_NAME}" -> "crate"
-        contents = contents.replace(IMPORT_NAME, &format!("crate::{IMPORT_NAME}"));
+        contents = contents.replace(&self.import_name, &format!("crate::{}", self.import_name));
 
         // 書き換えた内容を書き込み
         file.write_all(contents.as_bytes())?;
@@ -125,16 +128,8 @@ impl ModuleExpander {
 mod {} {{
     #![allow(dead_code)]
 ",
-            LIBRARY_NAME, IMPORT_NAME
+            self.library_name, self.import_name
         )?;
-
-        // // 各モジュールを展開
-        // for dep in self.dependancies.as_ref().unwrap() {
-        //     let dep_str = self.get_module(dep)?;
-        //     file.write_all(dep_str.as_bytes())?;
-        // }
-
-        // file.write_all("}".as_bytes())?;
 
         // カテゴリごとに展開
         let mut prev_category = "";
@@ -173,11 +168,11 @@ mod {} {{
 
     /// ファイルをモジュールに出力
     pub fn get_module(&self, dep: &ModulePath, indent: usize) -> Result<String, io::Error> {
-        let p = dep.to_pathbuf(self.lib_path.to_path_buf());
+        let p = dep.to_pathbuf(self.library_path.to_path_buf());
         let mut file = fs::read_to_string(p)?;
 
         // "crate" -> "crate::${IMPORT_NAME}"
-        file = file.replace("crate", &format!("crate::{IMPORT_NAME}"));
+        file = file.replace("crate", &format!("crate::{}", self.import_name));
 
         let mut res = format!("{}pub mod {dep} {{\n", TAB.repeat(indent));
 
@@ -199,12 +194,12 @@ mod {} {{
         let mut file = fs::read_to_string(&self.entry_file)?;
 
         // "crate::${IMPORT_NAME}" -> "${IMPORT_NAME}"
-        file = file.replace(&format!("crate::{IMPORT_NAME}"), IMPORT_NAME);
+        file = file.replace(&format!("crate::{}", self.import_name), &self.import_name);
 
         // ライブラリの位置
         let library_begin = format!(
             "// ==================== {} ====================",
-            LIBRARY_NAME
+            self.library_name
         );
 
         // library以降を削除

@@ -1,10 +1,12 @@
 use clap::Parser;
-use expander::expander::{get_library_path, ModuleExpander};
+use expander::expander::ModuleExpander;
 use std::{env, fs, io, path::PathBuf, process::exit};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
+    /// library path
+    library: PathBuf,
     /// path or alias of input file
     input: String,
     /// export file to stream
@@ -23,8 +25,7 @@ fn main() -> Result<(), Box<io::Error>> {
     let args = Args::parse();
 
     // ライブラリのパスを取得
-    let library_path = get_library_path();
-    log::info!("library_path: {:?}", library_path);
+    log::info!("library_path: {:?}", args.library);
 
     // 入力ファイルのパスを取得
     let mut input_path = PathBuf::from(&args.input);
@@ -57,7 +58,10 @@ fn main() -> Result<(), Box<io::Error>> {
     }
 
     // expanderの初期化
-    let mut expander = ModuleExpander::new(input_path.clone(), library_path);
+    let mut expander = match ModuleExpander::new(input_path.clone(), args.library) {
+        Ok(expander) => expander,
+        Err(err) => panic!("{err}"),
+    };
 
     if !args.restore {
         match expander.expand() {
