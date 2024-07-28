@@ -1,6 +1,6 @@
 use clap::Parser;
 use expander::expander::ModuleExpander;
-use std::{env, fs, io, path::PathBuf, process::exit};
+use std::{env, io, path::PathBuf, process::exit};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -63,16 +63,28 @@ fn main() -> Result<(), Box<io::Error>> {
         Err(err) => panic!("{err}"),
     };
 
-    if !args.restore {
+    log::info!("library_name: {}", expander.library_name);
+    log::info!("import_name: {}", expander.import_name);
+
+    if args.export {
         match expander.expand() {
+            Ok(contents) => {
+                // ストリームに出力
+                println!("{contents}");
+                exit(0);
+            }
+            Err(err) => {
+                log::error!("expand failed");
+                log::error!("{err}");
+                exit(1);
+            }
+        }
+    }
+
+    if !args.restore {
+        match expander.expand_inplace() {
             Ok(_) => {
                 log::info!("expand complete");
-
-                // ストリームに出力
-                if args.export {
-                    let output = fs::read_to_string(&input_path)?;
-                    println!("{output}");
-                }
             }
             Err(err) => {
                 log::error!("expand failed");

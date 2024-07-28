@@ -1,7 +1,7 @@
 use std::{
     collections::BTreeSet,
-    fs::{self, File},
-    io::{self, Write},
+    fs,
+    io::{self},
     path::{Path, PathBuf},
 };
 
@@ -21,9 +21,9 @@ pub struct ModuleExpander {
     /// ライブラリのパス
     library_path: PathBuf,
     /// インポート時の名前
-    import_name: String,
+    pub import_name: String,
     /// ライブラリ自体の名前
-    library_name: String,
+    pub library_name: String,
 }
 
 impl ModuleExpander {
@@ -98,38 +98,33 @@ impl ModuleExpander {
         Ok(())
     }
 
-    /// 依存関係を展開する
-    pub fn expand(&mut self) -> Result<(), io::Error> {
+    /// 依存関係を展開する（文字列の形で返す）
+    pub fn expand(&mut self) -> Result<String, io::Error> {
         // 依存関係の解析
         if self.dependancies.is_none() {
             self.solve_dependancies()?;
         }
 
+        // 元ファイル読み取り
+        let mut contents = fs::read_to_string(&self.entry_file)?;
+
         // 依存していない場合
         if self.dependancies.as_ref().unwrap().is_empty() {
             log::info!("non dependancies");
-            return Ok(());
+            return Ok(contents);
         }
-
-        // 元ファイルを編集
-        let mut contents = fs::read_to_string(&self.entry_file)?;
-        let mut file = File::create(&self.entry_file)?;
 
         // "${IMPORT_NAME}" -> "crate"
         contents = contents.replace(&self.import_name, &format!("crate::{}", self.import_name));
 
-        // 書き換えた内容を書き込み
-        file.write_all(contents.as_bytes())?;
-
-        write!(
-            file,
+        contents += &format!(
             "
 // ==================== {} ====================
 mod {} {{
     #![allow(dead_code)]
 ",
             self.library_name, self.import_name
-        )?;
+        );
 
         // カテゴリごとに展開
         let mut prev_category = "";
@@ -138,20 +133,20 @@ mod {} {{
             prev_category = match dep {
                 ModulePath::Macro { .. } => {
                     if !prev_category.is_empty() {
-                        writeln!(file, "{}}}", TAB.repeat(1))?;
+                        contents += &format!("{}}}", TAB.repeat(1));
                     }
-                    file.write_all(self.get_module(dep, 1)?.as_bytes())?;
+                    contents += &self.get_module(dep, 1)?;
                     ""
                 }
                 ModulePath::Module { category, .. } => {
                     if category == prev_category {
-                        file.write_all(self.get_module(dep, 2)?.as_bytes())?;
+                        contents += &self.get_module(dep, 2)?;
                     } else {
                         if !prev_category.is_empty() {
-                            writeln!(file, "{}}}", TAB.repeat(1))?;
+                            contents += &format!("{}}}", TAB.repeat(1));
                         }
-                        writeln!(file, "{}pub mod {category} {{", TAB.repeat(1))?;
-                        file.write_all(self.get_module(dep, 2)?.as_bytes())?;
+                        contents += &format!("{}pub mod {category} {{", TAB.repeat(1));
+                        contents += &self.get_module(dep, 2)?;
                     }
                     &category
                 }
@@ -159,11 +154,11 @@ mod {} {{
         }
 
         if !prev_category.is_empty() {
-            writeln!(file, "{}}}", TAB.repeat(1))?;
+            contents += &format!("{}}}", TAB.repeat(1));
         }
-        file.write_all("}".as_bytes())?;
+        contents += "}";
 
-        Ok(())
+        Ok(contents)
     }
 
     /// ファイルをモジュールに出力
@@ -186,6 +181,16 @@ mod {} {{
         res += &format!("{}}}\n", TAB.repeat(indent));
 
         Ok(res)
+    }
+
+    /// 依存関係をファイルに展開する
+    pub fn expand_inplace(&mut self) -> Result<(), io::Error> {
+        let contents = self.expand()?;
+
+        // ファイルに書き込み
+        fs::write(&self.entry_file, contents)?;
+
+        Ok(())
     }
 
     /// 復元する

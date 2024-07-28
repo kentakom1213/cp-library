@@ -1,11 +1,18 @@
-use std::{collections::BTreeSet, path::PathBuf};
+use std::{collections::BTreeSet, env, path::PathBuf};
 
 use expander::{
-    expander::{get_library_path, ModuleExpander},
+    expander::ModuleExpander,
     module_path::ModulePath,
     parser::{get_deps, UseVisitor},
 };
 use syn::visit::Visit;
+
+/// ライブラリのパスを取得する
+fn get_library_path() -> PathBuf {
+    let mut buf = PathBuf::from(env::var("KYOPURO_LIBRARY_DIR").unwrap());
+    buf.push("cp-library-rs");
+    buf
+}
 
 macro_rules! debug {
     ( $($val:expr),* $(,)* ) => {{
@@ -70,7 +77,7 @@ fn test_local_deps() {
 #[test]
 fn test_parser() {
     let p = PathBuf::from("../cp-library-rs/tests/test_segment_tree.rs");
-    let mut res = ModuleExpander::new(p, get_library_path());
+    let mut res = ModuleExpander::new(p, get_library_path()).unwrap();
 
     res.solve_dependancies().ok();
 
@@ -78,27 +85,23 @@ fn test_parser() {
     assert_eq!(
         res.dependancies,
         Some(BTreeSet::from([
-            ModulePath::Module {
-                category: "algebraic_structure".to_string(),
-                file: "affine1d".to_string()
-            },
             ModulePath::Module {
                 category: "algebraic_structure".to_string(),
                 file: "monoid".to_string()
             },
             ModulePath::Module {
-                category: "algebraic_structure".to_string(),
-                file: "monoid_examples".to_string()
-            },
-            ModulePath::Module {
                 category: "data_structure".to_string(),
                 file: "segment_tree".to_string()
+            },
+            ModulePath::Module {
+                category: "utils".to_string(),
+                file: "num_traits".to_string()
             },
         ]))
     );
 
     let p = PathBuf::from("../cp-library-rs/tests/test_modint_comb.rs");
-    let mut res = ModuleExpander::new(p, get_library_path());
+    let mut res = ModuleExpander::new(p, get_library_path()).unwrap();
 
     res.solve_dependancies().ok();
 
@@ -108,19 +111,23 @@ fn test_parser() {
         Some(BTreeSet::from([
             ModulePath::Module {
                 category: "number_theory".to_string(),
-                file: "modint".to_string()
+                file: "modint".to_string(),
             },
             ModulePath::Module {
                 category: "number_theory".to_string(),
-                file: "modint_comb".to_string()
+                file: "modint_comb".to_string(),
             },
+            ModulePath::Module {
+                category: "utils".to_string(),
+                file: "num_traits".to_string(),
+            }
         ]))
     );
 }
 
 #[test]
 fn test_get_module() {
-    let res = ModuleExpander::new(PathBuf::new(), get_library_path());
+    let res = ModuleExpander::new(PathBuf::new(), get_library_path()).unwrap();
 
     eprintln!(
         "{}",
@@ -138,7 +145,7 @@ fn test_get_module() {
 #[test]
 fn test_expand_restore() {
     let p = PathBuf::from("../cp-library-rs/tests/test_modint_comb.rs");
-    let mut res = ModuleExpander::new(p, get_library_path());
+    let mut res = ModuleExpander::new(p, get_library_path()).unwrap();
 
     // 展開
     res.expand().ok();

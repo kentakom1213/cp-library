@@ -1,7 +1,4 @@
-use cp_library_rs::{
-    algebraic_structure::monoid::{examples::*, Monoid},
-    data_structure::segment_tree::*,
-};
+use cp_library_rs::{algebraic_structure::monoid::examples::*, data_structure::segment_tree::*};
 
 #[test]
 fn test_get_point() {
