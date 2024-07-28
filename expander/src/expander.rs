@@ -138,18 +138,18 @@ mod {} {{
                     if !prev_category.is_empty() {
                         write!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
                     }
-                    contents.push_str(&self.get_module(dep, 1)?);
+                    contents += &self.get_module(dep, 1)?;
                     ""
                 }
                 ModulePath::Module { category, .. } => {
                     if category == prev_category {
-                        contents.push_str(&self.get_module(dep, 2)?);
+                        contents += &self.get_module(dep, 2)?;
                     } else {
                         if !prev_category.is_empty() {
                             write!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
                         }
                         write!(&mut contents, "{}pub mod {category} {{", TAB.repeat(1)).unwrap();
-                        contents.push_str(&self.get_module(dep, 2)?);
+                        contents += &self.get_module(dep, 2)?;
                     }
                     &category
                 }
@@ -159,7 +159,7 @@ mod {} {{
         if !prev_category.is_empty() {
             write!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
         }
-        contents.push_str("}");
+        contents += "}";
 
         Ok(contents)
     }
@@ -176,9 +176,9 @@ mod {} {{
 
         // 各行を追加
         for line in file.lines().filter(|l| !l.is_empty()) {
-            res.push_str(&TAB.repeat(indent + 1));
-            res.push_str(line);
-            res.push_str("\n");
+            res += &TAB.repeat(indent + 1);
+            res += line;
+            res += "\n";
         }
 
         write!(&mut res, "{}}}\n", TAB.repeat(indent)).unwrap();
