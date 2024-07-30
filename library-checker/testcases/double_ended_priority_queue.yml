@@ -1,0 +1,33 @@
+---
+type: Batch
+timelimit: ~
+match: Exact
+
+cases:
+  - in: |
+      4 10
+      -3 0 1 3
+      0 3
+      2
+      2
+      0 -2
+      0 1
+      1
+      1
+      2
+      1
+      2
+    out: |
+      3
+      3
+      -3
+      -2
+      1
+      0
+      1
+
+extend:
+  - type: Text
+    path: "./double_ended_priority_queue"
+    in: /in/*.txt
+    out: /out/*.txt
