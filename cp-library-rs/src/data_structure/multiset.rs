@@ -1,9 +1,10 @@
 //! 多重集合（Setによる実装）
 
 use rustc_hash::FxHashMap;
-use std::{collections::BTreeSet, hash::Hash};
+use std::{collections::BTreeSet, fmt::Debug, hash::Hash};
 
-#[derive(Debug)]
+use crate::utils::iterutil::IterUtil;
+
 pub struct MultiSet<T> {
     pub counter: FxHashMap<T, usize>,
     pub items: BTreeSet<(T, usize)>,
@@ -94,5 +95,11 @@ impl<T: Ord + Hash + Copy> FromIterator<T> for MultiSet<T> {
             multiset.insert(x);
         }
         multiset
+    }
+}
+
+impl<T: Debug> Debug for MultiSet<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_set().entries(self.iter()).finish()
     }
 }
