@@ -3,8 +3,6 @@
 use rustc_hash::FxHashMap;
 use std::{collections::BTreeSet, fmt::Debug, hash::Hash};
 
-use crate::utils::iterutil::IterUtil;
-
 pub struct MultiSet<T> {
     pub counter: FxHashMap<T, usize>,
     pub items: BTreeSet<(T, usize)>,
