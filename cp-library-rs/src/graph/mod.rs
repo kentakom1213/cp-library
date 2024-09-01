@@ -3,6 +3,7 @@
 pub mod bellman_ford;
 pub mod centroid;
 pub mod dijkstra;
+pub mod dynamic_rerooting;
 pub mod euler_tour;
 pub mod ford_fulkerson;
 pub mod hld;

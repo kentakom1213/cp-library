@@ -3,7 +3,7 @@
 use cp_library_rs::{data_structure::multiset_splay_tree::MultiSet, get, utils::consts::IINF};
 
 fn main() {
-    let (N, Q) = get!(usize, usize);
+    let (_N, Q) = get!(usize, usize);
     let S = get!(isize;;);
 
     let mut mset = MultiSet::from_iter(S);

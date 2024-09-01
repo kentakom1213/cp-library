@@ -36,7 +36,6 @@ fn test_RMQ() {
 
 #[test]
 fn test_from_slice() {
-    let INF = i32::MIN;
     let arr = vec![20, 4, 5, 6, 8, 9, 100];
     let mut segtree = SegmentTree::<Max<_>>::from(&arr);
 
