@@ -45,7 +45,7 @@ jobs:
       - name: Deploy
         uses: actions/upload-pages-artifact@v1
         with:
-          path: target/doc/cp_library_rs
+          path: target/doc
 
   deploy:
     needs: doc
