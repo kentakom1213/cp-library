@@ -3,7 +3,8 @@ use cp_library_rs::{
         examples::{Add, GCD},
         Monoid,
     },
-    utils::consts::{MOD998, NEG1},
+    number_theory::modint::MOD998,
+    utils::consts::NEG1,
 };
 
 #[test]
