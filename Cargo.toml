@@ -1,0 +1,2 @@
+[workspace]
+members = ["cp-library-rs", "expander", "library-checker"]

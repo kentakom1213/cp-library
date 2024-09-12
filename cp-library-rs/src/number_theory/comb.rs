@@ -1,44 +1,55 @@
-//! 二項係数を求める
+//! 階乗を前計算する（Modint構造体に依存）
 
-const MOD: usize = 998_244_353;
-// const MOD: usize = 1_000_000_007;
+use crate::number_theory::modint::modint::Modint;
 
 /// 二項係数を高速に求める
-/// - 前計算 : $`O(N)`$
-/// - クエリ : $`O(1)`$
-pub struct Comb {
-    fac: Vec<usize>,
-    finv: Vec<usize>,
+/// - 前計算:  $`O(N)`$
+/// - クエリ:  $`O(1)`$
+pub struct Comb<const MOD: usize> {
+    fac: Vec<Modint<MOD>>,
+    finv: Vec<Modint<MOD>>,
 }
 
-impl Comb {
+impl<const MOD: usize> Comb<MOD> {
     /// サイズ`max_size`で配列を初期化する
     pub fn new(max_size: usize) -> Self {
-        let mut fac = vec![1; max_size];
-        let mut finv = vec![1; max_size];
-        let mut inv = vec![1; max_size];
+        let mod1: Modint<MOD> = 1.into();
+        let mut fac = vec![mod1; max_size];
+        let mut finv = vec![mod1; max_size];
+        let mut inv = vec![mod1; max_size];
         for i in 2..max_size {
-            fac[i] = fac[i - 1] * i % MOD;
-            inv[i] = MOD - (MOD / i) * inv[MOD % i] % MOD;
-            finv[i] = finv[i - 1] * inv[i] % MOD;
+            fac[i] = fac[i - 1] * i;
+            inv[i] = -Modint::new(MOD / i) * inv[MOD % i];
+            finv[i] = finv[i - 1] * inv[i];
         }
-
         Comb { fac, finv }
     }
 
-    /// `nCr`を`MOD`で割った値を求める
-    pub fn comb(&self, n: usize, r: usize) -> usize {
+    /// n個からr個選ぶ組合せ
+    ///
+    /// - 計算量：$`O(1)`$
+    pub fn comb(&self, n: usize, r: usize) -> Modint<MOD> {
         if n < r {
-            return 0;
+            return 0.into();
         }
-        self.fac[n] * (self.finv[r] * self.finv[n - r] % MOD) % MOD
+        self.fac[n] * self.finv[r] * self.finv[n - r]
     }
 
-    /// `nPr`を`MOD`で割った値を求める
-    pub fn perm(&self, n: usize, r: usize) -> usize {
+    /// n個からr個を選び並べる順列
+    ///
+    /// - 計算量：$`O(1)`$
+    pub fn perm(&self, n: usize, r: usize) -> Modint<MOD> {
         if n < r {
-            return 0;
+            return 0.into();
         }
-        self.fac[n] * self.finv[n - r] % MOD
+        self.fac[n] * self.finv[n - r]
+    }
+
+    /// 重複組合せ
+    ///
+    /// - n個の区別しない玉をr個の区別する箱に入れる組合せ
+    /// - 計算量：$`O(1)`$
+    pub fn comb_with_rep(&self, n: usize, r: usize) -> Modint<MOD> {
+        self.comb(n + r - 1, n)
     }
 }

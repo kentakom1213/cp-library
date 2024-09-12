@@ -2,7 +2,7 @@
 
 /// 非負整数 $`n`$ を素因数分解し、`(素因数,指数)`のベクタを返す
 /// - 計算量 : $`O(\sqrt{n})`$
-pub fn factorize(mut n: usize) -> Vec<(usize, usize)> {
+pub fn factorize_pairs(mut n: usize) -> Vec<(usize, usize)> {
     let mut res = Vec::new();
     for i in 2.. {
         if i * i > n {
