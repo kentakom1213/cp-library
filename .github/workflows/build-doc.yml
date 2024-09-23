@@ -41,11 +41,11 @@ jobs:
       - name: download KaTeX
         run: curl -O https://raw.githubusercontent.com/CAD97/katex-doc/master/katex.html
       - name: Run doc
-        run: cargo rustdoc -- --html-in-header cp-library-rs/katex.html
+        run: cargo rustdoc -- --html-in-header katex.html
       - name: Deploy
         uses: actions/upload-pages-artifact@v1
         with:
-          path: target/doc
+          path: cp-library-rs/target/doc
 
   deploy:
     needs: doc
