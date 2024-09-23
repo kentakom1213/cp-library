@@ -1,6 +1,5 @@
 use cp_library_rs::{
-    algebraic_structure::extmonoid::{examples::*, ExtMonoid},
-    data_structure::lazy_segment_tree::*,
+    algebraic_structure::extmonoid::examples::*, data_structure::lazy_segment_tree::*,
 };
 
 #[test]
@@ -109,7 +108,6 @@ fn test_RSQ_and_RUQ() {
 
 #[test]
 fn test_from() {
-
     let arr = vec![5, 2, -3, -1, -9, -2, 5, 0, 0, 5];
 
     let mut seg = LazySegmentTree::<UpdateMin>::from(&arr);

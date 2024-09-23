@@ -160,16 +160,17 @@ where
     M::F: Debug,
     M::X: Debug,
 {
-    pub fn show(&mut self) -> String {
-        let mut res = "LazySegmentTree {{ [".to_string();
-        for i in 0..self.size {
-            if i + 1 < self.size {
-                res += &format!("{:?}, ", self.get(i..=i));
-            } else {
-                res += &format!("{:?}", self.get(i..=i));
+    pub fn show(&mut self) {
+        if cfg!(debug_assertions) {
+            eprint!("LazySegmentTree {{ [");
+            for i in 0..self.size {
+                if i + 1 < self.size {
+                    eprint!("{:?}, ", self.get(i..=i));
+                } else {
+                    eprint!("{:?}", self.get(i..=i));
+                }
             }
+            eprintln!("] }}")
         }
-        res += "] }}";
-        res
     }
 }

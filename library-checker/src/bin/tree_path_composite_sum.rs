@@ -9,7 +9,7 @@ use cp_library_rs::{
 
 fn main() {
     let N = get!(usize);
-    let A = get!(M998;;);
+    let _A = get!(M998;;);
     let UVBC = get!(usize, usize, M998, M998; N - 1);
 
     // 全方位木DP

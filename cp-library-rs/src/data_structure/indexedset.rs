@@ -4,7 +4,7 @@ use std::iter::FromIterator;
 use std::mem::{replace, swap};
 use std::{cmp::Ordering, fmt::Debug};
 
-/// # Node
+/// Node
 #[derive(Debug, Clone)]
 pub struct Node<T: Ord> {
     pub key: T,
@@ -25,8 +25,8 @@ impl<T: Ord> Node<T> {
     }
 }
 
-/// # IndexedSet
-/// スプレー木のクラス
+/// IndexedSet
+/// - スプレー木のクラス
 pub struct IndexedSet<T: Ord> {
     size: usize,
     pub root: Option<Box<Node<T>>>,

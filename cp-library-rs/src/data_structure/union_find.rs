@@ -51,9 +51,9 @@ impl UnionFind {
             return false;
         }
 
-        // 要素数が大きい方を子にすることで、高さを均等に保つ
+        // 要素数が大きい方を親にすることで、高さを均等に保つ
         if self.siz[parent] < self.siz[child] {
-            std::mem::swap(&mut parent, &mut child);
+            (parent, child) = (child, parent);
         }
 
         self.parent[child] = parent;
