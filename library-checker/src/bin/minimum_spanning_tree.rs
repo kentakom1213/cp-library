@@ -18,7 +18,7 @@ fn main() {
     let mut ans = vec![];
 
     for &(w, u, v, id) in &edges {
-        if uf.unite(u, v) {
+        if uf.unite(u, v).is_some() {
             cost += w;
             ans.push(id);
         }

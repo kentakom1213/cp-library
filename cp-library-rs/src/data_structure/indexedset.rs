@@ -75,9 +75,10 @@ where
         self.size == 0
     }
 
-    /// ## get
-    /// 値の検索を行う
-    /// ### 戻り値
+    /// get
+    /// - 値の検索を行う
+    ///
+    /// **戻り値**
     /// - `Option<&T>`: キーに紐づいた値
     pub fn get(&mut self, key: &T) -> Option<&T> {
         let lb = self.lower_bound(key);
@@ -89,7 +90,8 @@ where
     }
 
     /// 値の挿入を行う。
-    /// ### 戻り値
+    ///
+    /// **戻り値**
     /// - `bool`: 挿入が行われたか
     pub fn insert(&mut self, key: T) -> Option<T> {
         // rootの取り出し
@@ -125,11 +127,12 @@ where
         None
     }
 
-    /// ## delete
-    /// 値の削除
-    /// ### 戻り値
+    /// remove
+    /// - 値の削除
+    ///
+    /// **戻り値**
     /// - `Option<T>`: 削除された値
-    pub fn delete(&mut self, key: &T) -> Option<T> {
+    pub fn remove(&mut self, key: &T) -> Option<T> {
         if self.is_empty() {
             return None;
         }
@@ -164,13 +167,13 @@ where
         Some(deleted.unwrap().key)
     }
 
-    /// ## contains_key
+    /// contains_key
     /// - 値`key`を含むか
     pub fn contains_key(&mut self, key: &T) -> bool {
         self.get(key).is_some_and(|k| k == key)
     }
 
-    /// ## lower_bound
+    /// lower_bound
     /// - `key`以上の最小の値を返す
     pub fn lower_bound(&mut self, key: &T) -> Option<&T> {
         // 根の取り出し
@@ -185,7 +188,7 @@ where
         }
     }
 
-    /// ## upper_bound
+    /// upper_bound
     /// - `key`より大きい最小の値を返す
     pub fn upper_bound(&mut self, key: &T) -> Option<&T> {
         // 根の取り出し
@@ -200,7 +203,7 @@ where
         }
     }
 
-    /// ## lower_bound_rev
+    /// lower_bound_rev
     /// - `key`以下の最大の値を返す
     pub fn lower_bound_rev(&mut self, key: &T) -> Option<&T> {
         // 根の取り出し
@@ -215,7 +218,7 @@ where
         }
     }
 
-    /// ## upper_bound_rev
+    /// upper_bound_rev
     /// - `key`未満の最大の値を返す
     pub fn upper_bound_rev(&mut self, key: &T) -> Option<&T> {
         // 根の取り出し
@@ -230,7 +233,7 @@ where
         }
     }
 
-    /// ## get_by_index
+    /// get_by_index
     /// - 先頭からn番目の値を取得する（0-indexed）
     pub fn get_by_index(&self, n: usize) -> Option<&T> {
         if n > self.size {
@@ -240,7 +243,7 @@ where
         }
     }
 
-    /// ## index
+    /// index
     /// - 要素`key`のインデックスを取得する（0-indexed）
     pub fn index(&mut self, key: &T) -> Option<usize> {
         // keyでsplayを行う
@@ -259,7 +262,7 @@ where
     }
 }
 
-/// ## get_nth
+/// get_nth
 fn get_nth<T: Ord>(root: &Option<Box<Node<T>>>, n: usize) -> Option<&T> {
     if let Some(root) = root {
         let left_size = root.left.as_ref().map_or(0, |node| node.size);
@@ -273,7 +276,7 @@ fn get_nth<T: Ord>(root: &Option<Box<Node<T>>>, n: usize) -> Option<&T> {
     }
 }
 
-/// ## splay
+/// splay
 /// 比較関数`compare`を引数にとり、条件を満たす最小のノードを返す
 fn splay<T, C>(mut root: Option<Box<Node<T>>>, key: &T, compare: C) -> (Option<Box<Node<T>>>, bool)
 where
@@ -347,7 +350,7 @@ where
     }
 }
 
-/// ## splay_rev
+/// splay_rev
 /// - 比較関数`compare`を引数にとり、条件を満たす最小のノードを返す
 /// - splayの逆向き
 fn splay_rev<T, C>(
@@ -435,7 +438,7 @@ fn update_size<T: Ord>(node: &mut Option<Box<Node<T>>>) {
     }
 }
 
-/// ## 右回転
+/// 右回転
 /// ```not-rust
 ///        Y                      X
 ///       / \       right        / \
@@ -456,7 +459,7 @@ fn rotate_right<T: Ord>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T>>> {
     res
 }
 
-/// ## 左回転
+/// 左回転
 /// ```not-rust
 ///      X                          Y
 ///     / \         left           / \
@@ -485,36 +488,6 @@ impl<T: Ord + Clone> FromIterator<T> for IndexedSet<T> {
             res.insert(item);
         }
         res
-    }
-}
-
-// ----- Debug -----
-impl<T: Ord + Debug> Debug for IndexedSet<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        fmt_inner(f, &self.root, 0);
-        Ok(())
-    }
-}
-
-/// 再帰的に表示
-#[allow(unused_must_use)]
-fn fmt_inner<T>(f: &mut std::fmt::Formatter<'_>, node: &Option<Box<Node<T>>>, depth: usize)
-where
-    T: Ord + Debug,
-{
-    match node {
-        Some(ref node) => {
-            fmt_inner(f, &node.left, depth + 1);
-            writeln!(
-                f,
-                "{}({:?}, size:{})",
-                " ".repeat(depth * 2),
-                node.key,
-                node.size
-            );
-            fmt_inner(f, &node.right, depth + 1);
-        }
-        None => {}
     }
 }
 
@@ -561,5 +534,11 @@ impl<'a, T: Ord> IntoIterator for &'a IndexedSet<T> {
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
+    }
+}
+
+impl<T: Ord + Debug> Debug for IndexedSet<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_set().entries(self.iter()).finish()
     }
 }
