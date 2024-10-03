@@ -1,6 +1,7 @@
+use anyhow::bail;
 use clap::Parser;
 use expander::expander::ModuleExpander;
-use std::{env, io, path::PathBuf, process::exit};
+use std::{env, path::PathBuf, process::exit};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -17,7 +18,7 @@ struct Args {
     restore: bool,
 }
 
-fn main() -> Result<(), Box<io::Error>> {
+fn main() -> anyhow::Result<(), anyhow::Error> {
     // ロガーの初期化
     env_logger::init();
 
@@ -46,7 +47,7 @@ fn main() -> Result<(), Box<io::Error>> {
 
         // ディレクトリ名部分とファイル名部分に分割
         let &[contest, bin, ..] = &dir_file.split(' ').collect::<Vec<&str>>()[..] else {
-            panic!("No such contest or binary: {:?}", input_path);
+            bail!("No such contest or binary: {:?}", input_path);
         };
 
         let mut buf = PathBuf::from(env::var("KYOPRO_DIR").unwrap());
@@ -60,7 +61,7 @@ fn main() -> Result<(), Box<io::Error>> {
     // expanderの初期化
     let mut expander = match ModuleExpander::new(input_path.clone(), args.library) {
         Ok(expander) => expander,
-        Err(err) => panic!("{err}"),
+        Err(err) => bail!(err),
     };
 
     log::info!("library_name: {}", expander.library_name);

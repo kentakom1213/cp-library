@@ -14,3 +14,4 @@ log = "0.4.21"
 env_logger = "0.11.3"
 syn = { version = "2.0.66", features = ["full", "visit"] }
 quote = "1.0.36"
+anyhow = "1.0.89"

@@ -2,10 +2,10 @@ use std::{
     collections::BTreeSet,
     fmt::Write,
     fs,
-    io::{self},
     path::{Path, PathBuf},
 };
 
+use anyhow::bail;
 use itertools::Itertools;
 
 use crate::{module_path::ModulePath, parser::get_deps};
@@ -29,7 +29,7 @@ pub struct ModuleExpander {
 
 impl ModuleExpander {
     /// パーサーの初期化
-    pub fn new(entry_file: PathBuf, mut library_path: PathBuf) -> Result<Self, String> {
+    pub fn new(entry_file: PathBuf, mut library_path: PathBuf) -> anyhow::Result<Self, String> {
         // ライブラリ名
         let Some(library_name) = library_path
             .file_name()
@@ -54,13 +54,13 @@ impl ModuleExpander {
 
     /// 再帰的に依存関係を解析する
     /// 結果を`self.dependancies`に保存する
-    pub fn solve_dependancies(&mut self) -> Result<(), io::Error> {
+    pub fn solve_dependancies(&mut self) -> anyhow::Result<(), anyhow::Error> {
         let mut deps = BTreeSet::new();
 
         // entry_fileを解析
         let source = match fs::read_to_string(&self.entry_file) {
-            Ok(source) => source,
-            Err(err) => return Err(err),
+            Ok(contents) => contents,
+            Err(err) => bail!("{}: {:?}", err, self.entry_file),
         };
 
         for dep in get_deps(&source, &self.import_name) {
@@ -78,13 +78,13 @@ impl ModuleExpander {
         dep: &ModulePath,
         library_path: &Path,
         deps: &mut BTreeSet<ModulePath>,
-    ) -> Result<(), io::Error> {
+    ) -> anyhow::Result<(), anyhow::Error> {
         // パスの生成
         let p = dep.to_pathbuf(library_path.to_path_buf());
 
-        let source = match fs::read_to_string(p) {
+        let source = match fs::read_to_string(&p) {
             Ok(source) => source,
-            Err(err) => return Err(err),
+            Err(err) => bail!("{}: {:?}", err, p),
         };
 
         for dep in get_deps(&source, "crate") {
@@ -100,14 +100,17 @@ impl ModuleExpander {
     }
 
     /// 依存関係を展開する（文字列の形で返す）
-    pub fn expand(&mut self) -> Result<String, io::Error> {
+    pub fn expand(&mut self) -> anyhow::Result<String, anyhow::Error> {
         // 依存関係の解析
         if self.dependancies.is_none() {
             self.solve_dependancies()?;
         }
 
         // 元ファイル読み取り
-        let mut contents = fs::read_to_string(&self.entry_file)?;
+        let mut contents = match fs::read_to_string(&self.entry_file) {
+            Ok(contents) => contents,
+            Err(err) => bail!("{}: {:?}", err, self.entry_file),
+        };
 
         // 依存していない場合
         if self.dependancies.as_ref().unwrap().is_empty() {
@@ -122,7 +125,7 @@ impl ModuleExpander {
             &mut contents,
             "
 // ==================== {} ====================
-mod {} {{
+pub mod {} {{
     #![allow(dead_code)]
 ",
             self.library_name, self.import_name
@@ -148,7 +151,7 @@ mod {} {{
                         if !prev_category.is_empty() {
                             write!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
                         }
-                        write!(&mut contents, "{}pub mod {category} {{", TAB.repeat(1)).unwrap();
+                        writeln!(&mut contents, "{}pub mod {category} {{", TAB.repeat(1)).unwrap();
                         contents += &self.get_module(dep, 2)?;
                     }
                     &category
@@ -165,9 +168,16 @@ mod {} {{
     }
 
     /// ファイルをモジュールに出力
-    pub fn get_module(&self, dep: &ModulePath, indent: usize) -> Result<String, io::Error> {
+    pub fn get_module(
+        &self,
+        dep: &ModulePath,
+        indent: usize,
+    ) -> anyhow::Result<String, anyhow::Error> {
         let p = dep.to_pathbuf(self.library_path.to_path_buf());
-        let mut file = fs::read_to_string(p)?;
+        let mut file = match fs::read_to_string(&p) {
+            Ok(contents) => contents,
+            Err(err) => bail!("{}: {:?}", err, p),
+        };
 
         // "crate" -> "crate::${IMPORT_NAME}"
         file = file.replace("crate", &format!("crate::{}", self.import_name));
@@ -187,19 +197,25 @@ mod {} {{
     }
 
     /// 依存関係をファイルに展開する
-    pub fn expand_inplace(&mut self) -> Result<(), io::Error> {
+    pub fn expand_inplace(&mut self) -> anyhow::Result<(), anyhow::Error> {
         let contents = self.expand()?;
 
         // ファイルに書き込み
-        fs::write(&self.entry_file, contents)?;
+        match fs::write(&self.entry_file, contents) {
+            Ok(_) => {}
+            Err(err) => bail!("{}: {:?}", err, self.entry_file),
+        }
 
         Ok(())
     }
 
     /// 復元する
-    pub fn restore(&self) -> Result<(), io::Error> {
+    pub fn restore(&self) -> anyhow::Result<(), anyhow::Error> {
         // 現在のファイルの内容
-        let mut file = fs::read_to_string(&self.entry_file)?;
+        let mut file = match fs::read_to_string(&self.entry_file) {
+            Ok(contents) => contents,
+            Err(err) => bail!("{}: {:?}", err, self.entry_file),
+        };
 
         // "crate::${IMPORT_NAME}" -> "${IMPORT_NAME}"
         file = file.replace(&format!("crate::{}", self.import_name), &self.import_name);
@@ -214,7 +230,10 @@ mod {} {{
         file = file.lines().take_while(|&l| l != &library_begin).join("\n");
 
         // 元のファイルに書き出し
-        fs::write(&self.entry_file, file)?;
+        match fs::write(&self.entry_file, file) {
+            Ok(_) => {}
+            Err(err) => bail!("{}: {:?}", err, self.entry_file),
+        }
 
         Ok(())
     }
