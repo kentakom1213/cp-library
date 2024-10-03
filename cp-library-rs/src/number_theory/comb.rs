@@ -1,25 +1,50 @@
 //! 階乗を前計算する（Modint構造体に依存）
 
-use crate::number_theory::modint::modint::Modint;
+use std::ops::{Add, Mul, Neg, Sub};
+
+use super::modint::{M107, M998, MOD107, MOD998};
+use crate::utils::num_traits::{One, Zero};
+
+/// 確率の値となりうる数
+pub trait NumProbability<Rhs = Self, Output = Self>:
+    Clone
+    + Copy
+    + From<usize>
+    + Neg<Output = Output>
+    + Add<Rhs, Output = Output>
+    + Sub<Rhs, Output = Output>
+    + Mul<Rhs, Output = Output>
+    + Mul<usize, Output = Output>
+    + Zero
+    + One
+    + PartialEq
+{
+    const MOD: usize;
+}
+impl NumProbability for M107 {
+    const MOD: usize = MOD107;
+}
+impl NumProbability for M998 {
+    const MOD: usize = MOD998;
+}
 
 /// 二項係数を高速に求める
 /// - 前計算:  $`O(N)`$
 /// - クエリ:  $`O(1)`$
-pub struct Comb<const MOD: usize> {
-    fac: Vec<Modint<MOD>>,
-    finv: Vec<Modint<MOD>>,
+pub struct Comb<N: NumProbability> {
+    fac: Vec<N>,
+    finv: Vec<N>,
 }
 
-impl<const MOD: usize> Comb<MOD> {
+impl<N: NumProbability> Comb<N> {
     /// サイズ`max_size`で配列を初期化する
     pub fn new(max_size: usize) -> Self {
-        let mod1: Modint<MOD> = 1.into();
-        let mut fac = vec![mod1; max_size];
-        let mut finv = vec![mod1; max_size];
-        let mut inv = vec![mod1; max_size];
+        let mut fac = vec![N::one(); max_size];
+        let mut finv = vec![N::one(); max_size];
+        let mut inv = vec![N::one(); max_size];
         for i in 2..max_size {
             fac[i] = fac[i - 1] * i;
-            inv[i] = -Modint::new(MOD / i) * inv[MOD % i];
+            inv[i] = -N::from(N::MOD / i) * inv[N::MOD % i];
             finv[i] = finv[i - 1] * inv[i];
         }
         Comb { fac, finv }
@@ -28,7 +53,7 @@ impl<const MOD: usize> Comb<MOD> {
     /// n個からr個選ぶ組合せ
     ///
     /// - 計算量：$`O(1)`$
-    pub fn comb(&self, n: usize, r: usize) -> Modint<MOD> {
+    pub fn comb(&self, n: usize, r: usize) -> N {
         if n < r {
             return 0.into();
         }
@@ -38,7 +63,7 @@ impl<const MOD: usize> Comb<MOD> {
     /// n個からr個を選び並べる順列
     ///
     /// - 計算量：$`O(1)`$
-    pub fn perm(&self, n: usize, r: usize) -> Modint<MOD> {
+    pub fn perm(&self, n: usize, r: usize) -> N {
         if n < r {
             return 0.into();
         }
@@ -49,7 +74,7 @@ impl<const MOD: usize> Comb<MOD> {
     ///
     /// - n個の区別しない玉をr個の区別する箱に入れる組合せ
     /// - 計算量：$`O(1)`$
-    pub fn comb_with_rep(&self, n: usize, r: usize) -> Modint<MOD> {
+    pub fn comb_with_rep(&self, n: usize, r: usize) -> N {
         self.comb(n + r - 1, n)
     }
 }
