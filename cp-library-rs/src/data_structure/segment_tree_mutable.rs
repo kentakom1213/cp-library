@@ -6,9 +6,9 @@ use std::ops::{
     Deref, DerefMut, Index, RangeBounds,
 };
 
-/// # SegmentTree (Monoid)
-/// - 抽象化セグメント木
-pub struct SegmentTree<T, F>
+/// SegmentTreeMut (Monoid)
+/// - セグメント木
+pub struct SegmentTreeMut<T, F>
 where
     T: Debug + Clone + PartialEq,
     F: Fn(&T, &T) -> T,
@@ -20,7 +20,7 @@ where
     data: Vec<T>,
 }
 
-impl<T, F> Index<usize> for SegmentTree<T, F>
+impl<T, F> Index<usize> for SegmentTreeMut<T, F>
 where
     T: Debug + Clone + PartialEq,
     F: Fn(&T, &T) -> T,
@@ -31,7 +31,7 @@ where
     }
 }
 
-impl<T, F> SegmentTree<T, F>
+impl<T, F> SegmentTreeMut<T, F>
 where
     T: Debug + Clone + PartialEq,
     F: Fn(&T, &T) -> T,
@@ -143,13 +143,13 @@ where
     }
 }
 
-impl<T: Debug, F> std::fmt::Debug for SegmentTree<T, F>
+impl<T: Debug, F> std::fmt::Debug for SegmentTreeMut<T, F>
 where
     T: Debug + Clone + PartialEq,
     F: Fn(&T, &T) -> T,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SegmentTree {{ [").ok();
+        write!(f, "SegmentTreeMut {{ [").ok();
         for i in 0..self.size {
             if i + 1 < self.size {
                 write!(f, "{:?}, ", self.data[self.offset + i]).ok();
@@ -166,7 +166,7 @@ where
     T: Debug + Clone + PartialEq,
     F: Fn(&T, &T) -> T,
 {
-    segtree: &'a mut SegmentTree<T, F>,
+    segtree: &'a mut SegmentTreeMut<T, F>,
     idx: usize,
     new_val: T,
 }

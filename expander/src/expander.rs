@@ -107,7 +107,10 @@ impl ModuleExpander {
         }
 
         // 元ファイル読み取り
-        let mut contents = fs::read_to_string(&self.entry_file)?;
+        let mut contents = fs::read_to_string(&self.entry_file).map_err(|err| {
+            log::info!("file_name: {:?}", &self.entry_file);
+            err
+        })?;
 
         // 依存していない場合
         if self.dependancies.as_ref().unwrap().is_empty() {
