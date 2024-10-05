@@ -234,35 +234,16 @@ where
     M: Monoid,
     M::Val: Debug,
 {
-    /// セグ木を簡易的に表示する
-    pub fn show(&self) -> String {
-        let mut res = String::new();
-
-        let H = self.oh;
-        let W = self.ow;
-        let idx = |r: usize, c: usize| -> usize { 2 * r * W + c };
-
-        let mut r = 1;
-        let mut h = 1;
-        let mut logh = 0;
-        while r + h <= 2 * H {
-            for i in 1..=h {
-                let mut c = 1;
-                let mut w = 1;
-                while c + w <= 2 * W {
-                    res += &format!(
-                        "{}{:?}\n",
-                        "  ".repeat(logh),
-                        &self.data[idx(r + i - 1, c)..idx(r + i - 1, c + w)]
-                    );
-                    c += w;
-                    w <<= 1;
-                }
+    /// テーブルとして表示する
+    pub fn show(&self) {
+        if cfg!(debug_assertions) {
+            let H = self.oh;
+            let W = self.ow;
+            eprintln!("SegmentTree2D (H={}, W={}) {{", H, W);
+            for i in 0..H {
+                eprintln!("  {:?},", &self.data[2 * i * W..2 * (i + 1) * W]);
             }
-            r += h;
-            h <<= 1;
-            logh += 1;
+            eprintln!("}}");
         }
-        res
     }
 }

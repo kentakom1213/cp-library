@@ -8,8 +8,7 @@ use cp_library_rs::{
     algebraic_structure::{extmonoid::ExtMonoid, extmonoid_mod::AffineSum},
     data_structure::lazy_segment_tree::LazySegmentTree,
     get,
-    number_theory::modint::M998,
-    utils::consts::MOD998,
+    number_theory::modint::{M998, MOD998},
 };
 
 fn main() {

@@ -1,8 +1,8 @@
-use cp_library_rs::number_theory::modint_comb::*;
+use cp_library_rs::number_theory::{comb::*, modint::M998};
 const SIZE: usize = 5050505;
 #[test]
 fn test_permutation() {
-    let comb = Comb::<998244353>::new(SIZE);
+    let comb = Comb::<M998>::new(SIZE);
     assert_eq!(comb.perm(5, 3), 60);
     assert_eq!(comb.perm(349192, 183860), 545014128);
     assert_eq!(comb.perm(408260, 141033), 568084541);
@@ -27,7 +27,7 @@ fn test_permutation() {
 }
 #[test]
 fn test_combination() {
-    let comb = Comb::<998244353>::new(SIZE);
+    let comb = Comb::<M998>::new(SIZE);
     assert_eq!(comb.comb(259242, 87705), 774328561);
     assert_eq!(comb.comb(71363, 25183), 536450162);
     assert_eq!(comb.comb(475558, 122225), 420488366);

@@ -2,33 +2,37 @@
 
 use std::mem;
 
+use crate::utils::consts::NEG1;
+
 /// UnionFind木
 pub struct UnionFind {
+    /// 要素数
+    n: usize,
+    /// 親の番号を格納する配列
     parent: Vec<usize>,
-    siz: Vec<usize>,
     /// 連結成分の個数
     count: usize,
 }
 
 impl UnionFind {
     /// UnionFindを新規作成
-    pub fn new(n: usize) -> Self {
+    pub fn new(N: usize) -> Self {
         UnionFind {
-            parent: (0..n).collect(),
-            siz: vec![1; n],
-            count: n,
+            n: N,
+            parent: vec![NEG1; N],
+            count: N,
         }
     }
 
     /// 根を求める
-    pub fn get_root(&mut self, mut x: usize) -> usize {
+    pub fn root(&mut self, mut x: usize) -> usize {
         // 根を探索
         let mut root = x;
-        while self.parent[root] != root {
+        while self.parent[root] < self.n {
             root = self.parent[root];
         }
         // 経路圧縮
-        while x != root {
+        while self.parent[x] < self.n {
             x = mem::replace(&mut self.parent[x], root);
         }
         root
@@ -36,37 +40,37 @@ impl UnionFind {
 
     /// 同一の集合に所属するか判定
     pub fn is_same(&mut self, x: usize, y: usize) -> bool {
-        self.get_root(x) == self.get_root(y)
+        self.root(x) == self.root(y)
     }
 
     /// 集合`x,y`を併合する．
     ///
     /// **戻り値**
-    /// - すでに併合済みだった場合`false`，そうでない場合`true`を返す
-    pub fn unite(&mut self, x: usize, y: usize) -> bool {
-        let mut parent = self.get_root(x);
-        let mut child = self.get_root(y);
+    /// - すでに併合済みだった場合`None`，そうでない場合親となった要素の番号を返す
+    pub fn unite(&mut self, x: usize, y: usize) -> Option<usize> {
+        let mut parent = self.root(x);
+        let mut child = self.root(y);
 
         if parent == child {
-            return false;
+            return None;
         }
 
-        // 要素数が大きい方を子にすることで、高さを均等に保つ
-        if self.siz[parent] < self.siz[child] {
-            std::mem::swap(&mut parent, &mut child);
+        // 要素数が大きい方を親にすることで、高さを均等に保つ
+        if self.parent[parent] > self.parent[child] {
+            (parent, child) = (child, parent);
         }
 
+        self.parent[parent] = self.parent[parent].wrapping_add(self.parent[child]);
         self.parent[child] = parent;
-        self.siz[parent] += self.siz[child];
         self.count -= 1;
 
-        true
+        Some(parent)
     }
 
     /// 連結成分の大きさを求める
     pub fn get_size(&mut self, x: usize) -> usize {
-        let get_root = self.get_root(x);
-        self.siz[get_root]
+        let root = self.root(x);
+        self.parent[root].wrapping_neg()
     }
 
     /// 連結成分の数を返す

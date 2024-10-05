@@ -235,4 +235,14 @@ impl MexSet {
             x
         }
     }
+
+    /// **集合に含まれない**`x`以下で最大の整数を調べる
+    pub fn mex_rev(&self, x: isize) -> isize {
+        let &(l, r) = self.ranges.range(..(x, isize::MAX)).next_back().unwrap();
+        if l <= x && x <= r {
+            l - 1
+        } else {
+            x
+        }
+    }
 }

@@ -3,7 +3,7 @@
 use cp_library_rs::{
     algebraic_structure::extmonoid_mod::AffineUpdateComposite,
     data_structure::lazy_segment_tree::LazySegmentTree, get, number_theory::modint::M998,
-    utils::consts::MOD998,
+    number_theory::modint::MOD998,
 };
 
 fn main() {

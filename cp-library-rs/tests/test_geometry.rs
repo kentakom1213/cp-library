@@ -1,8 +1,7 @@
 use cp_library_rs::geometry::{
-    basic::{Line, Segment, EPS},
+    basic::{Segment, EPS},
     vec2::Vec2,
 };
-use num::complex::ComplexFloat;
 
 #[test]
 fn test_add_sub_mul_vec2() {

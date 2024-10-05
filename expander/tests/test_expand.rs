@@ -9,9 +9,7 @@ use syn::visit::Visit;
 
 /// ライブラリのパスを取得する
 fn get_library_path() -> PathBuf {
-    let mut buf = PathBuf::from(env::var("KYOPURO_LIBRARY_DIR").unwrap());
-    buf.push("cp-library-rs");
-    buf
+    PathBuf::from(env::var("KYOPURO_LIBRARY_DIR").unwrap())
 }
 
 macro_rules! debug {
@@ -115,7 +113,7 @@ fn test_parser() {
             },
             ModulePath::Module {
                 category: "number_theory".to_string(),
-                file: "modint_comb".to_string(),
+                file: "comb".to_string(),
             },
             ModulePath::Module {
                 category: "utils".to_string(),

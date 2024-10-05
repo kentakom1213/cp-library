@@ -30,5 +30,5 @@ fn test_display() {
         category: "number_theory".to_string(),
         file: "crt".to_string(),
     };
-    assert_eq!(p2.to_string(), "number_theory::crt");
+    assert_eq!(p2.to_string(), "crt");
 }
