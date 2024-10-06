@@ -1,4 +1,4 @@
-use cp_library_rs::{algebraic_structure::monoid::examples::Add, data_structure::bit::*};
+use cp_library_rs::{algebraic_structure::operation::Add, data_structure::bit::*};
 
 #[test]
 fn test_new() {

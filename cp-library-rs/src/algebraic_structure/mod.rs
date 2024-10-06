@@ -10,4 +10,6 @@ pub mod extmonoid;
 pub mod extmonoid_mod;
 pub mod group;
 pub mod monoid;
+pub mod operation;
 pub mod ordered_monoid;
+pub mod semilattice;

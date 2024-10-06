@@ -1,6 +1,5 @@
 use cp_library_rs::{
-    algebraic_structure::monoid::examples::Add,
-    data_structure::dynamic_segment_tree::DynamicSegmentTree,
+    algebraic_structure::operation::Add, data_structure::dynamic_segment_tree::DynamicSegmentTree,
 };
 use rand::{
     distributions::{Alphanumeric, DistString},

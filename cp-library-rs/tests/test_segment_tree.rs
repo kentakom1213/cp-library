@@ -1,4 +1,7 @@
-use cp_library_rs::{algebraic_structure::monoid::examples::*, data_structure::segment_tree::*};
+use cp_library_rs::{
+    algebraic_structure::operation::{Add, Max, Min, Mul},
+    data_structure::segment_tree::*,
+};
 
 #[test]
 fn test_get_point() {

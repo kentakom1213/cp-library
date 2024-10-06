@@ -1,6 +1,6 @@
 //! モノイドに対する順序の実装
 
-use super::monoid::{examples::*, Monoid};
+use super::{monoid::Monoid, operation::*};
 
 /// 順序付きモノイド
 pub trait OrderedMonoid: Monoid {

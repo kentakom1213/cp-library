@@ -6,14 +6,7 @@ use std::ops::{
     RangeBounds,
 };
 
-pub trait Semilattice {
-    /// 元の型
-    type Val: fmt::Debug + Clone;
-    /// 単位元
-    const E: Self::Val;
-    /// 可換な二項演算
-    fn op(x: &Self::Val, y: &Self::Val) -> Self::Val;
-}
+use crate::algebraic_structure::semilattice::Semilattice;
 
 #[derive(Debug)]
 pub struct SparseTable<S: Semilattice> {
@@ -77,7 +70,7 @@ impl<S: Semilattice> SparseTable<S> {
         };
 
         if start >= end {
-            return S::E;
+            return S::id();
         }
 
         let lg = self.logs[end - start];
@@ -85,48 +78,5 @@ impl<S: Semilattice> SparseTable<S> {
         let right = &self.table[lg][end - (1 << lg)];
 
         S::op(left, right)
-    }
-}
-
-pub mod Alg {
-    use super::Semilattice;
-
-    /// 区間最小値
-    #[derive(Debug)]
-    pub struct Min;
-    impl Semilattice for Min {
-        type Val = isize;
-        const E: Self::Val = isize::MAX;
-        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
-            *x.min(y)
-        }
-    }
-    /// 区間最大値
-    #[derive(Debug)]
-    pub struct Max;
-    impl Semilattice for Max {
-        type Val = isize;
-        const E: Self::Val = isize::MAX;
-        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
-            *x.max(y)
-        }
-    }
-    /// 最大公約数
-    pub fn gcd(a: usize, b: usize) -> usize {
-        if b == 0 {
-            a
-        } else {
-            gcd(b, a % b)
-        }
-    }
-    /// 区間最大公約数
-    #[derive(Debug)]
-    pub struct GCD;
-    impl Semilattice for GCD {
-        type Val = usize;
-        const E: Self::Val = 0;
-        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
-            gcd(*x, *y)
-        }
     }
 }

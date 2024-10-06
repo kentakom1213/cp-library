@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    algebraic_structure::monoid::examples::{Add, Max},
+    algebraic_structure::operation::{Add, Max},
     data_structure::segment_tree_2d::SegmentTree2D,
 };
 

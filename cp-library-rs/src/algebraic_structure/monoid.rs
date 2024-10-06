@@ -6,6 +6,10 @@
 
 use std::fmt::Debug;
 
+use crate::utils::num_traits::{Bounded, One};
+
+use super::operation::{Add, Max, Min, Mul, Xor, GCD};
+
 /// モノイド
 ///
 /// - [`Monoid::Val`] ： データの型 $`S`$
@@ -20,118 +24,81 @@ pub trait Monoid {
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val;
 }
 
-/// モノイドの例
-pub mod examples {
-
-    use std::{fmt::Debug, marker::PhantomData};
-
-    use crate::{
-        algebraic_structure::monoid::Monoid,
-        utils::num_traits::{Bounded, One},
-    };
-
-    /// 和
-    #[derive(Debug, Clone)]
-    pub struct Add<T>(PhantomData<T>);
-
-    impl Monoid for Add<isize> {
-        type Val = isize;
-        fn id() -> Self::Val {
-            0
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left + right
-        }
+// ========== 実装 ==========
+impl<T: Ord + Bounded + Clone + Debug> Monoid for Min<T> {
+    type Val = T;
+    fn id() -> Self::Val {
+        Self::Val::max_value()
     }
-    impl Monoid for Add<f64> {
-        type Val = f64;
-        fn id() -> Self::Val {
-            0.0
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left + right
-        }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        left.min(right).clone()
     }
-    impl Monoid for Add<usize> {
-        type Val = usize;
-        fn id() -> Self::Val {
-            0
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left.wrapping_add(*right)
-        }
-    }
+}
 
-    /// 積
-    #[derive(Debug, Clone)]
-    pub struct Mul<T>(PhantomData<T>);
-    impl<T: One + Clone + Debug> Monoid for Mul<T> {
-        type Val = T;
-        fn id() -> Self::Val {
-            T::one()
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left.clone() * right.clone()
-        }
+impl Monoid for Add<isize> {
+    type Val = isize;
+    fn id() -> Self::Val {
+        0
     }
-
-    /// bit単位の排他的論理和
-    #[derive(Debug, Clone)]
-    pub struct Xor;
-    impl Monoid for Xor {
-        type Val = usize;
-        fn id() -> Self::Val {
-            0
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left ^ right
-        }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        left + right
     }
-
-    /// 最小値
-    #[derive(Debug, Clone)]
-    pub struct Min<T>(PhantomData<T>);
-    impl<T: Ord + Bounded + Clone + Debug> Monoid for Min<T> {
-        type Val = T;
-        fn id() -> Self::Val {
-            Self::Val::max_value()
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left.min(right).clone()
-        }
+}
+impl Monoid for Add<f64> {
+    type Val = f64;
+    fn id() -> Self::Val {
+        0.0
     }
-
-    /// 最大値
-    #[derive(Debug, Clone)]
-    pub struct Max<T>(PhantomData<T>);
-    impl<T: Ord + Bounded + Clone + Debug> Monoid for Max<T> {
-        type Val = T;
-        fn id() -> Self::Val {
-            Self::Val::min_value()
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            left.max(right).clone()
-        }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        left + right
     }
-
-    /// 最大公約数
-    #[derive(Debug, Clone)]
-    pub struct GCD;
-    impl Monoid for GCD {
-        type Val = usize;
-        fn id() -> Self::Val {
-            0
-        }
-        fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-            gcd(*left, *right)
-        }
+}
+impl Monoid for Add<usize> {
+    type Val = usize;
+    fn id() -> Self::Val {
+        0
     }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        left.wrapping_add(*right)
+    }
+}
 
-    pub fn gcd(a: usize, b: usize) -> usize {
-        if b == 0 {
-            a
-        } else {
-            gcd(b, a % b)
-        }
+impl<T: One + Clone + Debug> Monoid for Mul<T> {
+    type Val = T;
+    fn id() -> Self::Val {
+        T::one()
+    }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        left.clone() * right.clone()
+    }
+}
+
+impl Monoid for Xor {
+    type Val = usize;
+    fn id() -> Self::Val {
+        0
+    }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        left ^ right
+    }
+}
+
+impl<T: Ord + Bounded + Clone + Debug> Monoid for Max<T> {
+    type Val = T;
+    fn id() -> Self::Val {
+        Self::Val::min_value()
+    }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        left.max(right).clone()
+    }
+}
+
+impl<T> Monoid for GCD<T> {
+    type Val = usize;
+    fn id() -> Self::Val {
+        0
+    }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        GCD::gcd(left, right)
     }
 }

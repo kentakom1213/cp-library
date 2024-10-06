@@ -1,6 +1,6 @@
 //! 群の実装
 
-use crate::algebraic_structure::monoid::{examples::*, Monoid};
+use crate::algebraic_structure::{monoid::Monoid, operation::*};
 
 /// 群
 pub trait Group: Monoid {

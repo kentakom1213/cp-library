@@ -1,5 +1,5 @@
 use cp_library_rs::{
-    algebraic_structure::monoid::examples::{Add, Min},
+    algebraic_structure::operation::{Add, Min},
     data_structure::dual_segment_tree::*,
 };
 

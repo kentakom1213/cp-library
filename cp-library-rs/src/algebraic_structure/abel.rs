@@ -1,8 +1,6 @@
 //! ## アーベル群（可換群）
 
-use crate::algebraic_structure::{
-    commutative::CommutativeMonoid, group::Group, monoid::examples::*,
-};
+use crate::algebraic_structure::{commutative::CommutativeMonoid, group::Group, operation::*};
 
 /// アーベル群
 ///
