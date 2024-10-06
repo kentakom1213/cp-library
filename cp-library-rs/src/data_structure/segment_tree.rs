@@ -118,17 +118,25 @@ impl<M: Monoid> SegmentTree<M> {
     }
 }
 
-impl<M: Monoid> From<&Vec<M::Val>> for SegmentTree<M> {
-    fn from(src: &Vec<M::Val>) -> Self {
+impl<M: Monoid> From<Vec<M::Val>> for SegmentTree<M> {
+    fn from(src: Vec<M::Val>) -> Self {
         let mut seg = Self::new(src.len());
-        for (i, v) in src.iter().enumerate() {
-            seg.data[seg.offset + i] = v.clone();
+        for (i, v) in src.into_iter().enumerate() {
+            seg.data[seg.offset + i] = v;
         }
         for i in (0..seg.offset).rev() {
             let lch = i << 1;
             seg.data[i] = M::op(&seg.data[lch], &seg.data[lch + 1]);
         }
         seg
+    }
+}
+
+impl<M: Monoid> FromIterator<M::Val> for SegmentTree<M> {
+    fn from_iter<T: IntoIterator<Item = M::Val>>(iter: T) -> Self {
+        // 配列にする
+        let arr: Vec<<M as Monoid>::Val> = iter.into_iter().collect();
+        Self::from(arr)
     }
 }
 
