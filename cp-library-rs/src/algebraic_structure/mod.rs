@@ -9,6 +9,7 @@ pub mod commutative;
 pub mod extmonoid;
 pub mod extmonoid_mod;
 pub mod group;
+pub mod indexed_monoid;
 pub mod monoid;
 pub mod operation;
 pub mod ordered_monoid;
