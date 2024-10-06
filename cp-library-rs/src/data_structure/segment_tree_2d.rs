@@ -200,7 +200,11 @@ pub struct ValMut<'a, M: 'a + Monoid> {
     new_val: M::Val,
 }
 
-impl<M: Monoid> fmt::Debug for ValMut<'_, M> {
+impl<M> fmt::Debug for ValMut<'_, M>
+where
+    M: Monoid,
+    M::Val: Debug,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("ValMut")
             .field("r", &self.r)

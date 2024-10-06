@@ -140,7 +140,11 @@ impl<M: Monoid> FromIterator<M::Val> for SegmentTree<M> {
     }
 }
 
-impl<M: Monoid> Debug for SegmentTree<M> {
+impl<M> Debug for SegmentTree<M>
+where
+    M: Monoid,
+    M::Val: Debug,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "SegmentTree {{ [").ok();
         for i in 0..self.size {
@@ -161,7 +165,11 @@ pub struct ValMut<'a, M: 'a + Monoid> {
     new_val: M::Val,
 }
 
-impl<M: Monoid> Debug for ValMut<'_, M> {
+impl<M> Debug for ValMut<'_, M>
+where
+    M: Monoid,
+    M::Val: Debug,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_tuple("ValMut").field(&self.new_val).finish()
     }

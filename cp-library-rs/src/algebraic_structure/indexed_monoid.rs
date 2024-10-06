@@ -1,44 +1,60 @@
 use std::marker::PhantomData;
 
 use crate::{
-    algebraic_structure::{monoid::Monoid, semilattice::Semilattice},
+    algebraic_structure::{
+        monoid::Monoid,
+        operation::{Max, Min},
+    },
     data_structure::segment_tree::SegmentTree,
+    utils::num_traits::Bounded,
 };
 
 /// インデックスを同時に取得できるようにするラッパー
-pub struct Indexed<M>(PhantomData<M>);
+pub struct Indexed<M: Monoid>(PhantomData<M>);
 
-impl<M> Monoid for Indexed<M>
-where
-    M: Monoid + Semilattice,
-    <M as Monoid>::Val: PartialEq,
-{
-    type Val = (<M as Monoid>::Val, usize);
+// ========== セグ木の初期化 ==========
+impl<T: Ord + Bounded + Clone> Monoid for Indexed<Min<T>> {
+    type Val = (T, usize);
     fn id() -> Self::Val {
-        (<M as Monoid>::id(), usize::MAX)
+        (Min::id(), usize::MAX)
     }
-    fn op((l_val, l_idx): &Self::Val, (r_val, r_idx): &Self::Val) -> Self::Val {
-        let val = <M as Monoid>::op(l_val, r_val);
-        if &val == l_val {
-            (val, *l_idx)
-        } else if &val == r_val {
-            (val, *r_idx)
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        if left <= right {
+            left.clone()
         } else {
-            unreachable!()
+            right.clone()
         }
     }
 }
 
-// ========== セグ木の初期化 ==========
-impl<M> SegmentTree<Indexed<M>>
-where
-    M: Monoid + Semilattice,
-    <M as Monoid>::Val: PartialEq,
-{
-    /// セグメント木を初期化する
-    /// - 計算量 : $`O(1)`$
+impl<T: Ord + Bounded + Clone> SegmentTree<Indexed<Min<T>>> {
+    /// セグメント木（インデックス付きで）を初期化する
+    /// - 計算量 : $`O(N)`$
     pub fn new_with_index(N: usize) -> Self {
-        let arr = (0..N).map(|i| (<M as Monoid>::id(), i));
+        let arr = (0..N).map(|i| (Min::id(), i));
+        Self::from_iter(arr)
+    }
+}
+
+impl<T: Ord + Bounded + Clone> Monoid for Indexed<Max<T>> {
+    type Val = (T, usize);
+    fn id() -> Self::Val {
+        (Max::id(), usize::MAX)
+    }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        if left >= right {
+            left.clone()
+        } else {
+            right.clone()
+        }
+    }
+}
+
+impl<T: Ord + Bounded + Clone> SegmentTree<Indexed<Max<T>>> {
+    /// セグメント木を（インデックス付きで）初期化する
+    /// - 計算量 : $`O(N)`$
+    pub fn new_with_index(N: usize) -> Self {
+        let arr = (0..N).map(|i| (Max::id(), i));
         Self::from_iter(arr)
     }
 }

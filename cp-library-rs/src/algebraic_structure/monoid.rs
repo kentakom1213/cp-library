@@ -4,8 +4,6 @@
 //! - [`Monoid::id`] ： 単位元を返す関数 $`\varnothing \to S`$
 //! - [`Monoid::op`] ： 演算 $`S\times S \to S`$
 
-use std::fmt::Debug;
-
 use crate::utils::num_traits::{Bounded, One};
 
 use super::operation::{Add, Max, Min, Mul, Xor, GCD};
@@ -17,7 +15,7 @@ use super::operation::{Add, Max, Min, Mul, Xor, GCD};
 /// - [`Monoid::op`] ： 演算 $`S\times S \to S`$
 pub trait Monoid {
     /// データの型 （$`S`$）
-    type Val: Debug + Clone;
+    type Val: Clone;
     /// 単位元 （$`\varnothing \to S`$）
     fn id() -> Self::Val;
     /// 演算 （$`S \times S \to S`$）
@@ -25,7 +23,7 @@ pub trait Monoid {
 }
 
 // ========== 実装 ==========
-impl<T: Ord + Bounded + Clone + Debug> Monoid for Min<T> {
+impl<T: Ord + Bounded + Clone> Monoid for Min<T> {
     type Val = T;
     fn id() -> Self::Val {
         Self::Val::max_value()
@@ -63,7 +61,7 @@ impl Monoid for Add<usize> {
     }
 }
 
-impl<T: One + Clone + Debug> Monoid for Mul<T> {
+impl<T: One + Clone> Monoid for Mul<T> {
     type Val = T;
     fn id() -> Self::Val {
         T::one()
@@ -83,7 +81,7 @@ impl Monoid for Xor {
     }
 }
 
-impl<T: Ord + Bounded + Clone + Debug> Monoid for Max<T> {
+impl<T: Ord + Bounded + Clone> Monoid for Max<T> {
     type Val = T;
     fn id() -> Self::Val {
         Self::Val::min_value()

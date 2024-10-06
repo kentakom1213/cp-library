@@ -136,7 +136,11 @@ impl<T: OrderedMonoid> BIT<T> {
     }
 }
 
-impl<T: Group> Debug for BIT<T> {
+impl<T> Debug for BIT<T>
+where
+    T: Group,
+    T::Val: Debug,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "BIT {{ [")?;
         for i in 0..self.size - 1 {

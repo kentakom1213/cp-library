@@ -96,7 +96,11 @@ impl<M: CommutativeMonoid> DualSegmentTree<M> {
     }
 }
 
-impl<M: CommutativeMonoid + Debug> Debug for DualSegmentTree<M> {
+impl<M> Debug for DualSegmentTree<M>
+where
+    M: CommutativeMonoid,
+    M::Val: Debug,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "DualSegmentTree {{ [").ok();
         for i in 0..self.size {

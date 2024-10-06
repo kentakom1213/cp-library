@@ -113,7 +113,12 @@ mod dynamic_segment_tree {
         value: Option<M::Val>,
     }
 
-    impl<K: Ord + Debug, M: Monoid> Debug for NodeEntry<'_, K, M> {
+    impl<K, M> Debug for NodeEntry<'_, K, M>
+    where
+        K: Ord + Debug,
+        M: Monoid,
+        M::Val: Debug,
+    {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             f.debug_struct("NodeEntry")
                 .field("key", &self.key.as_ref().unwrap())
@@ -523,7 +528,12 @@ mod print_util {
     const NULL: &str = "";
     const BLANK: &str = "    ";
 
-    impl<K: Ord + Debug, M: Monoid> DynamicSegmentTree<K, M> {
+    impl<K, M> DynamicSegmentTree<K, M>
+    where
+        K: Ord + Debug,
+        M: Monoid,
+        M::Val: Debug,
+    {
         /// 2分木として出力する
         pub fn print_as_binary_tree(&self) {
             #[cfg(debug_assertions)]

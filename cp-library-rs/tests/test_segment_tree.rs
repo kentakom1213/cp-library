@@ -1,6 +1,10 @@
 use cp_library_rs::{
-    algebraic_structure::operation::{Add, Max, Min, Mul},
+    algebraic_structure::{
+        indexed_monoid::Indexed,
+        operation::{Add, Max, Min, Mul},
+    },
     data_structure::segment_tree::*,
+    debug,
 };
 
 #[test]
@@ -71,4 +75,31 @@ fn test_debug_print() {
 
     let dbg = format!("{:?}", &segtree);
     assert_eq!(&dbg, "SegmentTree { [20, 4, 5, 6, 8, 9, 100] }");
+}
+
+#[test]
+fn test_index() {
+    let mut seg = SegmentTree::<Indexed<Min<isize>>>::new_with_index(5);
+
+    let res = seg.get_range(..);
+    assert_eq!(res, (isize::MAX, 0));
+
+    let res = seg.get_range(1..3);
+    assert_eq!(res, (isize::MAX, 1));
+
+    seg.get_mut(0).unwrap().0 = 10;
+
+    let res = seg.get_range(..);
+    assert_eq!(res, (10, 0));
+
+    let res = seg.get_range(1..3);
+    assert_eq!(res, (isize::MAX, 1));
+
+    seg.get_mut(2).unwrap().0 = 5;
+
+    let res = seg.get_range(..);
+    assert_eq!(res, (5, 2));
+
+    let res = seg.get_range(1..3);
+    assert_eq!(res, (5, 2));
 }
