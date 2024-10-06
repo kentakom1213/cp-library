@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    algebraic_structure::monoid::examples::Add, data_structure::segment_tree::SegmentTree, debug,
-    debug2D, get, graph::hld::HLD, utils::iterutil::IterUtil,
+    algebraic_structure::operation::Add, data_structure::segment_tree::SegmentTree, debug, debug2D,
+    get, graph::hld::HLD, utils::iterutil::IterUtil,
 };
 
 fn main() {
@@ -32,7 +32,7 @@ fn main() {
         W[hld.get_id(i)] = A[i];
     }
 
-    let mut seg = SegmentTree::<Add<usize>>::from(&W);
+    let mut seg = SegmentTree::<Add<usize>>::from(W);
 
     for _ in 0..Q {
         let q = get!(usize;;);

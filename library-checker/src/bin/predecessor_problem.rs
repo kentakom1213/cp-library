@@ -775,10 +775,7 @@ pub mod multiset {
                 };
             }
 
-            use std::{
-                fmt::Debug,
-                ptr::{self, NonNull},
-            };
+            use std::{fmt::Debug, ptr::NonNull};
 
             use super::state::NodeState;
 
@@ -1133,7 +1130,6 @@ pub mod multiset {
                             let _par = rotate(node.parent().unwrap());
                             node = rotate(node);
                         }
-                        _ => unreachable!(),
                     }
                 }
 

@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    algebraic_structure::monoid::examples::Add, data_structure::segment_tree::SegmentTree, debug,
-    get, utils::consts::INF,
+    algebraic_structure::operation::Add, data_structure::segment_tree::SegmentTree, debug, get,
+    utils::consts::INF,
 };
 
 fn main() {

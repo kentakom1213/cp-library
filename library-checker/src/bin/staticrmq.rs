@@ -1,8 +1,7 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    data_structure::sparse_table::{Alg::Min, SparseTable},
-    get,
+    algebraic_structure::operation::Min, data_structure::sparse_table::SparseTable, get,
 };
 
 fn main() {
@@ -10,7 +9,7 @@ fn main() {
     let A = get!(isize;;);
     let LR = get!(usize, usize; Q);
 
-    let tb = SparseTable::<Min>::build(&A);
+    let tb = SparseTable::<Min<_>>::build(&A);
 
     for &(l, r) in &LR {
         println!("{}", tb.get_range(l..r));

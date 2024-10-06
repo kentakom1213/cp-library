@@ -13,7 +13,7 @@ fn main() {
     let queries = get!(usize, usize, usize, usize; Q);
 
     let mut seg: SegmentTree<Affine<Modint<998244353>>> =
-        SegmentTree::from(&AB.iter().map(|&(a, b)| (a.into(), b.into())).collect());
+        AB.iter().map(|&(a, b)| (a.into(), b.into())).collect();
 
     for &q in &queries {
         match q {

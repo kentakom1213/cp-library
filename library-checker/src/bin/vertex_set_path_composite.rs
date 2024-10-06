@@ -41,8 +41,8 @@ fn main() {
     debug!(Wl);
     debug!(Wr);
 
-    let mut segl = SegmentTree::<Affine<M998>>::from(&Wl);
-    let mut segr = SegmentTree::<Affine<M998>>::from(&Wr);
+    let mut segl = SegmentTree::<Affine<M998>>::from(Wl);
+    let mut segr = SegmentTree::<Affine<M998>>::from(Wr);
 
     for _ in 0..Q {
         let q = get!(usize, usize, usize, usize);
