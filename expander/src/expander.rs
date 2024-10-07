@@ -139,7 +139,7 @@ pub mod {} {{
             prev_category = match dep {
                 ModulePath::Macro { .. } => {
                     if !prev_category.is_empty() {
-                        write!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
+                        writeln!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
                     }
                     contents += &self.get_module(dep, 1)?;
                     ""
@@ -149,7 +149,7 @@ pub mod {} {{
                         contents += &self.get_module(dep, 2)?;
                     } else {
                         if !prev_category.is_empty() {
-                            write!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
+                            writeln!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
                         }
                         writeln!(&mut contents, "{}pub mod {category} {{", TAB.repeat(1)).unwrap();
                         contents += &self.get_module(dep, 2)?;
@@ -160,7 +160,7 @@ pub mod {} {{
         }
 
         if !prev_category.is_empty() {
-            write!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
+            writeln!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
         }
         contents += "}";
 
