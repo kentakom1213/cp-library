@@ -1,3 +1,5 @@
+//! 基本的な演算
+
 use std::{fmt::Debug, marker::PhantomData, ops::Rem};
 
 use crate::utils::num_traits::Zero;

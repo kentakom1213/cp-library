@@ -1,5 +1,6 @@
 use cp_library_rs::number_theory::{comb::*, modint::M998};
 const SIZE: usize = 5050505;
+
 #[test]
 fn test_permutation() {
     let comb = Comb::<M998>::new(SIZE);

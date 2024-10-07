@@ -1,3 +1,5 @@
+//! モノイドのラッパー
+
 use std::marker::PhantomData;
 
 use crate::{

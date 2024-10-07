@@ -8,17 +8,19 @@
 //!
 //! をそれぞれ $`O(\log N)`$ で行う．（$`N = |A|`$）
 
-use crate::algebraic_structure::monoid::Monoid;
-use std::fmt::{self, Debug};
-use std::ops::{
-    Bound::{Excluded, Included, Unbounded},
-    Deref, DerefMut, Index, RangeBounds,
+use crate::algebraic_structure::{monoid::Monoid, ordered_monoid::OrderedMonoid};
+use std::{
+    fmt::{self, Debug},
+    ops::{
+        Bound::{Excluded, Included, Unbounded},
+        Deref, DerefMut, Index, RangeBounds,
+    },
 };
 
 /// セグメント木
 pub struct SegmentTree<M: Monoid> {
     /// 要素数
-    pub size: usize,
+    pub N: usize,
     offset: usize,
     data: Vec<M::Val>,
 }
@@ -39,11 +41,11 @@ impl<M: Monoid> SegmentTree<M> {
             Included(&v) => v,
         };
         let end = match range.end_bound() {
-            Unbounded => self.size,
+            Unbounded => self.N,
             Excluded(&v) => v,
             Included(&v) => v + 1,
         };
-        if start <= end && end <= self.size {
+        if start <= end && end <= self.N {
             Some((start, end))
         } else {
             None
@@ -53,10 +55,10 @@ impl<M: Monoid> SegmentTree<M> {
     /// セグメント木を初期化する
     /// - 計算量 : $`O(1)`$
     pub fn new(N: usize) -> Self {
-        let offset = N;
+        let offset = N.next_power_of_two();
 
         Self {
-            size: N,
+            N,
             offset,
             data: vec![M::id(); offset << 1],
         }
@@ -147,8 +149,8 @@ where
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "SegmentTree {{ [").ok();
-        for i in 0..self.size {
-            if i + 1 < self.size {
+        for i in 0..self.N {
+            if i + 1 < self.N {
                 write!(f, "{:?}, ", self.data[self.offset + i]).ok();
             } else {
                 write!(f, "{:?}", self.data[self.offset + i]).ok();
@@ -214,5 +216,142 @@ where
             }
             eprintln!();
         }
+    }
+}
+
+// セグ木上の2分探索
+impl<M> SegmentTree<M>
+where
+    M: OrderedMonoid,
+    M::Val: Debug,
+{
+    /// 左端を固定した2分探索
+    /// - 引数`l`と関数`f`に対して，
+    ///     - `f( seg.get(l..x) ) = true`
+    ///     - `f( seg.get(l..x+1) ) = false`
+    ///
+    ///   \
+    ///   を満たす`x`を返す
+    ///
+    /// **引数**
+    /// - `f` :
+    ///   - `f(e) = true`
+    ///   - 任意の`i`に対して，`f( seg.get(l..i) ) = false`ならば，`f( seg.get(l..i+1) ) = false`
+    pub fn max_right<F>(&self, mut l: usize, f: F) -> (M::Val, usize)
+    where
+        F: Fn(M::Val) -> bool,
+    {
+        assert!(f(M::id()));
+
+        if l >= self.N {
+            return (M::id(), self.N);
+        }
+
+        l += self.offset;
+        let mut sum = M::id();
+
+        // 第1段階: 条件を満たさない区間を見つける
+        'fst: loop {
+            while l & 1 == 0 {
+                l >>= 1;
+            }
+
+            let tmp = M::op(&sum, &self.data[l]);
+
+            // 満たさない区間を発見した場合
+            if !f(tmp.clone()) {
+                break 'fst;
+            }
+
+            sum = tmp;
+            l += 1;
+
+            // すべての領域を見終わったら終了
+            if (l & l.wrapping_neg()) == l {
+                return (sum, self.N);
+            }
+        }
+
+        // 第2段階: 子方向に移動しながら2分探索
+        while l < self.offset {
+            // 左に潜る
+            l <<= 1;
+
+            let tmp = M::op(&sum, &self.data[l]);
+
+            // 左に潜っても大丈夫な場合
+            if f(tmp.clone()) {
+                sum = tmp;
+                // 右に潜る
+                l += 1;
+            }
+        }
+
+        (sum, l - self.offset)
+    }
+
+    /// 右端を固定した2分探索
+    /// - 引数`r`と関数`f`に対して，
+    ///    - `f( seg.get(x..r) ) = true`
+    ///    - `f( seg.get(x-1..r) ) = false`
+    ///
+    ///   \
+    ///   となるような`x`を返す
+    ///
+    /// **引数**
+    /// - `f` :
+    ///   - `f(e) = true`
+    ///   - 任意の`i`に対して，`f( seg.get(i..r) ) = false`ならば，`f( seg.get(i-1..r) ) = false`
+    pub fn min_left<F>(&self, mut r: usize, f: F) -> (M::Val, usize)
+    where
+        F: Fn(M::Val) -> bool,
+    {
+        assert!(f(M::id()));
+
+        if r == 0 {
+            return (M::id(), 0);
+        }
+
+        r += self.offset;
+        let mut sum = M::id();
+
+        // 第1段階: 条件を満たさない区間を見つける
+        'fst: loop {
+            r -= 1;
+            while r > 1 && r & 1 == 1 {
+                r >>= 1;
+            }
+
+            let tmp = M::op(&self.data[r], &sum);
+
+            // 満たさない区間を発見した場合
+            if !f(tmp.clone()) {
+                break 'fst;
+            }
+
+            sum = tmp;
+
+            // すべての領域を見終わったら終了
+            if (r & r.wrapping_neg()) == r {
+                return (sum, 0);
+            }
+        }
+
+        // 第2段階: 子方向に移動しながら2分探索
+        while r < self.offset {
+            // 右に潜る
+            r = (r << 1) + 1;
+
+            let tmp = M::op(&self.data[r], &sum);
+
+            // 右に潜っても大丈夫な場合
+            if f(tmp.clone()) {
+                sum = tmp;
+                // 左に潜る
+                r -= 1;
+            }
+        }
+
+        (sum, r + 1 - self.offset)
     }
 }

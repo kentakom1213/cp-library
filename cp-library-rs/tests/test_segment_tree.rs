@@ -103,3 +103,97 @@ fn test_index() {
     let res = seg.get_range(1..3);
     assert_eq!(res, (5, 2));
 }
+
+#[test]
+fn test_binary_search_right() {
+    let mut seg: SegmentTree<Add<usize>> = (0..10).collect();
+
+    debug!(seg);
+
+    assert_eq!(seg.max_right(0, |x| x <= 0), (0, 1));
+    assert_eq!(seg.max_right(0, |x| x < 6), (3, 3));
+    assert_eq!(seg.max_right(0, |x| x <= 6), (6, 4));
+    assert_eq!(seg.max_right(0, |x| x < 10), (6, 4));
+    assert_eq!(seg.max_right(0, |x| x <= 10), (10, 5));
+    assert_eq!(seg.max_right(5, |x| x < 5), (0, 5));
+    assert_eq!(seg.max_right(5, |x| x <= 5), (5, 6));
+    assert_eq!(seg.max_right(5, |x| x <= 20), (18, 8));
+    assert_eq!(seg.max_right(5, |x| x <= 100), (35, 10));
+    assert_eq!(seg.max_right(5, |x| x <= 1000), (35, 10));
+
+    *seg.get_mut(4).unwrap() = 100;
+
+    assert_eq!(seg.max_right(0, |x| x <= 0), (0, 1));
+    assert_eq!(seg.max_right(0, |x| x < 6), (3, 3));
+    assert_eq!(seg.max_right(0, |x| x <= 6), (6, 4));
+    assert_eq!(seg.max_right(0, |x| x < 10), (6, 4));
+    assert_eq!(seg.max_right(0, |x| x <= 10), (6, 4));
+    assert_eq!(seg.max_right(5, |x| x < 5), (0, 5));
+    assert_eq!(seg.max_right(5, |x| x <= 5), (5, 6));
+    assert_eq!(seg.max_right(5, |x| x <= 20), (18, 8));
+    assert_eq!(seg.max_right(5, |x| x <= 100), (35, 10));
+    assert_eq!(seg.max_right(5, |x| x <= 1000), (35, 10));
+
+    *seg.get_mut(7).unwrap() = 0;
+
+    assert_eq!(seg.max_right(0, |x| x <= 0), (0, 1));
+    assert_eq!(seg.max_right(0, |x| x < 6), (3, 3));
+    assert_eq!(seg.max_right(0, |x| x <= 6), (6, 4));
+    assert_eq!(seg.max_right(0, |x| x < 10), (6, 4));
+    assert_eq!(seg.max_right(0, |x| x <= 10), (6, 4));
+    assert_eq!(seg.max_right(5, |x| x < 5), (0, 5));
+    assert_eq!(seg.max_right(5, |x| x <= 5), (5, 6));
+    assert_eq!(seg.max_right(5, |x| x <= 20), (19, 9));
+    assert_eq!(seg.max_right(5, |x| x <= 100), (28, 10));
+    assert_eq!(seg.max_right(5, |x| x <= 1000), (28, 10));
+}
+
+#[test]
+fn test_binary_search_left() {
+    let mut seg: SegmentTree<Add<usize>> = (0..10).collect();
+
+    debug!(seg);
+
+    assert_eq!(seg.min_left(10, |x| x < 4), (0, 10));
+    assert_eq!(seg.min_left(10, |x| x <= 10), (9, 9));
+    assert_eq!(seg.min_left(10, |x| x < 24), (17, 8));
+    assert_eq!(seg.min_left(10, |x| x <= 24), (24, 7));
+    assert_eq!(seg.min_left(10, |x| x <= 100), (45, 0));
+    assert_eq!(seg.min_left(10, |x| x <= 1000), (45, 0));
+    assert_eq!(seg.min_left(5, |x| x < 4), (0, 5));
+    assert_eq!(seg.min_left(5, |x| x <= 4), (4, 4));
+    assert_eq!(seg.min_left(5, |x| x < 10), (9, 2));
+    assert_eq!(seg.min_left(5, |x| x <= 10), (10, 0));
+    assert_eq!(seg.min_left(5, |x| x <= 100), (10, 0));
+    assert_eq!(seg.min_left(5, |x| x <= 1000), (10, 0));
+
+    *seg.get_mut(4).unwrap() = 100;
+
+    assert_eq!(seg.min_left(10, |x| x < 4), (0, 10));
+    assert_eq!(seg.min_left(10, |x| x <= 10), (9, 9));
+    assert_eq!(seg.min_left(10, |x| x < 24), (17, 8));
+    assert_eq!(seg.min_left(10, |x| x <= 24), (24, 7));
+    assert_eq!(seg.min_left(10, |x| x <= 100), (35, 5));
+    assert_eq!(seg.min_left(10, |x| x <= 1000), (141, 0));
+    assert_eq!(seg.min_left(5, |x| x < 4), (0, 5));
+    assert_eq!(seg.min_left(5, |x| x <= 4), (0, 5));
+    assert_eq!(seg.min_left(5, |x| x < 10), (0, 5));
+    assert_eq!(seg.min_left(5, |x| x <= 10), (0, 5));
+    assert_eq!(seg.min_left(5, |x| x <= 100), (100, 4));
+    assert_eq!(seg.min_left(5, |x| x <= 1000), (106, 0));
+
+    *seg.get_mut(7).unwrap() = 0;
+
+    assert_eq!(seg.min_left(10, |x| x < 4), (0, 10));
+    assert_eq!(seg.min_left(10, |x| x <= 10), (9, 9));
+    assert_eq!(seg.min_left(10, |x| x < 24), (23, 6));
+    assert_eq!(seg.min_left(10, |x| x <= 24), (23, 6));
+    assert_eq!(seg.min_left(10, |x| x <= 100), (28, 5));
+    assert_eq!(seg.min_left(10, |x| x <= 1000), (134, 0));
+    assert_eq!(seg.min_left(5, |x| x < 4), (0, 5));
+    assert_eq!(seg.min_left(5, |x| x <= 4), (0, 5));
+    assert_eq!(seg.min_left(5, |x| x < 10), (0, 5));
+    assert_eq!(seg.min_left(5, |x| x <= 10), (0, 5));
+    assert_eq!(seg.min_left(5, |x| x <= 100), (100, 4));
+    assert_eq!(seg.min_left(5, |x| x <= 1000), (106, 0));
+}
