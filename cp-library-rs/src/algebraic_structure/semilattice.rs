@@ -1,3 +1,5 @@
+//! 半束
+
 use std::ops::Rem;
 
 use crate::utils::num_traits::{Bounded, Zero};
