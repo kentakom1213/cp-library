@@ -34,10 +34,12 @@ where
     pub fn remove(&mut self, x: &T) -> bool {
         if let Some(v) = self.counter.get_mut(x) {
             // カウンターをデクリメント
-            *v -= 1;
-            // setから削除
-            self.items.remove(&(*x, *v));
-            return true;
+            if *v > 0 {
+                *v -= 1;
+                // setから削除
+                self.items.remove(&(*x, *v));
+                return true;
+            }
         }
         false
     }

@@ -1,485 +1,1029 @@
-//! スプレー木のMultiSet
+//! スプレー木の多重集合
 
-use std::iter::FromIterator;
-use std::mem::swap;
-use std::{cmp::Ordering, fmt::Debug};
+pub use inner::{
+    collections::multiset::Multiset,
+    node::{
+        iterator::{NodeIterator, NodePosition, NodeRangeIterator},
+        pointer::{Node, NodeOps, NodePtr},
+    },
+};
 
-/// # Node
-#[derive(Debug, Clone)]
-pub struct Node<T: Ord + Debug> {
-    pub key: T,
-    pub left: Option<Box<Node<T>>>,
-    pub right: Option<Box<Node<T>>>,
-    pub id: usize,
-}
-
-impl<T: Ord + Debug> Node<T> {
-    pub fn new(key: T, id: usize) -> Self {
-        Self {
-            key,
-            left: None,
-            right: None,
-            id,
-        }
-    }
-}
-
-/// # MultiSet
-/// スプレー木のクラス
-pub struct MultiSet<T: Ord + Debug> {
-    size: usize,
-    pub root: Option<Box<Node<T>>>,
-}
-
-impl<T> MultiSet<T>
-where
-    T: Ord + Clone + Debug,
-{
-    /// `a <= b`の値を返す
-    #[inline]
-    fn le(a: &T, b: &T) -> bool {
-        matches!(a.cmp(b), Ordering::Less | Ordering::Equal)
-    }
-
-    /// `a < b`の値を返す
-    #[inline]
-    fn lt(a: &T, b: &T) -> bool {
-        matches!(a.cmp(b), Ordering::Less)
-    }
-
-    /// `a >= b`の値を返す
-    #[inline]
-    fn ge(a: &T, b: &T) -> bool {
-        matches!(a.cmp(b), Ordering::Equal | Ordering::Greater)
-    }
-
-    /// `a > b`の値を返す
-    #[inline]
-    fn gt(a: &T, b: &T) -> bool {
-        matches!(a.cmp(b), Ordering::Greater)
-    }
-
-    pub fn new() -> Self {
-        Self {
-            size: 0,
-            root: None,
-        }
-    }
-
-    pub fn len(&self) -> usize {
-        self.size
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.size == 0
-    }
-
-    /// ## get
-    /// 値の検索を行う
-    /// ### 戻り値
-    /// - `Option<&T>`: キーに紐づいた値
-    pub fn get(&mut self, key: &T) -> Option<&T> {
-        let lb = self.lower_bound(key);
-        if lb.is_some_and(|k| k == key) {
-            lb
-        } else {
-            None
-        }
-    }
-
-    /// ## insert
-    /// 値の挿入を行う。
-    pub fn insert(&mut self, key: T) {
-        // rootの取り出し
-        let root = self.root.take();
-        // splay操作（一番右の要素）
-        let (mut tmp_root, _) = splay(root, &key, Self::le);
-        // 挿入
-        let new_id = if tmp_root.is_some() && tmp_root.as_ref().unwrap().key == key {
-            tmp_root.as_ref().unwrap().id + 1
-        } else {
-            1
-        };
-        self.root = Some(Box::new(Node::new(key.clone(), new_id)));
-        if tmp_root.is_some() {
-            match key.cmp(&tmp_root.as_ref().unwrap().key) {
-                Ordering::Less | Ordering::Equal => {
-                    let mut new_left = tmp_root.as_mut().unwrap().left.take();
-                    swap(&mut self.root.as_mut().unwrap().left, &mut new_left);
-                    swap(&mut self.root.as_mut().unwrap().right, &mut tmp_root);
+mod inner {
+    #![allow(dead_code)]
+    pub mod collections {
+        pub mod multiset {
+            //! 多重集合
+            use crate::data_structure::multiset_splay_tree::inner::{
+                node::{
+                    find::{lower_bound, upper_bound},
+                    insert::{insert, insert_right},
+                    iterator::{prev, NodeIterator, NodePosition, NodeRangeIterator},
+                    pointer::{NodeOps, NodePtr},
+                    remove::remove,
+                    splay::splay,
+                },
+                utils::print::print_as_tree,
+            };
+            use std::{
+                fmt::Debug,
+                ops::{Bound, RangeBounds},
+            };
+            /// Multiset
+            /// - 多重集合
+            pub struct Multiset<K: Ord> {
+                pub root: Option<NodePtr<K, usize>>,
+                size: usize,
+            }
+            impl<K: Ord> Multiset<K> {
+                /// 新規作成
+                pub fn new() -> Self {
+                    Self {
+                        root: None,
+                        size: 0,
+                    }
                 }
-                Ordering::Greater => {
-                    let mut new_right = tmp_root.as_mut().unwrap().right.take();
-                    swap(&mut self.root.as_mut().unwrap().right, &mut new_right);
-                    swap(&mut self.root.as_mut().unwrap().left, &mut tmp_root);
+                /// 要素数
+                pub fn len(&self) -> usize {
+                    self.size
+                }
+                /// 空判定
+                pub fn is_empty(&self) -> bool {
+                    self.size == 0
+                }
+                /// 値 `x` を持つノードのうち，最も右側にあるものを探索する
+                fn find_rightmost_node(&mut self, key: &K) -> Option<NodePtr<K, usize>> {
+                    let upperbound = prev(
+                        {
+                            let ub;
+                            (self.root, ub) = upper_bound(self.root.clone(), &key);
+                            ub
+                        },
+                        &self.root,
+                    );
+                    match upperbound {
+                        NodePosition::Node(node) if &*node.key() == key => Some(node),
+                        _ => None,
+                    }
+                }
+                /// 要素の追加
+                pub fn insert(&mut self, key: K) {
+                    // 最も右側の頂点を探索
+                    let rightmost = self.find_rightmost_node(&key);
+                    let new_node;
+                    if let Some(rightmost) = rightmost {
+                        let cnt = *rightmost.value();
+                        new_node = insert_right(Some(rightmost), key, cnt + 1);
+                    } else {
+                        (_, new_node, _) = insert(self.root.clone(), key, 1);
+                    }
+                    self.size += 1;
+                    self.root = Some(splay(new_node));
+                }
+                /// 要素の削除
+                pub fn remove(&mut self, key: &K) -> bool {
+                    // 最も右側の頂点を探索
+                    let Some(rightmost) = self.find_rightmost_node(&key) else {
+                        return false;
+                    };
+                    (self.root, _) = remove(rightmost);
+                    self.size -= 1;
+                    true
+                }
+                /// `key` に一致する要素の個数を返す
+                pub fn count(&mut self, key: &K) -> usize {
+                    // 最も右側の頂点を探索
+                    let rightmost = self.find_rightmost_node(&key);
+                    if let Some(rightmost) = rightmost {
+                        *rightmost.value()
+                    } else {
+                        0
+                    }
+                }
+                /// 指定した区間のイテレータを返す
+                pub fn range<R: RangeBounds<K>>(
+                    &mut self,
+                    range: R,
+                ) -> NodeRangeIterator<K, usize> {
+                    let left = match range.start_bound() {
+                        Bound::Unbounded => NodePosition::INF,
+                        Bound::Included(x) => prev(
+                            {
+                                let lb;
+                                (self.root, lb) = lower_bound(self.root.clone(), &x);
+                                lb
+                            },
+                            &self.root,
+                        ),
+                        Bound::Excluded(x) => prev(
+                            {
+                                let ub;
+                                (self.root, ub) = upper_bound(self.root.clone(), &x);
+                                ub
+                            },
+                            &self.root,
+                        ),
+                    };
+                    let right = match range.end_bound() {
+                        Bound::Unbounded => NodePosition::SUP,
+                        Bound::Included(x) => {
+                            let ub;
+                            (self.root, ub) = upper_bound(self.root.clone(), x);
+                            ub
+                        }
+                        Bound::Excluded(x) => {
+                            let lb;
+                            (self.root, lb) = lower_bound(self.root.clone(), x);
+                            lb
+                        }
+                    };
+                    NodeRangeIterator::new(&self.root, left, right)
+                }
+                /// ノードのイテレータを返す
+                pub fn iter(&self) -> NodeIterator<K, usize> {
+                    NodeIterator::first(&self.root)
+                }
+            }
+            impl<K: Ord + Clone + Debug> Debug for Multiset<K> {
+                fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    f.debug_set()
+                        .entries(NodeIterator::first(&self.root).map(|node| node.key().clone()))
+                        .finish()
+                }
+            }
+            impl<K: Ord + Clone + Debug> Multiset<K> {
+                pub fn print_as_tree(&self) {
+                    print_as_tree(&self.root);
                 }
             }
         }
-        // 要素数の更新
-        self.size += 1;
     }
-
-    /// ## delete
-    /// 値の削除
-    /// ### 戻り値
-    /// - `Option<T>`: 削除された値
-    pub fn delete(&mut self, key: &T) -> Option<T> {
-        if self.is_empty() {
-            return None;
-        }
-        // rootの取り出し
-        let root = self.root.take();
-        // splay操作
-        // tmp_root := keyより真に大きいノードのうち最小のもの
-        let (mut tmp_root, _) = splay(root, key, Self::le);
-        // 値が存在しないとき
-        if &tmp_root.as_ref().unwrap().key != key {
-            // 値がないとき（Noneを返す）
-            self.root = tmp_root;
-            return None;
-        }
-        // 削除
-        if tmp_root.as_ref().unwrap().left.is_none() {
-            swap(&mut self.root, &mut tmp_root.as_mut().unwrap().right);
-        } else {
-            let root_left = tmp_root.as_mut().unwrap().left.take();
-            // 左の子のうち最大の要素を新しい根に
-            swap(&mut self.root, &mut splay(root_left, key, Self::lt).0);
-            // 根の右側に子を付け替える
-            swap(
-                &mut self.root.as_mut().unwrap().right,
-                &mut tmp_root.as_mut().unwrap().right,
-            );
-        }
-        let deleted = tmp_root.take();
-        // 要素数の更新
-        self.size -= 1;
-        Some(deleted.unwrap().key)
-    }
-
-    /// ## count
-    /// - 値`key`の要素の個数
-    pub fn count(&mut self, key: &T) -> usize {
-        // lower_boundを実行
-        self.lower_bound(key);
-        // rootのidを調べる
-        self.root
-            .as_ref()
-            .filter(|node| &node.key == key)
-            .map_or(0, |node| node.id)
-    }
-
-    /// ## lower_bound
-    /// - `key`以上の最小の値を返す
-    pub fn lower_bound(&mut self, key: &T) -> Option<&T> {
-        // 根の取り出し
-        let root = self.root.take();
-        // スプレー操作
-        let (new_root, is_found) = splay(root, key, Self::le);
-        self.root = new_root;
-        if is_found {
-            Some(&self.root.as_ref().unwrap().key)
-        } else {
-            None
-        }
-    }
-
-    /// ## upper_bound
-    /// - `key`より大きい最小の値を返す
-    pub fn upper_bound(&mut self, key: &T) -> Option<&T> {
-        // 根の取り出し
-        let root = self.root.take();
-        // スプレー操作
-        let (new_root, is_found) = splay(root, key, Self::lt);
-        self.root = new_root;
-        if is_found {
-            Some(&self.root.as_ref().unwrap().key)
-        } else {
-            None
-        }
-    }
-
-    /// ## lower_bound_rev
-    /// - `key`以下の最大の値を返す
-    pub fn lower_bound_rev(&mut self, key: &T) -> Option<&T> {
-        // 根の取り出し
-        let root = self.root.take();
-        // スプレー操作
-        let (new_root, is_found) = splay_rev(root, key, Self::ge);
-        self.root = new_root;
-        if is_found {
-            Some(&self.root.as_ref().unwrap().key)
-        } else {
-            None
-        }
-    }
-
-    /// ## upper_bound_rev
-    /// - `key`未満の最大の値を返す
-    pub fn upper_bound_rev(&mut self, key: &T) -> Option<&T> {
-        // 根の取り出し
-        let root = self.root.take();
-        // スプレー操作
-        let (new_root, is_found) = splay_rev(root, key, Self::gt);
-        self.root = new_root;
-        if is_found {
-            Some(&self.root.as_ref().unwrap().key)
-        } else {
-            None
-        }
-    }
-
-    /// ## to_vec
-    /// 要素を順にVecとして取り出す
-    pub fn to_vec(&self) -> Vec<&T> {
-        let mut res = vec![];
-        traverse(&self.root, &mut res);
-        res
-    }
-}
-
-/// ## traverse
-/// 順に取り出す
-fn traverse<'a, T: Ord + Debug>(root: &'a Option<Box<Node<T>>>, res: &mut Vec<&'a T>) {
-    if root.is_none() {
-        return;
-    }
-    // 左の子を探索
-    traverse(&root.as_ref().unwrap().left, res);
-    // 値を追加
-    res.push(&root.as_ref().unwrap().key);
-    // 右の子を探索
-    traverse(&root.as_ref().unwrap().right, res);
-}
-
-/// ## splay
-/// 比較関数`compare`を引数にとり、条件を満たす最小のノードを返す
-fn splay<T, C>(mut root: Option<Box<Node<T>>>, key: &T, compare: C) -> (Option<Box<Node<T>>>, bool)
-where
-    T: Ord + Debug,
-    C: Fn(&T, &T) -> bool,
-{
-    if root.is_none() {
-        return (root, false);
-    }
-    if compare(key, &root.as_ref().unwrap().key) {
-        let left = &mut root.as_mut().unwrap().left;
-        if left.is_none() {
-            return (root, true);
-        }
-        if compare(key, &left.as_ref().unwrap().key) {
-            let leftleft = left.as_mut().unwrap().left.take();
-            let (mut tmp, is_found) = splay(leftleft, key, compare);
-            // 戻す
-            swap(&mut left.as_mut().unwrap().left, &mut tmp);
-            // 親を右に回転
-            let tmp_left = rotate_right(root);
-            if !is_found {
-                return (tmp_left, true);
+    pub mod node {
+        pub mod find {
+            use crate::data_structure::multiset_splay_tree::inner::node::{
+                iterator::NodePosition,
+                pointer::{NodeOps, NodePtr},
+                splay::splay,
+            };
+            /// 比較関数 cmp を満たす最小のノードを返す
+            ///
+            /// **戻り値**
+            /// - `Option<NodePtr<K, V>>`: 検索後の根ノード
+            /// - `Option<NodePtr<K, V>>`: 比較関数 cmp を満たす最小のノード
+            fn find_min<K: Ord, V, F: Fn(&K) -> bool>(
+                root: Option<NodePtr<K, V>>,
+                cmp: F,
+            ) -> (Option<NodePtr<K, V>>, Option<NodePtr<K, V>>) {
+                if root.is_none() {
+                    return (None, None);
+                }
+                let mut last = root.clone();
+                let mut res = None;
+                while let Some(last_inner) = last.clone() {
+                    if cmp(&*last_inner.key()) {
+                        res = Some(last_inner.clone());
+                        last = match last_inner.left().as_ref().map(|node| node.clone()) {
+                            Some(node) => Some(node),
+                            None => break,
+                        };
+                    } else {
+                        last = match last_inner.right().as_ref().map(|node| node.clone()) {
+                            Some(node) => Some(node),
+                            None => break,
+                        };
+                    }
+                }
+                if let Some(res_inner) = res {
+                    (Some(splay(res_inner.clone())), Some(res_inner))
+                } else if let Some(last_inner) = last {
+                    (Some(splay(last_inner)), res)
+                } else {
+                    (Some(splay(root.unwrap())), res)
+                }
             }
-            // さらに右回転
-            (rotate_right(tmp_left), true)
-        } else {
-            let leftright = left.as_mut().unwrap().right.take();
-            let (mut new_leftright, is_found) = splay(leftright, key, compare);
-            // 戻す
-            swap(&mut left.as_mut().unwrap().right, &mut new_leftright);
-            // root->left->rightがNoneでないとき
-            if !is_found {
-                return (root, true);
+            /// `x` 以上の値を持つ最小のノードを返す
+            ///
+            /// **戻り値**
+            /// - `Option<NodePtr<K, V>>`: 検索後の根ノード
+            /// - `Option<NodePtr<K, V>>`: `x` 以上の値を持つ最小のノード
+            pub fn lower_bound<K: Ord, V>(
+                root: Option<NodePtr<K, V>>,
+                x: &K,
+            ) -> (Option<NodePtr<K, V>>, NodePosition<K, V>) {
+                let (new_root, node) = find_min(root, |k| k >= x);
+                if let Some(inner) = node {
+                    (new_root, NodePosition::Node(inner))
+                } else {
+                    (new_root, NodePosition::SUP)
+                }
             }
-            // 左の子を左回転
-            let left = root.as_mut().unwrap().left.take();
-            let mut tmp_child = rotate_left(left);
-            swap(&mut root.as_mut().unwrap().left, &mut tmp_child);
-            // 親を右回転
-            (rotate_right(root), true)
-        }
-    } else {
-        let right = &mut root.as_mut().unwrap().right;
-        if right.is_none() {
-            return (root, false);
-        }
-        if compare(key, &right.as_ref().unwrap().key) {
-            let rightleft = right.as_mut().unwrap().left.take();
-            let (mut tmp, is_found) = splay(rightleft, key, compare);
-            // 戻す
-            swap(&mut right.as_mut().unwrap().left, &mut tmp);
-            if is_found {
-                // 右の子を右回転
-                let right = root.as_mut().unwrap().right.take();
-                let mut tmp_child = rotate_right(right);
-                swap(&mut root.as_mut().unwrap().right, &mut tmp_child);
+            /// `x` より大きい値を持つ最小のノードを返す
+            ///
+            /// **戻り値**
+            /// - `Option<NodePtr<K, V>>`: 検索後の根ノード
+            /// - `Option<NodePtr<K, V>>`: `x` より大きい値を持つ最小のノード
+            pub fn upper_bound<K: Ord, V>(
+                root: Option<NodePtr<K, V>>,
+                x: &K,
+            ) -> (Option<NodePtr<K, V>>, NodePosition<K, V>) {
+                let (new_root, node) = find_min(root, |k| k > x);
+                if let Some(inner) = node {
+                    (new_root, NodePosition::Node(inner))
+                } else {
+                    (new_root, NodePosition::SUP)
+                }
             }
-            // 親を左回転
-            (rotate_left(root), true)
-        } else {
-            let rightright = right.as_mut().unwrap().right.take();
-            let (mut tmp, is_found) = splay(rightright, key, compare);
-            // 戻す
-            swap(&mut right.as_mut().unwrap().right, &mut tmp);
-            // 親を左回転
-            let tmp_child = rotate_left(root);
-            // さらに左回転
-            (rotate_left(tmp_child), is_found)
-        }
-    }
-}
-
-/// ## splay_rev
-/// - 比較関数`compare`を引数にとり、条件を満たす最小のノードを返す
-/// - splayの逆向き
-fn splay_rev<T, C>(
-    mut root: Option<Box<Node<T>>>,
-    key: &T,
-    compare: C,
-) -> (Option<Box<Node<T>>>, bool)
-where
-    T: Ord + Debug,
-    C: Fn(&T, &T) -> bool,
-{
-    if root.is_none() {
-        return (root, false);
-    }
-    if compare(key, &root.as_ref().unwrap().key) {
-        let right = &mut root.as_mut().unwrap().right;
-        if right.is_none() {
-            return (root, true);
-        }
-        if compare(key, &right.as_ref().unwrap().key) {
-            let rightright = right.as_mut().unwrap().right.take();
-            let (mut tmp, is_found) = splay_rev(rightright, key, compare);
-            // 戻す
-            swap(&mut right.as_mut().unwrap().right, &mut tmp);
-            // 親を左に回転
-            let tmp_right = rotate_left(root);
-            if !is_found {
-                return (tmp_right, true);
+            /// 値 `x` を持つノードを返す
+            ///
+            /// **戻り値**
+            /// - `Option<NodePtr<K, V>>`: 検索後の根ノード
+            /// - `Option<NodePtr<K, V>>`: 値 `x` を持つノード
+            pub fn find<K: Ord, V>(
+                root: Option<NodePtr<K, V>>,
+                x: &K,
+            ) -> (Option<NodePtr<K, V>>, Option<NodePtr<K, V>>) {
+                let (new_root, lb) = find_min(root.clone(), |k| k >= x);
+                if lb.as_ref().is_some_and(|k| &*k.key() == x) {
+                    (new_root, lb)
+                } else {
+                    (new_root, None)
+                }
             }
-            // さらに左回転
-            (rotate_left(tmp_right), true)
-        } else {
-            let rightleft = right.as_mut().unwrap().left.take();
-            let (mut new_rightleft, is_found) = splay_rev(rightleft, key, compare);
-            // 戻す
-            swap(&mut right.as_mut().unwrap().left, &mut new_rightleft);
-            // root->right->leftがNoneでないとき
-            if !is_found {
-                return (root, true);
+        }
+        pub mod insert {
+            use crate::data_structure::multiset_splay_tree::inner::node::pointer::{
+                Node, NodeOps, NodePtr,
+            };
+            use std::{cmp::Ordering, mem};
+            /// rootを根とする木に(key, value)を挿入し，挿入後のノードの参照を返す．
+            /// すでに同一のキーを持つノードが存在した場合，値を置き換える．
+            ///
+            /// **引数**
+            /// - node: 挿入対象のノード
+            /// - key: キー
+            /// - value: 値
+            ///
+            /// **戻り値**
+            /// - Option<NodePtr<K, V>>: 挿入後の根ノード
+            /// - Option<NodePtr<K, V>>: 追加されたノード
+            /// - Option<V>: 置き換えられた値
+            pub fn insert<K: Ord, V>(
+                root: Option<NodePtr<K, V>>,
+                key: K,
+                value: V,
+            ) -> (Option<NodePtr<K, V>>, NodePtr<K, V>, Option<V>) {
+                if root.is_none() {
+                    let new_root = Node::node_ptr(key, value);
+                    return (Some(new_root.clone()), new_root, None);
+                }
+                // 親ノードをたどっていく
+                let mut par = root.clone();
+                loop {
+                    let comp = key.cmp(&par.as_ref().unwrap().key());
+                    match comp {
+                        Ordering::Less => {
+                            if let Some(Some(left)) = par.as_ref().map(|node| node.left().clone()) {
+                                par.replace(left);
+                            } else {
+                                // 左側に挿入
+                                break (root, insert_left(par, key, value), None);
+                            }
+                        }
+                        Ordering::Equal => {
+                            // 置き換える
+                            let old_value =
+                                mem::replace(&mut *par.as_mut().unwrap().value_mut(), value);
+                            break (root, par.unwrap(), Some(old_value));
+                        }
+                        Ordering::Greater => {
+                            if let Some(Some(right)) = par.as_ref().map(|node| node.right().clone())
+                            {
+                                par.replace(right);
+                            } else {
+                                // 右側に挿入
+                                break (root, insert_right(par, key, value), None);
+                            }
+                        }
+                    }
+                }
             }
-            // 右の子を右回転
-            let right = root.as_mut().unwrap().right.take();
-            let mut tmp_child = rotate_right(right);
-            swap(&mut root.as_mut().unwrap().right, &mut tmp_child);
-            // 親を左回転
-            (rotate_left(root), true)
-        }
-    } else {
-        let left = &mut root.as_mut().unwrap().left;
-        if left.is_none() {
-            return (root, false);
-        }
-        if compare(key, &left.as_ref().unwrap().key) {
-            let leftright = left.as_mut().unwrap().right.take();
-            let (mut tmp, is_found) = splay_rev(leftright, key, compare);
-            // 戻す
-            swap(&mut left.as_mut().unwrap().right, &mut tmp);
-            if is_found {
-                // 左の子を左回転
-                let left = root.as_mut().unwrap().left.take();
-                let mut tmp_child = rotate_left(left);
-                swap(&mut root.as_mut().unwrap().left, &mut tmp_child);
+            /// nodeの左側に子を追加し，追加された子のポインタを返す
+            pub fn insert_left<K: Ord, V>(
+                node: Option<NodePtr<K, V>>,
+                key: K,
+                value: V,
+            ) -> NodePtr<K, V> {
+                let mut new_node = Node::node_ptr(key, value);
+                let Some(mut inner) = node else {
+                    return new_node;
+                };
+                // new_node.left ← node.left
+                *new_node.left_mut() = inner.take_left();
+                // left.parent ← new_node
+                if let Some(left) = new_node.clone().left_mut().as_mut() {
+                    *left.parent_mut() = Some(new_node);
+                }
+                // new_node.parent ← node
+                *new_node.parent_mut() = Some(inner);
+                // node.left ← new_node
+                inner.left_mut().replace(new_node.clone());
+                new_node
             }
-            // 親を右回転
-            (rotate_right(root), true)
-        } else {
-            let leftleft = left.as_mut().unwrap().left.take();
-            let (mut tmp, is_found) = splay_rev(leftleft, key, compare);
-            // 戻す
-            swap(&mut left.as_mut().unwrap().left, &mut tmp);
-            // 親を右回転
-            let tmp_child = rotate_right(root);
-            // さらに右回転
-            (rotate_right(tmp_child), is_found)
+            /// nodeの右側に子を追加し，追加された子のポインタを返す
+            pub fn insert_right<K: Ord, V>(
+                node: Option<NodePtr<K, V>>,
+                key: K,
+                value: V,
+            ) -> NodePtr<K, V> {
+                let mut new_node = Node::node_ptr(key, value);
+                let Some(mut inner) = node else {
+                    return new_node;
+                };
+                // new_node.right ← node.right
+                *new_node.right_mut() = inner.take_right();
+                // right.parent ← new_node
+                let new_node_weak = new_node;
+                if let Some(right) = new_node.right_mut().as_mut() {
+                    *right.parent_mut() = Some(new_node_weak);
+                }
+                // new_node.parent ← node
+                *new_node.parent_mut() = Some(inner);
+                // node.right ← new_node
+                inner.right_mut().replace(new_node.clone());
+                new_node
+            }
+        }
+        pub mod iterator {
+            use crate::data_structure::multiset_splay_tree::inner::node::{
+                pointer::{NodeOps, NodePtr},
+                state::NodeState,
+            };
+            use std::{cmp, fmt::Debug};
+            /// ノードの位置
+            #[derive(Debug)]
+            pub enum NodePosition<K: Ord, V> {
+                /// `K` の下界
+                INF,
+                /// ノードの値
+                Node(NodePtr<K, V>),
+                /// `K` の上界
+                SUP,
+            }
+            impl<K: Ord, V> Clone for NodePosition<K, V> {
+                fn clone(&self) -> Self {
+                    match self {
+                        NodePosition::INF => NodePosition::INF,
+                        NodePosition::Node(node) => NodePosition::Node(node.clone()),
+                        NodePosition::SUP => NodePosition::SUP,
+                    }
+                }
+            }
+            impl<K: Ord, V> PartialEq for NodePosition<K, V> {
+                fn eq(&self, other: &Self) -> bool {
+                    match (self, other) {
+                        (NodePosition::INF, NodePosition::INF) => true,
+                        (NodePosition::SUP, NodePosition::SUP) => true,
+                        (NodePosition::Node(node1), NodePosition::Node(node2)) => {
+                            node1.is_same(node2)
+                        }
+                        _ => false,
+                    }
+                }
+            }
+            impl<K: Ord, V> PartialOrd for NodePosition<K, V> {
+                fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+                    match (self, other) {
+                        (NodePosition::INF, NodePosition::INF) => Some(cmp::Ordering::Equal),
+                        (NodePosition::SUP, NodePosition::SUP) => Some(cmp::Ordering::Equal),
+                        (NodePosition::Node(node1), NodePosition::Node(node2)) => {
+                            Some(node1.key_cmp(node2))
+                        }
+                        (NodePosition::INF, _) => Some(cmp::Ordering::Less),
+                        (NodePosition::SUP, _) => Some(cmp::Ordering::Greater),
+                        (_, NodePosition::INF) => Some(cmp::Ordering::Greater),
+                        (_, NodePosition::SUP) => Some(cmp::Ordering::Less),
+                    }
+                }
+            }
+            impl<K: Ord, V> NodePosition<K, V> {
+                pub fn is_inf(&self) -> bool {
+                    match self {
+                        NodePosition::INF => true,
+                        _ => false,
+                    }
+                }
+                pub fn is_sup(&self) -> bool {
+                    match self {
+                        NodePosition::SUP => true,
+                        _ => false,
+                    }
+                }
+                pub fn is_node(&self) -> bool {
+                    match self {
+                        NodePosition::Node(_) => true,
+                        _ => false,
+                    }
+                }
+                pub fn is_none(&self) -> bool {
+                    match self {
+                        NodePosition::INF | NodePosition::SUP => true,
+                        _ => false,
+                    }
+                }
+                pub fn unwrap(self) -> NodePtr<K, V> {
+                    match self {
+                        NodePosition::Node(node) => node,
+                        _ => panic!("NodePosition::unwrap"),
+                    }
+                }
+                pub fn as_ref(&self) -> Option<&NodePtr<K, V>> {
+                    match self {
+                        NodePosition::Node(node) => Some(node),
+                        _ => None,
+                    }
+                }
+            }
+            /// 次に小さい値を持つノードを返す
+            ///
+            /// - 計算量： `O(1) amotized`
+            pub fn prev<K: Ord, V>(
+                iter: NodePosition<K, V>,
+                root: &Option<NodePtr<K, V>>,
+            ) -> NodePosition<K, V> {
+                match iter {
+                    NodePosition::INF => NodePosition::INF,
+                    NodePosition::Node(mut node) => {
+                        if let Some(mut prv) = node.left().as_ref().map(|node| node.clone()) {
+                            while let Some(right) =
+                                prv.clone().right().as_ref().map(|node| node.clone())
+                            {
+                                prv = right;
+                            }
+                            return NodePosition::Node(prv);
+                        }
+                        // 親をたどる
+                        while node.is_child() {
+                            match node.get_state() {
+                                NodeState::LeftChild => {
+                                    // 親は存在する
+                                    node = node.parent().unwrap();
+                                }
+                                NodeState::RightChild => {
+                                    return NodePosition::Node(node.parent().unwrap());
+                                }
+                                _ => unreachable!(),
+                            }
+                        }
+                        NodePosition::INF
+                    }
+                    NodePosition::SUP => match get_max(root.clone()) {
+                        Some(node) => NodePosition::Node(node),
+                        None => NodePosition::SUP,
+                    },
+                }
+            }
+            /// 次に大きい値をもつノードを返す
+            ///
+            /// - 計算量： `O(1) amotized`
+            pub fn next<K: Ord, V>(
+                iter: NodePosition<K, V>,
+                root: &Option<NodePtr<K, V>>,
+            ) -> NodePosition<K, V> {
+                match iter {
+                    NodePosition::INF => match get_min(root.clone()) {
+                        Some(node) => NodePosition::Node(node),
+                        None => NodePosition::INF,
+                    },
+                    NodePosition::Node(mut node) => {
+                        if let Some(mut nxt) = node.right().as_ref().map(|node| node.clone()) {
+                            while let Some(left) =
+                                nxt.clone().left().as_ref().map(|node| node.clone())
+                            {
+                                nxt = left;
+                            }
+                            return NodePosition::Node(nxt);
+                        }
+                        // 親をたどる
+                        while node.is_child() {
+                            match node.get_state() {
+                                NodeState::RightChild => {
+                                    // 親は存在する
+                                    node = node.parent().unwrap();
+                                }
+                                NodeState::LeftChild => {
+                                    return NodePosition::Node(node.parent().unwrap());
+                                }
+                                _ => unreachable!(),
+                            }
+                        }
+                        NodePosition::SUP
+                    }
+                    NodePosition::SUP => NodePosition::SUP,
+                }
+            }
+            /// rootを根とする木のうち，最も左側の子を返す
+            pub fn get_min<K: Ord, V>(root: Option<NodePtr<K, V>>) -> Option<NodePtr<K, V>> {
+                let mut node = root;
+                while let left @ Some(_) = node.as_ref().map(|node| node.left().clone())? {
+                    node = left;
+                }
+                node
+            }
+            /// rootを根とする木のうち，最も右側の子を返す
+            pub fn get_max<K: Ord, V>(root: Option<NodePtr<K, V>>) -> Option<NodePtr<K, V>> {
+                let mut node = root;
+                while let right @ Some(_) = node.as_ref().map(|node| node.right().clone())? {
+                    node = right;
+                }
+                node
+            }
+            /// ノードのイテレータ
+            pub struct NodeIterator<'a, K: Ord, V> {
+                /// 根のポインタ
+                root: &'a Option<NodePtr<K, V>>,
+                /// 現在の位置
+                pos: NodePosition<K, V>,
+            }
+            impl<'a, K: Ord, V> NodeIterator<'a, K, V> {
+                /// 新しいイテレータを返す
+                pub fn new(root: &'a Option<NodePtr<K, V>>, node: NodePtr<K, V>) -> Self {
+                    NodeIterator {
+                        root,
+                        pos: NodePosition::Node(node),
+                    }
+                }
+                /// 左端のイテレータを返す
+                pub fn first(root: &'a Option<NodePtr<K, V>>) -> Self {
+                    NodeIterator {
+                        root,
+                        pos: NodePosition::INF,
+                    }
+                }
+                /// 右端のイテレータを返す
+                pub fn last(root: &'a Option<NodePtr<K, V>>) -> Self {
+                    NodeIterator {
+                        root,
+                        pos: NodePosition::SUP,
+                    }
+                }
+            }
+            impl<'a, K: Ord, V> Iterator for NodeIterator<'a, K, V> {
+                type Item = NodePtr<K, V>;
+                fn next(&mut self) -> Option<Self::Item> {
+                    // posを次に進める
+                    self.pos = next(self.pos.clone(), self.root);
+                    let val = self.pos.as_ref().map(|node| node.clone())?;
+                    Some(val)
+                }
+            }
+            impl<'a, K: Ord, V> DoubleEndedIterator for NodeIterator<'a, K, V> {
+                fn next_back(&mut self) -> Option<Self::Item> {
+                    // posを前に進める
+                    self.pos = prev(self.pos.clone(), self.root);
+                    let val = self.pos.as_ref().map(|node| node.clone())?;
+                    Some(val)
+                }
+            }
+            /// 範囲をもつイテレータ
+            pub struct NodeRangeIterator<'a, K: Ord, V> {
+                /// 根のポインタ
+                root: &'a Option<NodePtr<K, V>>,
+                /// 左端の位置
+                left: NodePosition<K, V>,
+                /// 右端の位置
+                right: NodePosition<K, V>,
+            }
+            impl<'a, K: Ord, V> NodeRangeIterator<'a, K, V> {
+                /// 新しいイテレータを返す
+                pub fn new(
+                    root: &'a Option<NodePtr<K, V>>,
+                    left: NodePosition<K, V>,
+                    right: NodePosition<K, V>,
+                ) -> Self {
+                    NodeRangeIterator { root, left, right }
+                }
+            }
+            impl<'a, K: Ord, V> Iterator for NodeRangeIterator<'a, K, V> {
+                type Item = NodePtr<K, V>;
+                fn next(&mut self) -> Option<Self::Item> {
+                    // 左端を次に進める
+                    self.left = next(self.left.clone(), self.root);
+                    // 左端が右端に到達したら終了
+                    if self.left >= self.right {
+                        return None;
+                    }
+                    let val = self.left.as_ref().map(|node| node.clone())?;
+                    Some(val)
+                }
+            }
+            impl<'a, K: Ord + Debug, V: Debug> DoubleEndedIterator for NodeRangeIterator<'a, K, V> {
+                fn next_back(&mut self) -> Option<Self::Item> {
+                    // 右端を前に進める
+                    self.right = prev(self.right.clone(), self.root);
+                    // 右端が左端に到達したら終了
+                    if self.right <= self.left {
+                        return None;
+                    }
+                    let val = self.right.as_ref().map(|node| node.clone())?;
+                    Some(val)
+                }
+            }
+        }
+        pub mod pointer {
+            //! ノードのポインタ
+            macro_rules! generate_getters {
+                // 不変参照用のgetterを生成
+                ($name:ident, $field:ident, $return_type:ty) => {
+                    fn $name(&self) -> $return_type {
+                        unsafe { &self.as_ref().$field }
+                    }
+                };
+                // 可変参照用のgetterを生成
+                ($name:ident, $field:ident, $return_type:ty, mut) => {
+                    fn $name(&mut self) -> $return_type {
+                        unsafe { &mut self.as_mut().$field }
+                    }
+                };
+            }
+            use super::state::NodeState;
+            use std::{fmt::Debug, ptr::NonNull};
+            /// ノードのポインタ
+            pub type NodePtr<K, V> = NonNull<Node<K, V>>;
+            /// ノードの構造体
+            pub struct Node<K: Ord, V> {
+                pub key: K,
+                pub value: V,
+                pub parent: Option<NodePtr<K, V>>,
+                pub left: Option<NodePtr<K, V>>,
+                pub right: Option<NodePtr<K, V>>,
+            }
+            impl<K: Ord, V> Node<K, V> {
+                /// 葉ノードを作成する
+                pub fn new(key: K, value: V) -> Self {
+                    Self {
+                        key,
+                        value,
+                        parent: None,
+                        left: None,
+                        right: None,
+                    }
+                }
+                /// ノードのポインタを確保する
+                pub fn node_ptr(key: K, value: V) -> NodePtr<K, V> {
+                    let ptr = Box::new(Self::new(key, value));
+                    NonNull::new(Box::into_raw(ptr))
+                        .unwrap_or_else(|| panic!("Failed to allocate memory"))
+                }
+            }
+            impl<K: Ord + Debug, V: Debug> Debug for Node<K, V> {
+                fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    match (&self.left, &self.right) {
+                        (None, None) => f
+                            .debug_struct("Node")
+                            .field(&"key", &self.key)
+                            .field(&"value", &self.value)
+                            .finish(),
+                        (Some(_), None) => f
+                            .debug_struct("Node")
+                            .field(&"key", &self.key)
+                            .field(&"value", &self.value)
+                            .field(&"left", &self.left)
+                            .finish(),
+                        (None, Some(_)) => f
+                            .debug_struct("Node")
+                            .field(&"key", &self.key)
+                            .field(&"value", &self.value)
+                            .field(&"right", &self.right)
+                            .finish(),
+                        (Some(_), Some(_)) => f
+                            .debug_struct("Node")
+                            .field(&"key", &self.key)
+                            .field(&"value", &self.value)
+                            .field(&"left", &self.left)
+                            .field(&"right", &self.right)
+                            .finish(),
+                    }
+                }
+            }
+            /// ポインタに対する操作
+            pub trait NodeOps<K: Ord, V> {
+                /// 与えられたノードが子ノードであるかを判定する
+                fn is_child(&self) -> bool;
+                /// 与えられたノードが
+                /// - 空のノード
+                /// - 根ノード
+                /// - 親の左の子
+                /// - 親の右の子
+                ///
+                /// のどれかを判定する．
+                fn get_state(&self) -> NodeState;
+                /// ポインタの同一性判定
+                fn is_same(&self, other: &Self) -> bool;
+                /// ポインタの半順序
+                fn key_cmp(&self, other: &Self) -> std::cmp::Ordering;
+                /// 親へのポインタを切り離す
+                fn take_parent(&mut self) -> Option<NodePtr<K, V>>;
+                /// 親へのポインタを切り離し，強参照を取得する
+                fn take_parent_strong(&mut self) -> Option<NodePtr<K, V>>;
+                /// 左の子へのポインタを切り離す
+                fn take_left(&mut self) -> Option<NodePtr<K, V>>;
+                /// 右の子へのポインタを切り離す
+                fn take_right(&mut self) -> Option<NodePtr<K, V>>;
+                /// 親の参照を取得する
+                fn parent(&self) -> &Option<NodePtr<K, V>>;
+                /// 親の可変参照を取得する
+                fn parent_mut(&mut self) -> &mut Option<NodePtr<K, V>>;
+                /// 左の子への参照を取得する
+                fn left(&self) -> &Option<NodePtr<K, V>>;
+                /// 左の子への可変参照を取得する
+                fn left_mut(&mut self) -> &mut Option<NodePtr<K, V>>;
+                /// 右の子への参照を取得する
+                fn right(&self) -> &Option<NodePtr<K, V>>;
+                /// 右の子への可変参照を取得する
+                fn right_mut(&mut self) -> &mut Option<NodePtr<K, V>>;
+                /// キーへの参照を取得する
+                fn key(&self) -> &K;
+                /// バリューへの参照を取得する
+                fn value(&self) -> &V;
+                /// バリューへの可変参照を取得する
+                fn value_mut(&mut self) -> &mut V;
+            }
+            impl<K: Ord, V> NodeOps<K, V> for NodePtr<K, V> {
+                fn is_child(&self) -> bool {
+                    self.parent().is_some()
+                }
+                fn get_state(&self) -> NodeState {
+                    let par = self.parent();
+                    if par.is_none() {
+                        return NodeState::Root;
+                    }
+                    if par.is_some_and(|ptr| ptr.left().is_some_and(|left| left.is_same(self))) {
+                        return NodeState::LeftChild;
+                    }
+                    if par.is_some_and(|ptr| ptr.right().is_some_and(|right| right.is_same(self))) {
+                        return NodeState::RightChild;
+                    }
+                    unreachable!()
+                }
+                fn is_same(&self, other: &Self) -> bool {
+                    NonNull::eq(&self, other)
+                }
+                fn key_cmp(&self, other: &Self) -> std::cmp::Ordering {
+                    unsafe { self.as_ref().key.cmp(&other.as_ref().key) }
+                }
+                fn take_parent(&mut self) -> Option<NodePtr<K, V>> {
+                    unsafe { self.as_mut().parent.take() }
+                }
+                fn take_parent_strong(&mut self) -> Option<NodePtr<K, V>> {
+                    unsafe { self.as_mut().parent.take().map(|p| p) }
+                }
+                fn take_left(&mut self) -> Option<NodePtr<K, V>> {
+                    unsafe {
+                        let mut left = self.as_mut().left.take();
+                        if let Some(left_inner) = left.as_mut() {
+                            *left_inner.parent_mut() = None;
+                        }
+                        left
+                    }
+                }
+                fn take_right(&mut self) -> Option<NodePtr<K, V>> {
+                    unsafe {
+                        let mut right = self.as_mut().right.take();
+                        if let Some(right_inner) = right.as_mut() {
+                            *right_inner.parent_mut() = None;
+                        }
+                        right
+                    }
+                }
+                // 不変参照用のgetterを生成
+                generate_getters!(parent, parent, &Option<NodePtr<K, V>>);
+                generate_getters!(left, left, &Option<NodePtr<K, V>>);
+                generate_getters!(right, right, &Option<NodePtr<K, V>>);
+                generate_getters!(key, key, &K);
+                generate_getters!(value, value, &V);
+                // 可変参照用のgetterを生成
+                generate_getters!(parent_mut, parent, &mut Option<NodePtr<K, V>>, mut);
+                generate_getters!(left_mut, left, &mut Option<NodePtr<K, V>>, mut);
+                generate_getters!(right_mut, right, &mut Option<NodePtr<K, V>>, mut);
+                generate_getters!(value_mut, value, &mut V, mut);
+            }
+        }
+        pub mod remove {
+            use crate::data_structure::multiset_splay_tree::inner::node::{
+                iterator::get_min,
+                pointer::{NodeOps, NodePtr},
+                splay::splay,
+            };
+            /// ノード node を削除する
+            ///
+            /// **引数**
+            /// - root: 削除対象の木の根のポインタ
+            /// - node: 削除対象のノードのポインタ
+            ///
+            /// **戻り値**
+            /// - NodePtr\<K, V\>: 削除後の木の根のポインタ
+            /// - NodePtr\<K, V\>: 削除されたノードのポインタ
+            pub fn remove<K: Ord, V>(
+                mut node: NodePtr<K, V>,
+            ) -> (Option<NodePtr<K, V>>, NodePtr<K, V>) {
+                // nodeを根に持ってくる
+                let root = splay(node.clone());
+                // 左右に分割
+                let left = node.take_left();
+                let mut right = node.take_right();
+                // 右部分木の最小値を取得
+                let right_min = get_min(right.clone());
+                if let Some(right_min_inner) = right_min {
+                    right = Some(splay(right_min_inner));
+                }
+                // right.left <- left
+                if let Some(mut left_inner) = left.clone() {
+                    *left_inner.parent_mut() = right.clone();
+                }
+                if let Some(mut right_inner) = right.clone() {
+                    *right_inner.left_mut() = left;
+                } else {
+                    return (left, root);
+                }
+                (right, root)
+            }
+        }
+        pub mod splay {
+            use crate::data_structure::multiset_splay_tree::inner::node::{
+                pointer::{NodeOps, NodePtr},
+                state::NodeState,
+            };
+            /// nodeを1つ上に持ってくるように回転する
+            pub fn rotate<K: Ord, V>(mut node: NodePtr<K, V>) -> NodePtr<K, V> {
+                match node.get_state() {
+                    NodeState::Root => node,
+                    NodeState::LeftChild => {
+                        let mut right = node.take_right();
+                        let par = node.parent().clone();
+                        // 自分の右の子の親←親
+                        if let Some(right_inner) = right.as_mut() {
+                            *right_inner.parent_mut() = par.clone();
+                        }
+                        // 親はかならず存在する
+                        let mut par_inner = par.unwrap();
+                        // 親の左の子←自分の右の子
+                        *par_inner.left_mut() = right;
+                        // 自分の親←親の親
+                        let par_state = par_inner.get_state();
+                        let parpar = par_inner.parent_mut();
+                        if let Some(parpar_inner) = parpar.as_mut() {
+                            match par_state {
+                                NodeState::LeftChild => {
+                                    *parpar_inner.left_mut() = Some(node.clone());
+                                }
+                                NodeState::RightChild => {
+                                    *parpar_inner.right_mut() = Some(node.clone());
+                                }
+                                _ => (),
+                            }
+                        }
+                        *node.parent_mut() = parpar.clone();
+                        // 自分の右の子←親
+                        *par_inner.parent_mut() = Some(node);
+                        node.right_mut().replace(par_inner);
+                        node
+                    }
+                    NodeState::RightChild => {
+                        let mut left = node.take_left();
+                        let par = node.parent().clone();
+                        // 自分の左の子の親←親
+                        if let Some(left_inner) = left.as_mut() {
+                            *left_inner.parent_mut() = par.clone();
+                        }
+                        // 親はかならず存在する
+                        let mut par_inner = par.unwrap();
+                        // 親の右の子←自分の左の子
+                        *par_inner.right_mut() = left;
+                        // 自分の親←親の親
+                        let par_state = par_inner.get_state();
+                        let parpar = par_inner.parent_mut();
+                        if let Some(parpar_inner) = parpar.as_mut() {
+                            match par_state {
+                                NodeState::LeftChild => {
+                                    *parpar_inner.left_mut() = Some(node.clone());
+                                }
+                                NodeState::RightChild => {
+                                    *parpar_inner.right_mut() = Some(node.clone());
+                                }
+                                _ => (),
+                            }
+                        }
+                        *node.parent_mut() = parpar.clone();
+                        // 自分の左の子←親
+                        *par_inner.parent_mut() = Some(node);
+                        node.left_mut().replace(par_inner);
+                        node
+                    }
+                }
+            }
+            /// スプレー操作によりnodeを根に移動し，新たな根を返す
+            pub fn splay<K: Ord, V>(mut node: NodePtr<K, V>) -> NodePtr<K, V> {
+                while node.is_child() {
+                    // 頂点の状態
+                    let state = node.get_state();
+                    // 親頂点の状態（親は存在する）
+                    let par = node.parent().unwrap();
+                    let par_state = par.get_state();
+                    match (state, par_state) {
+                        (NodeState::Root, _) => {
+                            break;
+                        }
+                        // zig
+                        (NodeState::LeftChild | NodeState::RightChild, NodeState::Root) => {
+                            node = rotate(node);
+                        }
+                        // zig-zag
+                        (NodeState::LeftChild, NodeState::RightChild)
+                        | (NodeState::RightChild, NodeState::LeftChild) => {
+                            node = rotate(node);
+                            node = rotate(node);
+                        }
+                        // zig-zig
+                        (NodeState::LeftChild, NodeState::LeftChild)
+                        | (NodeState::RightChild, NodeState::RightChild) => {
+                            // 親を先にrotate（オブジェクトをdropさせないため，変数に代入する）
+                            let _par = rotate(node.parent().unwrap());
+                            node = rotate(node);
+                        }
+                    }
+                }
+                node
+            }
+        }
+        pub mod state {
+            //! ノードの状態を返す列挙子
+            /// ノードの状態を調べる
+            #[derive(Debug, PartialEq)]
+            pub enum NodeState {
+                /// 根ノード（親を持たない）
+                Root,
+                /// 親の左の子
+                LeftChild,
+                /// 親の右の子
+                RightChild,
+            }
         }
     }
-}
-
-/// ## 右回転
-/// ```not-rust
-///        Y                      X
-///       / \       right        / \
-///      X   C  === rotate ==>  A   Y
-///     / \                        / \
-///    A   B                      B   C
-/// ```
-fn rotate_right<T: Ord + Debug>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T>>> {
-    if let Some(mut root) = root {
-        if let Some(mut new_root) = root.left {
-            root.left = new_root.right;
-            new_root.right = Some(root);
-            Some(new_root)
-        } else {
-            Some(root)
+    pub mod utils {
+        pub mod print {
+            //! 木を整形して表示するための関数
+            use crate::data_structure::multiset_splay_tree::inner::node::pointer::{
+                NodeOps, NodePtr,
+            };
+            use std::fmt::Debug;
+            const BLUE: &str = "\x1b[94m";
+            const END: &str = "\x1b[0m";
+            const LEFT: &str = " ┌──";
+            const MID: &str = " │  ";
+            const RIGHT: &str = " └──";
+            const NULL: &str = "";
+            const BLANK: &str = "    ";
+            /// 2分木として出力する
+            pub fn print_as_tree<K: Ord + Debug, V: Debug>(root: &Option<NodePtr<K, V>>) {
+                eprintln!("{BLUE}┌─ BinaryTree ──────────────────────────────────────────{END}");
+                fmt_inner_binary_tree(root, &mut vec![], NULL);
+                eprintln!("{BLUE}└───────────────────────────────────────────────────────{END}");
+            }
+            /// print recursive
+            fn fmt_inner_binary_tree<K: Ord + Debug, V: Debug>(
+                node: &Option<NodePtr<K, V>>,
+                fill: &mut Vec<&'static str>,
+                last: &'static str,
+            ) {
+                if let Some(node) = node {
+                    // 表示の調整
+                    let mut tmp = None;
+                    if fill.last().is_some_and(|x| x == &last) {
+                        tmp = fill.pop();
+                        fill.push(BLANK);
+                    } else if fill.last().is_some_and(|x| x != &NULL && x != &BLANK) {
+                        tmp = fill.pop();
+                        fill.push(MID);
+                    }
+                    fill.push(last);
+                    // 左の子
+                    fmt_inner_binary_tree(&node.left(), fill, LEFT);
+                    // 自分を出力
+                    eprintln!(
+                        "{BLUE}│{END}{} Node {{ key: {:?}, value: {:?} }}",
+                        fill.iter().fold(String::new(), |s, x| s + x),
+                        node.key(),
+                        node.value(),
+                    );
+                    // 右の子
+                    fmt_inner_binary_tree(&node.right(), fill, RIGHT);
+                    fill.pop();
+                    // 戻す
+                    if let Some(tmp) = tmp {
+                        fill.pop();
+                        fill.push(tmp);
+                    }
+                }
+            }
         }
-    } else {
-        None
-    }
-}
-
-/// ## 左回転
-/// ```not-rust
-///      X                          Y
-///     / \         left           / \
-///    A   Y    === rotate ==>    X   C
-///       / \                    / \
-///      B   C                  A   B
-/// ```
-fn rotate_left<T: Ord + Debug>(root: Option<Box<Node<T>>>) -> Option<Box<Node<T>>> {
-    if let Some(mut root) = root {
-        if let Some(mut new_root) = root.right {
-            root.right = new_root.left;
-            new_root.left = Some(root);
-            Some(new_root)
-        } else {
-            Some(root)
-        }
-    } else {
-        None
-    }
-}
-
-// ----- FromIterator -----
-impl<T: Ord + Clone + Debug> FromIterator<T> for MultiSet<T> {
-    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let mut res = MultiSet::new();
-        for item in iter {
-            res.insert(item);
-        }
-        res
-    }
-}
-
-// ----- Debug -----
-impl<T: Ord + Debug> Debug for MultiSet<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        fmt_inner(f, &self.root, 0);
-        Ok(())
-    }
-}
-
-/// 再帰的に表示
-#[allow(unused_must_use)]
-fn fmt_inner<T>(f: &mut std::fmt::Formatter<'_>, node: &Option<Box<Node<T>>>, depth: usize)
-where
-    T: Ord + Debug,
-{
-    match node {
-        Some(ref node) => {
-            fmt_inner(f, &node.left, depth + 1);
-            writeln!(f, "{}{:?}({})", " ".repeat(depth * 2), node.key, node.id);
-            fmt_inner(f, &node.right, depth + 1);
-        }
-        None => {}
     }
 }
