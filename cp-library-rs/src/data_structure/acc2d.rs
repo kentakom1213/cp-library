@@ -2,9 +2,10 @@
 
 use num_traits::Num;
 
-/// ## acc2D
+/// acc2D
 /// - 2次元累積和を取る
-/// ### 戻り値
+/// 
+/// **戻り値**
 /// - `|r_start, r_end, c_start, c_end|: (usize, usize, usize, usize) -> T`
 pub fn acc2D<T: Num + Copy>(array: &Vec<Vec<T>>) -> impl Fn(usize, usize, usize, usize) -> T {
     let (H, W) = (array.len(), array[0].len());
