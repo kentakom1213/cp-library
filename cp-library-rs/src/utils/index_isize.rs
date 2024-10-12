@@ -1,4 +1,4 @@
-//! isizeによる巡回的添字なアクセス
+//! isizeによる巡回的な添字アクセス
 
 /// `isize`による巡回的な添字アクセス
 pub trait IndexIsize {
