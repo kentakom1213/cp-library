@@ -1,5 +1,24 @@
 //! 素因数分解
 
+/// 非負整数 $`n`$ を素因数分解し、`素因数`のベクタを返す
+/// - 計算量 : $`O(\sqrt{n})`$
+pub fn factorize_vec(mut n: usize) -> Vec<usize> {
+    let mut res = Vec::new();
+    for i in 2.. {
+        if i * i > n {
+            break;
+        }
+        while n % i == 0 {
+            n /= i;
+            res.push(i);
+        }
+    }
+    if n > 1 {
+        res.push(n);
+    }
+    res
+}
+
 /// 非負整数 $`n`$ を素因数分解し、`(素因数,指数)`のベクタを返す
 /// - 計算量 : $`O(\sqrt{n})`$
 pub fn factorize_pairs(mut n: usize) -> Vec<(usize, usize)> {

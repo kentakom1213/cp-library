@@ -4,7 +4,7 @@ pub mod comb;
 pub mod comb_no_mod;
 pub mod crt;
 pub mod factorize;
-pub mod factorize_fast;
+pub mod factorize_query;
 pub mod factors_all;
 pub mod frac;
 pub mod miller_rabin_test;

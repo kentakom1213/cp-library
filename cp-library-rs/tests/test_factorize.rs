@@ -1,7 +1,21 @@
-use cp_library_rs::number_theory::factorize::factorize_pairs;
+use cp_library_rs::number_theory::factorize::{factorize_pairs, factorize_vec};
 
 #[test]
-fn test_factorize() {
+fn test_factorize_vec() {
+    assert_eq!(factorize_vec(1024), vec![2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
+
+    assert_eq!(factorize_vec(123456789), vec![3, 3, 3607, 3803]);
+
+    assert_eq!(factorize_vec(20021213), vec![20021213]);
+
+    assert_eq!(
+        factorize_vec(1234567891234567),
+        vec![47, 167, 167953, 936511]
+    );
+}
+
+#[test]
+fn test_factorize_pairs() {
     assert_eq!(factorize_pairs(1024), vec![(2, 10)]);
 
     assert_eq!(

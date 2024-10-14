@@ -44,7 +44,7 @@ pub fn pollard_rho(N: usize) -> usize {
 /// ポラード・ロー法により素因数分解を行う
 ///
 /// - 計算量 : $`O(n^{1/4})`$
-pub fn factorize(N: usize) -> Vec<usize> {
+pub fn factorize_pollard_rho(N: usize) -> Vec<usize> {
     if N == 1 {
         return vec![];
     }
@@ -52,8 +52,8 @@ pub fn factorize(N: usize) -> Vec<usize> {
     if p == N {
         return vec![N];
     }
-    let mut left = factorize(p);
-    let mut right = factorize(N / p);
+    let mut left = factorize_pollard_rho(p);
+    let mut right = factorize_pollard_rho(N / p);
     left.append(&mut right);
     left.sort();
     left
