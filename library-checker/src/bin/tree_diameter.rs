@@ -6,7 +6,7 @@ use cp_library_rs::{
     debug, get,
     graph::{
         dijkstra::{dijkstra, path_reconstruction},
-        rerooting::{self, examples::Diameter, Rerooting},
+        dynamic_rerooting::Rerooting,
     },
     utils::{consts::INF, iterutil::IterUtil},
 };
@@ -15,14 +15,15 @@ fn main() {
     let N = get!(usize);
     let edges = get!(usize, usize, isize; N - 1);
 
-    let mut rerooting = Rerooting::<Diameter>::new(N);
+    let mut rerooting = Rerooting::new(N, 0, |a, b| *a.max(b), |a, i| a + edges[i].2, |a, _| *a);
 
-    for (u, v, w) in edges {
-        rerooting.add_edge2(u, v, w);
+    for &(u, v, w) in &edges {
+        rerooting.add_edge2(u, v);
     }
 
     rerooting.build();
 
+    debug!(rerooting.dp);
     debug!(rerooting.ans);
 
     let diameter = rerooting.ans.iter().max().unwrap();
@@ -53,7 +54,7 @@ fn main() {
         while let Some(u) = q.pop_front() {
             seen[u] = true;
             for e in &rerooting.G[u] {
-                let v = e.to;
+                let v = *e;
                 if seen[v] {
                     continue;
                 }

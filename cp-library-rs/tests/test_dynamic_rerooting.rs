@@ -1,26 +1,13 @@
 use cp_library_rs::{
     debug,
-    graph::dynamic_rerooting::{Rerooting, TreeMonoid},
+    graph::{
+        dynamic_rerooting::Rerooting as RerootingDyn, rerooting::examples::Diameter,
+        rerooting::Rerooting,
+    },
 };
 
 #[test]
 fn test_aggregate() {
-    struct TM {
-        weights: Vec<usize>,
-    }
-    impl TreeMonoid for TM {
-        type T = usize;
-        fn id(&self) -> Self::T {
-            0
-        }
-        fn merge(&self, x: &Self::T, y: &Self::T) -> Self::T {
-            *x.max(y)
-        }
-        fn put_edge(&self, x: &Self::T, i: usize) -> Self::T {
-            *x + self.weights[i]
-        }
-    }
-
     // 木の構築
     let n = 8;
     let edge = vec![
@@ -33,24 +20,27 @@ fn test_aggregate() {
         (6, 7, 2),
     ];
 
-    let monoid = Box::new(TM {
-        weights: edge.iter().map(|x| x.2).collect(),
-    });
-
-    let mut rerooting = Rerooting::new(n, monoid);
+    let mut rerooting_dyn =
+        RerootingDyn::new(n, 0, |a, b| *a.max(b), |a, i| a + edge[i].2, |a, _| *a);
+    let mut rerooting = Rerooting::<Diameter>::new(n);
 
     // 辺の追加
-    for &(u, v, _) in &edge {
-        rerooting.add_edge2(u, v);
+    for &(u, v, w) in &edge {
+        rerooting_dyn.add_edge2(u, v);
+        rerooting.add_edge2(u, v, w);
     }
 
-    debug!(rerooting.edge_id);
+    debug!(rerooting_dyn.edge_id);
 
     // 集約
+    rerooting_dyn.build();
     rerooting.build();
 
     debug!(rerooting.dp);
     debug!(rerooting.ans);
 
-    assert_eq!(rerooting.ans, vec![11, 9, 12, 10, 7, 8, 10, 12])
+    debug!(rerooting_dyn.dp);
+    debug!(rerooting_dyn.ans);
+
+    assert_eq!(rerooting_dyn.ans, vec![11, 9, 12, 10, 7, 8, 10, 12])
 }

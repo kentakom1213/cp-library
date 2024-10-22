@@ -4,69 +4,73 @@ use std::collections::HashMap;
 
 use crate::utils::consts::INF;
 
-/// 木DPの操作
-pub trait TreeMonoid {
-    /// 値の型
-    type T: Clone;
-    /// 単位元を返す関数
-    fn id(&self) -> Self::T;
-    /// 値同士の合成
-    fn merge(&self, x: &Self::T, y: &Self::T) -> Self::T;
-    /// 辺番号`i`の辺を付加する
-    fn put_edge(&self, x: &Self::T, i: usize) -> Self::T {
-        x.clone()
-    }
-    /// 頂点番号`i`の頂点を付加する
-    fn put_vertex(&self, x: &Self::T, i: usize) -> Self::T {
-        x.clone()
-    }
-}
-
 /// 全方位木DP
-pub struct Rerooting<T: Clone> {
+pub struct Rerooting<T, FE, FV>
+where
+    T: Clone,
+    FE: Fn(&T, usize) -> T,
+    FV: Fn(&T, usize) -> T,
+{
     /// dpテーブル
     pub dp: Vec<Vec<T>>,
     /// 結果を保存する配列
     pub ans: Vec<T>,
     /// グラフ
-    pub graph: Vec<Vec<usize>>,
+    pub G: Vec<Vec<usize>>,
     /// 辺の本数
     edge_cnt: usize,
-    /// 辺の本数のカウント
-    pub edge_id: HashMap<(usize, usize), usize>,
-    /// 操作
-    monoid: Box<dyn TreeMonoid<T = T>>,
+    /// 辺の番号: `(u, v) -> (辺番号, G[u].index(v))`
+    pub edge_id: HashMap<(usize, usize), (usize, usize)>,
+    /// 単位元
+    id: T,
+    /// モノイド
+    merge: fn(&T, &T) -> T,
+    /// 辺を追加する関数
+    put_edge: FE,
+    /// 頂点を追加する関数
+    put_vertex: FV,
 }
-impl<T: Clone> Rerooting<T> {
+impl<T, FE, FV> Rerooting<T, FE, FV>
+where
+    T: Clone,
+    FE: Fn(&T, usize) -> T,
+    FV: Fn(&T, usize) -> T,
+{
     /// 木を初期化する
-    pub fn new(N: usize, monoid: Box<dyn TreeMonoid<T = T>>) -> Self {
+    pub fn new(N: usize, id: T, merge: fn(&T, &T) -> T, put_edge: FE, put_vertex: FV) -> Self {
         Self {
             dp: vec![vec![]; N],
-            ans: vec![monoid.id(); N],
-            graph: vec![vec![]; N],
+            ans: vec![id.clone(); N],
+            G: vec![vec![]; N],
             edge_cnt: 0,
             edge_id: HashMap::default(),
-            monoid,
+            id,
+            merge,
+            put_edge,
+            put_vertex,
         }
     }
 
     /// 有向辺 `(u,v)` を追加する
     pub fn add_edge(&mut self, u: usize, v: usize) {
-        self.graph[u].push(v);
+        let pos = self.G[u].len();
+        self.G[u].push(v);
 
         // 辺番号を記録
-        self.edge_id.insert((u, v), self.edge_cnt);
+        self.edge_id.insert((u, v), (self.edge_cnt, pos));
         self.edge_cnt += 1;
     }
 
     /// 有向辺 `(u,v)` / `(v,u)` を追加する
     pub fn add_edge2(&mut self, u: usize, v: usize) {
-        self.graph[u].push(v);
-        self.graph[v].push(u);
+        let pos_u_v = self.G[u].len();
+        self.G[u].push(v);
+        let pos_v_u = self.G[v].len();
+        self.G[v].push(u);
 
         // 辺番号を記録
-        self.edge_id.insert((u, v), self.edge_cnt);
-        self.edge_id.insert((v, u), self.edge_cnt);
+        self.edge_id.insert((u, v), (self.edge_cnt, pos_u_v));
+        self.edge_id.insert((v, u), (self.edge_cnt, pos_v_u));
         self.edge_cnt += 1;
     }
 
@@ -80,12 +84,12 @@ impl<T: Clone> Rerooting<T> {
 
     /// 頂点`u`に対して値を集約する
     pub fn aggregate(&mut self, p: usize, u: usize) -> T {
-        let mut res = self.monoid.id();
-        let deg = self.graph[u].len();
-        self.dp[u] = vec![self.monoid.id(); deg];
+        let mut res = self.id.clone();
+        let deg = self.G[u].len();
+        self.dp[u] = vec![self.id.clone(); deg];
 
         for i in 0..deg {
-            let v = self.graph[u][i];
+            let v = self.G[u][i];
             if v == p {
                 continue;
             }
@@ -93,16 +97,16 @@ impl<T: Clone> Rerooting<T> {
             let mut val = self.aggregate(u, v);
 
             // v から u に戻ってくる辺
-            let edge_vu = *self.edge_id.get(&(v, u)).unwrap();
-            val = self.monoid.put_edge(&val, edge_vu);
+            let (edge_vu, _) = *self.edge_id.get(&(v, u)).unwrap();
+            val = (self.put_edge)(&val, edge_vu);
 
-            res = self.monoid.merge(&res, &val);
+            res = (self.merge)(&res, &val);
 
             self.dp[u][i] = val;
         }
 
         // 頂点 u を付加
-        res = self.monoid.put_vertex(&res, u);
+        res = (self.put_vertex)(&res, u);
 
         res
     }
@@ -111,34 +115,33 @@ impl<T: Clone> Rerooting<T> {
     ///
     /// - `agg_p`: 親の集約値
     pub fn reroot(&mut self, p: usize, u: usize) {
-        let deg = self.graph[u].len();
+        let deg = self.G[u].len();
 
         // 左右からの累積を保存する配列
-        let mut Sl = vec![self.monoid.id(); deg + 1];
-        let mut Sr = vec![self.monoid.id(); deg + 1];
+        let mut Sl = vec![self.id.clone(); deg + 1];
+        let mut Sr = vec![self.id.clone(); deg + 1];
         for i in 0..deg {
-            Sl[i + 1] = self.monoid.merge(&Sl[i], &self.dp[u][i]);
+            Sl[i + 1] = (self.merge)(&Sl[i], &self.dp[u][i]);
         }
         for i in (0..deg).rev() {
-            Sr[i] = self.monoid.merge(&self.dp[u][i], &Sr[i + 1]);
+            Sr[i] = (self.merge)(&self.dp[u][i], &Sr[i + 1]);
         }
 
         // 解の計算
-        self.ans[u] = self.monoid.put_vertex(&Sl[deg], u);
+        self.ans[u] = (self.put_vertex)(&Sl[deg], u);
 
         // 根を移動させる
         for i in 0..deg {
-            let v = self.graph[u][i];
+            let v = self.G[u][i];
             if v == p {
                 continue;
             }
-            let val = self
-                .monoid
-                .put_vertex(&self.monoid.merge(&Sl[i], &Sr[i + 1]), u);
-            let uv = *self.edge_id.get(&(u, v)).unwrap();
+            let val = (self.put_vertex)(&(self.merge)(&Sl[i], &Sr[i + 1]), u);
+            let (edge_uv, _) = *self.edge_id.get(&(u, v)).unwrap();
+            let (_, pos_u) = *self.edge_id.get(&(v, u)).unwrap();
 
             // 親の値を伝搬
-            self.dp[v][0] = self.monoid.put_edge(&val, uv);
+            self.dp[v][pos_u] = (self.put_edge)(&val, edge_uv);
 
             self.reroot(u, v);
         }
