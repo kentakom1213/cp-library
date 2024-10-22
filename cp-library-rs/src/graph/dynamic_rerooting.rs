@@ -5,9 +5,10 @@ use std::collections::HashMap;
 use crate::utils::consts::INF;
 
 /// 全方位木DP
-pub struct Rerooting<T, FE, FV>
+pub struct Rerooting<T, M, FE, FV>
 where
     T: Clone,
+    M: Fn(&T, &T) -> T,
     FE: Fn(&T, usize) -> T,
     FV: Fn(&T, usize) -> T,
 {
@@ -24,15 +25,16 @@ where
     /// 単位元
     id: T,
     /// 値をマージする関数
-    merge: fn(&T, &T) -> T,
+    merge: M,
     /// 辺を追加する関数
     put_edge: FE,
     /// 頂点を追加する関数
     put_vertex: FV,
 }
-impl<T, FE, FV> Rerooting<T, FE, FV>
+impl<T, M, FE, FV> Rerooting<T, M, FE, FV>
 where
     T: Clone,
+    M: Fn(&T, &T) -> T,
     FE: Fn(&T, usize) -> T,
     FV: Fn(&T, usize) -> T,
 {
@@ -45,7 +47,7 @@ where
     /// - `merge`: 値をマージする関数
     /// - `put_edge`: 辺を追加する関数
     /// - `put_vertex`: 頂点を追加する関数
-    pub fn new(N: usize, id: T, merge: fn(&T, &T) -> T, put_edge: FE, put_vertex: FV) -> Self {
+    pub fn new(N: usize, id: T, merge: M, put_edge: FE, put_vertex: FV) -> Self {
         Self {
             dp: vec![vec![]; N],
             ans: vec![id.clone(); N],
