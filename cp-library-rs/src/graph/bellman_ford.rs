@@ -22,7 +22,7 @@ use crate::utils::consts::{IINF, INF};
 /// - `prev` : 各頂点の最短路について，その頂点の直前に経由した頂点
 ///
 /// 計算量
-/// - `$O(NM)$`
+/// - $`O(NM)`$
 pub fn bellman_ford(
     N: usize,
     start: usize,

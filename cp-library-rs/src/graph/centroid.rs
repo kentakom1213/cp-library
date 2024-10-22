@@ -1,3 +1,5 @@
+//! 木の重心を求める
+
 // 部分木のサイズを求める
 pub fn subtree_size(p: usize, u: usize, G: &Vec<Vec<usize>>, W: &[usize], res: &mut [usize]) {
     // 自分を足す
