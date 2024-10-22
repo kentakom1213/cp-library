@@ -1,4 +1,4 @@
-//! # ユーティリティ
+//! ## ユーティリティ
 
 pub mod consts;
 pub mod coordinate_compression;

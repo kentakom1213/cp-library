@@ -1,4 +1,4 @@
-//! # データ構造
+//! ## データ構造
 
 pub mod acc2d;
 pub mod acc2d_cyclic;

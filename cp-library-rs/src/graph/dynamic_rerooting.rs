@@ -1,4 +1,4 @@
-//! 全方位木DP（動的ディスパッチ）
+//! ### 全方位木DP（クロージャ）
 
 use std::collections::HashMap;
 

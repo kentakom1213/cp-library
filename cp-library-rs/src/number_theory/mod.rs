@@ -1,4 +1,4 @@
-//! # 数論アルゴリズム
+//! ## 数論アルゴリズム
 
 pub mod comb;
 pub mod comb_no_mod;

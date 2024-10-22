@@ -1,4 +1,4 @@
-//! # 文字列アルゴリズム
+//! ## 文字列アルゴリズム
 
 pub mod consts;
 pub mod lcs;

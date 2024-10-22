@@ -1,3 +1,5 @@
+//! 文字列関係の定数
+
 /// 英小文字（文字列）
 pub const ASCII_LOWERCASE_STR: &str = "abcdefghijklmnopqrstuvwxyz";
 

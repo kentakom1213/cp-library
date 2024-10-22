@@ -1,3 +1,5 @@
+//! # Rustによる競技プログラミング用ライブラリ
+
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
