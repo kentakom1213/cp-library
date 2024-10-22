@@ -23,7 +23,7 @@ where
     pub edge_id: HashMap<(usize, usize), (usize, usize)>,
     /// 単位元
     id: T,
-    /// モノイド
+    /// 値をマージする関数
     merge: fn(&T, &T) -> T,
     /// 辺を追加する関数
     put_edge: FE,
@@ -37,6 +37,14 @@ where
     FV: Fn(&T, usize) -> T,
 {
     /// 木を初期化する
+    /// - 計算量: `$O(N)$`
+    ///
+    /// **引数**
+    /// - `N`: 頂点数
+    /// - `id`: 単位元
+    /// - `merge`: 値をマージする関数
+    /// - `put_edge`: 辺を追加する関数
+    /// - `put_vertex`: 頂点を追加する関数
     pub fn new(N: usize, id: T, merge: fn(&T, &T) -> T, put_edge: FE, put_vertex: FV) -> Self {
         Self {
             dp: vec![vec![]; N],
@@ -52,6 +60,7 @@ where
     }
 
     /// 有向辺 `(u,v)` を追加する
+    /// - 計算量: `$O(1)$`
     pub fn add_edge(&mut self, u: usize, v: usize) {
         let pos = self.G[u].len();
         self.G[u].push(v);
@@ -62,6 +71,7 @@ where
     }
 
     /// 有向辺 `(u,v)` / `(v,u)` を追加する
+    /// - 計算量: `$O(1)$`
     pub fn add_edge2(&mut self, u: usize, v: usize) {
         let pos_u_v = self.G[u].len();
         self.G[u].push(v);
@@ -75,6 +85,7 @@ where
     }
 
     /// すべての頂点`v`について，`v`を根として集約した値を求める
+    /// - 計算量: `$O(N)$`
     pub fn build(&mut self) {
         // 頂点0に集約
         self.aggregate(INF, 0);
@@ -83,6 +94,7 @@ where
     }
 
     /// 頂点`u`に対して値を集約する
+    /// - 計算量: `$O(N)$`
     pub fn aggregate(&mut self, p: usize, u: usize) -> T {
         let mut res = self.id.clone();
         let deg = self.G[u].len();
@@ -112,8 +124,11 @@ where
     }
 
     /// rerootingを行う
+    /// - 計算量: `$O(N)$`
     ///
-    /// - `agg_p`: 親の集約値
+    /// **引数**
+    /// - `p`: 親の頂点
+    /// - `u`: 現在の頂点
     pub fn reroot(&mut self, p: usize, u: usize) {
         let deg = self.G[u].len();
 
