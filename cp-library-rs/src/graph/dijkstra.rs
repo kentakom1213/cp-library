@@ -3,7 +3,7 @@
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 
-const INF: usize = usize::MAX;
+use crate::utils::consts::INF;
 
 /// Dijkstra法
 /// - グラフ`graph`が与えられたとき、スタート地点`s`から各頂点への最短路を求める

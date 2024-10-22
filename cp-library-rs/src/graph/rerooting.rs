@@ -16,6 +16,7 @@ pub trait TreeMonoid {
     /// 辺の作用
     fn put_edge(x: &Self::T, weight: &Self::W) -> Self::T;
 }
+
 pub mod examples {
     use super::TreeMonoid;
     pub struct Diameter;
@@ -38,9 +39,9 @@ pub type Graph<T> = Vec<Vec<Edge<T>>>;
 /// 辺の構造体
 #[derive(Clone, Debug)]
 pub struct Edge<T> {
-    to: usize,
+    pub to: usize,
     /// 辺重み
-    weight: T,
+    pub weight: T,
 }
 /// 全方位木DP
 pub struct Rerooting<M: TreeMonoid> {
