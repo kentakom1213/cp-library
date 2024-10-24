@@ -2,7 +2,11 @@
 
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use crate::utils::num_traits::{Num, PrimInt};
+#[allow(unused_imports)]
+use crate::{
+    geometry::basic,
+    utils::num_traits::{Num, PrimInt},
+};
 
 /// 2次元ベクトル
 #[derive(Debug, Hash, Clone, Copy)]

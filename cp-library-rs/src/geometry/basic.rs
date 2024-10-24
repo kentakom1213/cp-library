@@ -1,16 +1,22 @@
 //! 点、直線等に関する基礎的な操作
 
-use super::vec2::Vec2;
-
-/// 十分に小さい数
-pub const EPS: f64 = 1e-8;
+use crate::geometry::vec2::Vec2;
 
 /// 点（2次元平面）
 pub type Point = Vec2<f64>;
 
+/// 十分に小さい数
+pub const EPS: f64 = 1e-8;
+
 impl PartialEq for Point {
     fn eq(&self, other: &Self) -> bool {
         self.dist(other.clone()) < EPS
+    }
+}
+
+impl From<(f64, f64)> for Point {
+    fn from(value: (f64, f64)) -> Self {
+        Self(value.0, value.1)
     }
 }
 
