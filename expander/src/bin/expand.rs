@@ -18,7 +18,7 @@ struct Args {
     restore: bool,
 }
 
-fn main() -> anyhow::Result<(), anyhow::Error> {
+fn main() {
     // ロガーの初期化
     env_logger::init();
 
@@ -47,7 +47,8 @@ fn main() -> anyhow::Result<(), anyhow::Error> {
 
         // ディレクトリ名部分とファイル名部分に分割
         let &[contest, bin, ..] = &dir_file.split(' ').collect::<Vec<&str>>()[..] else {
-            bail!("No such contest or binary: {:?}", input_path);
+            log::error!("invalid input: {:?}", args.input);
+            exit(1);
         };
 
         let mut buf = PathBuf::from(env::var("KYOPRO_DIR").unwrap());
@@ -61,7 +62,11 @@ fn main() -> anyhow::Result<(), anyhow::Error> {
     // expanderの初期化
     let mut expander = match ModuleExpander::new(input_path.clone(), args.library) {
         Ok(expander) => expander,
-        Err(err) => bail!(err),
+        Err(err) => {
+            log::error!("expander initialize failed");
+            log::error!("{err}");
+            exit(1);
+        }
     };
 
     log::info!("library_name: {}", expander.library_name);
@@ -105,6 +110,4 @@ fn main() -> anyhow::Result<(), anyhow::Error> {
             }
         }
     }
-
-    Ok(())
 }
