@@ -1,4 +1,3 @@
-use anyhow::bail;
 use clap::Parser;
 use expander::expander::ModuleExpander;
 use std::{env, path::PathBuf, process::exit};
