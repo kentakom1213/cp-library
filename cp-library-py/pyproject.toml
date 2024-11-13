@@ -6,8 +6,10 @@ readme = "README.md"
 authors = [
     { name = "kentakom1213", email = "kentakom1213@gmail.com" }
 ]
-requires-python = ">=3.12"
-dependencies = []
+requires-python = ">=3.11"
+dependencies = [
+    "mypy>=1.13.0",
+]
 
 [build-system]
 requires = ["hatchling"]

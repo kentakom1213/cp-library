@@ -1,0 +1,39 @@
+name: Python CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "cp-library-py/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "cp-library-py/**"
+
+jobs:
+  mypy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./cp-library-py
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Run mypy
+        run: uv run mypy
+
+      - name: Run test
+        run: uv run python -m unittest discover -v
