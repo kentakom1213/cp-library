@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-rust
-          path: "cp-library-rs/target/doc"
+          path: "cp-library-rs/target/doc/cp_library_rs"
           compression-level: 0
 
   python-doc:
@@ -65,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-python
-          path: "cp_library_py/_build/html"
+          path: "cp-library-py/_build/html"
           compression-level: 0
 
   deploy:
@@ -100,8 +100,8 @@ jobs:
       # merge artifacts
       - name: Merge artifacts
         run: |
-          mv artifact-rust/cp_library_rs pages/cp-library-rs
-          mv artifact-python/html pages/cp-library-py
+          mv artifact-rust pages/cp-library-rs
+          mv artifact-python pages/cp-library-py
 
       # Upload the book's HTML as an artifact
       - name: Upload artifact
