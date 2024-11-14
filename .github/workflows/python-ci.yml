@@ -14,7 +14,7 @@ on:
       - "cp-library-py/**"
 
 jobs:
-  test:
+  test-python:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -48,14 +48,14 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: '3.11'
-    
+          python-version: "3.11"
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
       - name: Build docs
         run: sphinx-apidoc -f -o ./docs/source ../cp_library_py
-      
+
       - name: Build html
         run: make html
 
@@ -66,4 +66,3 @@ jobs:
           name: artifact-python
           path: "docs/_build/html"
           compression-level: 0
-      
