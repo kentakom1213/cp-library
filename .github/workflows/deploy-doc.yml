@@ -8,12 +8,14 @@ on:
     paths:
       - "cp-library-py/**"
       - "cp-library-rs/**"
+      - "pages/**"
   pull_request:
     branches:
       - main
     paths:
       - "cp-library-py/**"
       - "cp-library-rs/**"
+      - "pages/**"
 
 jobs:
   rust-doc:
