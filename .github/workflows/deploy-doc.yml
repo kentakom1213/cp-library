@@ -62,7 +62,9 @@ jobs:
         run: sphinx-apidoc -f -o ./docs/source ../cp_library_py
 
       - name: Build html
-        run: make html
+        run: |
+          make html
+          ls _build/html
 
       # Upload the book's HTML as an artifact
       - name: Upload artifact
@@ -95,6 +97,7 @@ jobs:
       - name: show files
         run: |
           ls -l
+          ls artifact-rust
 
       - name: pages
         run: |
@@ -103,8 +106,8 @@ jobs:
       # merge artifacts
       - name: Merge artifacts
         run: |
-          mv artifact-rust/cp-library-rs/target/doc/cp_library_rs pages/cp-library-rs
-          mv artifact-python/docs/_build/html pages/cp-library-py
+          mv artifact-rust/target/doc/cp_library_rs pages/cp-library-rs
+          mv artifact-python pages/cp-library-py
 
       # Upload the book's HTML as an artifact
       - name: Upload artifact
