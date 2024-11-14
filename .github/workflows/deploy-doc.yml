@@ -91,7 +91,7 @@ jobs:
       # merge artifacts
       - name: Merge artifacts
         run: |
-          cp artifact-rust/* pages
+          cp -r artifact-rust/* pages
           mv artifact-python pages/cp_library_py
 
       # Upload the book's HTML as an artifact
