@@ -28,10 +28,6 @@ jobs:
         run: curl -O https://raw.githubusercontent.com/CAD97/katex-doc/master/katex.html
       - name: Run doc
         run: cargo rustdoc -- --html-in-header katex.html
-      # - name: Deploy
-      #   uses: actions/upload-pages-artifact@v1
-      #   with:
-      #     path: cp-library-rs/target/doc
 
       # Upload the book's HTML as an artifact
       - name: Upload artifact
@@ -69,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-python
-          path: "_build"
+          path: "cp_library_py/_build/html"
           compression-level: 0
 
   deploy:
