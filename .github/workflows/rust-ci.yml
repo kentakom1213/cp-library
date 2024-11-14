@@ -42,24 +42,32 @@ jobs:
         run: curl -O https://raw.githubusercontent.com/CAD97/katex-doc/master/katex.html
       - name: Run doc
         run: cargo rustdoc -- --html-in-header katex.html
-      - name: Deploy
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: cp-library-rs/target/doc
+      # - name: Deploy
+      #   uses: actions/upload-pages-artifact@v1
+      #   with:
+      #     path: cp-library-rs/target/doc
 
-  deploy:
-    needs: doc
-    defaults:
-      run:
-        working-directory: ./cp-library-rs
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+      # Upload the book's HTML as an artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-rust
+          path: "cp-library-rs/target/doc"
+          compression-level: 0
+
+  # deploy:
+  #   needs: doc
+  #   defaults:
+  #     run:
+  #       working-directory: ./cp-library-rs
+  #   permissions:
+  #     pages: write
+  #     id-token: write
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v1

@@ -6,11 +6,12 @@
 cp-library-py documentation
 ===========================
 
-Python用の競技プログラミングライブラリ
+Pythonによる競技プログラミング用ライブラリ
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
-   docs/source/cp_library_py
+   docs/source/segment_tree
+   docs/source/lazy_segment_tree

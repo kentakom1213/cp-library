@@ -1,0 +1,55 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Rust CI", "Python CI"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+
+      # Download the book's HTML artifact
+      - uses: actions/download-artifact@v4
+
+      # Delete artifacts
+      - uses: geekyeggo/delete-artifact@v5
+        with:
+          name: |
+            artifact-rust
+            artifact-python
+
+      - name: show files
+        run: |
+          ls -l
+
+      - name: pages
+        run: |
+          mkdir pages
+
+      # merge artifacts
+      - name: Merge artifacts
+        run: |
+          mv artifact-rust/cp-library-rs/target/doc/cp_library_rs pages/cp-library-rs
+          mv artifact-python/docs/_build/html pages/cp-library-py
+
+      # Upload the book's HTML as an artifact
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages
+          path: pages
+
+      # Deploy the book's HTML to GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages
