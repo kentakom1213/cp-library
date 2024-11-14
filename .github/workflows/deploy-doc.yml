@@ -65,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-python
-          path: "cp-library-py/_build/html"
+          path: "cp-library-py/docs/_build/html"
           compression-level: 0
 
   deploy:
