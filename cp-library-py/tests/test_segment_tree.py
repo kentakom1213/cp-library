@@ -1,6 +1,6 @@
 import unittest
 
-from src.cp_library_py.segment_tree import SegmentTree
+from cp_library_py.segment_tree import SegmentTree
 
 
 class TestSegmentTree(unittest.TestCase):
