@@ -1,10 +1,10 @@
 # cp-library
 
-## cp-library-rs
-
 競技プログラミング用のライブラリ
 
-ドキュメント：https://kentakom1213.github.io/cp-library/cp_library_rs/
+## cp-library-rs
+
+Rust 用のライブラリ
 
 ## expander
 
@@ -25,3 +25,7 @@ $ bundle <展開するRustファイル>
 ```sh
 $ bundle <復元するRustファイルのパス> -r
 ```
+
+## cp-library-py
+
+Python 用のライブラリ
