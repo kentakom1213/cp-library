@@ -15,3 +15,4 @@ Pythonによる競技プログラミング用ライブラリ
 
    docs/source/segment_tree
    docs/source/lazy_segment_tree
+   docs/source/union_find
