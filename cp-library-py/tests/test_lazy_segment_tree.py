@@ -107,3 +107,32 @@ class TestLazySegmentTree(unittest.TestCase):
 
         self.assertEqual(seg.get_range(3, 5), 6)
         self.assertEqual(seg.get_range(0, 6), 8)
+
+    def test_from_array(self):
+        seg = LazySegmentTree.from_array([1, 2, 3, 4, 5], *update_sum)
+        # [1, 2, 3, 4, 5]
+
+        self.assertEqual(seg.get_range(0, 5), 15)
+        self.assertEqual(seg.get_range(1, 4), 9)
+        self.assertEqual(seg.get_range(2, 5), 12)
+
+        seg.apply(1, 4, 2)
+        # [1, 2, 2, 2, 5]
+
+        self.assertEqual(seg.get_range(0, 5), 12)
+        self.assertEqual(seg.get_range(1, 4), 6)
+        self.assertEqual(seg.get_range(2, 5), 9)
+
+        seg.apply(2, 5, -3)
+        # [1, 2, -3, -3, -3]
+
+        self.assertEqual(seg.get_range(0, 5), -6)
+        self.assertEqual(seg.get_range(1, 4), -4)
+        self.assertEqual(seg.get_range(2, 5), -9)
+
+        seg.apply(0, 5, 10)
+        # [10, 10, 10, 10, 10]
+
+        self.assertEqual(seg.get_range(0, 5), 50)
+        self.assertEqual(seg.get_range(1, 4), 30)
+        self.assertEqual(seg.get_range(2, 5), 30)

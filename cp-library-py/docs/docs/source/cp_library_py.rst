@@ -4,6 +4,14 @@ cp\_library\_py package
 Submodules
 ----------
 
+cp\_library\_py.segment\_tree module
+------------------------------------
+
+.. automodule:: cp_library_py.segment_tree
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 cp\_library\_py.lazy\_segment\_tree module
 ------------------------------------------
 
@@ -12,10 +20,10 @@ cp\_library\_py.lazy\_segment\_tree module
    :undoc-members:
    :show-inheritance:
 
-cp\_library\_py.segment\_tree module
+cp\_library\_py.union\_find module
 ------------------------------------
 
-.. automodule:: cp_library_py.segment_tree
+.. automodule:: cp_library_py.union_find
    :members:
    :undoc-members:
    :show-inheritance:

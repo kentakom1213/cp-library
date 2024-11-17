@@ -44,6 +44,40 @@ class LazySegmentTree(Generic[T, F]):
         self._data = [id_t() for _ in range(self._offset * 2)]
         self._lazy = [id_f() for _ in range(self._offset * 2)]
 
+    @classmethod
+    def from_array(
+        cls,
+        array: list[T],
+        id_t: Callable[[], T],
+        id_f: Callable[[], F],
+        op: Callable[[T, T], T],
+        mapping: Callable[[T, F], T],
+        composition: Callable[[F, F], F],
+        aggregation: Callable[[F, int], F],
+    ) -> "LazySegmentTree[T, F]":
+        """配列から遅延セグメント木を構築する
+
+        Args:
+            array (list[T]): 配列
+            id_t (Callable[[], T]): 値の単位元
+            id_f (Callable[[], F]): 作用の単位元
+            op (Callable[[T, T], T]): 二項演算
+            mapping (Callable[[T, F], T]): 作用の適用
+            composition (Callable[[F, F], F]): 作用の合成
+            aggregation (Callable[[F, int], F]): 作用の繰り返し
+
+        Returns:
+            LazySegmentTree[T, F]: 構築したセグメント木
+        """
+        seg = cls(len(array), id_t, id_f, op,
+                  mapping, composition, aggregation)
+        seg._data[seg._offset: seg._offset + len(array)] = array
+
+        for i in range(seg._offset - 1, 0, -1):
+            seg._data[i] = seg._op(seg._data[i * 2], seg._data[i * 2 + 1])
+
+        return seg
+
     def __eval(self, i: int, len: int):
         """遅延評価を行う
 
