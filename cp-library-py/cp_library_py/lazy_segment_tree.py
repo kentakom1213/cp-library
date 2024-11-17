@@ -146,7 +146,7 @@ class LazySegmentTree(Generic[T, F]):
 
 
 # 関数例
-add_sum = [
+add_sum = (
     # id_t
     lambda: 0,
     # id_f
@@ -159,9 +159,9 @@ add_sum = [
     lambda f, g: f + g,
     # aggregation
     lambda f, n: f * n
-]
+)
 
-update_min = [
+update_min = (
     # id_t
     lambda: float("inf"),
     # id_f
@@ -174,9 +174,9 @@ update_min = [
     lambda _f, g: g,
     # aggregation
     lambda f, _n: f
-]
+)
 
-update_max = [
+update_max = (
     # id_t
     lambda: float("-inf"),
     # id_f
@@ -189,9 +189,9 @@ update_max = [
     lambda _f, g: g,
     # aggregation
     lambda f, _n: f
-]
+)
 
-add_min = [
+add_min = (
     # id_t
     lambda: float("inf"),
     # id_f
@@ -204,9 +204,9 @@ add_min = [
     lambda f, g: f + g,
     # aggregation
     lambda f, _n: f
-]
+)
 
-update_sum = [
+update_sum = (
     # id_t
     lambda: 0,
     # id_f
@@ -219,4 +219,4 @@ update_sum = [
     lambda _f, g: g,
     # aggregation
     lambda f, n: f * n if f is not None else None
-]
+)
