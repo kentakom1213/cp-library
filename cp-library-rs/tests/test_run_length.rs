@@ -1,4 +1,4 @@
-use cp_library_rs::utils::run_length::*;
+use cp_library_rs::utils::run_length::{run_length_encode, RunLength};
 
 #[test]
 fn test_usize() {
@@ -58,17 +58,26 @@ fn test_chars() {
 #[test]
 fn test_chars_from_iter() {
     let str = "aaaxbbbbbbccddef";
-    let chars: Vec<char> = str.chars().collect();
-    let comp = run_length_encode_from(chars.iter());
+    let comp = str.chars().run_length_encode();
     let ans = vec![
-        (&'a', 3),
-        (&'x', 1),
-        (&'b', 6),
-        (&'c', 2),
-        (&'d', 2),
-        (&'e', 1),
-        (&'f', 1),
+        ('a', 3),
+        ('x', 1),
+        ('b', 6),
+        ('c', 2),
+        ('d', 2),
+        ('e', 1),
+        ('f', 1),
     ];
+
+    println!("{:?}", comp);
+    assert_eq!(comp, ans);
+}
+
+#[test]
+fn test_chars_from_iter_ref() {
+    let vals = vec![1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5];
+    let comp = vals.iter().run_length_encode();
+    let ans = vec![(&1, 1), (&2, 2), (&3, 3), (&4, 4), (&5, 5)];
 
     println!("{:?}", comp);
     assert_eq!(comp, ans);

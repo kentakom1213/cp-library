@@ -24,26 +24,31 @@ where
     res
 }
 
-/// ## ランレングス圧縮 (from Iterator)
-/// - イテレータからエンコードを行う
-pub fn run_length_encode_from<T, I>(mut itr: I) -> Vec<(T, usize)>
-where
-    T: PartialEq,
-    I: Iterator<Item = T>,
-{
-    let mut res = vec![];
-    let mut cur = itr.next().unwrap();
-    let mut cnt = 1;
-    for val in itr {
-        if val == cur {
-            cnt += 1;
-        } else {
-            res.push((cur, cnt));
-            cur = val;
-            cnt = 1;
+/// ## RunLength
+/// - イテレータに対してランレングス圧縮を実装する
+pub trait RunLength: Iterator {
+    /// ## ランレングス圧縮 (from Iterator)
+    /// - イテレータからエンコードを行う
+    fn run_length_encode(&mut self) -> Vec<(Self::Item, usize)>
+    where
+        Self::Item: PartialEq,
+    {
+        let mut res = vec![];
+        let mut cur = self.next().unwrap();
+        let mut cnt = 1;
+        for val in self {
+            if val == cur {
+                cnt += 1;
+            } else {
+                res.push((cur, cnt));
+                cur = val;
+                cnt = 1;
+            }
         }
-    }
-    res.push((cur, cnt));
+        res.push((cur, cnt));
 
-    res
+        res
+    }
 }
+
+impl<I: Iterator> RunLength for I {}
