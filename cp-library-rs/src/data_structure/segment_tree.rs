@@ -8,7 +8,10 @@
 //!
 //! をそれぞれ $`O(\log N)`$ で行う．（$`N = |A|`$）
 
-use crate::algebraic_structure::{monoid::Monoid, ordered_monoid::OrderedMonoid};
+use crate::{
+    algebraic_structure::{monoid::Monoid, ordered_monoid::OrderedMonoid},
+    utils::show_binary_tree::ShowBinaryTree,
+};
 use std::{
     fmt::{self, Debug},
     ops::{
@@ -82,7 +85,7 @@ impl<M: Monoid> SegmentTree<M> {
         if i < self.offset {
             let default = self.index(i).clone();
             Some(ValMut {
-                segtree: self,
+                segself: self,
                 idx: i,
                 new_val: default,
             })
@@ -162,7 +165,7 @@ where
 
 /// セグメント木の要素の可変参照
 pub struct ValMut<'a, M: 'a + Monoid> {
-    segtree: &'a mut SegmentTree<M>,
+    segself: &'a mut SegmentTree<M>,
     idx: usize,
     new_val: M::Val,
 }
@@ -179,7 +182,7 @@ where
 
 impl<M: Monoid> Drop for ValMut<'_, M> {
     fn drop(&mut self) {
-        self.segtree.update(self.idx, self.new_val.clone());
+        self.segself.update(self.idx, self.new_val.clone());
     }
 }
 
@@ -193,29 +196,6 @@ impl<M: Monoid> Deref for ValMut<'_, M> {
 impl<M: Monoid> DerefMut for ValMut<'_, M> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.new_val
-    }
-}
-
-impl<M> SegmentTree<M>
-where
-    M: Monoid,
-    M::Val: Debug,
-{
-    /// セグ木を簡易的に表示する
-    /// **サイズが2べきのときのみ**
-    /// - 計算量 : $`O(N)`$
-    pub fn show(&self) {
-        #[cfg(debug_assertions)]
-        {
-            let mut i = 1;
-            let mut w = 1;
-            while i + w <= 2 * self.offset {
-                eprintln!("{:?}", &self.data[i..i + w]);
-                i += w;
-                w <<= 1;
-            }
-            eprintln!();
-        }
     }
 }
 
@@ -353,5 +333,24 @@ where
         }
 
         (sum, r + 1 - self.offset)
+    }
+}
+
+impl<M> ShowBinaryTree<usize> for SegmentTree<M>
+where
+    M: Monoid,
+    M::Val: Debug,
+{
+    fn get_root(&mut self) -> usize {
+        1
+    }
+    fn get_left(&mut self, &i: &usize) -> Option<usize> {
+        (i * 2 < self.offset + self.N).then_some(i * 2)
+    }
+    fn get_right(&mut self, &i: &usize) -> Option<usize> {
+        (i * 2 + 1 < self.offset + self.N).then_some(i * 2 + 1)
+    }
+    fn print_node(&mut self, &i: &usize) -> String {
+        format!("[{:?}]", self.data[i])
     }
 }

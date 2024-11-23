@@ -9,6 +9,7 @@ use cp_library_rs::{
     data_structure::lazy_segment_tree::LazySegmentTree,
     get,
     number_theory::modint::{M998, MOD998},
+    utils::show_binary_tree::ShowBinaryTree,
 };
 
 fn main() {
@@ -28,6 +29,6 @@ fn main() {
             println!("{}", seg.get(l..r));
         }
 
-        seg.show();
+        seg.print_as_binary_tree();
     }
 }

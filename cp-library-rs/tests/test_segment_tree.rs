@@ -5,6 +5,7 @@ use cp_library_rs::{
     },
     data_structure::segment_tree::*,
     debug,
+    utils::show_binary_tree::ShowBinaryTree,
 };
 
 #[test]
@@ -196,4 +197,21 @@ fn test_binary_search_left() {
     assert_eq!(seg.min_left(5, |x| x <= 10), (0, 5));
     assert_eq!(seg.min_left(5, |x| x <= 100), (100, 4));
     assert_eq!(seg.min_left(5, |x| x <= 1000), (106, 0));
+}
+
+#[test]
+fn test_print_as_binary_tree() {
+    let mut seg = SegmentTree::<Add<isize>>::from(vec![1, 2, 3, 4, 5]);
+
+    seg.print_as_binary_tree();
+
+    // 変更
+    *seg.get_mut(2).unwrap() = 8;
+
+    seg.print_as_binary_tree();
+
+    // 変更
+    *seg.get_mut(3).unwrap() = 10;
+
+    seg.print_as_binary_tree();
 }

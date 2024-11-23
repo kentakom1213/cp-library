@@ -4,7 +4,7 @@ use std::fmt::Debug;
 
 use crate::utils::num_traits::Bounded;
 
-use super::{monoid::Monoid, operation::*};
+use crate::algebraic_structure::{monoid::Monoid, operation::*};
 
 /// 可環モノイド
 ///

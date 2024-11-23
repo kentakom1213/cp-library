@@ -1,6 +1,6 @@
 //! 遅延評価セグメント木
 
-use crate::algebraic_structure::extmonoid::ExtMonoid;
+use crate::{algebraic_structure::extmonoid::ExtMonoid, utils::show_binary_tree::ShowBinaryTree};
 use core::fmt;
 use std::{
     fmt::Debug,
@@ -154,23 +154,22 @@ impl<M: ExtMonoid> From<&Vec<M::X>> for LazySegmentTree<M> {
     }
 }
 
-impl<M> LazySegmentTree<M>
+impl<M> ShowBinaryTree<(usize, usize, usize)> for LazySegmentTree<M>
 where
     M: ExtMonoid,
     M::F: Debug,
     M::X: Debug,
 {
-    pub fn show(&mut self) {
-        if cfg!(debug_assertions) {
-            eprint!("LazySegmentTree {{ [");
-            for i in 0..self.size {
-                if i + 1 < self.size {
-                    eprint!("{:?}, ", self.get(i..=i));
-                } else {
-                    eprint!("{:?}", self.get(i..=i));
-                }
-            }
-            eprintln!("] }}")
-        }
+    fn get_root(&mut self) -> (usize, usize, usize) {
+        (0, self.size, self.offset / 2)
+    }
+    fn get_left(&mut self, &(l, r, w): &(usize, usize, usize)) -> Option<(usize, usize, usize)> {
+        (w > 0).then_some((l, r.min(l + w), w / 2))
+    }
+    fn get_right(&mut self, &(l, r, w): &(usize, usize, usize)) -> Option<(usize, usize, usize)> {
+        (w > 0 && l + w < r).then_some((l + w, r, w / 2))
+    }
+    fn print_node(&mut self, &(l, r, _): &(usize, usize, usize)) -> String {
+        format!("[{:?}]", self.get(l..r))
     }
 }

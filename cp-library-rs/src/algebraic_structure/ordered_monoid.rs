@@ -1,6 +1,6 @@
 //! モノイドに対する順序の実装
 
-use super::{monoid::Monoid, operation::*};
+use crate::algebraic_structure::{monoid::Monoid, operation::*};
 
 /// 順序付きモノイド
 pub trait OrderedMonoid: Monoid {

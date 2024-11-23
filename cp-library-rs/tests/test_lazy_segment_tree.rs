@@ -1,10 +1,39 @@
 use cp_library_rs::{
-    algebraic_structure::extmonoid::examples::*, data_structure::lazy_segment_tree::*,
+    algebraic_structure::extmonoid::examples::*, data_structure::lazy_segment_tree::*, debug,
+    utils::show_binary_tree::ShowBinaryTree,
 };
+
+#[test]
+fn test_print_as_binary_tree() {
+    let mut seg = LazySegmentTree::<AddSum>::new(5);
+
+    seg.print_as_binary_tree();
+
+    // 更新
+    seg.apply(..3, 3);
+
+    seg.print_as_binary_tree();
+
+    // 更新
+    seg.apply(3.., -4);
+
+    seg.print_as_binary_tree();
+
+    // 更新
+    seg.apply(2..=2, 100);
+
+    seg.print_as_binary_tree();
+
+    // 更新
+    seg.apply(.., -200);
+
+    seg.print_as_binary_tree();
+}
 
 #[test]
 fn test_RSQ_and_RAQ_hand() {
     let mut seg = LazySegmentTree::<AddSum>::new(10);
+    seg.print_as_binary_tree();
     // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     assert_eq!(seg.get(..), 0);
@@ -13,6 +42,7 @@ fn test_RSQ_and_RAQ_hand() {
     assert_eq!(seg.get(3..8), 0);
 
     seg.apply(0..4, 2);
+    seg.print_as_binary_tree();
     // [2, 2, 2, 2, 0, 0, 0, 0, 0, 0]
 
     assert_eq!(seg.get(..), 8);
@@ -21,6 +51,7 @@ fn test_RSQ_and_RAQ_hand() {
     assert_eq!(seg.get(3..8), 2);
 
     seg.apply(4.., 5);
+    seg.print_as_binary_tree();
     // [2, 2, 2, 2, 5, 5, 5, 5, 5, 5]
 
     assert_eq!(seg.get(..), 38);
@@ -29,6 +60,7 @@ fn test_RSQ_and_RAQ_hand() {
     assert_eq!(seg.get(3..8), 22);
 
     seg.apply(2..=5, -3);
+    seg.print_as_binary_tree();
     // [2, 2, -1, -1, 2, 2, 5, 5, 5, 5]
 
     assert_eq!(seg.get(..), 26);
@@ -37,6 +69,7 @@ fn test_RSQ_and_RAQ_hand() {
     assert_eq!(seg.get(3..8), 13);
 
     seg.apply(8..10, -10);
+    seg.print_as_binary_tree();
     // [2, 2, -1, -1, 2, 2, 5, 5, -5, -5]
 
     assert_eq!(seg.get(..), 6);

@@ -5,7 +5,6 @@ use cp_library_rs::{
     data_structure::multiset_splay_tree::{Multiset, NodeOps},
     debug, get,
 };
-
 fn main() {
     let (N, Q) = get!(usize, usize);
     let T = get!(String);

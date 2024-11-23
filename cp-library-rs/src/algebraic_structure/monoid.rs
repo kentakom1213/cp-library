@@ -19,11 +19,10 @@ macro_rules! impl_monoid_add {
 }
 
 use crate::{
+    algebraic_structure::operation::{Add, Max, Min, Mul, Xor, GCD},
     number_theory::modint::{M107, M998},
     utils::num_traits::{Bounded, One},
 };
-
-use super::operation::{Add, Max, Min, Mul, Xor, GCD};
 
 /// モノイド
 ///
