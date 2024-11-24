@@ -336,21 +336,27 @@ where
     }
 }
 
-impl<M> ShowBinaryTree<usize> for SegmentTree<M>
+impl<M> ShowBinaryTree<(usize, usize, usize, usize)> for SegmentTree<M>
 where
     M: Monoid,
     M::Val: Debug,
 {
-    fn get_root(&mut self) -> usize {
-        1
+    fn get_root(&mut self) -> (usize, usize, usize, usize) {
+        (1, 0, self.N, self.offset / 2)
     }
-    fn get_left(&mut self, &i: &usize) -> Option<usize> {
-        (i * 2 < self.offset + self.N).then_some(i * 2)
+    fn get_left(
+        &mut self,
+        &(i, l, r, w): &(usize, usize, usize, usize),
+    ) -> Option<(usize, usize, usize, usize)> {
+        (w > 0).then_some((2 * i, l, r.min(l + w), w / 2))
     }
-    fn get_right(&mut self, &i: &usize) -> Option<usize> {
-        (i * 2 + 1 < self.offset + self.N).then_some(i * 2 + 1)
+    fn get_right(
+        &mut self,
+        &(i, l, r, w): &(usize, usize, usize, usize),
+    ) -> Option<(usize, usize, usize, usize)> {
+        (w > 0 && l + w < r).then_some((2 * i + 1, l + w, r, w / 2))
     }
-    fn print_node(&mut self, &i: &usize) -> String {
+    fn print_node(&mut self, &(i, _, _, _): &(usize, usize, usize, usize)) -> String {
         format!("[{:?}]", self.data[i])
     }
 }
