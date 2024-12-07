@@ -41,6 +41,12 @@ pub trait Monoid {
 }
 
 // ========== 実装 ==========
+impl Monoid for () {
+    type Val = ();
+    fn id() -> Self::Val {}
+    fn op(_: &Self::Val, _: &Self::Val) -> Self::Val {}
+}
+
 impl<T: Ord + Bounded + Clone> Monoid for Min<T> {
     type Val = T;
     fn id() -> Self::Val {

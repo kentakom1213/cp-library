@@ -18,6 +18,7 @@ use crate::algebraic_structure::{monoid::Monoid, operation::*};
 pub trait CommutativeMonoid: Monoid {}
 
 // 実装
+impl CommutativeMonoid for () {}
 impl CommutativeMonoid for Add<isize> {}
 impl CommutativeMonoid for Add<usize> {}
 impl CommutativeMonoid for Xor {}
