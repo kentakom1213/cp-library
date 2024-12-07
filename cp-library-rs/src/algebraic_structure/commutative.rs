@@ -23,4 +23,5 @@ impl CommutativeMonoid for Add<usize> {}
 impl CommutativeMonoid for Xor {}
 impl<T: Ord + Bounded + Clone + Debug> CommutativeMonoid for Min<T> {}
 impl<T: Ord + Bounded + Clone + Debug> CommutativeMonoid for Max<T> {}
+impl<T: Ord + Bounded + Clone + Debug> CommutativeMonoid for MinMax<T> {}
 impl<T> CommutativeMonoid for GCD<T> {}

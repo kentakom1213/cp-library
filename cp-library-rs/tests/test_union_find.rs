@@ -1,14 +1,16 @@
-use cp_library_rs::data_structure::union_find::*;
+use cp_library_rs::{data_structure::union_find::*, debug};
 
 #[test]
 fn test_unionfind() {
     let mut uf = UnionFind::new(8);
+    debug!(uf);
     /*
      * 0 1 2 3 4 5 6 7
      */
 
     uf.unite(1, 2);
     uf.unite(3, 2);
+    debug!(uf);
     /*
      * 0 1-2-3 4 5 6 7
      */
@@ -20,6 +22,7 @@ fn test_unionfind() {
     assert_eq!(uf.get_size(1), 3);
 
     uf.unite(2, 4);
+    debug!(uf);
     /*
      * 0 1-2-3-4 5 6 7
      */
@@ -30,6 +33,7 @@ fn test_unionfind() {
 
     uf.unite(4, 2);
     uf.unite(0, 0);
+    debug!(uf);
     /*
      * 0 1-2-3-4 5 6 7
      */
@@ -38,6 +42,7 @@ fn test_unionfind() {
     assert!(uf.is_same(0, 0) == true);
 
     uf.unite(0, 7);
+    debug!(uf);
     /*
      * 0 1-2-3-4 5 6 7
      * └─────────────┘
@@ -47,6 +52,7 @@ fn test_unionfind() {
     assert!(uf.is_same(0, 7) == true);
 
     uf.unite(5, 6);
+    debug!(uf);
     /*
      * 0 1-2-3-4 5-6 7
      * └─────────────┘
@@ -58,6 +64,7 @@ fn test_unionfind() {
 
     uf.unite(4, 5);
     uf.unite(6, 7);
+    debug!(uf);
     /*
      * 0-1-2-3-4-5-6-7
      */
@@ -65,6 +72,7 @@ fn test_unionfind() {
     assert_eq!(uf.group_count(), 1);
 
     uf.unite(0, 7);
+    debug!(uf);
     /*
      * 0-1-2-3-4-5-6-7
      */

@@ -1,25 +1,37 @@
-//! UnionFind木
+//! ## UnionFind木
+//!
+//! モノイドを乗せるUnionFind木．
 
 use std::{collections::HashMap, fmt::Debug, mem};
 
-use crate::utils::consts::NEG1;
+use crate::{algebraic_structure::commutative::CommutativeMonoid, utils::consts::NEG1};
 
 /// UnionFind木
-pub struct UnionFind {
+pub struct UnionFindMonoid<M: CommutativeMonoid> {
     /// 要素数
     n: usize,
     /// 親の番号を格納する配列
     parent: Vec<usize>,
+    /// 値
+    value: Vec<Option<M::Val>>,
     /// 連結成分の個数
     count: usize,
 }
 
-impl UnionFind {
+impl<M: CommutativeMonoid> UnionFindMonoid<M> {
     /// UnionFindを新規作成
-    pub fn new(N: usize) -> Self {
-        UnionFind {
+    ///
+    /// **引数**
+    /// - `arr`: 要素の値
+    ///
+    /// **戻り値**
+    /// - 生成したUnionFind木
+    pub fn new(arr: Vec<M::Val>) -> Self {
+        let N = arr.len();
+        UnionFindMonoid {
             n: N,
             parent: vec![NEG1; N],
+            value: arr.into_iter().map(Some).collect(),
             count: N,
         }
     }
@@ -36,6 +48,12 @@ impl UnionFind {
             x = mem::replace(&mut self.parent[x], root);
         }
         root
+    }
+
+    /// ノード`x`が属する集合の値を取得
+    pub fn value(&mut self, x: usize) -> &M::Val {
+        let root = self.root(x);
+        self.value[root].as_ref().unwrap()
     }
 
     /// 同一の集合に所属するか判定
@@ -64,6 +82,11 @@ impl UnionFind {
         self.parent[child] = parent;
         self.count -= 1;
 
+        // 値のマージ
+        let child_val = self.value[child].take();
+        let parent_val = self.value[parent].take();
+        self.value[parent] = child_val.zip(parent_val).map(|(c, p)| M::op(&c, &p));
+
         Some(parent)
     }
 
@@ -90,11 +113,22 @@ impl UnionFind {
     }
 }
 
-impl Debug for UnionFind {
+impl<M: CommutativeMonoid> FromIterator<M::Val> for UnionFindMonoid<M> {
+    fn from_iter<T: IntoIterator<Item = M::Val>>(iter: T) -> Self {
+        UnionFindMonoid::new(iter.into_iter().collect())
+    }
+}
+
+impl<M> Debug for UnionFindMonoid<M>
+where
+    M: CommutativeMonoid,
+    M::Val: Debug + Clone,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut uf = UnionFind {
+        let mut uf = UnionFindMonoid::<M> {
             n: self.n,
             parent: self.parent.clone(),
+            value: self.value.clone(),
             count: self.count,
         };
         let groups = uf.enum_groups();
