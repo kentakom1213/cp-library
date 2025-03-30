@@ -30,7 +30,10 @@ pub trait NTTFriendly<Rhs = Self, Output = Self>:
     /// 原始根
     fn root() -> Self;
     /// 2^m 乗根
-    fn root_pow2m(a: u32) -> Self;
+    fn root_pow2m(a: u32) -> Self {
+        let p = Self::rem() << (Self::order() - a);
+        Self::root().pow(p)
+    }
 }
 
 impl NTTFriendly for M998 {
@@ -42,10 +45,6 @@ impl NTTFriendly for M998 {
     }
     fn root() -> Self {
         Self(3)
-    }
-    fn root_pow2m(a: u32) -> Self {
-        let p = Self::rem() << (Self::order() - a);
-        Self::root().pow(p as usize)
     }
 }
 
@@ -87,7 +86,7 @@ impl<T: NTTFriendly> FFT<T> {
             .map(|i| {
                 let l = X[i];
                 let r = X[i + n / 2];
-                (l + r, w.pow(i) * (l - r))
+                (l + r, w.pow(i as u32) * (l - r))
             })
             .unzip();
 

@@ -76,13 +76,12 @@ pub mod modint {
     impl<const MOD: u32> Display for Modint<MOD> { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "{}", self.0) } }
     impl<const MOD: u32> FromStr for Modint<MOD> { type Err = ParseIntError;
     fn from_str(s: &str) -> Result<Self, Self::Err> { let chunk_size = 17; let mut chars = s.chars(); let mut chunk = chars.by_ref().take(chunk_size).collect::<String>(); let mut res = Modint::zero();
-    while !chunk.is_empty() { res = res * Modint::new(10).pow(chunk.len()) + chunk.parse::<usize>()?; chunk = chars.by_ref().take(chunk_size).collect::<String>(); } Ok(res) } }
+    while !chunk.is_empty() { res = res * Modint::new(10).pow(chunk.len() as u32) + chunk.parse::<usize>()?; chunk = chars.by_ref().take(chunk_size).collect::<String>(); } Ok(res) } }
     // impl<const MOD: u32> Debug for Modint<MOD> { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { match self.rational_reconstruction() { Some((n, d)) => if d > 1 { write!(f, "Modint({n}/{d})") } else { write!(f, "Modint({n})") } _ => write!(f, "Modint({})", self.0) } } }
     impl<const MOD: u32> Zero for Modint<MOD> { fn zero() -> Self { Modint(0) } }
     impl<const MOD: u32> One for Modint<MOD> { fn one() -> Self { Modint(1) } }
-    pub trait Fp { fn pow(&self, rhs: usize) -> Self; fn inv(&self) -> Self; }
-    impl<const MOD: u32> Fp for Modint<MOD> { fn pow(&self, rhs: usize) -> Self { let (mut a, mut b) = (self.0 as u64, rhs); let mut res = 1; while b > 0 { if b & 1 == 1 { res = (res * a) % MOD as u64; } a = (a * a) % MOD as u64; b >>= 1u32; } Modint::from(res) }
-    fn inv(&self) -> Self { self.pow(MOD as usize - 2) } }
+    pub trait Fp { fn pow(&self, rhs: u32) -> Self; fn inv(&self) -> Self; }
+    impl<const MOD: u32> Fp for Modint<MOD> { fn pow(&self, rhs: u32) -> Self { let (mut a, mut b) = (*self, rhs); let mut res = Modint::one(); while b > 0 { if b & 1 == 1 { res *= a; } a *= a; b >>= 1u32; } Modint::from(res) } fn inv(&self) -> Self { self.pow(MOD - 2) } }
     impl<const MOD: u32> Sum<Modint<MOD>> for Modint<MOD> { fn sum<I: Iterator<Item = Modint<MOD>>>(iter: I) -> Self { iter.fold(Modint::<MOD>(0), |acc, x| acc + x) } }
     impl<const MOD: u32> Product<Modint<MOD>> for Modint<MOD> { fn product<I: Iterator<Item = Modint<MOD>>>(iter: I) -> Self { iter.fold(Modint::<MOD>(1), |acc, x| acc * x) } }
 }
