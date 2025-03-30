@@ -20,32 +20,32 @@ pub trait NTTFriendly<Rhs = Self, Output = Self>:
     + Div<Rhs, Output = Output>
     + MulAssign<Rhs>
     + Zero
-    + From<usize>
+    + From<u32>
     + Fp
 {
     /// M = 2^k * m + 1 を満たすような k
-    fn order() -> usize;
+    fn order() -> u32;
     /// M = 2^k * m + 1 を満たすような m
-    fn rem() -> usize;
+    fn rem() -> u32;
     /// 原始根
     fn root() -> Self;
     /// 2^m 乗根
-    fn root_pow2m(a: usize) -> Self;
+    fn root_pow2m(a: u32) -> Self;
 }
 
 impl NTTFriendly for M998 {
-    fn order() -> usize {
+    fn order() -> u32 {
         23
     }
-    fn rem() -> usize {
+    fn rem() -> u32 {
         119
     }
     fn root() -> Self {
         Self(3)
     }
-    fn root_pow2m(a: usize) -> Self {
+    fn root_pow2m(a: u32) -> Self {
         let p = Self::rem() << (Self::order() - a);
-        Self::root().pow(p)
+        Self::root().pow(p as usize)
     }
 }
 
@@ -66,7 +66,7 @@ impl<T: NTTFriendly> FFT<T> {
         let w = T::root_pow2m(i);
         let winv = w.inv();
         let mut res = Self::fft_core(F, winv);
-        let n = res.len();
+        let n = res.len() as u32;
         // 逆変換後の配列を正規化
         let inv_n = T::from(n).inv();
         res.iter_mut().for_each(|v| *v *= inv_n);
@@ -111,7 +111,7 @@ impl<T: NTTFriendly> FFT<T> {
     ///
     /// **Returns**
     /// - `(i, res)`: 配列の長さを 2^i に拡張した結果
-    fn extend_array(array: &[T]) -> Result<(usize, Vec<T>), &'static str> {
+    fn extend_array(array: &[T]) -> Result<(u32, Vec<T>), &'static str> {
         let n = array.len();
         // 2^i >= n となるような最小の i
         let mut i = 0;

@@ -3,7 +3,6 @@ use cp_library_rs::{
         monoid::Monoid,
         operation::{Add, GCD},
     },
-    number_theory::modint::MOD998,
     utils::consts::NEG1,
 };
 
@@ -24,13 +23,13 @@ fn test_gcd() {
 
     // isize
     assert_eq!(GCDI::op(&GCDI::id(), &GCDI::id()), GCDI::id());
-    assert_eq!(GCDI::op(&GCDI::id(), &MOD998), MOD998);
+    assert_eq!(GCDI::op(&GCDI::id(), &998244353), 998244353);
     assert_eq!(GCDI::op(&20, &240), 20);
     assert_eq!(GCDI::op(&101, &20021213), 1);
 
     // usize
     assert_eq!(GCDU::op(&GCDU::id(), &GCDU::id()), GCDU::id());
-    assert_eq!(GCDU::op(&GCDU::id(), &MOD998), MOD998);
+    assert_eq!(GCDU::op(&GCDU::id(), &998244353), 998244353);
     assert_eq!(GCDU::op(&20, &240), 20);
     assert_eq!(GCDU::op(&101, &20021213), 1);
 }

@@ -99,7 +99,10 @@ fn test_fft() {
 fn test_fft_large(size: usize, p: usize) {
     let mut rng = thread_rng();
 
-    let arr: Vec<M998> = (0..size).map(|_| rng.gen_range(0..p)).map(Modint).collect();
+    let arr: Vec<M998> = (0..size)
+        .map(|_| rng.gen_range(0..p))
+        .map(Modint::from)
+        .collect();
 
     let res = FFT::fft(&arr).unwrap();
     let res2 = FFT::ifft(&res).unwrap();
