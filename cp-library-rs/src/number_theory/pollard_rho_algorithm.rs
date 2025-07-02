@@ -43,7 +43,7 @@ pub fn pollard_rho(N: usize) -> usize {
 
 /// ポラード・ロー法により素因数分解を行う
 ///
-/// - 計算量 : $`O(n^{1/4})`$
+/// - 時間計算量: $`O(n^{1/4})`$
 pub fn factorize_pollard_rho(N: usize) -> Vec<usize> {
     if N == 1 {
         return vec![];

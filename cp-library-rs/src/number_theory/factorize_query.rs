@@ -1,8 +1,8 @@
 //! ## 前計算ありの素因数分解
 //!
 //! $`N`$ までの数の素因数分解を
-//! - 前計算 : $`O(N \log\log N)`$
-//! - クエリ : $`O(\log N)`$
+//! - 前計算: $`O(N \log\log N)`$ 時間
+//! - クエリ: $`O(\log N)`$ 時間
 //!
 //! で行う。
 
@@ -14,7 +14,7 @@ pub struct FactorTable {
 
 impl FactorTable {
     /// 前計算を行う
-    /// - $`O(N \log\log N)`$ で篩を作成
+    /// - $`O(N \log\log N)`$ 時間で篩を作成
     pub fn new(n: usize) -> Self {
         let mut facs = FactorTable {
             n,
@@ -38,8 +38,7 @@ impl FactorTable {
     /// **戻り値**
     /// - 素因数のリスト
     ///
-    /// **計算量**
-    /// - $`O(\log x)`$
+    /// - 時間計算量: $`O(\log x)`$
     pub fn factorize(&self, mut x: usize) -> Vec<usize> {
         assert!(1 <= x && x <= self.n);
         let mut factors = vec![];
@@ -55,8 +54,7 @@ impl FactorTable {
     /// **戻り値**
     /// - (素因数, 指数) のベクタ
     ///
-    /// **計算量**
-    /// - $`O(\log x)`$
+    /// - 時間計算量: $`O(\log x)`$
     pub fn factorize_pairs(&self, mut x: usize) -> Vec<(usize, usize)> {
         assert!(1 <= x && x <= self.n);
         let mut pairs: Vec<(usize, usize)> = vec![];

@@ -56,7 +56,7 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// セグメント木を初期化する
-    /// - 計算量 : $`O(1)`$
+    /// - 時間計算量: $`O(1)`$
     pub fn new(N: usize) -> Self {
         let offset = N.next_power_of_two();
 
@@ -68,7 +68,7 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// `index`番目の要素を`value`に更新する
-    /// - 計算量 : $`O(\log N)`$
+    /// - 時間計算量: $`O(\log N)`$
     pub fn update(&mut self, index: usize, value: M::Val) {
         let mut i = index + self.offset;
         self.data[i] = value;
@@ -80,7 +80,7 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// `i`番目の要素の可変な参照を返す
-    /// - 計算量 : $`O(\log N)`$
+    /// - 時間計算量: $`O(\log N)`$
     pub fn get_mut(&mut self, i: usize) -> Option<ValMut<'_, M>> {
         if i < self.offset {
             let default = self.index(i).clone();
@@ -95,7 +95,7 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// 区間`range`の集約を行う
-    /// - 計算量 : $`O(\log N)`$
+    /// - 時間計算量: $`O(\log N)`$
     pub fn get_range<R: RangeBounds<usize> + Debug>(&self, range: R) -> M::Val {
         let (start, end) = match self.parse_range(&range) {
             Some(r) => r,
@@ -336,27 +336,46 @@ where
     }
 }
 
-impl<M> ShowBinaryTree<(usize, usize, usize, usize)> for SegmentTree<M>
+// impl<M> ShowBinaryTree<(usize, usize, usize, usize)> for SegmentTree<M>
+// where
+//     M: Monoid,
+//     M::Val: Debug,
+// {
+//     fn get_root(&mut self) -> (usize, usize, usize, usize) {
+//         (1, 0, self.N, self.offset / 2)
+//     }
+//     fn get_left(
+//         &mut self,
+//         &(i, l, r, w): &(usize, usize, usize, usize),
+//     ) -> Option<(usize, usize, usize, usize)> {
+//         (w > 0).then_some((2 * i, l, r.min(l + w), w / 2))
+//     }
+//     fn get_right(
+//         &mut self,
+//         &(i, l, r, w): &(usize, usize, usize, usize),
+//     ) -> Option<(usize, usize, usize, usize)> {
+//         (w > 0 && l + w < r).then_some((2 * i + 1, l + w, r, w / 2))
+//     }
+//     fn print_node(&mut self, &(i, _, _, _): &(usize, usize, usize, usize)) -> String {
+//         format!("[{:?}]", self.data[i])
+//     }
+// }
+
+impl<M> ShowBinaryTree<usize> for SegmentTree<M>
 where
     M: Monoid,
     M::Val: Debug,
 {
-    fn get_root(&mut self) -> (usize, usize, usize, usize) {
-        (1, 0, self.N, self.offset / 2)
+    fn get_root(&mut self) -> usize {
+        1
     }
-    fn get_left(
-        &mut self,
-        &(i, l, r, w): &(usize, usize, usize, usize),
-    ) -> Option<(usize, usize, usize, usize)> {
-        (w > 0).then_some((2 * i, l, r.min(l + w), w / 2))
+    fn get_left(&mut self, &i: &usize) -> Option<usize> {
+        (i * 2 < self.offset * 2).then_some(i * 2)
     }
-    fn get_right(
-        &mut self,
-        &(i, l, r, w): &(usize, usize, usize, usize),
-    ) -> Option<(usize, usize, usize, usize)> {
-        (w > 0 && l + w < r).then_some((2 * i + 1, l + w, r, w / 2))
+    fn get_right(&mut self, &i: &usize) -> Option<usize> {
+        (i * 2 + 1 < self.offset * 2).then_some(i * 2 + 1)
     }
-    fn print_node(&mut self, &(i, _, _, _): &(usize, usize, usize, usize)) -> String {
+    fn print_node(&mut self, &i: &usize) -> String {
         format!("[{:?}]", self.data[i])
     }
 }

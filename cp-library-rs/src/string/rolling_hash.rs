@@ -44,19 +44,19 @@ impl RollingHash {
     }
 
     /// `l..r`のハッシュを取得
-    /// - 計算量: $`O(1)`$
+    /// - 時間計算量: $`O(1)`$
     pub fn get(&self, l: usize, r: usize) -> Modint {
         self.hash[r] - self.hash[l] * self.power[r - l]
     }
 
     /// `0..size`のハッシュを取得
-    /// - 計算量: $`O(1)`$
+    /// - 時間計算量: $`O(1)`$
     pub fn full(&self) -> Modint {
         self.hash[self.size]
     }
 
     /// a,bからの最長共通接頭辞の長さを調べる
-    /// - 計算量: $`O(\log N)`$
+    /// - 時間計算量: $`O(\log N)`$
     pub fn getLCP(&self, a: usize, b: usize) -> usize {
         let len = self.size.saturating_sub(a.max(b));
         let (mut lo, mut hi) = (0, len + 1);
@@ -72,7 +72,7 @@ impl RollingHash {
     }
 
     /// ハッシュ同士を連結
-    /// - 計算量: $`O(1)`$
+    /// - 時間計算量: $`O(1)`$
     pub fn concat(&self, h1: Modint, h2: Modint, h2_len: usize) -> Modint {
         h1 * self.power[h2_len] + h2
     }

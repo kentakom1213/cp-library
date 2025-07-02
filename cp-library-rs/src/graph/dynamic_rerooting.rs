@@ -39,7 +39,7 @@ where
     FV: Fn(&T, usize) -> T,
 {
     /// 木を初期化する
-    /// - 計算量: $`O(N)`$
+    /// - 時間計算量: $`O(N)`$
     ///
     /// **引数**
     /// - `N`: 頂点数
@@ -62,7 +62,7 @@ where
     }
 
     /// 有向辺 `(u,v)` を追加する
-    /// - 計算量: $`O(1)`$
+    /// - 時間計算量: $`O(1)`$
     pub fn add_edge(&mut self, u: usize, v: usize) {
         let pos = self.G[u].len();
         self.G[u].push(v);
@@ -73,7 +73,7 @@ where
     }
 
     /// 有向辺 `(u,v)` / `(v,u)` を追加する
-    /// - 計算量: $`O(1)`$
+    /// - 時間計算量: $`O(1)`$
     pub fn add_edge2(&mut self, u: usize, v: usize) {
         let pos_u_v = self.G[u].len();
         self.G[u].push(v);
@@ -87,7 +87,7 @@ where
     }
 
     /// すべての頂点`v`について，`v`を根として集約した値を求める
-    /// - 計算量: $`O(N)`$
+    /// - 時間計算量: $`O(N)`$
     pub fn build(&mut self) {
         // 頂点0に集約
         self.aggregate(INF, 0);
@@ -96,7 +96,7 @@ where
     }
 
     /// 頂点`u`に対して値を集約する
-    /// - 計算量: $`O(N)`$
+    /// - 時間計算量: $`O(N)`$
     pub fn aggregate(&mut self, p: usize, u: usize) -> T {
         let mut res = self.id.clone();
         let deg = self.G[u].len();
@@ -126,7 +126,7 @@ where
     }
 
     /// rerootingを行う
-    /// - 計算量: $`O(N)`$
+    /// - 時間計算量: $`O(N)`$
     ///
     /// **引数**
     /// - `p`: 親の頂点

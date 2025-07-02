@@ -20,7 +20,7 @@ impl SuffixArray {
     }
 
     /// 文字列Sの接尾辞配列を構築し，返す
-    /// - 計算量： $`O(|S| \log^2 |S|)`$
+    /// - 時間計算量： $`O(|S| \log^2 |S|)`$
     pub fn build(S: &str) -> Vec<usize> {
         let N = S.len();
         let mut rank: Vec<_> = S.chars().map(|c| c as isize).collect();

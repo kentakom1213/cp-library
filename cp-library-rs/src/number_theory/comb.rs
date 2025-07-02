@@ -31,8 +31,8 @@ impl NumProbability for M998 {
 }
 
 /// 二項係数を高速に求める
-/// - 前計算:  $`O(N)`$
-/// - クエリ:  $`O(1)`$
+/// - 前計算:  $`O(N)`$ 時間
+/// - クエリ:  $`O(1)`$ 時間
 pub struct Comb<N: NumProbability> {
     fac: Vec<N>,
     finv: Vec<N>,
@@ -54,7 +54,7 @@ impl<N: NumProbability> Comb<N> {
 
     /// n個からr個選ぶ組合せ
     ///
-    /// - 計算量：$`O(1)`$
+    /// - 時間計算量: $`O(1)`$
     pub fn comb(&self, n: usize, r: usize) -> N {
         if n < r {
             return 0.into();
@@ -64,7 +64,7 @@ impl<N: NumProbability> Comb<N> {
 
     /// n個からr個を選び並べる順列
     ///
-    /// - 計算量：$`O(1)`$
+    /// - 時間計算量: $`O(1)`$
     pub fn perm(&self, n: usize, r: usize) -> N {
         if n < r {
             return 0.into();
@@ -75,7 +75,7 @@ impl<N: NumProbability> Comb<N> {
     /// 重複組合せ
     ///
     /// - n個の区別しない玉をr個の区別する箱に入れる組合せ
-    /// - 計算量：$`O(1)`$
+    /// - 時間計算量: $`O(1)`$
     pub fn comb_with_rep(&self, n: usize, r: usize) -> N {
         self.comb(n + r - 1, n)
     }

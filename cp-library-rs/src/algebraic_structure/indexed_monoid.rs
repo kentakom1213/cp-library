@@ -31,7 +31,7 @@ impl<T: Ord + Bounded + Clone> Monoid for Indexed<Min<T>> {
 
 impl<T: Ord + Bounded + Clone> SegmentTree<Indexed<Min<T>>> {
     /// セグメント木（インデックス付きで）を初期化する
-    /// - 計算量 : $`O(N)`$
+    /// - 時間計算量:  $`O(N)`$
     pub fn new_with_index(N: usize) -> Self {
         let arr = (0..N).map(|i| (Min::id(), i));
         Self::from_iter(arr)
@@ -54,7 +54,7 @@ impl<T: Ord + Bounded + Clone> Monoid for Indexed<Max<T>> {
 
 impl<T: Ord + Bounded + Clone> SegmentTree<Indexed<Max<T>>> {
     /// セグメント木を（インデックス付きで）初期化する
-    /// - 計算量 : $`O(N)`$
+    /// - 時間計算量:  $`O(N)`$
     pub fn new_with_index(N: usize) -> Self {
         let arr = (0..N).map(|i| (Max::id(), i));
         Self::from_iter(arr)

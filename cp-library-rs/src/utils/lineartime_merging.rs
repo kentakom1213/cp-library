@@ -9,7 +9,7 @@ where
 {
     /// ソート済み配列をマージする
     ///
-    /// - 計算量 : $`O(N + M)`$
+    /// - 時間計算量: $`O(N + M)`$
     fn merge_linear(self, other: Self) -> MergeIterator<Self::Item, Self, Self> {
         MergeIterator {
             itr_a: self.peekable(),

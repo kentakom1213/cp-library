@@ -24,7 +24,7 @@ pub struct LCS<'a, T> {
 
 impl<'a, T: PartialEq + Clone> LCS<'a, T> {
     /// 動的計画法により最長共通部分列の長さを求める
-    /// - 計算量： $`O(NM)`$
+    /// - 時間計算量: $`O(NM)`$
     pub fn build(A: &'a [T], B: &'a [T]) -> Self {
         let (la, lb) = (A.len(), B.len());
         let mut dp = vec![vec![0; lb + 1]; la + 1];
