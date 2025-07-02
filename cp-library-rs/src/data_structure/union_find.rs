@@ -89,11 +89,11 @@ impl<M: CommutativeMonoid> UnionFindMonoid<M> {
 
     /// {代表元: 集合} のマップを返す
     ///
-    /// - 計算量: $`O(N)`$
+    /// - 時間計算量: $`O(N)`$
     pub fn enum_groups(&mut self) -> HashMap<usize, Vec<usize>> {
         (0..self.n).fold(HashMap::default(), |mut map, i| {
             let root = self.root(i);
-            map.entry(root).or_insert_with(Vec::new).push(i);
+            map.entry(root).or_default().push(i);
             map
         })
     }

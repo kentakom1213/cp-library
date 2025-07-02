@@ -16,6 +16,7 @@ pub type P1 = Modint<938472061>;
 pub type P2 = Modint<958472071>;
 
 #[rustfmt::skip]
+#[allow(clippy::suspicious_arithmetic_impl)]
 pub mod modint_ {
     macro_rules! impl_ops {
         ($t:ty, $op_trait:ident, $op_func:ident, $op:tt) => {
@@ -81,7 +82,7 @@ pub mod modint_ {
     impl<const MOD: u32> Zero for Modint<MOD> { fn zero() -> Self { Modint(0) } }
     impl<const MOD: u32> One for Modint<MOD> { fn one() -> Self { Modint(1) } }
     pub trait Fp { fn pow(&self, rhs: u32) -> Self; fn inv(&self) -> Self; }
-    impl<const MOD: u32> Fp for Modint<MOD> { fn pow(&self, rhs: u32) -> Self { let (mut a, mut b) = (*self, rhs); let mut res = Modint::one(); while b > 0 { if b & 1 == 1 { res *= a; } a *= a; b >>= 1u32; } Modint::from(res) } fn inv(&self) -> Self { self.pow(MOD - 2) } }
+    impl<const MOD: u32> Fp for Modint<MOD> { fn pow(&self, rhs: u32) -> Self { let (mut a, mut b) = (*self, rhs); let mut res = Modint::one(); while b > 0 { if b & 1 == 1 { res *= a; } a *= a; b >>= 1u32; } res } fn inv(&self) -> Self { self.pow(MOD - 2) } }
     impl<const MOD: u32> Sum<Modint<MOD>> for Modint<MOD> { fn sum<I: Iterator<Item = Modint<MOD>>>(iter: I) -> Self { iter.fold(Modint::<MOD>(0), |acc, x| acc + x) } }
     impl<const MOD: u32> Product<Modint<MOD>> for Modint<MOD> { fn product<I: Iterator<Item = Modint<MOD>>>(iter: I) -> Self { iter.fold(Modint::<MOD>(1), |acc, x| acc * x) } }
 }

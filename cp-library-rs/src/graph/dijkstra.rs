@@ -45,6 +45,7 @@ pub fn dijkstra<T: Copy + Zero + Bounded + Ord>(
 /// 戻り値
 /// - `Some(path)`: スタート地点`s`からゴール地点`t`までの最短路
 /// - `None`: sがダイクストラ法のスタート地点でない場合 | 最短路が存在しない場合
+#[allow(clippy::ptr_arg)]
 pub fn path_reconstruction(s: usize, t: usize, prev: &Vec<Option<usize>>) -> Option<Vec<usize>> {
     if prev[s].is_some() || prev[t].is_none() {
         return None;

@@ -98,7 +98,7 @@ impl<T: NTTFriendly> FFT<T> {
         // マージ
         Y_even
             .into_iter()
-            .zip(Y_odd.into_iter())
+            .zip(Y_odd)
             .flat_map(|(e, o)| [e, o])
             .collect()
     }
