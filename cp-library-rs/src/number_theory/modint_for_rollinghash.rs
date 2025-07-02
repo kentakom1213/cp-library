@@ -4,10 +4,8 @@
 #[allow(clippy::suspicious_arithmetic_impl)]
 pub mod modint {
     pub const MOD: usize = (1 << 61) - 1;
-    const MASK30: usize = (1 << 30) - 1;
-    const MASK31: usize = (1 << 31) - 1;
     const MASK61: usize = MOD;
-    fn mul(a: usize, b: usize) -> usize { let (au, ad) = (a >> 31, a & MASK31); let (bu, bd) = (b >> 31, b & MASK31); let m = ad * bu + au * bd; let (mu, md) = (m >> 30, m & MASK30); calcmod(au * bu * 2 + mu + (md << 31) + ad * bd) }
+    fn mul(a: usize, b: usize) -> usize { ((a as u128 * b as u128) % MOD as u128) as usize }
     fn calcmod(x: usize) -> usize { let xu = x >> 61; let xd = x & MASK61; let res = xu + xd; if res >= MOD { res - MOD } else { res } }
     use std::{fmt::Display,ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign}, str::FromStr, num::ParseIntError, iter::{Sum, Product}};
     #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)] pub struct Modint(pub usize);
