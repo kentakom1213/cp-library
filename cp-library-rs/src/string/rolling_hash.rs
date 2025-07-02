@@ -17,7 +17,7 @@ impl RollingHash {
     /// 初期化
     pub fn build(arr: &[Modint], base: usize) -> Self {
         let size = arr.len();
-        let mut power = vec![Modint(0); size + 1];
+        let mut power = vec![Modint(1); size + 1];
         let mut hash = vec![Modint(0); size + 1];
 
         // hashを初期化

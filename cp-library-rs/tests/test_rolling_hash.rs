@@ -54,6 +54,14 @@ fn test_concat() {
         hash_a.concat(hash_a.get(0, 3), hash_a.get(3, 3), 0),
         hash_a.full()
     );
+    assert_eq!(
+        hash_a.concat(hash_a.full(), hash_a.get(0, 0), 0),
+        hash_a.full()
+    );
+    assert_eq!(
+        hash_a.concat(hash_a.get(0, 0), hash_a.full(), a.len()),
+        hash_a.full()
+    );
 }
 
 #[test]
