@@ -4,6 +4,7 @@
 #![allow(dead_code)]
 
 pub mod algebraic_structure;
+pub mod convolution;
 pub mod data_structure;
 pub mod geometry;
 pub mod graph;

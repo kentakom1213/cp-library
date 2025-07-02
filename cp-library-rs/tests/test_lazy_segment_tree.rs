@@ -11,22 +11,22 @@ fn test_print_as_binary_tree() {
 
     // 更新
     seg.apply(..3, 3);
-
+    println!("> add 0..3, 3");
     seg.print_as_binary_tree();
 
     // 更新
     seg.apply(3.., -4);
-
+    println!("> add 3.., -4");
     seg.print_as_binary_tree();
 
     // 更新
     seg.apply(2..=2, 100);
-
+    println!("> add 2..=2, 100");
     seg.print_as_binary_tree();
 
     // 更新
     seg.apply(.., -200);
-
+    println!("> add .., -200");
     seg.print_as_binary_tree();
 }
 

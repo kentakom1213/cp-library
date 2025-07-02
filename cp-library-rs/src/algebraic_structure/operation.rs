@@ -12,6 +12,10 @@ pub struct Min<T>(PhantomData<T>);
 #[derive(Debug, Clone)]
 pub struct Max<T>(PhantomData<T>);
 
+/// 最小値，最大値を同時に管理
+#[derive(Debug, Clone)]
+pub struct MinMax<T>(PhantomData<T>);
+
 /// 和
 #[derive(Debug, Clone)]
 pub struct Add<T>(PhantomData<T>);

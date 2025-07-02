@@ -207,10 +207,11 @@ fn test_print_as_binary_tree() {
 
     // 変更
     *seg.get_mut(2).unwrap() = 8;
-
+    println!("> update seg[2] <- 8");
     seg.print_as_binary_tree();
 
     // 変更
+    println!("> update seg[3] <- 10");
     *seg.get_mut(3).unwrap() = 10;
 
     seg.print_as_binary_tree();

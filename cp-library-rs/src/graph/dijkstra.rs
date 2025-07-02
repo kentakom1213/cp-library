@@ -3,7 +3,7 @@
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 
-use crate::utils::consts::INF;
+use crate::utils::num_traits::{Bounded, Zero};
 
 /// Dijkstra法
 /// - グラフ`graph`が与えられたとき、スタート地点`s`から各頂点への最短路を求める
@@ -12,13 +12,16 @@ use crate::utils::consts::INF;
 /// - `prev`: 各頂点への最短路において、その頂点の直前の頂点
 /// - `dist`: スタート地点`s`から各頂点への最短距離
 #[allow(clippy::ptr_arg)]
-pub fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, s: usize) -> (Vec<usize>, Vec<usize>) {
+pub fn dijkstra<T: Copy + Zero + Bounded + Ord>(
+    graph: &Vec<Vec<(usize, T)>>,
+    s: usize,
+) -> (Vec<Option<usize>>, Vec<T>) {
     let n: usize = graph.len();
-    let mut prev: Vec<usize> = vec![INF; n];
-    let mut dist: Vec<usize> = vec![INF; n];
-    let mut pq: BinaryHeap<Reverse<(usize, usize)>> = BinaryHeap::new();
+    let mut prev = vec![None; n];
+    let mut dist = vec![T::max_value(); n];
+    let mut pq: BinaryHeap<Reverse<(T, usize)>> = BinaryHeap::new();
     // 初期化
-    dist[s] = 0;
+    dist[s] = T::zero();
     pq.push(Reverse((dist[s], s)));
     // 更新
     while let Some(Reverse((cost, u))) = pq.pop() {
@@ -27,7 +30,7 @@ pub fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, s: usize) -> (Vec<usize>, Vec<
         }
         for &(v, weight) in &graph[u] {
             if dist[v] > dist[u] + weight {
-                prev[v] = u;
+                prev[v] = Some(u);
                 dist[v] = dist[u] + weight;
                 pq.push(Reverse((dist[v], v)));
             }
@@ -42,15 +45,15 @@ pub fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, s: usize) -> (Vec<usize>, Vec<
 /// 戻り値
 /// - `Some(path)`: スタート地点`s`からゴール地点`t`までの最短路
 /// - `None`: sがダイクストラ法のスタート地点でない場合 | 最短路が存在しない場合
-pub fn path_reconstruction(s: usize, t: usize, prev: &[usize]) -> Option<Vec<usize>> {
-    if prev[s] != INF || prev[t] == INF {
+pub fn path_reconstruction(s: usize, t: usize, prev: &Vec<Option<usize>>) -> Option<Vec<usize>> {
+    if prev[s].is_some() || prev[t].is_none() {
         return None;
     }
     // 経路復元
     let mut cur = t;
     let mut path = vec![t];
     while cur != s {
-        cur = prev[cur];
+        cur = prev[cur]?;
         path.push(cur);
     }
     path.reverse();

@@ -24,6 +24,8 @@ use crate::{
     utils::num_traits::{Bounded, One},
 };
 
+use super::operation::MinMax;
+
 /// モノイド
 ///
 /// - [`Monoid::Val`] ： データの型 $`S`$
@@ -39,6 +41,12 @@ pub trait Monoid {
 }
 
 // ========== 実装 ==========
+impl Monoid for () {
+    type Val = ();
+    fn id() -> Self::Val {}
+    fn op(_: &Self::Val, _: &Self::Val) -> Self::Val {}
+}
+
 impl<T: Ord + Bounded + Clone> Monoid for Min<T> {
     type Val = T;
     fn id() -> Self::Val {
@@ -46,6 +54,26 @@ impl<T: Ord + Bounded + Clone> Monoid for Min<T> {
     }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
         left.min(right).clone()
+    }
+}
+
+impl<T: Ord + Bounded + Clone> Monoid for Max<T> {
+    type Val = T;
+    fn id() -> Self::Val {
+        Self::Val::min_value()
+    }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        left.max(right).clone()
+    }
+}
+
+impl<T: Ord + Bounded + Clone> Monoid for MinMax<T> {
+    type Val = (T, T);
+    fn id() -> Self::Val {
+        (Min::id(), Max::id())
+    }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        (Min::op(&left.0, &right.0), Max::op(&left.1, &right.1))
     }
 }
 
@@ -80,16 +108,6 @@ impl Monoid for Xor {
     }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
         left ^ right
-    }
-}
-
-impl<T: Ord + Bounded + Clone> Monoid for Max<T> {
-    type Val = T;
-    fn id() -> Self::Val {
-        Self::Val::min_value()
-    }
-    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-        left.max(right).clone()
     }
 }
 
