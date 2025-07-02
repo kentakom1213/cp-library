@@ -7,6 +7,7 @@ use num_traits::Num;
 ///
 /// **戻り値**
 /// - `|lx, rx, ly, ry, lz, rz|: (usize, usize, usize, usize, usize, usize) -> T`
+#[allow(clippy::ptr_arg)]
 pub fn acc3D<T: Num + Copy>(
     array: &Vec<Vec<Vec<T>>>,
 ) -> impl Fn(usize, usize, usize, usize, usize, usize) -> T {

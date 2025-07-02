@@ -11,6 +11,7 @@ use crate::algebraic_structure::commutative::CommutativeMonoid;
 /// 双対セグ木
 /// - 区間への作用
 /// - 一点の取得
+///
 /// を行うセグメント木
 pub struct DualSegmentTree<M: CommutativeMonoid> {
     pub size: usize,
@@ -50,7 +51,7 @@ impl<M: CommutativeMonoid> DualSegmentTree<M> {
     }
 
     /// 配列から双対セグメント木を構築する
-    pub fn build(arr: &Vec<M::Val>) -> Self {
+    pub fn build(arr: &[M::Val]) -> Self {
         let offset = arr.len();
         let mut seg = Self::new(offset);
         seg.data[offset..].clone_from_slice(arr);

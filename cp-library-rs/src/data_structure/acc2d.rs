@@ -7,6 +7,7 @@ use num_traits::Num;
 ///
 /// **戻り値**
 /// - `|r_start, r_end, c_start, c_end|: (usize, usize, usize, usize) -> T`
+#[allow(clippy::ptr_arg)]
 pub fn acc2D<T: Num + Copy>(array: &Vec<Vec<T>>) -> impl Fn(usize, usize, usize, usize) -> T {
     let (H, W) = (array.len(), array[0].len());
     let mut S = vec![vec![T::zero(); W + 1]; H + 1];

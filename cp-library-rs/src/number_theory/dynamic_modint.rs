@@ -16,7 +16,7 @@ pub struct Modint2 {
 
 impl Modint2 {
     pub fn new(x: usize, m: usize) -> Self {
-        Self { value: x % m, m: m }
+        Self { value: x % m, m }
     }
 
     pub fn from_isize(x: isize, m: usize) -> Self {

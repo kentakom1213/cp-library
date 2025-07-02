@@ -509,10 +509,7 @@ impl<'a, T: Ord> Iterator for SplayTreeIterator<'a, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let node = match self.unvisited.pop() {
-            None => return None,
-            Some(n) => n,
-        };
+        let node = self.unvisited.pop()?;
 
         self.push_left_edge(&node.right);
 

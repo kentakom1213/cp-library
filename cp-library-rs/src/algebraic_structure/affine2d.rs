@@ -2,6 +2,8 @@
 //!
 //! 2次元平面上の点の回転
 
+#![allow(clippy::needless_range_loop)]
+
 /// # AffineMatrix
 /// アフィン変換（3x3行列）
 #[derive(Debug, Clone, Copy)]

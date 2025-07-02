@@ -21,10 +21,8 @@ pub fn segmented_sieve(l: usize, r: usize) -> Vec<usize> {
         }
         let mut k = l.div_ceil(p) * p;
         while k < r {
-            if k > p {
-                if l <= k && k < r {
-                    sieve[k - l] = false;
-                }
+            if k > p && l <= k && k < r {
+                sieve[k - l] = false;
             }
             k += p;
         }

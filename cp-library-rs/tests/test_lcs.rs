@@ -1,4 +1,4 @@
-use cp_library_rs::{debug2D, string::lcs::*};
+use cp_library_rs::string::lcs::*;
 
 #[test]
 fn test_LCS_isize() {

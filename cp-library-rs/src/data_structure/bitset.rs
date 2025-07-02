@@ -11,9 +11,15 @@ pub struct BitSet<const SIZE: usize> {
     bits: Vec<u64>,
 }
 
+impl<const SIZE: usize> Default for BitSet<SIZE> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<const SIZE: usize> BitSet<SIZE> {
     /// ⌈size / 64⌉個のu64
-    const ARRAY_SIZE: usize = (SIZE + 64 - 1) / 64;
+    const ARRAY_SIZE: usize = SIZE.div_ceil(64);
 
     /// あまりのビット
     const REM_BIT: usize = SIZE % 64;
@@ -107,7 +113,7 @@ impl<const SIZE: usize> Index<usize> for BitSet<SIZE> {
     fn index(&self, index: usize) -> &Self::Output {
         let arr_idx = index / 64;
         let bit_idx = index % 64;
-        if self.bits[arr_idx] >> bit_idx & 1 == 0 {
+        if (self.bits[arr_idx] >> bit_idx) & 1 == 0 {
             &Self::TMP_BOOL[0]
         } else {
             &Self::TMP_BOOL[1]

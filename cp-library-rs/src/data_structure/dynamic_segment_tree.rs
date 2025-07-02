@@ -2,9 +2,9 @@
 //! - 遅延評価なし
 
 use crate::algebraic_structure::monoid;
-pub use dynamic_segment_tree::*;
+pub use dynamic_segment_tree_::*;
 
-mod dynamic_segment_tree {
+mod dynamic_segment_tree_ {
     //! AA木による動的セグ木
     //! - 遅延評価なし
 
@@ -165,6 +165,7 @@ mod node {
     //! セグ木のノード
 
     #![allow(non_snake_case)]
+    #![allow(clippy::type_complexity)]
 
     use crate::algebraic_structure::monoid::Monoid;
 
@@ -239,9 +240,7 @@ mod node {
     /// 1 |  A   B   R       A   B   R  
     /// ```
     fn skew<K: Ord, M: Monoid>(node: Node<K, M>) -> Node<K, M> {
-        let Some(mut T) = node else {
-            return None;
-        };
+        let mut T = node?;
         if T.left.is_none() {
             Some(T)
         } else if T.level == T.left.as_ref().unwrap().level {
@@ -268,9 +267,7 @@ mod node {
     /// 1 |  A   B              A   B    
     /// ```
     fn split<K: Ord, M: Monoid>(node: Node<K, M>) -> Node<K, M> {
-        let Some(mut T) = node else {
-            return None;
-        };
+        let mut T = node?;
         if T.right.is_none() || T.right.as_ref().unwrap().right.is_none() {
             Some(T)
         } else if T.level == T.right.as_ref().unwrap().right.as_ref().unwrap().level {
@@ -464,9 +461,7 @@ mod node {
 
     /// 削除後の頂点を再平衡化
     fn rebarance<K: Ord, M: Monoid>(root: Node<K, M>) -> Node<K, M> {
-        let Some(mut T) = root else {
-            return None;
-        };
+        let mut T = root?;
         let left_level = T.left.as_ref().map_or(0, |node| node.level);
         let right_level = T.right.as_ref().map_or(0, |node| node.level);
         if left_level.min(right_level) < T.level - 1 {
@@ -519,7 +514,7 @@ mod node {
 mod print_util {
     //! 木を整形して表示するための関数
 
-    use super::{dynamic_segment_tree::DynamicSegmentTree, monoid::Monoid, node::Node};
+    use super::{dynamic_segment_tree_::DynamicSegmentTree, monoid::Monoid, node::Node};
     use std::fmt::Debug;
 
     const LEFT: &str = " ┌──";

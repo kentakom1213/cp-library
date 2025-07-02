@@ -43,6 +43,7 @@ where
     }
 
     /// 2次元配列から累積和を初期化する
+    #[allow(clippy::ptr_arg)]
     pub fn new(array: &Vec<Vec<T>>) -> Self {
         let (H, W) = (array.len(), array[0].len());
         let mut S = vec![vec![T::zero(); W + 1]; H + 1];

@@ -204,14 +204,12 @@ impl Iterator for PathSegment<'_> {
             } else {
                 (to, from, true, true)
             }
+        } else if in_[from] < in_[to] {
+            self.to = parent[head[to]];
+            (head[to], to, false, false)
         } else {
-            if in_[from] < in_[to] {
-                self.to = parent[head[to]];
-                (head[to], to, false, false)
-            } else {
-                self.from = parent[head[from]];
-                (head[from], from, false, true)
-            }
+            self.from = parent[head[from]];
+            (head[from], from, false, true)
         })
     }
 }
