@@ -63,13 +63,17 @@ where
     ///
     /// **戻り値**
     /// - すでに`x,y`が併合済みだった場合
-    ///   - `self.diff(x, y) == weight` の場合 → `Ok(false)`
+    ///   - `self.diff(x, y) == weight` の場合 → `Some(false)`
     ///   - `self.diff(x, y) != weight` の場合 → `Err(())`
     /// - `x,y`が併合済みでない場合 → `Ok(true)`
-    pub fn unite(&mut self, mut x: usize, mut y: usize, mut weight: G::Val) -> Result<bool, ()> {
+    pub fn unite(&mut self, mut x: usize, mut y: usize, mut weight: G::Val) -> Result<bool, &str> {
         // すでにmerge済みの場合
         if let Some(w) = self.diff(x, y) {
-            return if w == weight { Ok(false) } else { Err(()) };
+            return if w == weight {
+                Ok(false)
+            } else {
+                Err("weight mismatch")
+            };
         }
 
         // x, yそれぞれについて重み差分を補正

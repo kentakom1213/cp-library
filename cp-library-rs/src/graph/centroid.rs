@@ -15,21 +15,14 @@ pub fn subtree_size(p: usize, u: usize, G: &Vec<Vec<usize>>, W: &[usize], res: &
 }
 
 /// 重心を求める
-pub fn get_centroid(
-    p: usize,
-    u: usize,
-    G: &Vec<Vec<usize>>,
-    W: &[usize],
-    S: &[usize],
-    root: usize,
-) -> usize {
+pub fn get_centroid(p: usize, u: usize, G: &Vec<Vec<usize>>, S: &[usize], root: usize) -> usize {
     let mut is_centroid = true;
     // 隣接頂点を調べる
     for &v in &G[u] {
         if v == p {
             continue;
         }
-        let res = get_centroid(u, v, G, W, S, root);
+        let res = get_centroid(u, v, G, S, root);
         if res < usize::MAX {
             return res;
         }

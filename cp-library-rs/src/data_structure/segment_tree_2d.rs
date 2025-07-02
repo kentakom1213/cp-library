@@ -1,6 +1,8 @@
 //! 二次元セグメント木
 //! - 参考：[二次元セグメント木 - Nyaan's Library](https://nyaannyaan.github.io/library/data-structure-2d/2d-segment-tree.hpp.html)
 
+#![allow(clippy::needless_range_loop)]
+
 use crate::algebraic_structure::monoid::Monoid;
 use std::fmt::{self, Debug};
 use std::ops::{

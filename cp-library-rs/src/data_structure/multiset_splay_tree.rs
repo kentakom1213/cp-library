@@ -34,6 +34,11 @@ mod inner {
                 pub root: Option<NodePtr<K, usize>>,
                 size: usize,
             }
+            impl<K: Ord> Default for Multiset<K> {
+                fn default() -> Self {
+                    Self::new()
+                }
+            }
             impl<K: Ord> Multiset<K> {
                 /// 新規作成
                 pub fn new() -> Self {
@@ -55,13 +60,13 @@ mod inner {
                     let upperbound = prev(
                         {
                             let ub;
-                            (self.root, ub) = upper_bound(self.root.clone(), &key);
+                            (self.root, ub) = upper_bound(self.root, key);
                             ub
                         },
                         &self.root,
                     );
                     match upperbound {
-                        NodePosition::Node(node) if &*node.key() == key => Some(node),
+                        NodePosition::Node(node) if node.key() == key => Some(node),
                         _ => None,
                     }
                 }
@@ -69,20 +74,19 @@ mod inner {
                 pub fn insert(&mut self, key: K) {
                     // 最も右側の頂点を探索
                     let rightmost = self.find_rightmost_node(&key);
-                    let new_node;
-                    if let Some(rightmost) = rightmost {
+                    let new_node = if let Some(rightmost) = rightmost {
                         let cnt = *rightmost.value();
-                        new_node = insert_right(Some(rightmost), key, cnt + 1);
+                        insert_right(Some(rightmost), key, cnt + 1)
                     } else {
-                        (_, new_node, _) = insert(self.root.clone(), key, 1);
-                    }
+                        insert(self.root, key, 1)
+                    };
                     self.size += 1;
                     self.root = Some(splay(new_node));
                 }
                 /// 要素の削除
                 pub fn remove(&mut self, key: &K) -> bool {
                     // 最も右側の頂点を探索
-                    let Some(rightmost) = self.find_rightmost_node(&key) else {
+                    let Some(rightmost) = self.find_rightmost_node(key) else {
                         return false;
                     };
                     (self.root, _) = remove(rightmost);
@@ -92,7 +96,7 @@ mod inner {
                 /// `key` に一致する要素の個数を返す
                 pub fn count(&mut self, key: &K) -> usize {
                     // 最も右側の頂点を探索
-                    let rightmost = self.find_rightmost_node(&key);
+                    let rightmost = self.find_rightmost_node(key);
                     if let Some(rightmost) = rightmost {
                         *rightmost.value()
                     } else {
@@ -109,7 +113,7 @@ mod inner {
                         Bound::Included(x) => prev(
                             {
                                 let lb;
-                                (self.root, lb) = lower_bound(self.root.clone(), &x);
+                                (self.root, lb) = lower_bound(self.root, x);
                                 lb
                             },
                             &self.root,
@@ -117,7 +121,7 @@ mod inner {
                         Bound::Excluded(x) => prev(
                             {
                                 let ub;
-                                (self.root, ub) = upper_bound(self.root.clone(), &x);
+                                (self.root, ub) = upper_bound(self.root, x);
                                 ub
                             },
                             &self.root,
@@ -127,12 +131,12 @@ mod inner {
                         Bound::Unbounded => NodePosition::SUP,
                         Bound::Included(x) => {
                             let ub;
-                            (self.root, ub) = upper_bound(self.root.clone(), x);
+                            (self.root, ub) = upper_bound(self.root, x);
                             ub
                         }
                         Bound::Excluded(x) => {
                             let lb;
-                            (self.root, lb) = lower_bound(self.root.clone(), x);
+                            (self.root, lb) = lower_bound(self.root, x);
                             lb
                         }
                     };
@@ -159,6 +163,8 @@ mod inner {
     }
     pub mod node {
         pub mod find {
+            #![allow(clippy::type_complexity)]
+
             use crate::data_structure::multiset_splay_tree::inner::node::{
                 iterator::NodePosition,
                 pointer::{NodeOps, NodePtr},
@@ -176,24 +182,24 @@ mod inner {
                 if root.is_none() {
                     return (None, None);
                 }
-                let mut last = root.clone();
+                let mut last = root;
                 let mut res = None;
-                while let Some(last_inner) = last.clone() {
-                    if cmp(&*last_inner.key()) {
-                        res = Some(last_inner.clone());
-                        last = match last_inner.left().as_ref().map(|node| node.clone()) {
+                while let Some(last_inner) = last {
+                    if cmp(last_inner.key()) {
+                        res = Some(last_inner);
+                        last = match last_inner.left().as_ref().copied() {
                             Some(node) => Some(node),
                             None => break,
                         };
                     } else {
-                        last = match last_inner.right().as_ref().map(|node| node.clone()) {
+                        last = match last_inner.right().as_ref().copied() {
                             Some(node) => Some(node),
                             None => break,
                         };
                     }
                 }
                 if let Some(res_inner) = res {
-                    (Some(splay(res_inner.clone())), Some(res_inner))
+                    (Some(splay(res_inner)), Some(res_inner))
                 } else if let Some(last_inner) = last {
                     (Some(splay(last_inner)), res)
                 } else {
@@ -241,8 +247,8 @@ mod inner {
                 root: Option<NodePtr<K, V>>,
                 x: &K,
             ) -> (Option<NodePtr<K, V>>, Option<NodePtr<K, V>>) {
-                let (new_root, lb) = find_min(root.clone(), |k| k >= x);
-                if lb.as_ref().is_some_and(|k| &*k.key() == x) {
+                let (new_root, lb) = find_min(root, |k| k >= x);
+                if lb.as_ref().is_some_and(|k| k.key() == x) {
                     (new_root, lb)
                 } else {
                     (new_root, None)
@@ -253,7 +259,7 @@ mod inner {
             use crate::data_structure::multiset_splay_tree::inner::node::pointer::{
                 Node, NodeOps, NodePtr,
             };
-            use std::{cmp::Ordering, mem};
+            use std::cmp::Ordering;
             /// rootを根とする木に(key, value)を挿入し，挿入後のノードの参照を返す．
             /// すでに同一のキーを持つノードが存在した場合，値を置き換える．
             ///
@@ -270,37 +276,34 @@ mod inner {
                 root: Option<NodePtr<K, V>>,
                 key: K,
                 value: V,
-            ) -> (Option<NodePtr<K, V>>, NodePtr<K, V>, Option<V>) {
+            ) -> NodePtr<K, V> {
                 if root.is_none() {
                     let new_root = Node::node_ptr(key, value);
-                    return (Some(new_root.clone()), new_root, None);
+                    return new_root;
                 }
                 // 親ノードをたどっていく
-                let mut par = root.clone();
+                let mut par = root;
                 loop {
-                    let comp = key.cmp(&par.as_ref().unwrap().key());
+                    let comp = key.cmp(par.as_ref().unwrap().key());
                     match comp {
                         Ordering::Less => {
-                            if let Some(Some(left)) = par.as_ref().map(|node| node.left().clone()) {
+                            if let Some(Some(left)) = par.as_ref().map(|node| *node.left()) {
                                 par.replace(left);
                             } else {
                                 // 左側に挿入
-                                break (root, insert_left(par, key, value), None);
+                                break insert_left(par, key, value);
                             }
                         }
                         Ordering::Equal => {
                             // 置き換える
-                            let old_value =
-                                mem::replace(&mut *par.as_mut().unwrap().value_mut(), value);
-                            break (root, par.unwrap(), Some(old_value));
+                            break par.unwrap();
                         }
                         Ordering::Greater => {
-                            if let Some(Some(right)) = par.as_ref().map(|node| node.right().clone())
-                            {
+                            if let Some(Some(right)) = par.as_ref().map(|node| *node.right()) {
                                 par.replace(right);
                             } else {
                                 // 右側に挿入
-                                break (root, insert_right(par, key, value), None);
+                                break insert_right(par, key, value);
                             }
                         }
                     }
@@ -325,7 +328,7 @@ mod inner {
                 // new_node.parent ← node
                 *new_node.parent_mut() = Some(inner);
                 // node.left ← new_node
-                inner.left_mut().replace(new_node.clone());
+                inner.left_mut().replace(new_node);
                 new_node
             }
             /// nodeの右側に子を追加し，追加された子のポインタを返す
@@ -348,7 +351,7 @@ mod inner {
                 // new_node.parent ← node
                 *new_node.parent_mut() = Some(inner);
                 // node.right ← new_node
-                inner.right_mut().replace(new_node.clone());
+                inner.right_mut().replace(new_node);
                 new_node
             }
         }
@@ -372,7 +375,7 @@ mod inner {
                 fn clone(&self) -> Self {
                     match self {
                         NodePosition::INF => NodePosition::INF,
-                        NodePosition::Node(node) => NodePosition::Node(node.clone()),
+                        NodePosition::Node(node) => NodePosition::Node(*node),
                         NodePosition::SUP => NodePosition::SUP,
                     }
                 }
@@ -406,28 +409,16 @@ mod inner {
             }
             impl<K: Ord, V> NodePosition<K, V> {
                 pub fn is_inf(&self) -> bool {
-                    match self {
-                        NodePosition::INF => true,
-                        _ => false,
-                    }
+                    matches!(self, NodePosition::INF)
                 }
                 pub fn is_sup(&self) -> bool {
-                    match self {
-                        NodePosition::SUP => true,
-                        _ => false,
-                    }
+                    matches!(self, NodePosition::SUP)
                 }
                 pub fn is_node(&self) -> bool {
-                    match self {
-                        NodePosition::Node(_) => true,
-                        _ => false,
-                    }
+                    matches!(self, NodePosition::Node(_))
                 }
                 pub fn is_none(&self) -> bool {
-                    match self {
-                        NodePosition::INF | NodePosition::SUP => true,
-                        _ => false,
-                    }
+                    matches!(self, NodePosition::INF | NodePosition::SUP)
                 }
                 pub fn unwrap(self) -> NodePtr<K, V> {
                     match self {
@@ -452,10 +443,8 @@ mod inner {
                 match iter {
                     NodePosition::INF => NodePosition::INF,
                     NodePosition::Node(mut node) => {
-                        if let Some(mut prv) = node.left().as_ref().map(|node| node.clone()) {
-                            while let Some(right) =
-                                prv.clone().right().as_ref().map(|node| node.clone())
-                            {
+                        if let Some(mut prv) = node.left().as_ref().copied() {
+                            while let Some(right) = prv.clone().right().as_ref().copied() {
                                 prv = right;
                             }
                             return NodePosition::Node(prv);
@@ -475,7 +464,7 @@ mod inner {
                         }
                         NodePosition::INF
                     }
-                    NodePosition::SUP => match get_max(root.clone()) {
+                    NodePosition::SUP => match get_max(*root) {
                         Some(node) => NodePosition::Node(node),
                         None => NodePosition::SUP,
                     },
@@ -489,15 +478,13 @@ mod inner {
                 root: &Option<NodePtr<K, V>>,
             ) -> NodePosition<K, V> {
                 match iter {
-                    NodePosition::INF => match get_min(root.clone()) {
+                    NodePosition::INF => match get_min(*root) {
                         Some(node) => NodePosition::Node(node),
                         None => NodePosition::INF,
                     },
                     NodePosition::Node(mut node) => {
-                        if let Some(mut nxt) = node.right().as_ref().map(|node| node.clone()) {
-                            while let Some(left) =
-                                nxt.clone().left().as_ref().map(|node| node.clone())
-                            {
+                        if let Some(mut nxt) = node.right().as_ref().copied() {
+                            while let Some(left) = nxt.clone().left().as_ref().copied() {
                                 nxt = left;
                             }
                             return NodePosition::Node(nxt);
@@ -523,7 +510,7 @@ mod inner {
             /// rootを根とする木のうち，最も左側の子を返す
             pub fn get_min<K: Ord, V>(root: Option<NodePtr<K, V>>) -> Option<NodePtr<K, V>> {
                 let mut node = root;
-                while let left @ Some(_) = node.as_ref().map(|node| node.left().clone())? {
+                while let left @ Some(_) = node.as_ref().map(|node| *node.left())? {
                     node = left;
                 }
                 node
@@ -531,7 +518,7 @@ mod inner {
             /// rootを根とする木のうち，最も右側の子を返す
             pub fn get_max<K: Ord, V>(root: Option<NodePtr<K, V>>) -> Option<NodePtr<K, V>> {
                 let mut node = root;
-                while let right @ Some(_) = node.as_ref().map(|node| node.right().clone())? {
+                while let right @ Some(_) = node.as_ref().map(|node| *node.right())? {
                     node = right;
                 }
                 node
@@ -566,20 +553,20 @@ mod inner {
                     }
                 }
             }
-            impl<'a, K: Ord, V> Iterator for NodeIterator<'a, K, V> {
+            impl<K: Ord, V> Iterator for NodeIterator<'_, K, V> {
                 type Item = NodePtr<K, V>;
                 fn next(&mut self) -> Option<Self::Item> {
                     // posを次に進める
                     self.pos = next(self.pos.clone(), self.root);
-                    let val = self.pos.as_ref().map(|node| node.clone())?;
+                    let val = self.pos.as_ref().copied()?;
                     Some(val)
                 }
             }
-            impl<'a, K: Ord, V> DoubleEndedIterator for NodeIterator<'a, K, V> {
+            impl<K: Ord, V> DoubleEndedIterator for NodeIterator<'_, K, V> {
                 fn next_back(&mut self) -> Option<Self::Item> {
                     // posを前に進める
                     self.pos = prev(self.pos.clone(), self.root);
-                    let val = self.pos.as_ref().map(|node| node.clone())?;
+                    let val = self.pos.as_ref().copied()?;
                     Some(val)
                 }
             }
@@ -602,7 +589,7 @@ mod inner {
                     NodeRangeIterator { root, left, right }
                 }
             }
-            impl<'a, K: Ord, V> Iterator for NodeRangeIterator<'a, K, V> {
+            impl<K: Ord, V> Iterator for NodeRangeIterator<'_, K, V> {
                 type Item = NodePtr<K, V>;
                 fn next(&mut self) -> Option<Self::Item> {
                     // 左端を次に進める
@@ -611,11 +598,11 @@ mod inner {
                     if self.left >= self.right {
                         return None;
                     }
-                    let val = self.left.as_ref().map(|node| node.clone())?;
+                    let val = self.left.as_ref().copied()?;
                     Some(val)
                 }
             }
-            impl<'a, K: Ord + Debug, V: Debug> DoubleEndedIterator for NodeRangeIterator<'a, K, V> {
+            impl<K: Ord + Debug, V: Debug> DoubleEndedIterator for NodeRangeIterator<'_, K, V> {
                 fn next_back(&mut self) -> Option<Self::Item> {
                     // 右端を前に進める
                     self.right = prev(self.right.clone(), self.root);
@@ -623,7 +610,7 @@ mod inner {
                     if self.right <= self.left {
                         return None;
                     }
-                    let val = self.right.as_ref().map(|node| node.clone())?;
+                    let val = self.right.as_ref().copied()?;
                     Some(val)
                 }
             }
@@ -679,27 +666,27 @@ mod inner {
                     match (&self.left, &self.right) {
                         (None, None) => f
                             .debug_struct("Node")
-                            .field(&"key", &self.key)
-                            .field(&"value", &self.value)
+                            .field("key", &self.key)
+                            .field("value", &self.value)
                             .finish(),
                         (Some(_), None) => f
                             .debug_struct("Node")
-                            .field(&"key", &self.key)
-                            .field(&"value", &self.value)
-                            .field(&"left", &self.left)
+                            .field("key", &self.key)
+                            .field("value", &self.value)
+                            .field("left", &self.left)
                             .finish(),
                         (None, Some(_)) => f
                             .debug_struct("Node")
-                            .field(&"key", &self.key)
-                            .field(&"value", &self.value)
-                            .field(&"right", &self.right)
+                            .field("key", &self.key)
+                            .field("value", &self.value)
+                            .field("right", &self.right)
                             .finish(),
                         (Some(_), Some(_)) => f
                             .debug_struct("Node")
-                            .field(&"key", &self.key)
-                            .field(&"value", &self.value)
-                            .field(&"left", &self.left)
-                            .field(&"right", &self.right)
+                            .field("key", &self.key)
+                            .field("value", &self.value)
+                            .field("left", &self.left)
+                            .field("right", &self.right)
                             .finish(),
                     }
                 }
@@ -765,7 +752,7 @@ mod inner {
                     unreachable!()
                 }
                 fn is_same(&self, other: &Self) -> bool {
-                    NonNull::eq(&self, other)
+                    NonNull::eq(self, other)
                 }
                 fn key_cmp(&self, other: &Self) -> std::cmp::Ordering {
                     unsafe { self.as_ref().key.cmp(&other.as_ref().key) }
@@ -774,7 +761,7 @@ mod inner {
                     unsafe { self.as_mut().parent.take() }
                 }
                 fn take_parent_strong(&mut self) -> Option<NodePtr<K, V>> {
-                    unsafe { self.as_mut().parent.take().map(|p| p) }
+                    unsafe { self.as_mut().parent.take() }
                 }
                 fn take_left(&mut self) -> Option<NodePtr<K, V>> {
                     unsafe {
@@ -826,20 +813,20 @@ mod inner {
                 mut node: NodePtr<K, V>,
             ) -> (Option<NodePtr<K, V>>, NodePtr<K, V>) {
                 // nodeを根に持ってくる
-                let root = splay(node.clone());
+                let root = splay(node);
                 // 左右に分割
                 let left = node.take_left();
                 let mut right = node.take_right();
                 // 右部分木の最小値を取得
-                let right_min = get_min(right.clone());
+                let right_min = get_min(right);
                 if let Some(right_min_inner) = right_min {
                     right = Some(splay(right_min_inner));
                 }
                 // right.left <- left
-                if let Some(mut left_inner) = left.clone() {
-                    *left_inner.parent_mut() = right.clone();
+                if let Some(mut left_inner) = left {
+                    *left_inner.parent_mut() = right;
                 }
-                if let Some(mut right_inner) = right.clone() {
+                if let Some(mut right_inner) = right {
                     *right_inner.left_mut() = left;
                 } else {
                     return (left, root);
@@ -858,10 +845,10 @@ mod inner {
                     NodeState::Root => node,
                     NodeState::LeftChild => {
                         let mut right = node.take_right();
-                        let par = node.parent().clone();
+                        let par = *node.parent();
                         // 自分の右の子の親←親
                         if let Some(right_inner) = right.as_mut() {
-                            *right_inner.parent_mut() = par.clone();
+                            *right_inner.parent_mut() = par;
                         }
                         // 親はかならず存在する
                         let mut par_inner = par.unwrap();
@@ -873,15 +860,15 @@ mod inner {
                         if let Some(parpar_inner) = parpar.as_mut() {
                             match par_state {
                                 NodeState::LeftChild => {
-                                    *parpar_inner.left_mut() = Some(node.clone());
+                                    *parpar_inner.left_mut() = Some(node);
                                 }
                                 NodeState::RightChild => {
-                                    *parpar_inner.right_mut() = Some(node.clone());
+                                    *parpar_inner.right_mut() = Some(node);
                                 }
                                 _ => (),
                             }
                         }
-                        *node.parent_mut() = parpar.clone();
+                        *node.parent_mut() = *parpar;
                         // 自分の右の子←親
                         *par_inner.parent_mut() = Some(node);
                         node.right_mut().replace(par_inner);
@@ -889,10 +876,10 @@ mod inner {
                     }
                     NodeState::RightChild => {
                         let mut left = node.take_left();
-                        let par = node.parent().clone();
+                        let par = *node.parent();
                         // 自分の左の子の親←親
                         if let Some(left_inner) = left.as_mut() {
-                            *left_inner.parent_mut() = par.clone();
+                            *left_inner.parent_mut() = par;
                         }
                         // 親はかならず存在する
                         let mut par_inner = par.unwrap();
@@ -904,15 +891,15 @@ mod inner {
                         if let Some(parpar_inner) = parpar.as_mut() {
                             match par_state {
                                 NodeState::LeftChild => {
-                                    *parpar_inner.left_mut() = Some(node.clone());
+                                    *parpar_inner.left_mut() = Some(node);
                                 }
                                 NodeState::RightChild => {
-                                    *parpar_inner.right_mut() = Some(node.clone());
+                                    *parpar_inner.right_mut() = Some(node);
                                 }
                                 _ => (),
                             }
                         }
-                        *node.parent_mut() = parpar.clone();
+                        *node.parent_mut() = *parpar;
                         // 自分の左の子←親
                         *par_inner.parent_mut() = Some(node);
                         node.left_mut().replace(par_inner);
@@ -1006,7 +993,7 @@ mod inner {
                     }
                     fill.push(last);
                     // 左の子
-                    fmt_inner_binary_tree(&node.left(), fill, LEFT);
+                    fmt_inner_binary_tree(node.left(), fill, LEFT);
                     // 自分を出力
                     eprintln!(
                         "{BLUE}│{END}{} Node {{ key: {:?}, value: {:?} }}",
@@ -1015,7 +1002,7 @@ mod inner {
                         node.value(),
                     );
                     // 右の子
-                    fmt_inner_binary_tree(&node.right(), fill, RIGHT);
+                    fmt_inner_binary_tree(node.right(), fill, RIGHT);
                     fill.pop();
                     // 戻す
                     if let Some(tmp) = tmp {

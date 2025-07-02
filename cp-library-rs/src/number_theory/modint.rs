@@ -1,6 +1,6 @@
 //! Modintの構造体
 
-pub use modint::*;
+pub use modint_::*;
 
 /// MOD用の定数：$`998244353`$
 pub const MOD998: usize = 998244353;
@@ -16,7 +16,8 @@ pub type P1 = Modint<938472061>;
 pub type P2 = Modint<958472071>;
 
 #[rustfmt::skip]
-pub mod modint {
+#[allow(clippy::suspicious_arithmetic_impl)]
+pub mod modint_ {
     fn sqrt(n: usize) -> usize { (n as f64).sqrt() as usize }
     use std::{fmt::{Debug, Display}, iter::{Sum, Product}, mem::replace, num::ParseIntError, ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign}, str::FromStr};
     use crate::utils::num_traits::{One, Zero};

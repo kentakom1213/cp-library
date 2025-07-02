@@ -11,6 +11,12 @@ pub struct MexSet {
     pub ranges: BTreeSet<(isize, isize)>,
 }
 
+impl Default for MexSet {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MexSet {
     const INF: isize = isize::MIN;
     const SUP: isize = isize::MAX;

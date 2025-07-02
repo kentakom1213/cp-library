@@ -1,6 +1,7 @@
 //! Modintの構造体
 
 #[rustfmt::skip]
+#[allow(clippy::suspicious_arithmetic_impl)]
 pub mod modint {
     pub const MOD: usize = (1 << 61) - 1;
     const MASK30: usize = (1 << 30) - 1;

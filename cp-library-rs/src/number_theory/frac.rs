@@ -30,9 +30,7 @@ where
     T: Clone + Copy + Ord + Mul<Output = T>,
 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        let &Frac(a1, b1) = self;
-        let &Frac(a2, b2) = other;
-        (a1 * b2).partial_cmp(&(a2 * b1))
+        Some(self.cmp(other))
     }
 }
 
@@ -41,7 +39,9 @@ where
     T: Clone + Copy + Ord + Mul<Output = T>,
 {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap()
+        let &Frac(a1, b1) = self;
+        let &Frac(a2, b2) = other;
+        (a1 * b2).cmp(&(a2 * b1))
     }
 }
 

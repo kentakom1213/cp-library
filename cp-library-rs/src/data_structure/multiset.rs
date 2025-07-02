@@ -8,6 +8,15 @@ pub struct MultiSet<T> {
     pub items: BTreeSet<(T, usize)>,
 }
 
+impl<T> Default for MultiSet<T>
+where
+    T: Ord + Hash + Copy,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T> MultiSet<T>
 where
     T: Ord + Hash + Copy,

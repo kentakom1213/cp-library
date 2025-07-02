@@ -55,11 +55,11 @@ pub fn bellman_ford(
     }
 
     // 到達できない頂点をINFに
-    for u in 0..N {
-        if dist[u] > IINF {
-            dist[u] = IINF;
+    dist.iter_mut().for_each(|d| {
+        if *d > IINF {
+            *d = IINF;
         }
-    }
+    });
 
     // 影響範囲を調べる（もう一度ベルマンフォード）
     for _ in 0..N {

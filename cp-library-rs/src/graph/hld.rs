@@ -153,7 +153,7 @@ impl HLD {
     /// - `rev (bool)` : 取得するpathの向きに対してpath segmentが逆方向かどうか
     pub fn get_path(&self, u: usize, v: usize) -> PathSegment<'_> {
         PathSegment {
-            hld: &self,
+            hld: self,
             from: u,
             to: v,
             exhasted: false,

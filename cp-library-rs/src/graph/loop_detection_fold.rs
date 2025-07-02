@@ -46,7 +46,7 @@ where
         let mut vals: HashMap<T, (usize, V)> = HashMap::new();
 
         // ループ検出
-        while vals.get(&cur).is_none() {
+        while !vals.contains_key(&cur) {
             vals.insert(cur, (idx, sum));
             sum = fold(sum, cur);
             cur = next(cur);

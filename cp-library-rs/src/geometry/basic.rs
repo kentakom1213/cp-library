@@ -10,7 +10,7 @@ pub const EPS: f64 = 1e-8;
 
 impl PartialEq for Point {
     fn eq(&self, other: &Self) -> bool {
-        self.dist(other.clone()) < EPS
+        self.dist(*other) < EPS
     }
 }
 
@@ -41,7 +41,7 @@ impl Point {
 
     /// 同じ向きの単位ベクトルを求める
     pub fn unit(&self) -> Self {
-        self.clone() / self.norm()
+        *self / self.norm()
     }
 
     /// 法線ベクトル
@@ -212,7 +212,7 @@ impl Segment {
     /// - 2つの線分が点`x`で交わるとき → Some(`x`)
     /// - 2つの線分が交点を持たないとき → None
     pub fn cross_point(&self, other: &Self) -> Option<Point> {
-        self.has_intersection(&other).then(|| {
+        self.has_intersection(other).then(|| {
             let l1 = self.to_line();
             let l2 = other.to_line();
             l1.cross_point(&l2)

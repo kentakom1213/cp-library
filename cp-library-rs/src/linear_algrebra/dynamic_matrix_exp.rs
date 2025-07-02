@@ -1,5 +1,7 @@
 //! 行列累乗
 
+#![allow(clippy::needless_range_loop)]
+
 use crate::utils::num_traits::{One, Zero};
 
 #[derive(Debug, Clone)]

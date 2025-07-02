@@ -11,6 +11,7 @@ use crate::utils::consts::INF;
 /// 戻り値
 /// - `prev`: 各頂点への最短路において、その頂点の直前の頂点
 /// - `dist`: スタート地点`s`から各頂点への最短距離
+#[allow(clippy::ptr_arg)]
 pub fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, s: usize) -> (Vec<usize>, Vec<usize>) {
     let n: usize = graph.len();
     let mut prev: Vec<usize> = vec![INF; n];

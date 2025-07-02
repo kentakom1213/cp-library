@@ -47,8 +47,8 @@ impl<S: Semilattice> SparseTable<S> {
         let lg = logs[size] + 1;
         // 繰り返し適用した結果
         let mut table = vec![vec![]; lg];
-        for i in 0..size {
-            table[0].push(arr[i].clone());
+        for a in arr {
+            table[0].push(a.clone());
         }
         for i in 1..lg {
             let mut j = 0;

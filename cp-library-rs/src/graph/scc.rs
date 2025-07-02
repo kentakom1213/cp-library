@@ -17,7 +17,7 @@ pub struct SCC {
 }
 
 impl SCC {
-    const INF: usize = std::usize::MAX;
+    const INF: usize = usize::MAX;
 
     /// 頂点`V`のグラフを構築する
     pub fn new(N: usize) -> Self {
