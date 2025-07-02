@@ -1,6 +1,9 @@
 //! 幾何ライブラリ
 
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::{
+    hash::Hash,
+    ops::{Add, Div, Mul, Neg, Sub},
+};
 
 #[allow(unused_imports)]
 use crate::{
@@ -9,7 +12,7 @@ use crate::{
 };
 
 /// 2次元ベクトル
-#[derive(Debug, Hash, Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Vec2<T>(pub T, pub T);
 
 impl<T: PrimInt> PartialEq for Vec2<T> {
@@ -21,6 +24,13 @@ impl<T: PrimInt> PartialEq for Vec2<T> {
 }
 
 impl<T: PrimInt> Eq for Vec2<T> {}
+
+impl<T: Hash> Hash for Vec2<T> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.hash(state);
+        self.1.hash(state);
+    }
+}
 
 impl<T> Add for Vec2<T>
 where

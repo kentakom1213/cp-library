@@ -41,12 +41,12 @@ mod traits {
     impl Num for f64 {}
 
     pub trait Bounded { fn min_value() -> Self; fn max_value() -> Self; }
-    bounded_impl!(u32, std::u32::MIN, std::u32::MAX);
-    bounded_impl!(usize, std::usize::MIN, std::usize::MAX);
-    bounded_impl!(i32, std::i32::MIN, std::i32::MAX);
-    bounded_impl!(isize, std::isize::MIN, std::isize::MAX);
-    bounded_impl!(f32, std::f32::MIN, std::f32::MAX);
-    bounded_impl!(f64, std::f64::MIN, std::f64::MAX);
+    bounded_impl!(u32, u32::MIN, u32::MAX);
+    bounded_impl!(usize, usize::MIN, usize::MAX);
+    bounded_impl!(i32, i32::MIN, i32::MAX);
+    bounded_impl!(isize, isize::MIN, isize::MAX);
+    bounded_impl!(f32, f32::MIN, f32::MAX);
+    bounded_impl!(f64, f64::MIN, f64::MAX);
 
     pub trait PrimInt: Num + Bounded + Eq + PartialOrd + Ord + Clone + Copy {}
     impl PrimInt for u32 {}
