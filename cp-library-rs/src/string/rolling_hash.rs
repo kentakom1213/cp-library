@@ -1,6 +1,9 @@
 //! ローリングハッシュ
 
-use crate::number_theory::modint_for_rollinghash::modint::Modint;
+use crate::{
+    number_theory::modint_for_rollinghash::modint::Modint,
+    utils::num_traits::{One, Zero},
+};
 
 /// ローリングハッシュ
 ///
@@ -15,13 +18,13 @@ pub struct RollingHash {
 
 impl RollingHash {
     /// 初期化
-    pub fn build(arr: &[Modint], base: usize) -> Self {
+    pub fn build(arr: &[Modint], base: Modint) -> Self {
         let size = arr.len();
         let mut power = vec![Modint(1); size + 1];
         let mut hash = vec![Modint(0); size + 1];
 
         // hashを初期化
-        let (mut h, mut p) = (Modint(0), Modint(1));
+        let (mut h, mut p) = (Modint::zero(), Modint::one());
         for i in 0..size {
             h = arr[i] + (h * base);
             p *= base;
@@ -38,7 +41,7 @@ impl RollingHash {
     }
 
     /// 文字列から生成
-    pub fn from_str(s: &str, base: usize) -> Self {
+    pub fn from_str(s: &str, base: Modint) -> Self {
         let arr: Vec<Modint> = s.chars().map(Self::ord).map(Modint).collect();
         Self::build(&arr, base)
     }

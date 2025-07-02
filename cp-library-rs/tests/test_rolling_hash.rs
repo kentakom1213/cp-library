@@ -1,8 +1,8 @@
-use cp_library_rs::string::rolling_hash::*;
+use cp_library_rs::{number_theory::modint_for_rollinghash::Modint, string::rolling_hash::*};
 
 #[test]
 fn test_pattern_match() {
-    let base = 20021213;
+    let base = Modint::generate_base();
 
     let target = RollingHash::from_str("momomosumomomomomonouchi", base);
     let ptn1 = RollingHash::from_str("sumomo", base);
@@ -32,15 +32,15 @@ fn test_pattern_match() {
 
 #[test]
 fn test_concat() {
-    const BASE: usize = 998244353;
+    let base = Modint::generate_base();
 
     let a = "abc";
     let b = "str";
     let c = "abcstr";
 
-    let hash_a = RollingHash::from_str(a, BASE);
-    let hash_b = RollingHash::from_str(b, BASE);
-    let hash_c = RollingHash::from_str(c, BASE);
+    let hash_a = RollingHash::from_str(a, base);
+    let hash_b = RollingHash::from_str(b, base);
+    let hash_c = RollingHash::from_str(c, base);
 
     assert_eq!(
         hash_a.concat(hash_a.full(), hash_b.full(), 3),
@@ -66,12 +66,12 @@ fn test_concat() {
 
 #[test]
 fn test_LCP() {
-    let rh1 = RollingHash::from_str(&"humpbump", 2023);
+    let rh1 = RollingHash::from_str(&"humpbump", Modint::generate_base());
 
     assert_eq!(rh1.getLCP(0, 4), 0);
     assert_eq!(rh1.getLCP(1, 5), 3);
 
-    let rh2 = RollingHash::from_str(&"strangeorange", 19);
+    let rh2 = RollingHash::from_str(&"strangeorange", Modint::generate_base());
 
     assert_eq!(rh2.getLCP(2, 8), 5);
     assert_eq!(rh2.getLCP(3, 9), 4);
