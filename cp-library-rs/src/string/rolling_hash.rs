@@ -36,7 +36,7 @@ impl RollingHash {
             size,
             power,
             hash,
-            base: base.into(),
+            base,
         }
     }
 

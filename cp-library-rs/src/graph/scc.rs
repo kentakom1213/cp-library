@@ -10,10 +10,10 @@ pub struct SCC {
     pub E: usize,
     pub G: Graph,
     rG: Graph,
-    pub group_count: usize,
-    pub belongs_to: Vec<usize>,
-    pub components: Vec<Vec<usize>>,
-    pub DAG: Graph,
+    pub group_count: Option<usize>,
+    pub belongs_to: Option<Vec<usize>>,
+    pub components: Option<Vec<Vec<usize>>>,
+    pub DAG: Option<Graph>,
 }
 
 impl SCC {
@@ -26,10 +26,10 @@ impl SCC {
             E: 0,
             G: vec![vec![]; N],
             rG: vec![vec![]; N],
-            group_count: 0,
-            belongs_to: vec![0; N],
-            components: vec![],
-            DAG: vec![],
+            group_count: None,
+            belongs_to: None,
+            components: None,
+            DAG: None,
         }
     }
 
@@ -71,15 +71,16 @@ impl SCC {
         }
 
         // 分解する
-        self.components.resize_with(group, Vec::new);
-
-        for (v, &g) in belongs_to.iter().enumerate() {
-            self.components[g].push(v);
-        }
-
-        self.group_count = group;
-        self.belongs_to = belongs_to;
-        self.DAG = DAG;
+        self.components = Some(belongs_to.iter().enumerate().fold(
+            vec![vec![]; group],
+            |mut components, (v, &g)| {
+                components[g].push(v);
+                components
+            },
+        ));
+        self.group_count = Some(group);
+        self.belongs_to = Some(belongs_to);
+        self.DAG = Some(DAG);
     }
 
     fn dfs(u: usize, G: &Graph, order: &mut Vec<usize>, visited: &mut Vec<bool>) {
