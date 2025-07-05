@@ -13,4 +13,4 @@ Pythonによる競技プログラミング用ライブラリ
    :maxdepth: 1
    :caption: Contents:
 
-.. include:: source/lib.rst
+.. include:: lib.rst
