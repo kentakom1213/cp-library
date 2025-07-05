@@ -13,6 +13,4 @@ Pythonによる競技プログラミング用ライブラリ
    :maxdepth: 1
    :caption: Contents:
 
-   docs/source/segment_tree
-   docs/source/lazy_segment_tree
-   docs/source/union_find
+.. include:: source/lib.rst

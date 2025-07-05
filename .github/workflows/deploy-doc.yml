@@ -57,7 +57,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Build docs
-        run: sphinx-apidoc -f -o ./docs/source ../lib
+        run: sphinx-apidoc -f -o . ../lib
 
       - name: Build html
         run: make html

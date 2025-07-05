@@ -5,4 +5,6 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "kentakom1213", email = "kentakom1213@gmail.com" }]
-dependencies = []
+dependencies = [
+    "mypy>=1.16.1",
+]
