@@ -3,14 +3,6 @@ name = "cp-library-py"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [
-    { name = "kentakom1213", email = "kentakom1213@gmail.com" }
-]
-requires-python = ">=3.11"
-dependencies = [
-    "mypy>=1.13.0",
-]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires-python = ">=3.10"
+authors = [{ name = "kentakom1213", email = "kentakom1213@gmail.com" }]
+dependencies = []

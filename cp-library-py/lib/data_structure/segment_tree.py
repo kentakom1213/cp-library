@@ -21,7 +21,9 @@ class SegmentTree(Generic[T]):
         self._data = [id_() for _ in range(self._offset * 2)]
 
     @classmethod
-    def from_array(cls, array: list[T], id_: Callable[[], T], op: Callable[[T, T], T]) -> "SegmentTree[T]":
+    def from_array(
+        cls, array: list[T], id_: Callable[[], T], op: Callable[[T, T], T]
+    ) -> "SegmentTree[T]":
         """配列からセグメント木を構築する
 
         Args:
@@ -33,7 +35,7 @@ class SegmentTree(Generic[T]):
             SegmentTree[T]: 構築したセグメント木
         """
         seg = cls(len(array), id_, op)
-        seg._data[seg._offset: seg._offset + len(array)] = array
+        seg._data[seg._offset : seg._offset + len(array)] = array
 
         for i in range(seg._offset - 1, 0, -1):
             seg._data[i] = seg._op(seg._data[i * 2], seg._data[i * 2 + 1])

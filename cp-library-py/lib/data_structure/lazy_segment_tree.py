@@ -69,9 +69,8 @@ class LazySegmentTree(Generic[T, F]):
         Returns:
             LazySegmentTree[T, F]: 構築したセグメント木
         """
-        seg = cls(len(array), id_t, id_f, op,
-                  mapping, composition, aggregation)
-        seg._data[seg._offset: seg._offset + len(array)] = array
+        seg = cls(len(array), id_t, id_f, op, mapping, composition, aggregation)
+        seg._data[seg._offset : seg._offset + len(array)] = array
 
         for i in range(seg._offset - 1, 0, -1):
             seg._data[i] = seg._op(seg._data[i * 2], seg._data[i * 2 + 1])
@@ -90,19 +89,14 @@ class LazySegmentTree(Generic[T, F]):
 
         # 葉でなければ子に伝搬
         if i < self._offset:
-            self._lazy[i * 2] = self._composition(
-                self._lazy[i * 2],
-                self._lazy[i]
-            )
+            self._lazy[i * 2] = self._composition(self._lazy[i * 2], self._lazy[i])
             self._lazy[i * 2 + 1] = self._composition(
-                self._lazy[i * 2 + 1],
-                self._lazy[i]
+                self._lazy[i * 2 + 1], self._lazy[i]
             )
 
         # 値の更新
         self._data[i] = self._mapping(
-            self._data[i],
-            self._aggregation(self._lazy[i], len)
+            self._data[i], self._aggregation(self._lazy[i], len)
         )
         self._lazy[i] = self._id_f()
 
@@ -113,7 +107,7 @@ class LazySegmentTree(Generic[T, F]):
         val: F,
         begin: int = 0,
         end: int | None = None,
-        idx: int = 1
+        idx: int = 1,
     ):
         """区間 [l, r) に作用を適用する
 
@@ -141,8 +135,7 @@ class LazySegmentTree(Generic[T, F]):
             # 右の子を更新
             self.apply(left, right, val, mid, end, idx * 2 + 1)
             # 値を更新
-            self._data[idx] = \
-                self._op(self._data[idx * 2], self._data[idx * 2 + 1])
+            self._data[idx] = self._op(self._data[idx * 2], self._data[idx * 2 + 1])
 
     def get_range(
         self,
@@ -150,7 +143,7 @@ class LazySegmentTree(Generic[T, F]):
         right: int,
         begin: int = 0,
         end: int | None = None,
-        idx: int = 1
+        idx: int = 1,
     ):
         """区間 [l, r) の値を取得する
 
@@ -179,8 +172,8 @@ class LazySegmentTree(Generic[T, F]):
         return self._op(left_val, right_val)
 
 
-# 関数例
-add_sum = (
+# === 関数例 ===
+ADD_SUM = (
     # id_t
     lambda: 0,
     # id_f
@@ -192,10 +185,10 @@ add_sum = (
     # composition
     lambda f, g: f + g,
     # aggregation
-    lambda f, n: f * n
+    lambda f, n: f * n,
 )
 
-update_min = (
+UPDATE_MIN = (
     # id_t
     lambda: float("inf"),
     # id_f
@@ -207,10 +200,10 @@ update_min = (
     # composition
     lambda _f, g: g,
     # aggregation
-    lambda f, _n: f
+    lambda f, _n: f,
 )
 
-update_max = (
+UPDATE_MAX = (
     # id_t
     lambda: float("-inf"),
     # id_f
@@ -222,10 +215,10 @@ update_max = (
     # composition
     lambda _f, g: g,
     # aggregation
-    lambda f, _n: f
+    lambda f, _n: f,
 )
 
-add_min = (
+ADD_MIN = (
     # id_t
     lambda: float("inf"),
     # id_f
@@ -237,10 +230,10 @@ add_min = (
     # composition
     lambda f, g: f + g,
     # aggregation
-    lambda f, _n: f
+    lambda f, _n: f,
 )
 
-update_sum = (
+UPDATE_SUM = (
     # id_t
     lambda: 0,
     # id_f
@@ -252,5 +245,5 @@ update_sum = (
     # composition
     lambda _f, g: g,
     # aggregation
-    lambda f, n: f * n if f is not None else None
+    lambda f, n: f * n if f is not None else None,
 )

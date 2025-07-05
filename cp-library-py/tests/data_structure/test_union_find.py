@@ -1,6 +1,6 @@
 import unittest
 
-from cp_library_py.union_find import UnionFind
+from lib.data_structure.union_find import UnionFind
 
 
 class TestUnionFind(unittest.TestCase):

@@ -1,16 +1,16 @@
 import unittest
 
-from cp_library_py.lazy_segment_tree import (
+from lib.data_structure.lazy_segment_tree import (
     LazySegmentTree,
-    add_sum,
-    update_min,
-    update_sum,
+    ADD_SUM,
+    UPDATE_MIN,
+    UPDATE_SUM,
 )
 
 
 class TestLazySegmentTree(unittest.TestCase):
     def test_add_sum(self):
-        seg = LazySegmentTree(10, *add_sum)
+        seg = LazySegmentTree(10, *ADD_SUM)
 
         # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
@@ -51,9 +51,9 @@ class TestLazySegmentTree(unittest.TestCase):
         self.assertEqual(seg.get_range(5, 10), 2)
         self.assertEqual(seg.get_range(3, 8), 13)
 
-    def test_update_min(self):
-        INF = float('inf')
-        seg = LazySegmentTree(10, *update_min)
+    def test_UPDATE_MIN(self):
+        INF = float("inf")
+        seg = LazySegmentTree(10, *UPDATE_MIN)
         # [INF, INF, INF, INF, INF, INF, INF, INF, INF, INF]
 
         self.assertEqual(seg.get_range(0, 10), INF)
@@ -94,7 +94,7 @@ class TestLazySegmentTree(unittest.TestCase):
         self.assertEqual(seg.get_range(3, 8), -3)
 
     def test_update_sum(self):
-        seg = LazySegmentTree(10, *update_sum)
+        seg = LazySegmentTree(10, *UPDATE_SUM)
         # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         seg.apply(1, 4, 1)
@@ -109,7 +109,7 @@ class TestLazySegmentTree(unittest.TestCase):
         self.assertEqual(seg.get_range(0, 6), 8)
 
     def test_from_array(self):
-        seg = LazySegmentTree.from_array([1, 2, 3, 4, 5], *update_sum)
+        seg = LazySegmentTree.from_array([1, 2, 3, 4, 5], *UPDATE_SUM)
         # [1, 2, 3, 4, 5]
 
         self.assertEqual(seg.get_range(0, 5), 15)
