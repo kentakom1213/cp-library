@@ -1,5 +1,3 @@
-#![allow(clippy::non_canonical_partial_ord_impl)]
-
 use std::{
     fmt::Display,
     ops::{Add, Div, Mul, Rem, Sub},
