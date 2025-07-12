@@ -4,7 +4,7 @@ use cp_library_rs::{number_theory::modint::*, utils::num_traits::*};
 use num::Integer;
 use rand::prelude::*;
 
-const MOD998: u32 = 998244353;
+const MOD998: usize = 998244353;
 
 #[test]
 fn test_add() {
@@ -162,9 +162,9 @@ fn test_from_str() {
 fn test_from_isize() {
     for _ in 0..200 {
         let x: isize = random();
-        let x_mod = (998244353 as isize + x % 998244353 as isize) as u32 % 998244353;
-        let y = M998::from(x);
-        assert_eq!(x_mod, y.0);
+        let x_mod = (MOD998 as isize + x % MOD998 as isize) % MOD998 as isize;
+        let y = M998::from_isize(x);
+        assert_eq!(x_mod, y.0 as isize);
     }
 }
 

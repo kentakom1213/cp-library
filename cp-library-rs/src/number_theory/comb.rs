@@ -24,10 +24,10 @@ pub trait NumProbability<Rhs = Self, Output = Self>:
     const MOD: usize;
 }
 impl NumProbability for M107 {
-    const MOD: usize = MOD107 as usize;
+    const MOD: usize = MOD107;
 }
 impl NumProbability for M998 {
-    const MOD: usize = MOD998 as usize;
+    const MOD: usize = MOD998;
 }
 
 /// 二項係数を高速に求める

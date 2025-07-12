@@ -13,8 +13,8 @@ use crate::{
 /// - 区間を $`ax + b`$ で更新（Affine変換）
 /// - 区間和を取得
 #[derive(Debug)]
-pub struct AffineSum<const MOD: u32>;
-impl<const MOD: u32> ExtMonoid for AffineSum<MOD> {
+pub struct AffineSum<const MOD: usize>;
+impl<const MOD: usize> ExtMonoid for AffineSum<MOD> {
     type X = Modint<MOD>;
     type F = Affine<Modint<MOD>>;
     fn id_x() -> Self::X {
@@ -42,8 +42,8 @@ impl<const MOD: u32> ExtMonoid for AffineSum<MOD> {
 /// - 区間を $`ax + b`$ で更新
 /// - 区間を関数として合成
 #[derive(Debug)]
-pub struct AffineUpdateComposite<const MOD: u32>;
-impl<const MOD: u32> ExtMonoid for AffineUpdateComposite<MOD> {
+pub struct AffineUpdateComposite<const MOD: usize>;
+impl<const MOD: usize> ExtMonoid for AffineUpdateComposite<MOD> {
     type X = Affine<Modint<MOD>>;
     type F = Affine<Modint<MOD>>;
     fn id_x() -> Self::X {
