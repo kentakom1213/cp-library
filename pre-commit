@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cargo build -r --manifest-path expander/Cargo.toml --bin expand
+
+cp expander/target/release/expand $HOME/.local/bin
