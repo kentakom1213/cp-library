@@ -1,3 +1,5 @@
+//! 回文数に関するユーティリティ
+
 use crate::utils::usize_pow::PowUsize;
 
 /// d 桁の自然数を昇順に出力するイテレータ

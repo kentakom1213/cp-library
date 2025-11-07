@@ -1,3 +1,5 @@
+//! 順序付きの浮動小数点数型 `OrdF64` の定義
+
 use std::{
     fmt::Display,
     ops::{Add, Div, Mul, Rem, Sub},

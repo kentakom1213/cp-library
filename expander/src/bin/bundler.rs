@@ -9,9 +9,8 @@ struct Args {
     library: PathBuf,
     /// path or alias of input file
     input: String,
-    /// export file to stream
     #[arg(short, long)]
-    export: bool,
+    inplace: bool,
     /// restore file from backup
     #[arg(short, long)]
     restore: bool,
@@ -71,34 +70,6 @@ fn main() {
     log::info!("library_name: {}", expander.library_name);
     log::info!("import_name: {}", expander.import_name);
 
-    if args.export {
-        match expander.expand() {
-            Ok(contents) => {
-                // ストリームに出力
-                println!("{contents}");
-                exit(0);
-            }
-            Err(err) => {
-                log::error!("expand failed");
-                log::error!("{err}");
-                exit(1);
-            }
-        }
-    }
-
-    if !args.restore {
-        match expander.expand_inplace() {
-            Ok(_) => {
-                log::info!("expand complete");
-            }
-            Err(err) => {
-                log::error!("expand failed");
-                log::error!("{err}");
-                exit(1);
-            }
-        }
-    }
-
     if args.restore {
         match expander.restore() {
             Ok(_) => log::info!("restore complete"),
@@ -106,6 +77,32 @@ fn main() {
                 log::error!("restore failed");
                 log::error!("{err}");
                 exit(1);
+            }
+        }
+    } else {
+        if args.inplace {
+            match expander.expand_inplace() {
+                Ok(_) => {
+                    log::info!("expand complete");
+                }
+                Err(err) => {
+                    log::error!("expand failed");
+                    log::error!("{err}");
+                    exit(1);
+                }
+            }
+        } else {
+            match expander.expand() {
+                Ok(contents) => {
+                    // ストリームに出力
+                    println!("{contents}");
+                    exit(0);
+                }
+                Err(err) => {
+                    log::error!("expand failed");
+                    log::error!("{err}");
+                    exit(1);
+                }
             }
         }
     }
