@@ -107,7 +107,7 @@ mod inner {
                 pub fn range<R: RangeBounds<K>>(
                     &mut self,
                     range: R,
-                ) -> NodeRangeIterator<K, usize> {
+                ) -> NodeRangeIterator<'_, K, usize> {
                     let left = match range.start_bound() {
                         Bound::Unbounded => NodePosition::INF,
                         Bound::Included(x) => prev(
@@ -143,7 +143,7 @@ mod inner {
                     NodeRangeIterator::new(&self.root, left, right)
                 }
                 /// ノードのイテレータを返す
-                pub fn iter(&self) -> NodeIterator<K, usize> {
+                pub fn iter(&self) -> NodeIterator<'_, K, usize> {
                     NodeIterator::first(&self.root)
                 }
             }

@@ -19,7 +19,7 @@ impl<const SIZE: usize> Default for BitSet<SIZE> {
 
 impl<const SIZE: usize> BitSet<SIZE> {
     /// ⌈size / 64⌉個のu64
-    const ARRAY_SIZE: usize = (SIZE + 64 - 1) / 64;
+    const ARRAY_SIZE: usize = SIZE.div_ceil(64);
 
     /// あまりのビット
     const REM_BIT: usize = SIZE % 64;

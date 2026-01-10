@@ -19,7 +19,7 @@ pub fn segmented_sieve(l: usize, r: usize) -> Vec<usize> {
             divisors[p * i] = false;
             i += 1;
         }
-        let mut k = (l + p - 1) / p * p;
+        let mut k = l.div_ceil(p) * p;
         while k < r {
             if k > p && l <= k && k < r {
                 sieve[k - l] = false;

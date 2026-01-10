@@ -16,11 +16,7 @@ impl<'a, T: Ord> Compression<'a, T> {
     /// 圧縮後の`val`の番号を返す
     pub fn idx(&self, val: &T) -> Option<usize> {
         let idx = self.sorted_array.binary_search(&val);
-        if let Ok(idx) = idx {
-            Some(idx)
-        } else {
-            None
-        }
+        idx.ok()
     }
 
     /// 圧縮前の要素`idx`を返す
