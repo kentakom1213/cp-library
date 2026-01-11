@@ -1,238 +1,179 @@
+use cp_library_rs::utils::show_binary_tree::ShowBinaryTree;
 use cp_library_rs::{
     algebraic_structure::operation::Add, data_structure::dynamic_segment_tree::DynamicSegmentTree,
 };
-use rand::{
-    distributions::{Alphanumeric, DistString},
-    prelude::*,
-};
 
 #[test]
-fn test_random_insert() {
-    const ITER: usize = 1000;
-    const QUERY: usize = 400;
-    const SIZE: usize = 400;
+fn point_update_and_get() {
+    let mut seg = DynamicSegmentTree::<usize, Add<isize>>::new(0, 8);
 
-    let mut rng = rand::thread_rng();
+    // 未生成は id
+    assert_eq!(seg.get(0), 0);
+    assert_eq!(seg.get(7), 0);
 
-    // 配列
-    let mut arr: [isize; SIZE] = [0; SIZE];
+    seg.update(3, 10);
+    seg.update(6, -2);
 
-    // セグ木
-    let mut seg: DynamicSegmentTree<usize, Add<isize>> = DynamicSegmentTree::default();
+    assert_eq!(seg.get(3), 10);
+    assert_eq!(seg.get(6), -2);
+    assert_eq!(seg.get(2), 0);
 
-    for _ in 0..ITER {
-        // 一点更新クエリ
-        // ランダムな値
-        let idx = rng.gen_range(0..SIZE);
-        let new_val: isize = rng.gen_range(-1_000_000_000..1_000_000_000);
-
-        // 配列の更新
-        arr[idx] = new_val;
-
-        // セグ木の更新
-        *seg.get_mut(idx) = new_val;
-
-        // 表示
-        // println!("{:?}", arr);
-        // print_as_binary_tree(&seg);
-
-        // 区間取得クエリ
-        for _ in 0..QUERY {
-            // ランダムな区間
-            let (mut l, mut r) = (rng.gen_range(0..SIZE), rng.gen_range(0..SIZE));
-            if l > r {
-                (l, r) = (r, l);
-            }
-
-            assert_eq!(arr[l..r].iter().sum::<isize>(), seg.get_range(l..r));
-        }
-    }
+    // get_range（RangeBounds）でも同じ値が取れることを軽く確認
+    assert_eq!(seg.get_range(3..4), 10);
+    assert_eq!(seg.get_range(6..7), -2);
+    assert_eq!(seg.get_range(2..3), 0);
 }
 
 #[test]
-fn random_insert_delete() {
-    const ITER: usize = 1000;
-    const QUERY: usize = 400;
-    const SIZE: usize = 400;
+fn prod_small_ranges() {
+    let mut seg = DynamicSegmentTree::<isize, Add<isize>>::new(0, 8);
+    seg.update(1, 5);
+    seg.update(3, 10);
+    seg.update(6, -2);
 
-    let mut rng = rand::thread_rng();
+    // prod([l, r))
+    assert_eq!(seg.prod(0, 8), 13);
+    assert_eq!(seg.prod(0, 1), 0);
+    assert_eq!(seg.prod(1, 2), 5);
+    assert_eq!(seg.prod(2, 4), 10);
+    assert_eq!(seg.prod(4, 7), -2);
+    assert_eq!(seg.prod(7, 8), 0);
 
-    // 配列
-    let mut arr: [isize; SIZE] = [0; SIZE];
+    // 追加：prod ではなく get_range（RangeBounds）でも取得できることを確認
+    assert_eq!(seg.get_range(0..8), 13);
+    assert_eq!(seg.get_range(0..1), 0);
+    assert_eq!(seg.get_range(1..2), 5);
+    assert_eq!(seg.get_range(2..4), 10);
+    assert_eq!(seg.get_range(4..7), -2);
+    assert_eq!(seg.get_range(7..8), 0);
 
-    // セグ木
-    let mut seg: DynamicSegmentTree<usize, Add<isize>> = DynamicSegmentTree::default();
-
-    for _ in 0..ITER {
-        // 一点更新クエリ
-        // ランダムな値
-        let idx_insert = rng.gen_range(0..SIZE);
-        let idx_delete = rng.gen_range(0..SIZE);
-        let new_val: isize = rng.gen_range(-1_000_000_000..1_000_000_000);
-
-        // 配列の更新
-        arr[idx_insert] = new_val;
-        arr[idx_delete] = 0;
-
-        // セグ木の更新
-        seg.insert(idx_insert, new_val);
-        seg.remove(&idx_delete);
-
-        // 表示
-        // println!("{:?}", arr);
-        // print_as_binary_tree(&seg);
-
-        // 区間取得クエリ
-        for _ in 0..QUERY {
-            // ランダムな区間
-            let (mut l, mut r) = (rng.gen_range(0..SIZE), rng.gen_range(0..SIZE));
-            if l > r {
-                (l, r) = (r, l);
-            }
-
-            assert_eq!(arr[l..r].iter().sum::<isize>(), seg.get_range(l..r));
-        }
-    }
+    // 同一区間で一致することを確認
+    assert_eq!(seg.get_range(2..4), seg.prod(2, 4));
+    assert_eq!(seg.get_range(4..7), seg.prod(4, 7));
 }
 
 #[test]
-fn random_delete() {
-    const ITER: usize = 400;
-    const QUERY: usize = 400;
+fn get_range_bounds_compat() {
+    let mut seg = DynamicSegmentTree::<usize, Add<isize>>::new(0, 8);
+    seg.update(1, 5);
+    seg.update(3, 10);
+    seg.update(6, -2);
 
-    let mut rng = rand::thread_rng();
+    // SegmentTree 互換：RangeBounds を受け取る get_range(range)
+    assert_eq!(seg.get_range(0..8), 13);
+    assert_eq!(seg.get_range(1..=3), 15); // [1,4) のつもり
+    assert_eq!(seg.get_range(..), 13);
+    assert_eq!(seg.get_range(..3), 5);
+    assert_eq!(seg.get_range(4..), -2);
 
-    // 配列
-    let mut arr: Vec<(isize, isize)> = vec![];
-
-    // セグ木
-    let mut seg: DynamicSegmentTree<isize, Add<isize>> = DynamicSegmentTree::default();
-
-    // ランダムな値を追加
-    for _ in 0..ITER {
-        let key = rng.gen();
-        let val = rng.gen_range(-1_000_000_000..1_000_000_000);
-
-        let idx_insert = arr.partition_point(|&(k, _)| k < key);
-
-        // 同じキーのときの処理
-        if idx_insert < arr.len() && arr[idx_insert].0 == key {
-            continue;
-        }
-
-        // 配列に追加
-        arr.insert(idx_insert, (key, val));
-
-        // セグ木に追加
-        *seg.get_mut(key) = val;
-    }
-
-    // println!("{:?}", arr);
-    // print_as_binary_tree(&seg);
-
-    for _ in 0..ITER {
-        // 一点更新クエリ
-        // ランダムな値
-        let idx_delete = rng.gen_range(0..arr.len());
-        let (key, arr_delete_val) = arr.remove(idx_delete);
-
-        // セグ木の更新
-        let seg_delete_val = seg.remove(&key).unwrap();
-
-        // 削除した値は等しいか
-        assert_eq!(arr_delete_val, seg_delete_val);
-
-        // 表示
-        // println!("{:?}", arr);
-        // print_as_binary_tree(&seg);
-
-        // 区間取得クエリ
-        for _ in 0..QUERY {
-            // ランダムな区間
-            let (mut l, mut r) = (rng.gen(), rng.gen());
-            if l > r {
-                (l, r) = (r, l);
-            }
-
-            assert_eq!(
-                arr.iter()
-                    .filter(|&&(k, _)| l <= k && k < r)
-                    .map(|&(_, v)| v)
-                    .sum::<isize>(),
-                seg.get_range(l..r)
-            );
-        }
-    }
+    // 追加：単点取得相当も get_range で確認
+    assert_eq!(seg.get_range(1..2), 5);
+    assert_eq!(seg.get_range(3..4), 10);
+    assert_eq!(seg.get_range(6..7), -2);
 }
 
 #[test]
-fn random_delete_str() {
-    const ITER: usize = 200;
-    const QUERY: usize = 200;
-    const SIZE: usize = 10;
+fn get_mut_updates_on_drop() {
+    let mut seg = DynamicSegmentTree::<usize, Add<isize>>::new(0, 8);
 
-    let mut rng = rand::thread_rng();
-
-    // 配列
-    let mut arr: Vec<(String, isize)> = vec![];
-
-    // セグ木
-    let mut seg: DynamicSegmentTree<String, Add<isize>> = DynamicSegmentTree::default();
-
-    // ランダムな値を追加
-    for _ in 0..ITER {
-        let key = Alphanumeric.sample_string(&mut rng, SIZE);
-        let val = rng.gen_range(-1_000_000_000..1_000_000_000);
-
-        let idx_insert = arr.partition_point(|(k, _)| k < &key);
-
-        // 同じキーのときの処理
-        if idx_insert < arr.len() && arr[idx_insert].0 == key {
-            continue;
-        }
-
-        // 配列に追加
-        arr.insert(idx_insert, (key.clone(), val));
-
-        // セグ木に追加
-        seg.insert(key, val);
+    // 既存：get_mut で 4 を変更
+    {
+        let mut v = seg.get_mut(4).expect("in range");
+        assert_eq!(*v, 0);
+        *v = 7;
+        // drop で update される
     }
 
-    println!("{:?}", arr);
+    assert_eq!(seg.get(4), 7);
+    assert_eq!(seg.prod(0, 8), 7);
+
+    // 追加：update を使わず get_mut だけで複数箇所を変更
+    {
+        let mut v0 = seg.get_mut(0).expect("in range");
+        *v0 = 2;
+    }
+    {
+        let mut v7 = seg.get_mut(7).expect("in range");
+        *v7 = -3;
+    }
+
+    assert_eq!(seg.get(0), 2);
+    assert_eq!(seg.get(7), -3);
+
+    // 追加：prod ではなく get_range で全体和を確認
+    assert_eq!(seg.get_range(0..8), 2 + 7 - 3);
+    // 部分区間も get_range で確認
+    assert_eq!(seg.get_range(0..5), 2 + 7);
+    assert_eq!(seg.get_range(5..8), -3);
+}
+
+#[test]
+fn max_right_min_left_sum_monoid() {
+    let mut seg = DynamicSegmentTree::<usize, Add<isize>>::new(0, 8);
+
+    // 既存：update で設定
+    seg.update(0, 2);
+    seg.update(1, 3);
+    seg.update(2, 5);
+    seg.update(3, 7);
+    // 配列は [2,3,5,7,0,0,0,0]
+
+    // 追加：update ではなく get_mut を使った変更を混ぜる（同値に上書き）
+    {
+        let mut v2 = seg.get_mut(2).expect("in range");
+        *v2 = 5;
+    }
+    {
+        let mut v3 = seg.get_mut(3).expect("in range");
+        *v3 = 7;
+    }
+
+    // max_right：左端 l を固定して，prefix 和が条件を満たす最大の r を探す
+    // f(sum) := sum <= 9
+    let (s, r) = seg.max_right(0, |x| x <= 9);
+    assert_eq!(s, 2 + 3); // 0..2
+    assert_eq!(r, 2);
+    assert_eq!(seg.get_range(0..r), 5);
+
+    let (s, r) = seg.max_right(1, |x| x <= 8);
+    // 1..3 は 3+5=8 まで OK，次の 7 を足すと 15 で NG
+    assert_eq!(s, 8);
+    assert_eq!(r, 3);
+    assert_eq!(seg.get_range(1..r), 8);
+
+    // min_left：右端 r を固定して，suffix 和が条件を満たす最小の l を探す
+    // f(sum) := sum <= 10
+    let (s, l) = seg.min_left(4, |x| x <= 10);
+    // 3..4 は 7 OK，2..4 は 5+7=12 NG なので l=3
+    assert_eq!(s, 7);
+    assert_eq!(l, 3);
+    assert_eq!(seg.get_range(l..4), 7);
+}
+
+#[test]
+fn show_binary_tree_smoke() {
+    let mut seg = DynamicSegmentTree::<usize, Add<isize>>::new(0, 8);
+
+    // 既存：update
+    seg.update(3, 10);
+    seg.update(6, -2);
+
+    // debug ビルドでは stderr に木が出る（落ちないことだけ確認）
     seg.print_as_binary_tree();
 
-    for _ in 0..ITER {
-        // 一点更新クエリ
-        // ランダムな値
-        let idx_delete = rng.gen_range(0..arr.len());
-        let (key, arr_delete_val) = arr.remove(idx_delete);
-
-        // セグ木の更新
-        let seg_delete_val = seg.remove(&key).unwrap();
-
-        // 削除した値は等しいか
-        assert_eq!(arr_delete_val, seg_delete_val);
-
-        // 表示
-        // println!("{:?}", arr);
-        // print_as_binary_tree(&seg);
-
-        // 区間取得クエリ
-        for _ in 0..QUERY {
-            // ランダムな区間
-            let mut l = Alphanumeric.sample_string(&mut rng, SIZE);
-            let mut r = Alphanumeric.sample_string(&mut rng, SIZE);
-            if l > r {
-                (l, r) = (r, l);
-            }
-
-            assert_eq!(
-                arr.iter()
-                    .filter(|(k, _)| &l <= k && k < &r)
-                    .map(|&(_, v)| v)
-                    .sum::<isize>(),
-                seg.get_range(l..r)
-            );
-        }
+    // 追加：get_mut でも更新してから表示
+    {
+        let mut v1 = seg.get_mut(1).expect("in range");
+        *v1 = 4;
     }
+    {
+        let mut v6 = seg.get_mut(6).expect("in range");
+        *v6 = -2; // 同値上書き
+    }
+
+    // 追加：prod を使わず get_range で軽く検証
+    assert_eq!(seg.get_range(..), 10 + 4 - 2);
+
+    // debug ビルドでは stderr に木が出る（落ちないことだけ確認）
+    seg.print_as_binary_tree();
 }

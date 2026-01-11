@@ -18,8 +18,8 @@ mod balanced_binary_tree_ {
         node::{delete, get, get_range, insert, Node, NodeInner},
     };
 
-    /// 動的セグメント木
-    /// - 平行2分木（AA木）
+    /// 平衡2分木
+    /// - 1点更新，区間取得
     /// - 遅延評価なし
     pub struct BalancedBinaryTree<K: Ord, M: Monoid> {
         pub root: Node<K, M>,
