@@ -2,9 +2,9 @@
 //! - 遅延評価なし
 
 use crate::algebraic_structure::monoid;
-pub use dynamic_segment_tree_::*;
+pub use balanced_binary_tree_::*;
 
-mod dynamic_segment_tree_ {
+mod balanced_binary_tree_ {
     //! AA木による動的セグ木
     //! - 遅延評価なし
 
@@ -21,14 +21,14 @@ mod dynamic_segment_tree_ {
     /// 動的セグメント木
     /// - 平行2分木（AA木）
     /// - 遅延評価なし
-    pub struct DynamicSegmentTree<K: Ord, M: Monoid> {
+    pub struct BalancedBinaryTree<K: Ord, M: Monoid> {
         pub root: Node<K, M>,
         size: usize,
         /// getメソッドで返すための一時的な単位元
         tmp_e: M::Val,
     }
 
-    impl<K: Ord, M: Monoid> DynamicSegmentTree<K, M> {
+    impl<K: Ord, M: Monoid> BalancedBinaryTree<K, M> {
         /// 1点取得（不変参照）
         /// - 値 `key` を持つノードの不変参照を取得する
         pub fn get(&self, key: &K) -> &M::Val {
@@ -149,7 +149,7 @@ mod dynamic_segment_tree_ {
         }
     }
 
-    impl<K: Ord, M: Monoid> Default for DynamicSegmentTree<K, M> {
+    impl<K: Ord, M: Monoid> Default for BalancedBinaryTree<K, M> {
         /// 動的セグ木の初期化
         fn default() -> Self {
             Self {
@@ -514,7 +514,7 @@ mod node {
 mod print_util {
     //! 木を整形して表示するための関数
 
-    use super::{dynamic_segment_tree_::DynamicSegmentTree, monoid::Monoid, node::Node};
+    use super::{balanced_binary_tree_::BalancedBinaryTree, monoid::Monoid, node::Node};
     use std::fmt::Debug;
 
     const LEFT: &str = " ┌──";
@@ -523,7 +523,7 @@ mod print_util {
     const NULL: &str = "";
     const BLANK: &str = "    ";
 
-    impl<K, M> DynamicSegmentTree<K, M>
+    impl<K, M> BalancedBinaryTree<K, M>
     where
         K: Ord + Debug,
         M: Monoid,

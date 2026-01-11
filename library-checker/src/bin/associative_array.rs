@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    algebraic_structure::monoid::Monoid, data_structure::dynamic_segment_tree::DynamicSegmentTree,
+    algebraic_structure::monoid::Monoid, data_structure::balanced_binary_tree::BalancedBinaryTree,
     get,
 };
 
@@ -20,7 +20,7 @@ impl Monoid for Set {
 fn main() {
     let Q = get!(usize);
 
-    let mut tree = DynamicSegmentTree::<usize, Set>::default();
+    let mut tree = BalancedBinaryTree::<usize, Set>::default();
 
     for _ in 0..Q {
         let q = get!(usize;;);
