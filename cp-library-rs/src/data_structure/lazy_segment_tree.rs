@@ -146,7 +146,7 @@ impl<M: ExtMonoid> From<&Vec<M::X>> for LazySegmentTree<M> {
         for (i, v) in src.iter().enumerate() {
             seg.data[seg.offset + i] = v.clone();
         }
-        for i in (0..seg.offset).rev() {
+        for i in (1..seg.offset).rev() {
             let lch = i << 1;
             seg.data[i] = M::op(&seg.data[lch], &seg.data[lch + 1]);
         }
