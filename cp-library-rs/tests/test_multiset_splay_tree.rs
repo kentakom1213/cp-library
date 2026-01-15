@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::data_structure::multiset_splay_tree::Multiset;
+use cp_library_rs::data_structure::multiset_splay_tree::MultiSet;
 use rand::*;
 use std::collections::BTreeMap;
 
@@ -9,7 +9,7 @@ fn test_random_insert_delete() {
     const QUERY_SIZE: usize = 10_000;
 
     let mut map = BTreeMap::<u8, usize>::new();
-    let mut multiset = Multiset::<u8>::new();
+    let mut multiset = MultiSet::<u8>::new();
 
     for _ in 0..QUERY_SIZE {
         let x = random();
