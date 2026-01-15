@@ -1,7 +1,9 @@
 use cp_library_rs::{
-    linear_algrebra::matrix_exp::*, number_theory::modint::M998, utils::num_traits::Zero,
+    linear_algrebra::matrix_exp::*, number_theory::modint::M998,
 };
 use rand::{prelude::*, rngs::ThreadRng};
+
+use num_traits::Zero;
 
 const REPEAT_TIME: usize = 100;
 

@@ -5,7 +5,7 @@ use std::{
     ops::{Add, Div, Mul, Rem, Sub},
 };
 
-use crate::utils::num_traits::{Bounded, One, Zero};
+use num_traits::{Bounded, One, Zero};
 
 macro_rules! impl_ord_f64 {
     (f64, $op_trait:ident, $op_func:ident, $op:tt) => {
@@ -65,6 +65,9 @@ impl Bounded for OrdF64 {
 }
 
 impl Zero for OrdF64 {
+    fn is_zero(&self) -> bool {
+        self.0 == 0.0
+    }
     fn zero() -> Self {
         Self(0.0)
     }

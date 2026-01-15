@@ -8,8 +8,9 @@ use crate::{
         operation::{Max, Min},
     },
     data_structure::segment_tree::SegmentTree,
-    utils::num_traits::Bounded,
 };
+
+use num_traits::Bounded;
 
 /// インデックスを同時に取得できるようにするラッパー
 pub struct Indexed<M: Monoid>(PhantomData<M>);

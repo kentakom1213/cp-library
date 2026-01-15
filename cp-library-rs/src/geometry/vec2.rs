@@ -8,22 +8,19 @@ use std::{
 #[allow(unused_imports)]
 use crate::{
     geometry::basic,
-    utils::num_traits::{Num, PrimInt},
 };
+
+use num_traits::Num;
 
 /// 2次元ベクトル
 #[derive(Debug, Clone, Copy)]
 pub struct Vec2<T>(pub T, pub T);
 
-impl<T: PrimInt> PartialEq for Vec2<T> {
+impl<T: PartialEq> PartialEq for Vec2<T> {
     fn eq(&self, other: &Self) -> bool {
-        let Self(ax, ay) = self;
-        let Self(bx, by) = &other;
-        ax == bx && ay == by
+        self.0.eq(&other.0) && self.1.eq(&other.1)
     }
 }
-
-impl<T: PrimInt> Eq for Vec2<T> {}
 
 impl<T: Hash> Hash for Vec2<T> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {

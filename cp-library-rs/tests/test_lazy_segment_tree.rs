@@ -199,3 +199,31 @@ fn set_wrong_range() {
 
     seg.apply(..7, 0);
 }
+
+#[test]
+fn test_lazy_segment_tree_binary_search() {
+    let mut seg = LazySegmentTree::<AddSum>::new(6);
+
+    seg.apply(0..3, 2);
+    seg.apply(2..5, 1);
+
+    let (sum0, x0) = seg.max_right(0, |x| x <= 8);
+    assert_eq!(sum0, 8);
+    assert_eq!(x0, 4);
+
+    let (sum1, x1) = seg.max_right(1, |x| x <= 6);
+    assert_eq!(sum1, 6);
+    assert_eq!(x1, 4);
+
+    let (sum2, x2) = seg.min_left(5, |x| x <= 6);
+    assert_eq!(sum2, 5);
+    assert_eq!(x2, 2);
+
+    let (sum3, x3) = seg.max_right(6, |x| x <= 100);
+    assert_eq!(sum3, 0);
+    assert_eq!(x3, 6);
+
+    let (sum4, x4) = seg.min_left(0, |x| x <= 100);
+    assert_eq!(sum4, 0);
+    assert_eq!(x4, 0);
+}

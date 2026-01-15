@@ -1,6 +1,7 @@
 use cp_library_rs::{
-    linear_algrebra::dynamic_matrix_exp::*, number_theory::modint::M998, utils::num_traits::Zero,
+    linear_algrebra::dynamic_matrix_exp::*, number_theory::modint::M998
 };
+use num::Zero;
 use rand::{prelude::*, rngs::ThreadRng};
 
 /// ランダムな値で埋められたDIMxDIM行列を生成する

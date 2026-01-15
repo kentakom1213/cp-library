@@ -2,7 +2,7 @@
 
 #![allow(clippy::needless_range_loop)]
 
-use crate::utils::num_traits::{One, Zero};
+use num_traits::{One, Zero};
 
 #[derive(Debug, Clone)]
 pub struct Matrix<T> {

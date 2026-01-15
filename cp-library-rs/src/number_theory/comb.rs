@@ -4,8 +4,9 @@ use std::ops::{Add, Mul, Neg, Sub};
 
 use crate::{
     number_theory::modint::{M107, M998, MOD107, MOD998},
-    utils::num_traits::{One, Zero},
 };
+
+use num_traits::{One, Zero};
 
 /// 確率の値となりうる数
 pub trait NumProbability<Rhs = Self, Output = Self>:

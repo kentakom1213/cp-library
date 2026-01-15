@@ -1,6 +1,6 @@
 //! Ford-Fulkerson法
 
-use crate::utils::num_traits::PrimInt;
+use num_traits::PrimInt;
 use rustc_hash::FxHashMap;
 
 #[derive(Debug, Clone)]

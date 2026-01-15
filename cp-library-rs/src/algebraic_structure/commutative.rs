@@ -1,10 +1,11 @@
 //! 可環モノイド
 
+use crate::algebraic_structure::{monoid::Monoid, operation::*};
+
 use std::fmt::Debug;
 
-use crate::utils::num_traits::Bounded;
+use num_traits::Bounded;
 
-use crate::algebraic_structure::{monoid::Monoid, operation::*};
 
 /// 可環モノイド
 ///

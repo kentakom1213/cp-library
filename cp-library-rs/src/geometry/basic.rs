@@ -8,12 +8,6 @@ pub type Point = Vec2<f64>;
 /// 十分に小さい数
 pub const EPS: f64 = 1e-8;
 
-impl PartialEq for Point {
-    fn eq(&self, other: &Self) -> bool {
-        self.dist(*other) < EPS
-    }
-}
-
 impl From<(f64, f64)> for Point {
     fn from(value: (f64, f64)) -> Self {
         Self(value.0, value.1)

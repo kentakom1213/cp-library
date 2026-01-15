@@ -7,7 +7,6 @@ pub mod index_isize;
 pub mod iterutil;
 pub mod lineartime_merging;
 pub mod list_pairs;
-pub mod num_traits;
 pub mod ord_float;
 pub mod palindrome;
 pub mod run_length;

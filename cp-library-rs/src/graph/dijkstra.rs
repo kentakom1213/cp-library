@@ -3,7 +3,7 @@
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 
-use crate::utils::num_traits::{Bounded, Zero};
+use num_traits::{Bounded, Zero};
 
 /// Dijkstra法
 /// - グラフ`graph`が与えられたとき、スタート地点`s`から各頂点への最短路を求める

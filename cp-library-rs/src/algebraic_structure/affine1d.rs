@@ -8,8 +8,9 @@ use std::{
 use crate::{
     algebraic_structure::monoid::Monoid,
     linear_algrebra::matrix_exp::Matrix,
-    utils::num_traits::{One, Zero},
 };
+
+use num_traits::{One, Zero};
 
 /// 1次元のAffine変換を表す型
 pub type Affine<T> = (T, T);

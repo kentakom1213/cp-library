@@ -138,6 +138,112 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
             M::op(&l_val, &r_val)
         }
     }
+
+    /// 左端を固定した2分探索
+    /// - 返り値: (prod([l, x)), x)
+    pub fn max_right<F>(&mut self, l: usize, f: F) -> (M::X, usize)
+    where
+        F: Fn(M::X) -> bool,
+    {
+        assert!(f(M::id_x()));
+        if l >= self.size {
+            return (M::id_x(), self.size);
+        }
+        let mut acc = M::id_x();
+        let x = self.max_right_inner(1, 0, self.offset, l, &f, &mut acc);
+        (acc, x.min(self.size))
+    }
+
+    fn max_right_inner<F>(
+        &mut self,
+        idx: usize,
+        seg_l: usize,
+        seg_r: usize,
+        ql: usize,
+        f: &F,
+        acc: &mut M::X,
+    ) -> usize
+    where
+        F: Fn(M::X) -> bool,
+    {
+        if seg_r <= ql {
+            return seg_r;
+        }
+
+        self.eval(idx, seg_r - seg_l);
+
+        if ql <= seg_l {
+            let tmp = M::op(acc, &self.data[idx]);
+            if f(tmp.clone()) {
+                *acc = tmp;
+                return seg_r;
+            }
+        }
+
+        if seg_r - seg_l == 1 {
+            return seg_l;
+        }
+
+        let mid = (seg_l + seg_r) / 2;
+        let left_res = self.max_right_inner(idx * 2, seg_l, mid, ql, f, acc);
+        if left_res != mid {
+            return left_res;
+        }
+        self.max_right_inner(idx * 2 + 1, mid, seg_r, ql, f, acc)
+    }
+
+    /// 右端を固定した2分探索
+    /// - 返り値: (prod([x, r)), x)
+    pub fn min_left<F>(&mut self, r: usize, f: F) -> (M::X, usize)
+    where
+        F: Fn(M::X) -> bool,
+    {
+        assert!(f(M::id_x()));
+        if r == 0 {
+            return (M::id_x(), 0);
+        }
+        let mut acc = M::id_x();
+        let x = self.min_left_inner(1, 0, self.offset, r, &f, &mut acc);
+        (acc, x.min(self.size))
+    }
+
+    fn min_left_inner<F>(
+        &mut self,
+        idx: usize,
+        seg_l: usize,
+        seg_r: usize,
+        qr: usize,
+        f: &F,
+        acc: &mut M::X,
+    ) -> usize
+    where
+        F: Fn(M::X) -> bool,
+    {
+        if qr <= seg_l {
+            return seg_l;
+        }
+
+        self.eval(idx, seg_r - seg_l);
+
+        if seg_r <= qr {
+            let tmp = M::op(&self.data[idx], acc);
+            if f(tmp.clone()) {
+                *acc = tmp;
+                return seg_l;
+            }
+        }
+
+        if seg_r - seg_l == 1 {
+            return seg_r;
+        }
+
+        let mid = (seg_l + seg_r) / 2;
+        let right_res = self.min_left_inner(idx * 2 + 1, mid, seg_r, qr, f, acc);
+        if right_res != mid {
+            return right_res;
+        }
+        self.min_left_inner(idx * 2, seg_l, mid, qr, f, acc)
+    }
 }
 
 impl<M: ExtMonoid> From<&Vec<M::X>> for LazySegmentTree<M> {

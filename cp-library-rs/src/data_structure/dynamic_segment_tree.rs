@@ -1,7 +1,6 @@
 //! 必要なところだけ作る（区間分割型）セグ木
 
 use crate::algebraic_structure::{monoid::Monoid, ordered_monoid::OrderedMonoid};
-use crate::utils::num_traits::PrimInt;
 use crate::utils::show_binary_tree::ShowBinaryTree;
 
 use std::fmt::{self, Debug};
@@ -10,6 +9,8 @@ use std::ops::{
     Deref, DerefMut, RangeBounds,
 };
 use std::ptr::NonNull;
+
+use num_traits::PrimInt;
 
 /// 区間分割型 dynamic segment tree（implicit segment tree）
 /// - 取り扱う添字区間は [min, max)

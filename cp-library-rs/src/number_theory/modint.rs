@@ -22,7 +22,7 @@ pub mod modint_ {
     use std::{fmt::{Debug, Display}, iter::{Product, Sum}, mem::replace, num::ParseIntError, ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign}, str::FromStr};
     
 
-    use crate::utils::num_traits::{One, Zero};
+    use num_traits::{One, Zero};
     #[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Debug)] pub struct Modint<const MOD: usize>(pub usize);
     impl<const MOD: usize> Modint<MOD> { pub fn new(n: usize) -> Self { Self(if n < MOD { n } else { n % MOD }) }
     pub fn from_isize(n: isize) -> Self { Self::new(n.rem_euclid(MOD as isize) as usize) }
@@ -52,8 +52,8 @@ pub mod modint_ {
     fn from_str(s: &str) -> Result<Self, Self::Err> { let chunk_size = 9; let mut chars = s.chars(); let mut chunk = chars.by_ref().take(chunk_size).collect::<String>(); let mut res = Modint::zero();
     while !chunk.is_empty() { res = res * Modint::new(10).pow(chunk.len()) + chunk.parse::<usize>()?; chunk = chars.by_ref().take(chunk_size).collect::<String>(); } Ok(res) } }
     // impl<const MOD: usize> Debug for Modint<MOD> { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { match self.rational_reconstruction() { Some((n, d)) => if d > 1 { write!(f, "Modint({n}/{d})") } else { write!(f, "Modint({n})") } _ => write!(f, "Modint({})", self.0) } } }
-    impl<const MOD: usize> Zero for Modint<MOD> { fn zero() -> Self { Modint(0) } }
-    impl<const MOD: usize> One for Modint<MOD> { fn one() -> Self { Modint(1) } }
+    impl<const MOD: usize> Zero for Modint<MOD> { fn is_zero(&self) -> bool { self.0 == 0 } fn zero() -> Self { Modint(0) } }
+    impl<const MOD: usize> One for Modint<MOD> { fn is_one(&self) -> bool where Self: PartialEq, { self.0 == 0 } fn one() -> Self { Modint(1) } }
     pub trait Fp { fn pow(&self, rhs: usize) -> Self; fn inv(&self) -> Self; }
     impl<const MOD: usize> Fp for Modint<MOD> { fn pow(&self, rhs: usize) -> Self { let (mut a, mut b) = (self.0, rhs); let mut res = 1; while b > 0 { if b & 1 == 1 { res = (res * a) % MOD; } a = (a * a) % MOD; b >>= 1u32; } Modint(res) } fn inv(&self) -> Self { self.pow(MOD - 2) } }
     impl<const MOD: usize> Sum<Modint<MOD>> for Modint<MOD> { fn sum<I: Iterator<Item = Modint<MOD>>>(iter: I) -> Self { iter.fold(Modint::<MOD>(0), |acc, x| acc + x) } }

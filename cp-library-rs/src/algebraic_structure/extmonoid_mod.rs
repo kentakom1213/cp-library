@@ -6,8 +6,9 @@ use crate::{
         extmonoid::ExtMonoid,
     },
     number_theory::modint::*,
-    utils::num_traits::Zero,
 };
+
+use num_traits::Zero;
 
 /// ## 1次元Affine変換
 /// - 区間を $`ax + b`$ で更新（Affine変換）

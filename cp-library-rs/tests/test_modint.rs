@@ -1,7 +1,8 @@
 use std::str::FromStr;
 
-use cp_library_rs::{number_theory::modint::*, utils::num_traits::*};
+use cp_library_rs::{number_theory::modint::*};
 use num::Integer;
+use num_traits::*;
 use rand::prelude::*;
 
 const MOD998: usize = 998244353;

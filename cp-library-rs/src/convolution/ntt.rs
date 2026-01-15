@@ -7,8 +7,9 @@ use std::{
 
 use crate::{
     number_theory::modint::{Fp, M998},
-    utils::num_traits::Zero,
 };
+
+use num_traits::Zero;
 
 /// FFTに必要な関数
 pub trait NTTFriendly<Rhs = Self, Output = Self>:
