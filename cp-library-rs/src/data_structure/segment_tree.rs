@@ -56,7 +56,7 @@ impl<M: Monoid> SegmentTree<M> {
     }
 
     /// セグメント木を初期化する
-    /// - 時間計算量: $`O(1)`$
+    /// - 時間計算量: $`O(N)`$
     pub fn new(N: usize) -> Self {
         let offset = N.next_power_of_two();
 
@@ -65,6 +65,20 @@ impl<M: Monoid> SegmentTree<M> {
             offset,
             data: vec![M::id(); offset << 1],
         }
+    }
+
+    /// 配列から初期化する
+    /// - 時間計算量: $`O(N)`$
+    pub fn from_vec(src: Vec<M::Val>) -> Self {
+        let mut seg = Self::new(src.len());
+        for (i, v) in src.into_iter().enumerate() {
+            seg.data[seg.offset + i] = v;
+        }
+        for i in (0..seg.offset).rev() {
+            let lch = i << 1;
+            seg.data[i] = M::op(&seg.data[lch], &seg.data[lch + 1]);
+        }
+        seg
     }
 
     /// `index`番目の要素を`value`に更新する
@@ -123,25 +137,11 @@ impl<M: Monoid> SegmentTree<M> {
     }
 }
 
-impl<M: Monoid> From<Vec<M::Val>> for SegmentTree<M> {
-    fn from(src: Vec<M::Val>) -> Self {
-        let mut seg = Self::new(src.len());
-        for (i, v) in src.into_iter().enumerate() {
-            seg.data[seg.offset + i] = v;
-        }
-        for i in (0..seg.offset).rev() {
-            let lch = i << 1;
-            seg.data[i] = M::op(&seg.data[lch], &seg.data[lch + 1]);
-        }
-        seg
-    }
-}
-
 impl<M: Monoid> FromIterator<M::Val> for SegmentTree<M> {
     fn from_iter<T: IntoIterator<Item = M::Val>>(iter: T) -> Self {
         // 配列にする
         let arr: Vec<<M as Monoid>::Val> = iter.into_iter().collect();
-        Self::from(arr)
+        Self::from_vec(arr)
     }
 }
 

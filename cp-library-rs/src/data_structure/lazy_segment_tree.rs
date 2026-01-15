@@ -60,10 +60,10 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
     }
 
     /// 配列から構築する
-    pub fn from_slice(src: &[M::X]) -> Self {
+    pub fn from_vec(src: Vec<M::X>) -> Self {
         let mut seg = Self::new(src.len());
-        for (i, v) in src.iter().enumerate() {
-            seg.data[seg.offset + i] = v.clone();
+        for (i, v) in src.into_iter().enumerate() {
+            seg.data[seg.offset + i] = v;
         }
         for k in (1..seg.offset).rev() {
             seg.pull_dat(k);

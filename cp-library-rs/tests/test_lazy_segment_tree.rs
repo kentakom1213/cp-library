@@ -143,9 +143,9 @@ fn test_RSQ_and_RUQ() {
 
 #[test]
 fn test_from() {
-    let arr = [5, 2, -3, -1, -9, -2, 5, 0, 0, 5];
+    let arr = vec![5, 2, -3, -1, -9, -2, 5, 0, 0, 5];
 
-    let mut seg = LazySegmentTree::<UpdateMin<i32>>::from_slice(&arr);
+    let mut seg = LazySegmentTree::<UpdateMin<i32>>::from_vec(arr);
     // [5, 2, -3, -1, -9, -2, 5, 0, 0, 5]
 
     assert_eq!(seg.get(..), -9);
@@ -189,7 +189,7 @@ fn test_from() {
 #[test]
 #[should_panic]
 fn get_wrong_range() {
-    let mut seg = LazySegmentTree::<AddMin<usize>>::from_slice(&[0, 1, 2, 3, 4, 5]);
+    let mut seg = LazySegmentTree::<AddMin<usize>>::from_vec(vec![0, 1, 2, 3, 4, 5]);
 
     seg.get(..7);
 }
@@ -197,7 +197,7 @@ fn get_wrong_range() {
 #[test]
 #[should_panic]
 fn set_wrong_range() {
-    let mut seg = LazySegmentTree::<AddMin<usize>>::from_slice(&[0, 1, 2, 3, 4, 5]);
+    let mut seg = LazySegmentTree::<AddMin<usize>>::from_vec(vec![0, 1, 2, 3, 4, 5]);
 
     seg.apply(..7, 0);
 }

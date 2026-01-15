@@ -12,7 +12,7 @@ use cp_library_rs::{
 
 #[test]
 fn test_get_point() {
-    let segtree = SegmentTree::<Mul<isize>>::from(vec![1, 2, 3, 4, 5]);
+    let segtree = SegmentTree::<Mul<isize>>::from_vec(vec![1, 2, 3, 4, 5]);
 
     assert_eq!(segtree[0], 1);
     assert_eq!(segtree[3], 4);
@@ -47,7 +47,7 @@ fn test_RMQ() {
 #[test]
 fn test_from_slice() {
     let arr = vec![20, 4, 5, 6, 8, 9, 100];
-    let mut segtree = SegmentTree::<Max<_>>::from(arr);
+    let mut segtree = SegmentTree::<Max<_>>::from_vec(arr);
 
     assert_eq!(segtree.get_range(0..), 100);
     assert_eq!(segtree.get_range(2..5), 8);
@@ -62,7 +62,7 @@ fn test_from_slice() {
 #[test]
 #[should_panic]
 fn test_wrong_range() {
-    let segtree = SegmentTree::<Add<isize>>::from(vec![0, 1, 2, 3, 4, 5]);
+    let segtree = SegmentTree::<Add<isize>>::from_vec(vec![0, 1, 2, 3, 4, 5]);
 
     assert_eq!(segtree.get_range(..), 15);
     assert_eq!(segtree.get_range(..2), 1);
@@ -204,7 +204,7 @@ fn test_binary_search_left() {
 
 #[test]
 fn test_print_as_binary_tree() {
-    let mut seg = SegmentTree::<Add<isize>>::from(vec![1, 2, 3, 4, 5]);
+    let mut seg = SegmentTree::<Add<isize>>::from_vec(vec![1, 2, 3, 4, 5]);
 
     seg.print_as_binary_tree();
 
