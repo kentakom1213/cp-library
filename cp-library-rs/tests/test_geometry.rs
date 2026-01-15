@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::geometry::{
     basic::{Segment, EPS},
     vec2::Vec2,

@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::{
     algebraic_structure::operation::{Add, MinMax},
     data_structure::union_find::*,

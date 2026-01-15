@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::graph::loop_detection_fold::*;
 use num_bigint::BigUint;
 use std::str::FromStr;

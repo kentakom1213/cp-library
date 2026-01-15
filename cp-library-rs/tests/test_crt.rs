@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::number_theory::crt::garner_algorithm;
 use itertools::Itertools;
 use rand::{thread_rng, Rng};

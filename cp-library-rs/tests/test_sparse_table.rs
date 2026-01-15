@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::{
     algebraic_structure::operation::{Max, Min},
     data_structure::sparse_table::*,

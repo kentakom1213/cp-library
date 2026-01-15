@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::data_structure::acc2d_cyclic::Acc2D;
 
 #[test]

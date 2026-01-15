@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::{
     algebraic_structure::operation::{Add, Min},
     data_structure::dual_segment_tree::*,

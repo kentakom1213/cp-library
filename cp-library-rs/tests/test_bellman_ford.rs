@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::{
     graph::bellman_ford::bellman_ford,
     utils::consts::{IINF, INF},

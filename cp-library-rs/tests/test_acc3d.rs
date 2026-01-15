@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::{data_structure::acc3d::acc3D, debug2D};
 use itertools::iproduct;
 use rand::{rngs::ThreadRng, thread_rng, Rng};

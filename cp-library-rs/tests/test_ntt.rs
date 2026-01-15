@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::{
     convolution::ntt::FFT,
     number_theory::modint::{Modint, M998},

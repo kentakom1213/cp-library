@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use std::mem;
 
 use cp_library_rs::graph::ford_fulkerson::FordFulkerson;

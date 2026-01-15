@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::data_structure::multiset_splay_tree::Multiset;
 use rand::*;
 use std::collections::BTreeMap;

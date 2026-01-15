@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::{
     linear_algrebra::dynamic_matrix_exp::*, number_theory::modint::M998
 };

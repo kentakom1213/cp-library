@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::{
     algebraic_structure::extmonoid::examples::*, data_structure::lazy_segment_tree::*,
     utils::show_binary_tree::ShowBinaryTree,

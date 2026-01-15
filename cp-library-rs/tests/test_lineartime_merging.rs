@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use cp_library_rs::utils::lineartime_merging::*;
 use itertools::Itertools;
 
