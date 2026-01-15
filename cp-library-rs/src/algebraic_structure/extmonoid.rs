@@ -23,148 +23,178 @@ pub trait ExtMonoid {
 /// （遅延セグ木）作用付きモノイド
 pub mod examples {
 
+    use std::{
+        marker::PhantomData,
+        ops::{Add, Mul},
+    };
+
+    use num::{Bounded, FromPrimitive, Zero};
+
     use super::ExtMonoid;
 
-    /// ## AddSum
-    /// - 区間加算
-    /// - 区間和
+    /// 区間加算 + 区間和
     #[derive(Debug)]
-    pub struct AddSum;
-
-    impl ExtMonoid for AddSum {
-        type X = isize;
-        type F = isize;
+    pub struct AddSum<T>(PhantomData<T>);
+    impl<T> ExtMonoid for AddSum<T>
+    where
+        T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
+    {
+        type X = T;
+        type F = T;
         fn id_x() -> Self::X {
-            0
+            T::zero()
         }
         fn id_f() -> Self::F {
-            0
+            T::zero()
         }
         fn op(x: &Self::X, y: &Self::X) -> Self::X {
-            x + y
+            x.clone() + y.clone()
         }
         fn mapping(x: &Self::X, y: &Self::F) -> Self::X {
-            x + y
+            x.clone() + y.clone()
         }
         fn composition(x: &Self::F, y: &Self::F) -> Self::F {
-            x + y
+            x.clone() + y.clone()
         }
         fn aggregate(x: &Self::F, p: usize) -> Self::F {
-            x * p as isize
+            x.clone() * T::from_usize(p).unwrap()
         }
     }
 
-    /// ## UpdateMin
-    /// - 区間更新
-    /// - 区間最小値
+    /// 区間更新 + 区間最小値
     #[derive(Debug)]
-    pub struct UpdateMin;
-
-    impl ExtMonoid for UpdateMin {
-        type X = isize;
-        type F = isize;
+    pub struct UpdateMin<T>(PhantomData<T>);
+    impl<T: Bounded + Ord + Clone> ExtMonoid for UpdateMin<T> {
+        type X = T;
+        type F = T;
         fn id_x() -> Self::X {
-            isize::MAX
+            T::max_value()
         }
         fn id_f() -> Self::F {
-            isize::MAX
+            T::max_value()
         }
         fn op(x: &Self::X, y: &Self::X) -> Self::X {
-            *x.min(y)
+            x.clone().min(y.clone())
         }
         fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
-            *y
+            y.clone()
         }
         fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
-            *y
+            y.clone()
         }
         fn aggregate(x: &Self::F, _p: usize) -> Self::F {
-            *x
+            x.clone()
         }
     }
 
-    /// ## UpdateMax
-    /// - 区間更新
-    /// - 区間最大値
+    /// 区間更新 + 区間最大値
     #[derive(Debug)]
-    pub struct UpdateMax;
-
-    impl ExtMonoid for UpdateMax {
-        type X = isize;
-        type F = isize;
+    pub struct UpdateMax<T>(PhantomData<T>);
+    impl<T: Bounded + Ord + Clone> ExtMonoid for UpdateMax<T> {
+        type X = T;
+        type F = T;
         fn id_x() -> Self::X {
-            isize::MIN
+            T::min_value()
         }
         fn id_f() -> Self::F {
-            isize::MIN
+            T::min_value()
         }
         fn op(x: &Self::X, y: &Self::X) -> Self::X {
-            *x.max(y)
+            x.clone().max(y.clone())
         }
         fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
-            *y
+            y.clone()
         }
         fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
-            *y
+            y.clone()
         }
         fn aggregate(x: &Self::F, _p: usize) -> Self::F {
-            *x
+            x.clone()
         }
     }
 
-    /// ## AddMin
-    /// - 区間加算
-    /// - 区間最小値
-    #[derive(Debug)]
-    pub struct AddMin;
-    impl ExtMonoid for AddMin {
-        type X = isize;
-        type F = isize;
+    /// 最大値と最小値 + 区間更新
+    pub struct UpdateMinMax<T>(PhantomData<T>);
+    impl<T: Ord + Bounded + Clone> ExtMonoid for UpdateMinMax<T> {
+        type X = (T, T);
+        type F = (T, T);
         fn id_x() -> Self::X {
-            isize::MAX
+            (T::max_value(), T::min_value())
         }
         fn id_f() -> Self::F {
-            0
+            Self::id_x()
         }
         fn op(x: &Self::X, y: &Self::X) -> Self::X {
-            *x.min(y)
+            let (xmin, xmax) = x.clone();
+            let (ymin, ymax) = y.clone();
+            (xmin.min(ymin), xmax.max(ymax))
+        }
+        fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
+            y.clone()
+        }
+        fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
+            y.clone()
+        }
+        fn aggregate(x: &Self::F, _p: usize) -> Self::F {
+            x.clone()
+        }
+    }
+
+    /// 区間加算 + 区間最小値
+    #[derive(Debug)]
+    pub struct AddMin<T>(PhantomData<T>);
+    impl<T> ExtMonoid for AddMin<T>
+    where
+        T: Zero + Clone + Add<Output = T> + Ord + Bounded,
+    {
+        type X = T;
+        type F = T;
+        fn id_x() -> Self::X {
+            T::max_value()
+        }
+        fn id_f() -> Self::F {
+            T::zero()
+        }
+        fn op(x: &Self::X, y: &Self::X) -> Self::X {
+            x.clone().min(y.clone())
         }
         fn mapping(x: &Self::X, y: &Self::F) -> Self::X {
-            x + y
+            x.clone() + y.clone()
         }
         fn composition(x: &Self::F, y: &Self::F) -> Self::F {
-            x + y
+            x.clone() + y.clone()
         }
         fn aggregate(x: &Self::F, _p: usize) -> Self::F {
-            *x
+            x.clone()
         }
     }
 
-    /// ## UpdateSum
-    /// - 区間更新
-    /// - 区間和取得
+    /// 区間更新 + 区間和取得
     #[derive(Debug)]
-    pub struct UpdateSum;
-    impl ExtMonoid for UpdateSum {
-        type X = isize;
-        type F = Option<isize>;
+    pub struct UpdateSum<T>(PhantomData<T>);
+    impl<T> ExtMonoid for UpdateSum<T>
+    where
+        T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
+    {
+        type X = T;
+        type F = Option<T>;
         fn id_x() -> Self::X {
-            0
+            T::zero()
         }
         fn id_f() -> Self::F {
             None
         }
         fn op(x: &Self::X, y: &Self::X) -> Self::X {
-            x + y
+            x.clone() + y.clone()
         }
         fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
-            y.unwrap()
+            y.clone().unwrap()
         }
         fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
-            *y
+            y.clone().clone()
         }
         fn aggregate(x: &Self::F, p: usize) -> Self::F {
-            x.map(|x| x * p as isize)
+            x.clone().map(|x| x * T::from_usize(p).unwrap())
         }
     }
 }
