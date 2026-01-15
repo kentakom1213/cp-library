@@ -314,6 +314,14 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
     }
 }
 
+impl<M: ExtMonoid> FromIterator<M::X> for LazySegmentTree<M> {
+    fn from_iter<T: IntoIterator<Item = M::X>>(iter: T) -> Self {
+        // 配列にする
+        let arr: Vec<M::X> = iter.into_iter().collect();
+        Self::from_vec(arr)
+    }
+}
+
 impl<M> ShowBinaryTree<usize> for LazySegmentTree<M>
 where
     M: ExtMonoid,

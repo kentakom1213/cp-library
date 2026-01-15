@@ -140,7 +140,7 @@ impl<M: Monoid> SegmentTree<M> {
 impl<M: Monoid> FromIterator<M::Val> for SegmentTree<M> {
     fn from_iter<T: IntoIterator<Item = M::Val>>(iter: T) -> Self {
         // 配列にする
-        let arr: Vec<<M as Monoid>::Val> = iter.into_iter().collect();
+        let arr: Vec<M::Val> = iter.into_iter().collect();
         Self::from_vec(arr)
     }
 }
