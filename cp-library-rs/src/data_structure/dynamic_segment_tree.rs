@@ -428,7 +428,7 @@ where
     M: Monoid,
     M::Val: Debug,
 {
-    fn get_left(&mut self, ptr: &DynSegPtr<I, M>) -> Option<DynSegPtr<I, M>> {
+    fn get_left(&self, ptr: &DynSegPtr<I, M>) -> Option<DynSegPtr<I, M>> {
         // 読み取り専用だが，trait が &mut self を要求する
         let t = unsafe { ptr.node.as_ref() };
         let left = t.left.as_ref()?;
@@ -436,22 +436,19 @@ where
         Some(Self::mk_ptr(left, ptr.l, mid))
     }
 
-    fn get_right(&mut self, ptr: &DynSegPtr<I, M>) -> Option<DynSegPtr<I, M>> {
+    fn get_right(&self, ptr: &DynSegPtr<I, M>) -> Option<DynSegPtr<I, M>> {
         let t = unsafe { ptr.node.as_ref() };
         let right = t.right.as_ref()?;
         let mid = Self::mid(ptr.l, ptr.r);
         Some(Self::mk_ptr(right, mid, ptr.r))
     }
 
-    fn get_root(&mut self) -> DynSegPtr<I, M> {
-        let root = self
-            .root
-            .as_ref()
-            .expect("DynamicSegmentTree is empty (root is None)");
-        Self::mk_ptr(root, self.min_index, self.max_index)
+    fn get_root(&self) -> Option<DynSegPtr<I, M>> {
+        let root = self.root.as_ref()?;
+        Some(Self::mk_ptr(root, self.min_index, self.max_index))
     }
 
-    fn print_node(&mut self, ptr: &DynSegPtr<I, M>) -> String {
+    fn print_node(&self, ptr: &DynSegPtr<I, M>) -> String {
         let t = unsafe { ptr.node.as_ref() };
         format!("[{:?}, {:?}) sum={:?}", ptr.l, ptr.r, t.sum)
     }

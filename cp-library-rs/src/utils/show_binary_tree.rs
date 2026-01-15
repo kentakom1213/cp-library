@@ -9,19 +9,19 @@ const BLANK: &str = "    ";
 /// 2分木を整形して表示する
 pub trait ShowBinaryTree<P> {
     /// **\<required\>** 左の子のポインタを取得する
-    fn get_left(&mut self, ptr: &P) -> Option<P>;
+    fn get_left(&self, ptr: &P) -> Option<P>;
 
     /// **\<required\>** 右の子のポインタを取得する
-    fn get_right(&mut self, ptr: &P) -> Option<P>;
+    fn get_right(&self, ptr: &P) -> Option<P>;
 
     /// **\<required\>** 根を取得する
-    fn get_root(&mut self) -> P;
+    fn get_root(&self) -> Option<P>;
 
     /// **\<required\>** ノードの値を表示する
-    fn print_node(&mut self, ptr: &P) -> String;
+    fn print_node(&self, ptr: &P) -> String;
 
     /// 再帰的にprintを行う
-    fn print_inner(&mut self, ptr: P, fill: &mut Vec<&'static str>, last: &'static str) {
+    fn print_inner(&self, ptr: P, fill: &mut Vec<&'static str>, last: &'static str) {
         // 表示の調整
         let mut tmp = None;
         if fill.last().is_some_and(|x| x == &last) {
@@ -59,8 +59,9 @@ pub trait ShowBinaryTree<P> {
         #[cfg(debug_assertions)]
         {
             eprintln!("┌───────────────────────────────────────────────────────");
-            let root = Self::get_root(self);
-            Self::print_inner(self, root, &mut vec![], NULL);
+            if let Some(root) = Self::get_root(self) {
+                Self::print_inner(self, root, &mut vec![], NULL);
+            }
             eprintln!("└───────────────────────────────────────────────────────");
         }
     }

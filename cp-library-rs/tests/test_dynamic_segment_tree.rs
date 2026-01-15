@@ -156,6 +156,8 @@ fn max_right_min_left_sum_monoid() {
 fn show_binary_tree_smoke() {
     let mut seg = DynamicSegmentTree::<usize, Add<isize>>::new(0, 8);
 
+    seg.print_as_binary_tree();
+
     // 既存：update
     seg.update(3, 10);
     seg.update(6, -2);

@@ -341,16 +341,16 @@ where
     M: Monoid,
     M::Val: Debug,
 {
-    fn get_root(&mut self) -> usize {
-        1
+    fn get_root(&self) -> Option<usize> {
+        Some(1)
     }
-    fn get_left(&mut self, &i: &usize) -> Option<usize> {
+    fn get_left(&self, &i: &usize) -> Option<usize> {
         (i * 2 < self.offset * 2).then_some(i * 2)
     }
-    fn get_right(&mut self, &i: &usize) -> Option<usize> {
+    fn get_right(&self, &i: &usize) -> Option<usize> {
         (i * 2 + 1 < self.offset * 2).then_some(i * 2 + 1)
     }
-    fn print_node(&mut self, &i: &usize) -> String {
+    fn print_node(&self, &i: &usize) -> String {
         format!("[{:?}]", self.data[i])
     }
 }
