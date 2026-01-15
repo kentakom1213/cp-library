@@ -31,11 +31,7 @@ jobs:
           previous="$(git show "${{ github.event.before }}:$manifest_path" 2>/dev/null || true)"
 
           parse_version() {
-            python3 - <<'PY'
-import sys, tomllib
-data = tomllib.loads(sys.stdin.read())
-print(data["package"]["version"])
-PY
+            python3 -c 'import sys, tomllib; data = tomllib.loads(sys.stdin.read()); print(data["package"]["version"])'
           }
 
           current_version="$(printf '%s' "$current" | parse_version)"
