@@ -413,9 +413,9 @@ where
     M: Monoid,
 {
     #[inline]
-    fn mk_ptr(node: &Box<NodeInner<M>>, l: I, r: I) -> DynSegPtr<I, M> {
+    fn mk_ptr(node: &NodeInner<M>, l: I, r: I) -> DynSegPtr<I, M> {
         DynSegPtr {
-            node: NonNull::from(node.as_ref()),
+            node: NonNull::from(node),
             l,
             r,
         }
@@ -431,18 +431,14 @@ where
     fn get_left(&mut self, ptr: &DynSegPtr<I, M>) -> Option<DynSegPtr<I, M>> {
         // 読み取り専用だが，trait が &mut self を要求する
         let t = unsafe { ptr.node.as_ref() };
-        let Some(ref left) = t.left else {
-            return None;
-        };
+        let left = t.left.as_ref()?;
         let mid = Self::mid(ptr.l, ptr.r);
         Some(Self::mk_ptr(left, ptr.l, mid))
     }
 
     fn get_right(&mut self, ptr: &DynSegPtr<I, M>) -> Option<DynSegPtr<I, M>> {
         let t = unsafe { ptr.node.as_ref() };
-        let Some(ref right) = t.right else {
-            return None;
-        };
+        let right = t.right.as_ref()?;
         let mid = Self::mid(ptr.l, ptr.r);
         Some(Self::mk_ptr(right, mid, ptr.r))
     }

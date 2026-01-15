@@ -2,6 +2,7 @@
 
 use cp_library_rs::{algebraic_structure::operation::Add, data_structure::weighted_union_find::*};
 
+#[allow(unused_must_use)]
 #[test]
 fn test_weighted_unionfind() {
     // 問題例:
