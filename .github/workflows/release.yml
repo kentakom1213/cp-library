@@ -1,0 +1,66 @@
+name: release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - cp-library-rs/Cargo.toml
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect version change
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          manifest_path="cp-library-rs/Cargo.toml"
+          current="$(cat "$manifest_path")"
+          previous="$(git show "${{ github.event.before }}:$manifest_path" 2>/dev/null || true)"
+
+          parse_version() {
+            python3 - <<'PY'
+import sys, tomllib
+data = tomllib.loads(sys.stdin.read())
+print(data["package"]["version"])
+PY
+          }
+
+          current_version="$(printf '%s' "$current" | parse_version)"
+          if [ -n "$previous" ]; then
+            previous_version="$(printf '%s' "$previous" | parse_version)"
+          else
+            previous_version=""
+          fi
+
+          changed="false"
+          if [ "$current_version" != "$previous_version" ]; then
+            if ! git tag -l "v${current_version}" | rg -q .; then
+              changed="true"
+            fi
+          fi
+
+          {
+            echo "version=$current_version"
+            echo "changed=$changed"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create release
+        if: steps.version.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          generate_release_notes: true
