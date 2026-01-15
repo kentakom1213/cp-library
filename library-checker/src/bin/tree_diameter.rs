@@ -47,7 +47,7 @@ fn main() {
 
     // u → v へのパスを構築
     let prev = {
-        let mut prev = vec![INF; N];
+        let mut prev = vec![None; N];
         let mut seen = vec![false; N];
         seen[u] = true;
         let mut q = VecDeque::from([u]);
@@ -58,7 +58,7 @@ fn main() {
                 if seen[v] {
                     continue;
                 }
-                prev[v] = u;
+                prev[v] = Some(u);
                 q.push_back(v);
             }
         }

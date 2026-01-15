@@ -1,12 +1,12 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::{data_structure::multiset_splay_tree::MultiSet, get, utils::consts::IINF};
+use cp_library_rs::{data_structure::multiset_splay_tree::Multiset, get, utils::consts::IINF};
 
 fn main() {
     let (_N, Q) = get!(usize, usize);
     let S = get!(isize;;);
 
-    let mut mset = MultiSet::from_iter(S);
+    let mut mset = Multiset::from_iter(S);
 
     for _ in 0..Q {
         let q = get!(isize;;);
