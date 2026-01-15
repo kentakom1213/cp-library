@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+#![allow(clippy::needless_range_loop)]
 
 use cp_library_rs::number_theory::dynamic_modint::*;
 use rand::prelude::*;
@@ -67,7 +68,7 @@ fn test_inv() {
 
 #[test]
 fn test_add_assign() {
-    let arr = vec![1, 2, 3];
+    let arr = [1, 2, 3];
     let mut ans = 0;
     for i in 0..3 {
         ans += arr[i];
@@ -140,7 +141,7 @@ fn test_div_assign() {
 fn test_from_isize() {
     for _ in 0..200 {
         let x: isize = random();
-        let x_mod = (998244353 as isize + x % 998244353 as isize) as usize % 998244353;
+        let x_mod = (998244353 + x % 998244353) as usize % 998244353;
         let y = Modint2::from_isize(x, MOD998);
         assert_eq!(x_mod, y.value);
     }

@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+#![allow(clippy::needless_range_loop)]
 
 use cp_library_rs::number_theory::modint_for_rollinghash::*;
 
@@ -53,7 +54,7 @@ fn test_inv() {
 
 #[test]
 fn test_add_assign() {
-    let arr = vec![1, 2, 3];
+    let arr = [1, 2, 3];
     let mut ans = 0;
     for i in 0..3 {
         ans += arr[i];

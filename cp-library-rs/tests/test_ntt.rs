@@ -68,7 +68,7 @@ fn test_fft() {
             Modint(53589793),
             Modint(23846264),
             Modint(33832795),
-            Modint(02884197),
+            Modint(2884197),
             Modint(16939937),
             Modint(51058209),
             Modint(74944592),

@@ -68,12 +68,12 @@ fn test_concat() {
 
 #[test]
 fn test_LCP() {
-    let rh1 = RollingHash::from_str(&"humpbump", Modint::generate_base());
+    let rh1 = RollingHash::from_str("humpbump", Modint::generate_base());
 
     assert_eq!(rh1.getLCP(0, 4), 0);
     assert_eq!(rh1.getLCP(1, 5), 3);
 
-    let rh2 = RollingHash::from_str(&"strangeorange", Modint::generate_base());
+    let rh2 = RollingHash::from_str("strangeorange", Modint::generate_base());
 
     assert_eq!(rh2.getLCP(2, 8), 5);
     assert_eq!(rh2.getLCP(3, 9), 4);

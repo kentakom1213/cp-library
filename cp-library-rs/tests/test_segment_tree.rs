@@ -108,6 +108,7 @@ fn test_index() {
 }
 
 #[test]
+#[allow(clippy::absurd_extreme_comparisons)]
 fn test_binary_search_right() {
     let mut seg: SegmentTree<Add<usize>> = (0..10).collect();
 

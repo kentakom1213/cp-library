@@ -5,9 +5,7 @@ use std::{
     ops::{Add, Div, Mul, MulAssign, Sub},
 };
 
-use crate::{
-    number_theory::modint::{Fp, M998},
-};
+use crate::number_theory::modint::{Fp, M998};
 
 use num_traits::Zero;
 

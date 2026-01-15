@@ -5,10 +5,7 @@ use std::{
     ops::{Add, Mul},
 };
 
-use crate::{
-    algebraic_structure::monoid::Monoid,
-    linear_algrebra::matrix_exp::Matrix,
-};
+use crate::{algebraic_structure::monoid::Monoid, linear_algrebra::matrix_exp::Matrix};
 
 use num_traits::{One, Zero};
 

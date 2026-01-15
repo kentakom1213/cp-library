@@ -6,9 +6,7 @@ use std::{
 };
 
 #[allow(unused_imports)]
-use crate::{
-    geometry::basic,
-};
+use crate::geometry::basic;
 
 use num_traits::Num;
 

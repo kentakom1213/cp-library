@@ -7,28 +7,28 @@ fn test_get_mut() {
     let mut bitset = BitSet::<20>::new();
 
     println!("{:?}", bitset);
-    assert_eq!(bitset.any(), true);
-    assert_eq!(bitset.all(), false);
+    assert!(bitset.any());
+    assert!(!bitset.all());
 
     *bitset.get_mut(10).unwrap() = true;
 
     println!("{:?}", bitset);
-    assert_eq!(bitset.any(), false);
-    assert_eq!(bitset.all(), false);
+    assert!(!bitset.any());
+    assert!(!bitset.all());
 
     *bitset.get_mut(10).unwrap() = false;
 
     println!("{:?}", bitset);
-    assert_eq!(bitset.any(), true);
-    assert_eq!(bitset.all(), false);
+    assert!(bitset.any());
+    assert!(!bitset.all());
 
     assert!(bitset.get_mut(50).is_none());
 
     *bitset.get_mut(0).unwrap() = true;
 
     println!("{:?}", bitset);
-    assert_eq!(bitset.any(), false);
-    assert_eq!(bitset.all(), false);
+    assert!(!bitset.any());
+    assert!(!bitset.all());
 }
 
 #[test]
@@ -37,22 +37,22 @@ fn test_set_unset_flip() {
 
     // set
     println!("{:?}", bitset);
-    assert_eq!(bitset.any(), true);
-    assert_eq!(bitset.all(), false);
+    assert!(bitset.any());
+    assert!(!bitset.all());
     assert_eq!(bitset.count_ones(), 0);
 
     for i in 0..99 {
         bitset.set(i);
 
         println!("{:?}", bitset);
-        assert_eq!(bitset.any(), false);
-        assert_eq!(bitset.all(), false);
+        assert!(!bitset.any());
+        assert!(!bitset.all());
         assert_eq!(bitset.count_ones(), i + 1);
     }
 
     bitset.set(99);
-    assert_eq!(bitset.any(), false);
-    assert_eq!(bitset.all(), true);
+    assert!(!bitset.any());
+    assert!(bitset.all());
     assert_eq!(bitset.count_ones(), 100);
 
     // unset
@@ -60,8 +60,8 @@ fn test_set_unset_flip() {
         bitset.unset(i);
 
         println!("{:?}", bitset);
-        assert_eq!(bitset.any(), false);
-        assert_eq!(bitset.all(), false);
+        assert!(!bitset.any());
+        assert!(!bitset.all());
         assert_eq!(bitset.count_ones(), i);
     }
 
@@ -70,8 +70,8 @@ fn test_set_unset_flip() {
         bitset.flip(i);
 
         println!("{:?}", bitset);
-        assert_eq!(bitset.any(), false);
-        assert_eq!(bitset.all(), false);
+        assert!(!bitset.any());
+        assert!(!bitset.all());
         assert_eq!(bitset.count_ones(), 75 - i - 1);
     }
 
@@ -79,8 +79,8 @@ fn test_set_unset_flip() {
         bitset.flip(i);
 
         println!("{:?}", bitset);
-        assert_eq!(bitset.any(), false);
-        assert_eq!(bitset.all(), false);
+        assert!(!bitset.any());
+        assert!(!bitset.all());
         assert_eq!(bitset.count_ones(), i - 25 + 1);
     }
 }

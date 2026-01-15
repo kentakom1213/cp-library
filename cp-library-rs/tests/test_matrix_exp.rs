@@ -1,8 +1,7 @@
 #![allow(non_snake_case)]
+#![allow(clippy::needless_range_loop)]
 
-use cp_library_rs::{
-    linear_algrebra::matrix_exp::*, number_theory::modint::M998,
-};
+use cp_library_rs::{linear_algrebra::matrix_exp::*, number_theory::modint::M998};
 use rand::{prelude::*, rngs::ThreadRng};
 
 use num_traits::Zero;

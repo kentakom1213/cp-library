@@ -17,7 +17,7 @@ fn test_chmax() {
     let four = 10;
     let five = 5;
     let has_changed = chmax!(one, two, three, four, five,);
-    assert_eq!(has_changed, true);
+    assert!(has_changed);
     assert_eq!(one, 400);
 }
 

@@ -83,6 +83,7 @@ fn test_small() {
 }
 
 #[test]
+#[allow(clippy::identity_op)]
 fn test_imos() {
     let mut bit = BIT2D::<Add<isize>>::new(4, 4);
 

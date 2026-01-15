@@ -77,7 +77,7 @@ fn test_chars_from_iter() {
 
 #[test]
 fn test_chars_from_iter_ref() {
-    let vals = vec![1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5];
+    let vals = [1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5];
     let comp = vals.iter().run_length_encode();
     let ans = vec![(&1, 1), (&2, 2), (&3, 3), (&4, 4), (&5, 5)];
 

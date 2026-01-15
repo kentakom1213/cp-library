@@ -1,8 +1,9 @@
 #![allow(non_snake_case)]
+#![allow(clippy::needless_range_loop)]
 
 use std::str::FromStr;
 
-use cp_library_rs::{number_theory::modint::*};
+use cp_library_rs::number_theory::modint::*;
 use num::Integer;
 use num_traits::*;
 use rand::prelude::*;
@@ -13,13 +14,13 @@ const MOD998: usize = 998244353;
 fn test_add() {
     let x: M998 = 998244355.into();
     let y = 998244359;
-    assert_eq!(x + y, 8 + MOD998 as usize);
+    assert_eq!(x + y, 8 + MOD998);
 
     let a: M998 = MOD998.into();
     let b = 1000000007;
     let c = 20021213;
     assert_eq!(a + b + c, 21776867);
-    assert_eq!(a + b + c, (21776867 + MOD998 as usize));
+    assert_eq!(a + b + c, (21776867 + MOD998));
 }
 
 #[test]
@@ -28,10 +29,10 @@ fn test_neg() {
     assert_eq!(-x, 0);
 
     let y = M998::new(10);
-    assert_eq!(-y, MOD998 as usize - 10);
+    assert_eq!(-y, MOD998 - 10);
 
-    let z = M998::from(MOD998 as usize + 200);
-    assert_eq!(-z, MOD998 as usize - 200);
+    let z = M998::from(MOD998 + 200);
+    assert_eq!(-z, MOD998 - 200);
 }
 
 #[test]
@@ -70,7 +71,7 @@ fn test_inv() {
 
 #[test]
 fn test_add_assign() {
-    let arr = vec![1, 2, 3];
+    let arr = [1, 2, 3];
     let mut ans = 0;
     for i in 0..3 {
         ans += arr[i];

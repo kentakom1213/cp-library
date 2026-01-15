@@ -123,7 +123,7 @@ fn test_min() {
 
 #[test]
 fn test_add_build() {
-    let mut seg = DualSegmentTree::<Add<isize>>::build(&vec![0, 6, 4, 3, 7, 1, 5, 2]);
+    let mut seg = DualSegmentTree::<Add<isize>>::build(&[0, 6, 4, 3, 7, 1, 5, 2]);
     eprintln!("{:?}", seg);
 
     // [0, 5) : +1

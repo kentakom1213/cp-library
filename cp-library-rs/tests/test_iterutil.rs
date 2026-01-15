@@ -4,7 +4,7 @@ use cp_library_rs::utils::iterutil::IterUtil;
 
 #[test]
 fn test_join() {
-    let arr = vec![2, 3, 5, 7, 11];
+    let arr = [2, 3, 5, 7, 11];
 
     assert_eq!(arr.iter().join(" "), "2 3 5 7 11");
     assert_eq!(arr.iter().join(", "), "2, 3, 5, 7, 11");

@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 #[test]
 fn test_functional_graph() {
-    let graph = vec![1, 2, 3, 2, 4];
+    let graph = [1, 2, 3, 2, 4];
     /*
      * 1 --> 2 --> 3 <-> 2,  4 <-> 4
      */
@@ -56,7 +56,7 @@ fn test_functional_graph() {
 /// テストケース: <https://atcoder.jp/contests/abc030/tasks/abc030_d>
 #[test]
 fn test_biguint() {
-    let graph = vec![1, 2, 3, 0];
+    let graph = [1, 2, 3, 0];
 
     let next = |u: usize| graph[u];
 

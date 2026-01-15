@@ -1,8 +1,6 @@
 //! ローリングハッシュ
 
-use crate::{
-    number_theory::modint_for_rollinghash::modint::Modint,
-};
+use crate::number_theory::modint_for_rollinghash::modint::Modint;
 
 use num_traits::{One, Zero};
 

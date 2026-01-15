@@ -48,8 +48,8 @@ fn test_collision_line() {
 
     let line2 = Segment(Vec2(1.0, 2.0), Vec2(1.0, 0.0));
 
-    assert_eq!(ab.has_intersection(&line1), false);
-    assert_eq!(ab.has_intersection(&line2), true);
+    assert!(!ab.has_intersection(&line1));
+    assert!(ab.has_intersection(&line2));
 }
 
 #[test]

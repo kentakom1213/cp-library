@@ -36,6 +36,7 @@ fn test_build() {
 }
 
 #[test]
+#[allow(clippy::reversed_empty_ranges)]
 fn test_sum() {
     let bit = BIT::<Add<isize>>::from(&vec![1, 2, 3, 4, 5]);
 

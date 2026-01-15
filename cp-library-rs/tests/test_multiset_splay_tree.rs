@@ -25,7 +25,11 @@ fn test_random_insert_delete() {
         let y = random();
 
         // mapから削除
-        map.get_mut(&y).filter(|v| **v > 0).map(|v| *v -= 1);
+        if let Some(v) = map.get_mut(&y) {
+            if *v > 0 {
+                *v -= 1;
+            }
+        }
 
         // multisetから削除
         multiset.remove(&y);

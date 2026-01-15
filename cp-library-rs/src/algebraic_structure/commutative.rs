@@ -6,7 +6,6 @@ use std::fmt::Debug;
 
 use num_traits::Bounded;
 
-
 /// 可環モノイド
 ///
 /// 任意の要素 $`x,y\in S`$ に対し，

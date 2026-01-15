@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+#![allow(clippy::needless_range_loop)]
 
 use cp_library_rs::data_structure::acc2d::acc2D;
 

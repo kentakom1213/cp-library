@@ -23,8 +23,8 @@ fn test_unionfind() {
 
     assert_eq!(uf.group_count(), 6);
 
-    assert!(uf.is_same(1, 3) == true);
-    assert!(uf.is_same(1, 4) == false);
+    assert!(uf.is_same(1, 3));
+    assert!(!uf.is_same(1, 4));
     assert_eq!(uf.get_size(1), 3);
 
     uf.unite(2, 4);
@@ -34,7 +34,7 @@ fn test_unionfind() {
      */
 
     assert_eq!(uf.group_count(), 5);
-    assert!(uf.is_same(4, 1) == true);
+    assert!(uf.is_same(4, 1));
     assert_eq!(uf.get_size(4), 4);
 
     uf.unite(4, 2);
@@ -45,7 +45,7 @@ fn test_unionfind() {
      */
 
     assert_eq!(uf.group_count(), 5);
-    assert!(uf.is_same(0, 0) == true);
+    assert!(uf.is_same(0, 0));
 
     uf.unite(0, 7);
     debug!(uf);
@@ -55,7 +55,7 @@ fn test_unionfind() {
      */
 
     assert_eq!(uf.group_count(), 4);
-    assert!(uf.is_same(0, 7) == true);
+    assert!(uf.is_same(0, 7));
 
     uf.unite(5, 6);
     debug!(uf);
@@ -65,8 +65,8 @@ fn test_unionfind() {
      */
 
     assert_eq!(uf.group_count(), 3);
-    assert!(uf.is_same(5, 6) == true);
-    assert!(uf.is_same(5, 7) == false);
+    assert!(uf.is_same(5, 6));
+    assert!(!uf.is_same(5, 7));
 
     uf.unite(4, 5);
     uf.unite(6, 7);

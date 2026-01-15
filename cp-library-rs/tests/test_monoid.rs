@@ -19,6 +19,7 @@ fn test_add() {
 }
 
 #[test]
+#[allow(clippy::upper_case_acronyms)]
 fn test_gcd() {
     type GCDI = GCD<isize>;
     type GCDU = GCD<usize>;

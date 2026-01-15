@@ -17,22 +17,22 @@ fn test_usize() {
     assert_eq!(mset.len(), 5);
 
     // remove value
-    assert_eq!(mset.remove(&7), true);
-    assert_eq!(mset.remove(&7), true);
-    assert_eq!(mset.remove(&0), false);
+    assert!(mset.remove(&7));
+    assert!(mset.remove(&7));
+    assert!(!mset.remove(&0));
 
     // is_contain
-    assert_eq!(mset.contains(&5), true);
-    assert_eq!(mset.contains(&7), false);
-    assert_eq!(mset.contains(&0), false);
-    assert_eq!(mset.contains(&1000), false);
+    assert!(mset.contains(&5));
+    assert!(!mset.contains(&7));
+    assert!(!mset.contains(&0));
+    assert!(!mset.contains(&1000));
 
     // first element
     assert_eq!(mset.first(), Some(&3));
 
-    assert_eq!(mset.remove(&3), true);
+    assert!(mset.remove(&3));
     assert_eq!(mset.first(), Some(&5));
-    assert_eq!(mset.contains(&3), false);
+    assert!(!mset.contains(&3));
 
     // last element
     assert_eq!(mset.last(), Some(&10));
@@ -60,7 +60,7 @@ fn test_usize() {
 
 #[test]
 fn test_iterator() {
-    let mut arr = vec![0, 9, 4, 4, 5, 5, 10, 10, 3, 3, 0, 0, 2, 1];
+    let mut arr = [0, 9, 4, 4, 5, 5, 10, 10, 3, 3, 0, 0, 2, 1];
 
     let mset: MultiSet<usize> = arr.iter().cloned().collect();
 

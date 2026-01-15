@@ -5,8 +5,8 @@ use itertools::Itertools;
 
 #[test]
 fn test_merge_usize() {
-    let a = vec![0, 2, 4, 6, 8, 10];
-    let b = vec![1, 3, 5, 7];
+    let a = [0, 2, 4, 6, 8, 10];
+    let b = [1, 3, 5, 7];
 
     assert_eq!(
         a.iter()

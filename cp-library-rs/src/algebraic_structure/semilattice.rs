@@ -2,9 +2,7 @@
 
 use std::ops::Rem;
 
-use crate::{
-    algebraic_structure::operation::{Max, Min, GCD},
-};
+use crate::algebraic_structure::operation::{Max, Min, GCD};
 
 use num_traits::{Bounded, Zero};
 

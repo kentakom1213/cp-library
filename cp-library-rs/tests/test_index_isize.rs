@@ -81,11 +81,11 @@ fn test_array() {
 fn test_slice() {
     let arr = (0..100).collect::<Vec<_>>();
 
-    assert_eq!(**&arr[..].iget(-1), 99);
-    assert_eq!(**&arr[10..20].iget(-1), 19);
-    assert_eq!(**&arr[10..20].iget(-10), 10);
-    assert_eq!(**&arr[10..20].iget(-20), 10);
-    assert_eq!(**&arr[51..63].iget(-1), 62);
-    assert_eq!(**&arr[51..63].iget(-12), 51);
-    assert_eq!(**&arr[51..63].iget(-13), 62);
+    assert_eq!(*arr[..].iget(-1), 99);
+    assert_eq!(*arr[10..20].iget(-1), 19);
+    assert_eq!(*arr[10..20].iget(-10), 10);
+    assert_eq!(*arr[10..20].iget(-20), 10);
+    assert_eq!(*arr[51..63].iget(-1), 62);
+    assert_eq!(*arr[51..63].iget(-12), 51);
+    assert_eq!(*arr[51..63].iget(-13), 62);
 }

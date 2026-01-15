@@ -4,7 +4,7 @@ use cp_library_rs::data_structure::segment_tree_mutable::*;
 
 #[test]
 fn test_get_point() {
-    let segtree = SegmentTreeMut::build(&vec![1, 2, 3, 4, 5], 0, |a, b| a + b);
+    let segtree = SegmentTreeMut::build(&[1, 2, 3, 4, 5], 0, |a, b| a + b);
 
     assert_eq!(segtree[0], 1);
     assert_eq!(segtree[3], 4);

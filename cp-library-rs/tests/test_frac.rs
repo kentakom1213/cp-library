@@ -4,7 +4,7 @@ use cp_library_rs::number_theory::frac::*;
 
 #[test]
 fn test_eq() {
-    let values = vec![
+    let values = [
         Frac(0, 1),
         Frac(8, 2),
         Frac(4, 1),
@@ -15,7 +15,7 @@ fn test_eq() {
         Frac(2, 0),
     ];
 
-    let eq_matrix = vec![
+    let eq_matrix = [
         vec![1, 0, 0, 0, 0, 0, 0, 0],
         vec![0, 1, 1, 0, 0, 0, 0, 0],
         vec![0, 1, 1, 0, 0, 0, 0, 0],
