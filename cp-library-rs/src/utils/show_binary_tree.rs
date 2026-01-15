@@ -55,7 +55,7 @@ pub trait ShowBinaryTree<P> {
     }
 
     /// 2分木としてフォーマットする
-    fn print_as_binary_tree(&mut self) {
+    fn print_as_binary_tree(&self) {
         #[cfg(debug_assertions)]
         {
             eprintln!("┌───────────────────────────────────────────────────────");

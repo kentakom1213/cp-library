@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 
 #[test]
 fn test_random_insert_delete() {
-    const QUERY_SIZE: usize = 10_000;
+    const QUERY_SIZE: usize = 100_000;
 
     let mut map = BTreeMap::<u8, usize>::new();
     let mut multiset = MultiSet::<u8>::new();

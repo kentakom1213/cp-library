@@ -4,17 +4,21 @@ pub use multiset_splay_tree_::MultiSet;
 
 mod multiset_splay_tree_ {
     //! 多重集合
-    use crate::data_structure::splay_tree::{
-        find::{lower_bound, upper_bound},
-        insert::{insert, insert_right},
-        iterator::{prev, NodeIterator, NodePosition, NodeRangeIterator},
-        pointer::{NodeOps, NodePtr},
-        remove::remove,
-        splay::splay,
+    use crate::{
+        data_structure::splay_tree::{
+            find::{lower_bound, upper_bound},
+            insert::{insert, insert_right},
+            iterator::{prev, NodeIterator, NodePosition, NodeRangeIterator},
+            pointer::{Node, NodeOps, NodePtr},
+            remove::remove,
+            splay::splay,
+        },
+        utils::show_binary_tree::ShowBinaryTree,
     };
     use std::{
         fmt::Debug,
         ops::{Bound, RangeBounds},
+        ptr::NonNull,
     };
     /// MultiSet
     /// - 多重集合
@@ -94,7 +98,7 @@ mod multiset_splay_tree_ {
         /// 指定した区間のイテレータを返す
         pub fn range<R: RangeBounds<K>>(&mut self, range: R) -> NodeRangeIterator<'_, K, usize> {
             let left = match range.start_bound() {
-                Bound::Unbounded => NodePosition::INF,
+                Bound::Unbounded => NodePosition::Inf,
                 Bound::Included(x) => prev(
                     {
                         let lb;
@@ -113,7 +117,7 @@ mod multiset_splay_tree_ {
                 ),
             };
             let right = match range.end_bound() {
-                Bound::Unbounded => NodePosition::SUP,
+                Bound::Unbounded => NodePosition::Sup,
                 Bound::Included(x) => {
                     let ub;
                     (self.root, ub) = upper_bound(self.root, x);
@@ -137,6 +141,43 @@ mod multiset_splay_tree_ {
             f.debug_set()
                 .entries(NodeIterator::first(&self.root).map(|node| node.key().clone()))
                 .finish()
+        }
+    }
+
+    // ==================== ShowBinaryTree ====================
+    /// ShowBinaryTree 用の「ポインタ」
+    #[derive(Clone, Copy)]
+    pub struct TreePtr<K: Ord>(NonNull<Node<K, usize>>);
+
+    impl<K: Ord> TreePtr<K> {
+        #[inline]
+        fn mk_ptr(node: &Node<K, usize>) -> TreePtr<K> {
+            TreePtr(NonNull::from(node))
+        }
+    }
+
+    impl<K: Ord + Debug> ShowBinaryTree<TreePtr<K>> for MultiSet<K> {
+        fn get_left(&self, ptr: &TreePtr<K>) -> Option<TreePtr<K>> {
+            // 読み取り専用だが，trait が &mut self を要求する
+            let t = unsafe { ptr.0.as_ref() };
+            let left = unsafe { t.left.as_ref()?.as_ref() };
+            Some(TreePtr::mk_ptr(left))
+        }
+
+        fn get_right(&self, ptr: &TreePtr<K>) -> Option<TreePtr<K>> {
+            let t = unsafe { ptr.0.as_ref() };
+            let right = unsafe { t.right.as_ref()?.as_ref() };
+            Some(TreePtr::mk_ptr(right))
+        }
+
+        fn get_root(&self) -> Option<TreePtr<K>> {
+            let root = unsafe { self.root.as_ref()?.as_ref() };
+            Some(TreePtr::mk_ptr(root))
+        }
+
+        fn print_node(&self, ptr: &TreePtr<K>) -> String {
+            let t = unsafe { ptr.0.as_ref() };
+            format!("{t:?}")
         }
     }
 }

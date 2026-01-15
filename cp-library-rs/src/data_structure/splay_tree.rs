@@ -55,7 +55,7 @@ pub mod find {
         if let Some(inner) = node {
             (new_root, NodePosition::Node(inner))
         } else {
-            (new_root, NodePosition::SUP)
+            (new_root, NodePosition::Sup)
         }
     }
     /// `x` より大きい値を持つ最小のノードを返す
@@ -71,7 +71,7 @@ pub mod find {
         if let Some(inner) = node {
             (new_root, NodePosition::Node(inner))
         } else {
-            (new_root, NodePosition::SUP)
+            (new_root, NodePosition::Sup)
         }
     }
     /// 値 `x` を持つノードを返す
@@ -187,26 +187,26 @@ pub mod iterator {
     #[derive(Debug)]
     pub enum NodePosition<K: Ord, V> {
         /// `K` の下界
-        INF,
+        Inf,
         /// ノードの値
         Node(NodePtr<K, V>),
         /// `K` の上界
-        SUP,
+        Sup,
     }
     impl<K: Ord, V> Clone for NodePosition<K, V> {
         fn clone(&self) -> Self {
             match self {
-                NodePosition::INF => NodePosition::INF,
+                NodePosition::Inf => NodePosition::Inf,
                 NodePosition::Node(node) => NodePosition::Node(*node),
-                NodePosition::SUP => NodePosition::SUP,
+                NodePosition::Sup => NodePosition::Sup,
             }
         }
     }
     impl<K: Ord, V> PartialEq for NodePosition<K, V> {
         fn eq(&self, other: &Self) -> bool {
             match (self, other) {
-                (NodePosition::INF, NodePosition::INF) => true,
-                (NodePosition::SUP, NodePosition::SUP) => true,
+                (NodePosition::Inf, NodePosition::Inf) => true,
+                (NodePosition::Sup, NodePosition::Sup) => true,
                 (NodePosition::Node(node1), NodePosition::Node(node2)) => node1.is_same(node2),
                 _ => false,
             }
@@ -215,30 +215,30 @@ pub mod iterator {
     impl<K: Ord, V> PartialOrd for NodePosition<K, V> {
         fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
             match (self, other) {
-                (NodePosition::INF, NodePosition::INF) => Some(cmp::Ordering::Equal),
-                (NodePosition::SUP, NodePosition::SUP) => Some(cmp::Ordering::Equal),
+                (NodePosition::Inf, NodePosition::Inf) => Some(cmp::Ordering::Equal),
+                (NodePosition::Sup, NodePosition::Sup) => Some(cmp::Ordering::Equal),
                 (NodePosition::Node(node1), NodePosition::Node(node2)) => {
                     Some(node1.key_cmp(node2))
                 }
-                (NodePosition::INF, _) => Some(cmp::Ordering::Less),
-                (NodePosition::SUP, _) => Some(cmp::Ordering::Greater),
-                (_, NodePosition::INF) => Some(cmp::Ordering::Greater),
-                (_, NodePosition::SUP) => Some(cmp::Ordering::Less),
+                (NodePosition::Inf, _) => Some(cmp::Ordering::Less),
+                (NodePosition::Sup, _) => Some(cmp::Ordering::Greater),
+                (_, NodePosition::Inf) => Some(cmp::Ordering::Greater),
+                (_, NodePosition::Sup) => Some(cmp::Ordering::Less),
             }
         }
     }
     impl<K: Ord, V> NodePosition<K, V> {
         pub fn is_inf(&self) -> bool {
-            matches!(self, NodePosition::INF)
+            matches!(self, NodePosition::Inf)
         }
         pub fn is_sup(&self) -> bool {
-            matches!(self, NodePosition::SUP)
+            matches!(self, NodePosition::Sup)
         }
         pub fn is_node(&self) -> bool {
             matches!(self, NodePosition::Node(_))
         }
         pub fn is_none(&self) -> bool {
-            matches!(self, NodePosition::INF | NodePosition::SUP)
+            matches!(self, NodePosition::Inf | NodePosition::Sup)
         }
         pub fn unwrap(self) -> NodePtr<K, V> {
             match self {
@@ -261,7 +261,7 @@ pub mod iterator {
         root: &Option<NodePtr<K, V>>,
     ) -> NodePosition<K, V> {
         match iter {
-            NodePosition::INF => NodePosition::INF,
+            NodePosition::Inf => NodePosition::Inf,
             NodePosition::Node(mut node) => {
                 if let Some(mut prv) = node.left().as_ref().copied() {
                     while let Some(right) = prv.clone().right().as_ref().copied() {
@@ -282,11 +282,11 @@ pub mod iterator {
                         _ => unreachable!(),
                     }
                 }
-                NodePosition::INF
+                NodePosition::Inf
             }
-            NodePosition::SUP => match get_max(*root) {
+            NodePosition::Sup => match get_max(*root) {
                 Some(node) => NodePosition::Node(node),
-                None => NodePosition::SUP,
+                None => NodePosition::Sup,
             },
         }
     }
@@ -298,9 +298,9 @@ pub mod iterator {
         root: &Option<NodePtr<K, V>>,
     ) -> NodePosition<K, V> {
         match iter {
-            NodePosition::INF => match get_min(*root) {
+            NodePosition::Inf => match get_min(*root) {
                 Some(node) => NodePosition::Node(node),
-                None => NodePosition::INF,
+                None => NodePosition::Inf,
             },
             NodePosition::Node(mut node) => {
                 if let Some(mut nxt) = node.right().as_ref().copied() {
@@ -322,9 +322,9 @@ pub mod iterator {
                         _ => unreachable!(),
                     }
                 }
-                NodePosition::SUP
+                NodePosition::Sup
             }
-            NodePosition::SUP => NodePosition::SUP,
+            NodePosition::Sup => NodePosition::Sup,
         }
     }
     /// rootを根とする木のうち，最も左側の子を返す
@@ -362,14 +362,14 @@ pub mod iterator {
         pub fn first(root: &'a Option<NodePtr<K, V>>) -> Self {
             NodeIterator {
                 root,
-                pos: NodePosition::INF,
+                pos: NodePosition::Inf,
             }
         }
         /// 右端のイテレータを返す
         pub fn last(root: &'a Option<NodePtr<K, V>>) -> Self {
             NodeIterator {
                 root,
-                pos: NodePosition::SUP,
+                pos: NodePosition::Sup,
             }
         }
     }
