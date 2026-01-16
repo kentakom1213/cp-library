@@ -16,26 +16,26 @@ use num_traits::Zero;
 #[derive(Debug)]
 pub struct AffineSum<const MOD: usize>;
 impl<const MOD: usize> ExtMonoid for AffineSum<MOD> {
-    type X = Modint<MOD>;
+    type X = (Modint<MOD>, usize);
     type F = Affine<Modint<MOD>>;
     fn id_x() -> Self::X {
-        Self::X::zero()
+        (Modint::zero(), 0)
     }
     fn id_f() -> Self::F {
         Self::F::id_()
     }
     fn op(x: &Self::X, y: &Self::X) -> Self::X {
-        *x + *y
+        let (xv, xs) = x.clone();
+        let (yv, ys) = y.clone();
+        (xv + yv, xs + ys)
     }
     fn composition(x: &Self::F, y: &Self::F) -> Self::F {
         y.compose(x)
     }
     fn mapping(x: &Self::X, y: &Self::F) -> Self::X {
-        y.apply(*x)
-    }
-    fn aggregate(x: &Self::F, p: usize) -> Self::F {
-        let &(a, b) = x;
-        (a, b * p)
+        let &(a, b) = y;
+        let (val, size) = x.clone();
+        (a * val + b * Modint::from(size), size)
     }
 }
 
@@ -61,8 +61,5 @@ impl<const MOD: usize> ExtMonoid for AffineUpdateComposite<MOD> {
     }
     fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
         *y
-    }
-    fn aggregate(x: &Self::F, p: usize) -> Self::F {
-        x.pow(p)
     }
 }

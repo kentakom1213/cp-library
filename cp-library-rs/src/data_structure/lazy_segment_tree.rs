@@ -71,12 +71,6 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
         seg
     }
 
-    /// ノードkが表す区間長
-    fn node_len(&self, k: usize) -> usize {
-        let depth = (usize::BITS - 1 - k.leading_zeros()) as usize;
-        self.offset >> depth
-    }
-
     /// 1つ上の情報を更新
     fn pull_dat(&mut self, k: usize) {
         self.data[k] = M::op(&self.data[k << 1], &self.data[k << 1 | 1]);
@@ -84,8 +78,7 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
 
     /// 作用をノードに反映
     fn apply_lazy(&mut self, k: usize, f: &M::F) {
-        let agg = M::aggregate(f, self.node_len(k));
-        self.data[k] = M::mapping(&self.data[k], &agg);
+        self.data[k] = M::mapping(&self.data[k], f);
         if k < self.offset {
             self.lazy[k] = M::composition(&self.lazy[k], f);
         }
@@ -138,8 +131,7 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
         assert!(i < self.size);
         let k = i + self.offset;
         self.push_lazy_deep(k);
-        let agg = M::aggregate(&f, 1);
-        self.data[k] = M::mapping(&self.data[k], &agg);
+        self.data[k] = M::mapping(&self.data[k], &f);
         self.pull_dat_deep(k);
     }
 

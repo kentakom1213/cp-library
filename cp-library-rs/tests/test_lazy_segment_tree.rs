@@ -7,7 +7,7 @@ use cp_library_rs::{
 
 #[test]
 fn test_print_as_binary_tree() {
-    let mut seg = LazySegmentTree::<AddSum<i32>>::new(5);
+    let mut seg = LazySegmentTree::<AddSum<i32>>::from_vec(vec![(0, 1); 5]);
 
     seg.print_as_binary_tree();
 
@@ -34,50 +34,50 @@ fn test_print_as_binary_tree() {
 
 #[test]
 fn test_RSQ_and_RAQ_hand() {
-    let mut seg = LazySegmentTree::<AddSum<isize>>::new(10);
+    let mut seg = LazySegmentTree::<AddSum<isize>>::from_vec(vec![(0, 1); 10]);
     seg.print_as_binary_tree();
     // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    assert_eq!(seg.get(..), 0);
-    assert_eq!(seg.get(..5), 0);
-    assert_eq!(seg.get(5..), 0);
-    assert_eq!(seg.get(3..8), 0);
+    assert_eq!(seg.get(..), (0, 10));
+    assert_eq!(seg.get(..5), (0, 5));
+    assert_eq!(seg.get(5..), (0, 5));
+    assert_eq!(seg.get(3..8), (0, 5));
 
     seg.apply(0..4, 2);
     seg.print_as_binary_tree();
     // [2, 2, 2, 2, 0, 0, 0, 0, 0, 0]
 
-    assert_eq!(seg.get(..), 8);
-    assert_eq!(seg.get(..5), 8);
-    assert_eq!(seg.get(5..), 0);
-    assert_eq!(seg.get(3..8), 2);
+    assert_eq!(seg.get(..), (8, 10));
+    assert_eq!(seg.get(..5), (8, 5));
+    assert_eq!(seg.get(5..), (0, 5));
+    assert_eq!(seg.get(3..8), (2, 5));
 
     seg.apply(4.., 5);
     seg.print_as_binary_tree();
     // [2, 2, 2, 2, 5, 5, 5, 5, 5, 5]
 
-    assert_eq!(seg.get(..), 38);
-    assert_eq!(seg.get(..5), 13);
-    assert_eq!(seg.get(5..), 25);
-    assert_eq!(seg.get(3..8), 22);
+    assert_eq!(seg.get(..), (38, 10));
+    assert_eq!(seg.get(..5), (13, 5));
+    assert_eq!(seg.get(5..), (25, 5));
+    assert_eq!(seg.get(3..8), (22, 5));
 
     seg.apply(2..=5, -3);
     seg.print_as_binary_tree();
     // [2, 2, -1, -1, 2, 2, 5, 5, 5, 5]
 
-    assert_eq!(seg.get(..), 26);
-    assert_eq!(seg.get(..5), 4);
-    assert_eq!(seg.get(5..), 22);
-    assert_eq!(seg.get(3..8), 13);
+    assert_eq!(seg.get(..), (26, 10));
+    assert_eq!(seg.get(..5), (4, 5));
+    assert_eq!(seg.get(5..), (22, 5));
+    assert_eq!(seg.get(3..8), (13, 5));
 
     seg.apply(8..10, -10);
     seg.print_as_binary_tree();
     // [2, 2, -1, -1, 2, 2, 5, 5, -5, -5]
 
-    assert_eq!(seg.get(..), 6);
-    assert_eq!(seg.get(..5), 4);
-    assert_eq!(seg.get(5..), 2);
-    assert_eq!(seg.get(3..8), 13);
+    assert_eq!(seg.get(..), (6, 10));
+    assert_eq!(seg.get(..5), (4, 5));
+    assert_eq!(seg.get(5..), (2, 5));
+    assert_eq!(seg.get(3..8), (13, 5));
 }
 
 #[test]
@@ -127,18 +127,18 @@ fn test_RMQ_and_RUQ_hand() {
 /// テストケース: <https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=DSL_2_I&lang=ja>
 #[test]
 fn test_RSQ_and_RUQ() {
-    let mut seg = LazySegmentTree::<UpdateSum<i8>>::new(6);
+    let mut seg = LazySegmentTree::<UpdateSum<i8>>::from_vec(vec![(0, 1); 8]);
 
     seg.apply(1..=3, Some(1));
     seg.apply(2..=4, Some(-2));
 
-    assert_eq!(seg.get(..=5), -5);
-    assert_eq!(seg.get(..=1), 1);
+    assert_eq!(seg.get(..=5), (-5, 6));
+    assert_eq!(seg.get(..=1), (1, 2));
 
     seg.apply(3..=5, Some(3));
 
-    assert_eq!(seg.get(3..=4), 6);
-    assert_eq!(seg.get(..=5), 8);
+    assert_eq!(seg.get(3..=4), (6, 2));
+    assert_eq!(seg.get(..=5), (8, 6));
 }
 
 #[test]
@@ -204,28 +204,34 @@ fn set_wrong_range() {
 
 #[test]
 fn test_lazy_segment_tree_binary_search() {
-    let mut seg = LazySegmentTree::<AddSum<usize>>::new(6);
+    let mut seg = LazySegmentTree::<AddSum<usize>>::from_vec(vec![(0, 1); 6]);
 
     seg.apply(0..3, 2);
     seg.apply(2..5, 1);
 
-    let (sum0, x0) = seg.max_right(0, |x| x <= 8);
-    assert_eq!(sum0, 8);
+    // [2, 2, 3, 1, 1, 0]
+
+    let (sum0, x0) = seg.max_right(0, |x| x.0 <= 8);
+    assert_eq!(sum0, (8, 4));
     assert_eq!(x0, 4);
 
-    let (sum1, x1) = seg.max_right(1, |x| x <= 6);
-    assert_eq!(sum1, 6);
+    let (sum1, x1) = seg.max_right(1, |x| x.0 <= 6);
+    assert_eq!(sum1, (6, 3));
     assert_eq!(x1, 4);
 
-    let (sum2, x2) = seg.min_left(5, |x| x <= 6);
-    assert_eq!(sum2, 5);
+    let (sum2, x2) = seg.min_left(5, |x| x.0 <= 6);
+    assert_eq!(sum2, (5, 3));
     assert_eq!(x2, 2);
 
-    let (sum3, x3) = seg.max_right(6, |x| x <= 100);
-    assert_eq!(sum3, 0);
+    let (sum3, x3) = seg.max_right(6, |x| x.0 <= 100);
+    assert_eq!(sum3, (0, 0));
     assert_eq!(x3, 6);
 
-    let (sum4, x4) = seg.min_left(0, |x| x <= 100);
-    assert_eq!(sum4, 0);
+    let (sum4, x4) = seg.min_left(0, |x| x.0 <= 100);
+    assert_eq!(sum4, (0, 0));
     assert_eq!(x4, 0);
+
+    let (sum5, x5) = seg.min_left(6, |x| x.0 <= 100);
+    assert_eq!(sum5, (9, 6));
+    assert_eq!(x5, 0);
 }

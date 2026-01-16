@@ -16,8 +16,6 @@ pub trait ExtMonoid {
     fn mapping(x: &Self::X, y: &Self::F) -> Self::X;
     /// 作用素同士の演算
     fn composition(x: &Self::F, y: &Self::F) -> Self::F;
-    /// 作用素の集約
-    fn aggregate(x: &Self::F, p: usize) -> Self::F;
 }
 
 /// （遅延セグ木）作用付きモノイド
@@ -39,25 +37,25 @@ pub mod examples {
     where
         T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
     {
-        type X = T;
+        type X = (T, usize);
         type F = T;
         fn id_x() -> Self::X {
-            T::zero()
+            (T::zero(), 0)
         }
         fn id_f() -> Self::F {
             T::zero()
         }
         fn op(x: &Self::X, y: &Self::X) -> Self::X {
-            x.clone() + y.clone()
+            let (xv, xs) = x.clone();
+            let (yv, ys) = y.clone();
+            (xv + yv, xs + ys)
         }
         fn mapping(x: &Self::X, y: &Self::F) -> Self::X {
-            x.clone() + y.clone()
+            let (val, size) = x.clone();
+            (val + y.clone() * T::from_usize(size).unwrap(), size)
         }
         fn composition(x: &Self::F, y: &Self::F) -> Self::F {
             x.clone() + y.clone()
-        }
-        fn aggregate(x: &Self::F, p: usize) -> Self::F {
-            x.clone() * T::from_usize(p).unwrap()
         }
     }
 
@@ -77,13 +75,18 @@ pub mod examples {
             x.clone().min(y.clone())
         }
         fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
-            y.clone()
+            if *y == Self::id_f() {
+                _x.clone()
+            } else {
+                y.clone()
+            }
         }
         fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
-            y.clone()
-        }
-        fn aggregate(x: &Self::F, _p: usize) -> Self::F {
-            x.clone()
+            if *y == Self::id_f() {
+                _x.clone()
+            } else {
+                y.clone()
+            }
         }
     }
 
@@ -103,13 +106,18 @@ pub mod examples {
             x.clone().max(y.clone())
         }
         fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
-            y.clone()
+            if *y == Self::id_f() {
+                _x.clone()
+            } else {
+                y.clone()
+            }
         }
         fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
-            y.clone()
-        }
-        fn aggregate(x: &Self::F, _p: usize) -> Self::F {
-            x.clone()
+            if *y == Self::id_f() {
+                _x.clone()
+            } else {
+                y.clone()
+            }
         }
     }
 
@@ -117,12 +125,12 @@ pub mod examples {
     pub struct UpdateMinMax<T>(PhantomData<T>);
     impl<T: Ord + Bounded + Clone> ExtMonoid for UpdateMinMax<T> {
         type X = (T, T);
-        type F = (T, T);
+        type F = Option<(T, T)>;
         fn id_x() -> Self::X {
             (T::max_value(), T::min_value())
         }
         fn id_f() -> Self::F {
-            Self::id_x()
+            None
         }
         fn op(x: &Self::X, y: &Self::X) -> Self::X {
             let (xmin, xmax) = x.clone();
@@ -130,13 +138,16 @@ pub mod examples {
             (xmin.min(ymin), xmax.max(ymax))
         }
         fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
-            y.clone()
+            match y.clone() {
+                Some(v) => v,
+                None => _x.clone(),
+            }
         }
         fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
-            y.clone()
-        }
-        fn aggregate(x: &Self::F, _p: usize) -> Self::F {
-            x.clone()
+            match y.clone() {
+                Some(v) => Some(v),
+                None => _x.clone(),
+            }
         }
     }
 
@@ -164,9 +175,6 @@ pub mod examples {
         fn composition(x: &Self::F, y: &Self::F) -> Self::F {
             x.clone() + y.clone()
         }
-        fn aggregate(x: &Self::F, _p: usize) -> Self::F {
-            x.clone()
-        }
     }
 
     /// 区間更新 + 区間和取得
@@ -176,25 +184,31 @@ pub mod examples {
     where
         T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
     {
-        type X = T;
+        type X = (T, usize);
         type F = Option<T>;
         fn id_x() -> Self::X {
-            T::zero()
+            (T::zero(), 0)
         }
         fn id_f() -> Self::F {
             None
         }
         fn op(x: &Self::X, y: &Self::X) -> Self::X {
-            x.clone() + y.clone()
+            let (xv, xs) = x.clone();
+            let (yv, ys) = y.clone();
+            (xv + yv, xs + ys)
         }
         fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
-            y.clone().unwrap()
+            let (val, size) = _x.clone();
+            match y.clone() {
+                Some(v) => (v * T::from_usize(size).unwrap(), size),
+                None => (val, size),
+            }
         }
         fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
-            y.clone().clone()
-        }
-        fn aggregate(x: &Self::F, p: usize) -> Self::F {
-            x.clone().map(|x| x * T::from_usize(p).unwrap())
+            match y.clone() {
+                Some(v) => Some(v),
+                None => _x.clone(),
+            }
         }
     }
 }
