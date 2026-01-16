@@ -66,7 +66,7 @@ where
     Affine<T>: AffineTransform<T>,
 {
     type Val = Affine<T>;
-    fn id() -> Self::Val {
+    fn e() -> Self::Val {
         AffineTransform::id_()
     }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {

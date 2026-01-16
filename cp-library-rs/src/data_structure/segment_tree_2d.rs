@@ -61,7 +61,7 @@ impl<M: Monoid> SegmentTree2D<M> {
         Self {
             oh,
             ow,
-            data: vec![M::id(); 4 * oh * ow],
+            data: vec![M::e(); 4 * oh * ow],
         }
     }
 
@@ -109,7 +109,7 @@ impl<M: Monoid> SegmentTree2D<M> {
     /// row方向での集約を行う
     fn aggregate_row(&self, r: usize, mut cs: usize, mut ce: usize) -> M::Val {
         // 集約
-        let mut res = M::id();
+        let mut res = M::e();
         while cs < ce {
             if cs & 1 == 1 {
                 res = M::op(&res, &self.data[self.idx(r, cs)]);
@@ -142,7 +142,7 @@ impl<M: Monoid> SegmentTree2D<M> {
         cs += self.ow;
         ce += self.ow;
         // 値の取得
-        let mut res = M::id();
+        let mut res = M::e();
         while rs < re {
             if rs & 1 == 1 {
                 res = M::op(&res, &self.aggregate_row(rs, cs, ce));

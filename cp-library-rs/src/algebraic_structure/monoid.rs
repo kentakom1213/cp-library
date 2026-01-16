@@ -1,15 +1,15 @@
 //! ## モノイド
 //!
 //! - [`Monoid::Val`] ： データの型 $`S`$
-//! - [`Monoid::id`] ： 単位元を返す関数 $`\varnothing \to S`$
+//! - [`Monoid::e`] ： 単位元を返す関数 $`\varnothing \to S`$
 //! - [`Monoid::op`] ： 演算 $`S\times S \to S`$
 
 macro_rules! impl_monoid_add {
-    ($ty:ty, $id:expr) => {
+    ($ty:ty, $e:expr) => {
         impl Monoid for Add<$ty> {
             type Val = $ty;
-            fn id() -> Self::Val {
-                $id
+            fn e() -> Self::Val {
+                $e
             }
             fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
                 *left + *right
@@ -30,13 +30,13 @@ use super::operation::MinMax;
 /// モノイド
 ///
 /// - [`Monoid::Val`] ： データの型 $`S`$
-/// - [`Monoid::id`] ： 単位元を返す関数 $`\varnothing \to S`$
+/// - [`Monoid::e`] ： 単位元を返す関数 $`\varnothing \to S`$
 /// - [`Monoid::op`] ： 演算 $`S\times S \to S`$
 pub trait Monoid {
     /// データの型 （$`S`$）
     type Val: Clone;
     /// 単位元 （$`\varnothing \to S`$）
-    fn id() -> Self::Val;
+    fn e() -> Self::Val;
     /// 演算 （$`S \times S \to S`$）
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val;
 }
@@ -44,13 +44,13 @@ pub trait Monoid {
 // ========== 実装 ==========
 impl Monoid for () {
     type Val = ();
-    fn id() -> Self::Val {}
+    fn e() -> Self::Val {}
     fn op(_: &Self::Val, _: &Self::Val) -> Self::Val {}
 }
 
 impl<T: Ord + Bounded + Clone> Monoid for Min<T> {
     type Val = T;
-    fn id() -> Self::Val {
+    fn e() -> Self::Val {
         Self::Val::max_value()
     }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
@@ -60,7 +60,7 @@ impl<T: Ord + Bounded + Clone> Monoid for Min<T> {
 
 impl<T: Ord + Bounded + Clone> Monoid for Max<T> {
     type Val = T;
-    fn id() -> Self::Val {
+    fn e() -> Self::Val {
         Self::Val::min_value()
     }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
@@ -70,8 +70,8 @@ impl<T: Ord + Bounded + Clone> Monoid for Max<T> {
 
 impl<T: Ord + Bounded + Clone> Monoid for MinMax<T> {
     type Val = (T, T);
-    fn id() -> Self::Val {
-        (Min::id(), Max::id())
+    fn e() -> Self::Val {
+        (Min::e(), Max::e())
     }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
         (Min::op(&left.0, &right.0), Max::op(&left.1, &right.1))
@@ -80,7 +80,7 @@ impl<T: Ord + Bounded + Clone> Monoid for MinMax<T> {
 
 impl Monoid for Add<usize> {
     type Val = usize;
-    fn id() -> Self::Val {
+    fn e() -> Self::Val {
         0
     }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
@@ -94,7 +94,7 @@ impl_monoid_add!(M998, M998::new(0));
 
 impl<T: One + Clone> Monoid for Mul<T> {
     type Val = T;
-    fn id() -> Self::Val {
+    fn e() -> Self::Val {
         T::one()
     }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
@@ -104,7 +104,7 @@ impl<T: One + Clone> Monoid for Mul<T> {
 
 impl Monoid for Xor {
     type Val = usize;
-    fn id() -> Self::Val {
+    fn e() -> Self::Val {
         0
     }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
@@ -114,7 +114,7 @@ impl Monoid for Xor {
 
 impl<T> Monoid for GCD<T> {
     type Val = usize;
-    fn id() -> Self::Val {
+    fn e() -> Self::Val {
         0
     }
     fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {

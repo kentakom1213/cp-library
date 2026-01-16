@@ -35,7 +35,7 @@ impl<M: Monoid> ArenaNode for NodeInner<M> {}
 impl<M: Monoid> Default for NodeInner<M> {
     fn default() -> Self {
         Self {
-            sum: M::id(),
+            sum: M::e(),
             left: None,
             right: None,
         }
@@ -94,7 +94,7 @@ impl<I: PrimInt, M: Monoid> DynamicSegmentTree<I, M> {
     pub fn all_prod(&self) -> M::Val {
         self.root
             .map(|i| self.arena.get(i).sum.clone())
-            .unwrap_or_else(M::id)
+            .unwrap_or_else(M::e)
     }
 
     /// get_mut（Drop で update）
@@ -186,8 +186,8 @@ impl<I: PrimInt, M: Monoid> DynamicSegmentTree<I, M> {
         // eval（借用を切ってから集約）
         let left = arena.get(idx).left;
         let right = arena.get(idx).right;
-        let lsum = left.map(|p| arena.get(p).sum.clone()).unwrap_or(M::id());
-        let rsum = right.map(|p| arena.get(p).sum.clone()).unwrap_or(M::id());
+        let lsum = left.map(|p| arena.get(p).sum.clone()).unwrap_or(M::e());
+        let rsum = right.map(|p| arena.get(p).sum.clone()).unwrap_or(M::e());
         arena.get_mut(idx).sum = M::op(&lsum, &rsum);
 
         Some(idx)
@@ -195,7 +195,7 @@ impl<I: PrimInt, M: Monoid> DynamicSegmentTree<I, M> {
 
     fn get_inner(arena: &Arena<NodeInner<M>>, node: Option<Ptr>, l: I, r: I, index: I) -> M::Val {
         let Some(idx) = node else {
-            return M::id();
+            return M::e();
         };
         if r - l == I::one() {
             return arena.get(idx).sum.clone();
@@ -217,10 +217,10 @@ impl<I: PrimInt, M: Monoid> DynamicSegmentTree<I, M> {
         qr: I,
     ) -> M::Val {
         if qr <= l || r <= ql {
-            return M::id();
+            return M::e();
         }
         let Some(idx) = node else {
-            return M::id();
+            return M::e();
         };
         if ql <= l && r <= qr {
             return arena.get(idx).sum.clone();
@@ -324,14 +324,14 @@ where
     where
         F: Fn(M::Val) -> bool,
     {
-        assert!(f(M::id()));
+        assert!(f(M::e()));
         assert!(self.min_index <= l && l <= self.max_index);
 
         if l == self.max_index {
-            return (M::id(), self.max_index);
+            return (M::e(), self.max_index);
         }
 
-        let mut acc = M::id();
+        let mut acc = M::e();
         let x = Self::max_right_inner(
             &self.arena,
             self.root,
@@ -391,14 +391,14 @@ where
     where
         F: Fn(M::Val) -> bool,
     {
-        assert!(f(M::id()));
+        assert!(f(M::e()));
         assert!(self.min_index <= r && r <= self.max_index);
 
         if r == self.min_index {
-            return (M::id(), self.min_index);
+            return (M::e(), self.min_index);
         }
 
-        let mut acc = M::id();
+        let mut acc = M::e();
         let x = Self::min_left_inner(
             &self.arena,
             self.root,

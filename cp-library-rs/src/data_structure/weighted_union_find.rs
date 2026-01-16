@@ -19,7 +19,7 @@ where
         WeightedUnionFind {
             par: (0..n).collect(),
             rank: vec![1; n],
-            weight: vec![G::id(); n],
+            weight: vec![G::e(); n],
             group_count: n,
         }
     }

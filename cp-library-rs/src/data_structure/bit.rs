@@ -28,7 +28,7 @@ impl<T: Monoid> BIT<T> {
     pub fn new(n: usize) -> Self {
         BIT {
             size: n,
-            arr: vec![T::id(); n + 1],
+            arr: vec![T::e(); n + 1],
         }
     }
 
@@ -46,7 +46,7 @@ impl<T: Monoid> BIT<T> {
     /// 先頭からの和を求める
     /// - `i`: 区間`[0,i)`に対しての総和（`0-indexed`）
     pub fn prefix_sum(&self, mut i: usize) -> T::Val {
-        let mut res = T::id();
+        let mut res = T::e();
         while i != 0 {
             res = T::op(&res, &self.arr[i]);
             i -= Self::lsb(i);
@@ -83,7 +83,7 @@ impl<T: Group> BIT<T> {
         if let Some((i, j)) = self.parse_range(range) {
             T::op(&self.prefix_sum(j), &T::inv(&self.prefix_sum(i)))
         } else {
-            T::id()
+            T::e()
         }
     }
 }
@@ -92,7 +92,7 @@ impl<T: Monoid> From<&Vec<T::Val>> for BIT<T> {
     /// ベクターの参照からBITを作成
     fn from(src: &Vec<T::Val>) -> Self {
         let size = src.len();
-        let mut arr = vec![T::id(); size + 1];
+        let mut arr = vec![T::e(); size + 1];
         for i in 1..=size {
             let x = src[i - 1].clone();
             arr[i] = T::op(&arr[i], &x);
@@ -111,7 +111,7 @@ impl<T: OrderedMonoid> BIT<T> {
     where
         F: Fn(&T::Val, &T::Val) -> bool,
     {
-        let mut sum = T::id();
+        let mut sum = T::e();
         let mut idx = 0;
         let mut d = self.size.next_power_of_two() / 2;
         while d != 0 {

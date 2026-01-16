@@ -46,7 +46,7 @@ impl<M: CommutativeMonoid> DualSegmentTree<M> {
         Self {
             size: n,
             offset,
-            data: vec![M::id(); offset << 1],
+            data: vec![M::e(); offset << 1],
         }
     }
 

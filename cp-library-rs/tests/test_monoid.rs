@@ -25,14 +25,14 @@ fn test_gcd() {
     type GCDU = GCD<usize>;
 
     // isize
-    assert_eq!(GCDI::op(&GCDI::id(), &GCDI::id()), GCDI::id());
-    assert_eq!(GCDI::op(&GCDI::id(), &998244353), 998244353);
+    assert_eq!(GCDI::op(&GCDI::e(), &GCDI::e()), GCDI::e());
+    assert_eq!(GCDI::op(&GCDI::e(), &998244353), 998244353);
     assert_eq!(GCDI::op(&20, &240), 20);
     assert_eq!(GCDI::op(&101, &20021213), 1);
 
     // usize
-    assert_eq!(GCDU::op(&GCDU::id(), &GCDU::id()), GCDU::id());
-    assert_eq!(GCDU::op(&GCDU::id(), &998244353), 998244353);
+    assert_eq!(GCDU::op(&GCDU::e(), &GCDU::e()), GCDU::e());
+    assert_eq!(GCDU::op(&GCDU::e(), &998244353), 998244353);
     assert_eq!(GCDU::op(&20, &240), 20);
     assert_eq!(GCDU::op(&101, &20021213), 1);
 }

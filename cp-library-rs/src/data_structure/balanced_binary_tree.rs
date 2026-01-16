@@ -57,7 +57,7 @@ mod balanced_binary_tree_ {
                 NodeEntry {
                     root: &mut self.root,
                     key: Some(key),
-                    value: Some(M::id()),
+                    value: Some(M::e()),
                 }
             }
         }
@@ -155,7 +155,7 @@ mod balanced_binary_tree_ {
             Self {
                 root: None,
                 size: 0,
-                tmp_e: M::id(),
+                tmp_e: M::e(),
             }
         }
     }
@@ -348,11 +348,11 @@ mod node {
         end: Bound<&K>,
     ) -> M::Val {
         let Some(T) = root else {
-            return M::id();
+            return M::e();
         };
         // 区間を含まない
         if has_no_intersection((l, r), (begin, end)) {
-            M::id()
+            M::e()
         }
         // 区間を包含する
         else if includes((l, r), (begin, end)) {
@@ -365,7 +365,7 @@ mod node {
             let m_val = if includes((l, r), (Included(mid), Included(mid))) {
                 T.value.clone()
             } else {
-                M::id()
+                M::e()
             };
             let r_val = get_range(&T.right, l, r, Excluded(mid), end);
             M::op(&M::op(&l_val, &m_val), &r_val)

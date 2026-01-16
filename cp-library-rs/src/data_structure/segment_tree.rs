@@ -63,7 +63,7 @@ impl<M: Monoid> SegmentTree<M> {
         Self {
             N,
             offset,
-            data: vec![M::id(); offset << 1],
+            data: vec![M::e(); offset << 1],
         }
     }
 
@@ -118,7 +118,7 @@ impl<M: Monoid> SegmentTree<M> {
         // 値の取得
         let mut l = self.offset + start;
         let mut r = self.offset + end;
-        let (mut res_l, mut res_r) = (M::id(), M::id());
+        let (mut res_l, mut res_r) = (M::e(), M::e());
 
         while l < r {
             if l & 1 == 1 {
@@ -221,14 +221,14 @@ where
     where
         F: Fn(M::Val) -> bool,
     {
-        assert!(f(M::id()));
+        assert!(f(M::e()));
 
         if l >= self.N {
-            return (M::id(), self.N);
+            return (M::e(), self.N);
         }
 
         l += self.offset;
-        let mut sum = M::id();
+        let mut sum = M::e();
 
         // 第1段階: 条件を満たさない区間を見つける
         'fst: loop {
@@ -286,14 +286,14 @@ where
     where
         F: Fn(M::Val) -> bool,
     {
-        assert!(f(M::id()));
+        assert!(f(M::e()));
 
         if r == 0 {
-            return (M::id(), 0);
+            return (M::e(), 0);
         }
 
         r += self.offset;
-        let mut sum = M::id();
+        let mut sum = M::e();
 
         // 第1段階: 条件を満たさない区間を見つける
         'fst: loop {
