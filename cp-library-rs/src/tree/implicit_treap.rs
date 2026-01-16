@@ -62,13 +62,49 @@ impl<T> Default for ImplicitTreap<T> {
 }
 
 impl<T> ImplicitTreap<T> {
-    /// i 番目に要素を挿入する
+    /// i 番目の要素の可変参照を取得する
+    pub fn get_mut(&mut self, i: usize) -> Option<&mut T> {
+        if self.len() <= i {
+            return None;
+        }
+        let (l, r) = self.split_nth(self.root, i);
+        let (mid, r) = self.split_nth(r, 1);
+
+        let new_l = self.merge(l, mid);
+        self.root = self.merge(new_l, r);
+
+        mid.map(|ptr| &mut self.arena.get_mut(ptr).value)
+    }
+
+    /// i 番目の要素の不変参照を取得する
+    pub fn get(&mut self, i: usize) -> Option<&T> {
+        self.get_mut(i).map(|t| &*t)
+    }
+
+    /// i 番目に要素 value を挿入する
+    /// - `self.len() <= i` の場合，末尾に追加する．
     pub fn insert(&mut self, i: usize, value: T) {
         let prio = self.rng.next_u32();
         let (l, r) = self.split_nth(self.root, i.min(self.len()));
         let ptr = self.arena.alloc(TreapNode::new(value, prio));
         let mid = self.merge(l, Some(ptr));
         self.root = self.merge(mid, r);
+    }
+
+    /// 末尾に要素 value を挿入する
+    pub fn push_back(&mut self, value: T) {
+        self.insert(self.len(), value);
+    }
+
+    /// i 番目の要素を削除する
+    /// - `self.len() <= i` の場合，None を返す．
+    pub fn remove(&mut self, i: usize) {
+        if self.len() <= i {
+            return;
+        }
+        let (l, r) = self.split_nth(self.root, i);
+        let (_, r) = self.split_nth(r, 1);
+        self.root = self.merge(l, r);
     }
 
     /// 空であるか判定する
@@ -183,22 +219,5 @@ impl<T: Debug> ShowBinaryTree<Ptr> for ImplicitTreap<T> {
     }
     fn print_node(&self, ptr: &Ptr) -> String {
         format!("{:?}", self.arena.get(*ptr))
-    }
-}
-
-#[cfg(test)]
-mod test_implicit_treap {
-    use crate::{tree::implicit_treap::ImplicitTreap, utils::show_binary_tree::ShowBinaryTree};
-
-    #[test]
-    fn test_split_nth() {
-        let mut tree = ImplicitTreap::default();
-
-        for i in 0..10 {
-            let c = ('a' as u8 + i as u8) as char;
-            tree.insert(i, c);
-        }
-
-        tree.print_as_binary_tree();
     }
 }
