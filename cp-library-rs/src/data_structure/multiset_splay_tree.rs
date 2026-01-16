@@ -5,7 +5,7 @@ pub use multiset_splay_tree_::MultiSet;
 mod multiset_splay_tree_ {
     //! 多重集合
     use crate::{
-        data_structure::splay_tree::{
+        tree::splay_tree::{
             find::{lower_bound, upper_bound},
             insert::{insert, insert_right},
             iterator::{prev, NodeIterator, NodePosition, NodeRangeIterator},

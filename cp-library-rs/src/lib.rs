@@ -11,6 +11,7 @@ pub mod graph;
 pub mod linear_algrebra;
 pub mod number_theory;
 pub mod string;
+pub mod tree;
 pub mod utils;
 
 // macro

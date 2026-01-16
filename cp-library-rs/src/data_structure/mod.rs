@@ -20,7 +20,6 @@ pub mod segment_tree_2d;
 pub mod segment_tree_mutable;
 pub mod segmented_sieve;
 pub mod sparse_table;
-mod splay_tree;
 pub mod trie;
 pub mod union_find;
 pub mod weighted_union_find;
