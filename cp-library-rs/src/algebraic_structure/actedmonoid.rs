@@ -1,21 +1,21 @@
 //! 作用付きモノイド
 
 /// 作用付きモノイド
-pub trait ExtMonoid {
+pub trait ActedMonoid {
     /// 要素のデータ型
-    type X: Clone + PartialEq;
+    type Val: Clone + PartialEq;
     /// 作用素のデータ型
-    type F: Clone + PartialEq;
+    type Act: Clone + PartialEq;
     /// 要素Xの単位元を返す
-    fn id_x() -> Self::X;
+    fn e() -> Self::Val;
     /// 作用素Fの単位元を返す
-    fn id_f() -> Self::F;
+    fn id() -> Self::Act;
     /// 要素同士の演算
-    fn op(x: &Self::X, y: &Self::X) -> Self::X;
+    fn op(x: &Self::Val, y: &Self::Val) -> Self::Val;
     /// 要素に対する作用
-    fn mapping(x: &Self::X, y: &Self::F) -> Self::X;
+    fn mapping(x: &Self::Val, y: &Self::Act) -> Self::Val;
     /// 作用素同士の演算
-    fn composition(x: &Self::F, y: &Self::F) -> Self::F;
+    fn compose(x: &Self::Act, y: &Self::Act) -> Self::Act;
 }
 
 /// （遅延セグ木）作用付きモノイド
@@ -28,33 +28,33 @@ pub mod examples {
 
     use num::{Bounded, FromPrimitive, Zero};
 
-    use super::ExtMonoid;
+    use super::ActedMonoid;
 
     /// 区間加算 + 区間和
     #[derive(Debug)]
     pub struct AddSum<T>(PhantomData<T>);
-    impl<T> ExtMonoid for AddSum<T>
+    impl<T> ActedMonoid for AddSum<T>
     where
         T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
     {
-        type X = (T, usize);
-        type F = T;
-        fn id_x() -> Self::X {
+        type Val = (T, usize);
+        type Act = T;
+        fn e() -> Self::Val {
             (T::zero(), 0)
         }
-        fn id_f() -> Self::F {
+        fn id() -> Self::Act {
             T::zero()
         }
-        fn op(x: &Self::X, y: &Self::X) -> Self::X {
+        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
             let (xv, xs) = x.clone();
             let (yv, ys) = y.clone();
             (xv + yv, xs + ys)
         }
-        fn mapping(x: &Self::X, y: &Self::F) -> Self::X {
+        fn mapping(x: &Self::Val, y: &Self::Act) -> Self::Val {
             let (val, size) = x.clone();
             (val + y.clone() * T::from_usize(size).unwrap(), size)
         }
-        fn composition(x: &Self::F, y: &Self::F) -> Self::F {
+        fn compose(x: &Self::Act, y: &Self::Act) -> Self::Act {
             x.clone() + y.clone()
         }
     }
@@ -62,27 +62,27 @@ pub mod examples {
     /// 区間更新 + 区間最小値
     #[derive(Debug)]
     pub struct UpdateMin<T>(PhantomData<T>);
-    impl<T: Bounded + Ord + Clone> ExtMonoid for UpdateMin<T> {
-        type X = T;
-        type F = T;
-        fn id_x() -> Self::X {
+    impl<T: Bounded + Ord + Clone> ActedMonoid for UpdateMin<T> {
+        type Val = T;
+        type Act = T;
+        fn e() -> Self::Val {
             T::max_value()
         }
-        fn id_f() -> Self::F {
+        fn id() -> Self::Act {
             T::max_value()
         }
-        fn op(x: &Self::X, y: &Self::X) -> Self::X {
+        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
             x.clone().min(y.clone())
         }
-        fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
-            if *y == Self::id_f() {
+        fn mapping(_x: &Self::Val, y: &Self::Act) -> Self::Val {
+            if *y == Self::id() {
                 _x.clone()
             } else {
                 y.clone()
             }
         }
-        fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
-            if *y == Self::id_f() {
+        fn compose(_x: &Self::Act, y: &Self::Act) -> Self::Act {
+            if *y == Self::id() {
                 _x.clone()
             } else {
                 y.clone()
@@ -93,27 +93,27 @@ pub mod examples {
     /// 区間更新 + 区間最大値
     #[derive(Debug)]
     pub struct UpdateMax<T>(PhantomData<T>);
-    impl<T: Bounded + Ord + Clone> ExtMonoid for UpdateMax<T> {
-        type X = T;
-        type F = T;
-        fn id_x() -> Self::X {
+    impl<T: Bounded + Ord + Clone> ActedMonoid for UpdateMax<T> {
+        type Val = T;
+        type Act = T;
+        fn e() -> Self::Val {
             T::min_value()
         }
-        fn id_f() -> Self::F {
+        fn id() -> Self::Act {
             T::min_value()
         }
-        fn op(x: &Self::X, y: &Self::X) -> Self::X {
+        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
             x.clone().max(y.clone())
         }
-        fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
-            if *y == Self::id_f() {
+        fn mapping(_x: &Self::Val, y: &Self::Act) -> Self::Val {
+            if *y == Self::id() {
                 _x.clone()
             } else {
                 y.clone()
             }
         }
-        fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
-            if *y == Self::id_f() {
+        fn compose(_x: &Self::Act, y: &Self::Act) -> Self::Act {
+            if *y == Self::id() {
                 _x.clone()
             } else {
                 y.clone()
@@ -123,27 +123,27 @@ pub mod examples {
 
     /// 最大値と最小値 + 区間更新
     pub struct UpdateMinMax<T>(PhantomData<T>);
-    impl<T: Ord + Bounded + Clone> ExtMonoid for UpdateMinMax<T> {
-        type X = (T, T);
-        type F = Option<(T, T)>;
-        fn id_x() -> Self::X {
+    impl<T: Ord + Bounded + Clone> ActedMonoid for UpdateMinMax<T> {
+        type Val = (T, T);
+        type Act = Option<(T, T)>;
+        fn e() -> Self::Val {
             (T::max_value(), T::min_value())
         }
-        fn id_f() -> Self::F {
+        fn id() -> Self::Act {
             None
         }
-        fn op(x: &Self::X, y: &Self::X) -> Self::X {
+        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
             let (xmin, xmax) = x.clone();
             let (ymin, ymax) = y.clone();
             (xmin.min(ymin), xmax.max(ymax))
         }
-        fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
+        fn mapping(_x: &Self::Val, y: &Self::Act) -> Self::Val {
             match y.clone() {
                 Some(v) => v,
                 None => _x.clone(),
             }
         }
-        fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
+        fn compose(_x: &Self::Act, y: &Self::Act) -> Self::Act {
             match y.clone() {
                 Some(v) => Some(v),
                 None => _x.clone(),
@@ -154,25 +154,25 @@ pub mod examples {
     /// 区間加算 + 区間最小値
     #[derive(Debug)]
     pub struct AddMin<T>(PhantomData<T>);
-    impl<T> ExtMonoid for AddMin<T>
+    impl<T> ActedMonoid for AddMin<T>
     where
         T: Zero + Clone + Add<Output = T> + Ord + Bounded,
     {
-        type X = T;
-        type F = T;
-        fn id_x() -> Self::X {
+        type Val = T;
+        type Act = T;
+        fn e() -> Self::Val {
             T::max_value()
         }
-        fn id_f() -> Self::F {
+        fn id() -> Self::Act {
             T::zero()
         }
-        fn op(x: &Self::X, y: &Self::X) -> Self::X {
+        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
             x.clone().min(y.clone())
         }
-        fn mapping(x: &Self::X, y: &Self::F) -> Self::X {
+        fn mapping(x: &Self::Val, y: &Self::Act) -> Self::Val {
             x.clone() + y.clone()
         }
-        fn composition(x: &Self::F, y: &Self::F) -> Self::F {
+        fn compose(x: &Self::Act, y: &Self::Act) -> Self::Act {
             x.clone() + y.clone()
         }
     }
@@ -180,31 +180,31 @@ pub mod examples {
     /// 区間更新 + 区間和取得
     #[derive(Debug)]
     pub struct UpdateSum<T>(PhantomData<T>);
-    impl<T> ExtMonoid for UpdateSum<T>
+    impl<T> ActedMonoid for UpdateSum<T>
     where
         T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
     {
-        type X = (T, usize);
-        type F = Option<T>;
-        fn id_x() -> Self::X {
+        type Val = (T, usize);
+        type Act = Option<T>;
+        fn e() -> Self::Val {
             (T::zero(), 0)
         }
-        fn id_f() -> Self::F {
+        fn id() -> Self::Act {
             None
         }
-        fn op(x: &Self::X, y: &Self::X) -> Self::X {
+        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
             let (xv, xs) = x.clone();
             let (yv, ys) = y.clone();
             (xv + yv, xs + ys)
         }
-        fn mapping(_x: &Self::X, y: &Self::F) -> Self::X {
+        fn mapping(_x: &Self::Val, y: &Self::Act) -> Self::Val {
             let (val, size) = _x.clone();
             match y.clone() {
                 Some(v) => (v * T::from_usize(size).unwrap(), size),
                 None => (val, size),
             }
         }
-        fn composition(_x: &Self::F, y: &Self::F) -> Self::F {
+        fn compose(_x: &Self::Act, y: &Self::Act) -> Self::Act {
             match y.clone() {
                 Some(v) => Some(v),
                 None => _x.clone(),

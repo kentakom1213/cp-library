@@ -1,7 +1,9 @@
 //! 遅延評価セグメント木
 //! - 参考: <https://drken1215.hatenablog.com/entry/2024/11/17/035045>
 
-use crate::{algebraic_structure::extmonoid::ExtMonoid, utils::show_binary_tree::ShowBinaryTree};
+use crate::{
+    algebraic_structure::actedmonoid::ActedMonoid, utils::show_binary_tree::ShowBinaryTree,
+};
 use core::fmt;
 use std::{
     fmt::Debug,
@@ -13,15 +15,15 @@ use std::{
 
 /// 遅延評価セグメント木
 #[derive(Debug)]
-pub struct LazySegmentTree<M: ExtMonoid> {
+pub struct LazySegmentTree<M: ActedMonoid> {
     pub size: usize,
     log: usize,
     offset: usize,
-    data: Vec<M::X>,
-    lazy: Vec<M::F>,
+    data: Vec<M::Val>,
+    lazy: Vec<M::Act>,
 }
 
-impl<M: ExtMonoid> LazySegmentTree<M> {
+impl<M: ActedMonoid> LazySegmentTree<M> {
     #[inline]
     fn parse_range<R: RangeBounds<usize>>(&self, range: &R) -> Option<(usize, usize)> {
         let start = match range.start_bound() {
@@ -54,13 +56,13 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
             size: n,
             log,
             offset,
-            data: vec![M::id_x(); offset << 1],
-            lazy: vec![M::id_f(); offset << 1],
+            data: vec![M::e(); offset << 1],
+            lazy: vec![M::id(); offset << 1],
         }
     }
 
     /// 配列から構築する
-    pub fn from_vec(src: Vec<M::X>) -> Self {
+    pub fn from_vec(src: Vec<M::Val>) -> Self {
         let mut seg = Self::new(src.len());
         for (i, v) in src.into_iter().enumerate() {
             seg.data[seg.offset + i] = v;
@@ -77,22 +79,22 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
     }
 
     /// 作用をノードに反映
-    fn apply_lazy(&mut self, k: usize, f: &M::F) {
+    fn apply_lazy(&mut self, k: usize, f: &M::Act) {
         self.data[k] = M::mapping(&self.data[k], f);
         if k < self.offset {
-            self.lazy[k] = M::composition(&self.lazy[k], f);
+            self.lazy[k] = M::compose(&self.lazy[k], f);
         }
     }
 
     /// 遅延値を子へ伝播
     fn push_lazy(&mut self, k: usize) {
-        if self.lazy[k] == M::id_f() {
+        if self.lazy[k] == M::id() {
             return;
         }
         let f = self.lazy[k].clone();
         self.apply_lazy(k << 1, &f);
         self.apply_lazy(k << 1 | 1, &f);
-        self.lazy[k] = M::id_f();
+        self.lazy[k] = M::id();
     }
 
     /// 葉から親方向へ更新
@@ -110,7 +112,7 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
     }
 
     /// 要素を更新する
-    pub fn set(&mut self, i: usize, v: M::X) {
+    pub fn set(&mut self, i: usize, v: M::Val) {
         assert!(i < self.size);
         let k = i + self.offset;
         self.push_lazy_deep(k);
@@ -119,7 +121,7 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
     }
 
     /// 要素を取得する
-    pub fn get_at(&mut self, i: usize) -> M::X {
+    pub fn get_at(&mut self, i: usize) -> M::Val {
         assert!(i < self.size);
         let k = i + self.offset;
         self.push_lazy_deep(k);
@@ -127,7 +129,7 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
     }
 
     /// 要素へ作用させる
-    pub fn apply_at(&mut self, i: usize, f: M::F) {
+    pub fn apply_at(&mut self, i: usize, f: M::Act) {
         assert!(i < self.size);
         let k = i + self.offset;
         self.push_lazy_deep(k);
@@ -137,14 +139,14 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
 
     /// 区間に`val`を作用させる
     /// - `range`: `[left, right)`
-    pub fn apply<R: RangeBounds<usize> + fmt::Debug>(&mut self, range: R, val: M::F) {
+    pub fn apply<R: RangeBounds<usize> + fmt::Debug>(&mut self, range: R, val: M::Act) {
         let Some((left, right)) = self.parse_range(&range) else {
             panic!("The given range is wrong: {:?}", range);
         };
         self.apply_range(left, right, &val);
     }
 
-    fn apply_range(&mut self, mut l: usize, mut r: usize, f: &M::F) {
+    fn apply_range(&mut self, mut l: usize, mut r: usize, f: &M::Act) {
         if l == r {
             return;
         }
@@ -185,16 +187,16 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
 
     /// 区間を取得する
     /// - `range`: `[left, right)`
-    pub fn get<R: RangeBounds<usize> + fmt::Debug>(&mut self, range: R) -> M::X {
+    pub fn get<R: RangeBounds<usize> + fmt::Debug>(&mut self, range: R) -> M::Val {
         let Some((left, right)) = self.parse_range(&range) else {
             panic!("The given range is wrong: {:?}", range);
         };
         self.prod_range(left, right)
     }
 
-    fn prod_range(&mut self, mut l: usize, mut r: usize) -> M::X {
+    fn prod_range(&mut self, mut l: usize, mut r: usize) -> M::Val {
         if l == r {
-            return M::id_x();
+            return M::e();
         }
         l += self.offset;
         r += self.offset;
@@ -206,7 +208,7 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
                 self.push_lazy((r - 1) >> h);
             }
         }
-        let (mut val_left, mut val_right) = (M::id_x(), M::id_x());
+        let (mut val_left, mut val_right) = (M::e(), M::e());
         while l < r {
             if (l & 1) == 1 {
                 val_left = M::op(&val_left, &self.data[l]);
@@ -223,23 +225,23 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
     }
 
     /// 全区間の集約
-    pub fn all_prod(&self) -> M::X {
+    pub fn all_prod(&self) -> M::Val {
         self.data[1].clone()
     }
 
     /// 左端を固定した2分探索
-    /// - 返り値: (prod([l, x)), x)
-    pub fn max_right<F>(&mut self, l: usize, f: F) -> (M::X, usize)
+    /// - 返り値: (prod([l, Val)), Val)
+    pub fn max_right<Act>(&mut self, l: usize, f: Act) -> (M::Val, usize)
     where
-        F: Fn(M::X) -> bool,
+        Act: Fn(M::Val) -> bool,
     {
-        assert!(f(M::id_x()));
+        assert!(f(M::e()));
         if l == self.size {
-            return (M::id_x(), self.size);
+            return (M::e(), self.size);
         }
         let mut l = l + self.offset;
         self.push_lazy_deep(l);
-        let mut sum = M::id_x();
+        let mut sum = M::e();
         loop {
             while l % 2 == 0 {
                 l >>= 1;
@@ -267,18 +269,18 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
     }
 
     /// 右端を固定した2分探索
-    /// - 返り値: (prod([x, r)), x)
-    pub fn min_left<F>(&mut self, r: usize, f: F) -> (M::X, usize)
+    /// - 返り値: (prod([Val, r)), Val)
+    pub fn min_left<Act>(&mut self, r: usize, f: Act) -> (M::Val, usize)
     where
-        F: Fn(M::X) -> bool,
+        Act: Fn(M::Val) -> bool,
     {
-        assert!(f(M::id_x()));
+        assert!(f(M::e()));
         if r == 0 {
-            return (M::id_x(), 0);
+            return (M::e(), 0);
         }
         let mut r = r + self.offset;
         self.push_lazy_deep(r - 1);
-        let mut sum = M::id_x();
+        let mut sum = M::e();
         loop {
             r -= 1;
             while r > 1 && (r % 2) == 1 {
@@ -306,19 +308,19 @@ impl<M: ExtMonoid> LazySegmentTree<M> {
     }
 }
 
-impl<M: ExtMonoid> FromIterator<M::X> for LazySegmentTree<M> {
-    fn from_iter<T: IntoIterator<Item = M::X>>(iter: T) -> Self {
+impl<M: ActedMonoid> FromIterator<M::Val> for LazySegmentTree<M> {
+    fn from_iter<T: IntoIterator<Item = M::Val>>(iter: T) -> Self {
         // 配列にする
-        let arr: Vec<M::X> = iter.into_iter().collect();
+        let arr: Vec<M::Val> = iter.into_iter().collect();
         Self::from_vec(arr)
     }
 }
 
 impl<M> ShowBinaryTree<usize> for LazySegmentTree<M>
 where
-    M: ExtMonoid,
-    M::F: Debug,
-    M::X: Debug,
+    M: ActedMonoid,
+    M::Act: Debug,
+    M::Val: Debug,
 {
     fn get_root(&self) -> Option<usize> {
         Some(1)
