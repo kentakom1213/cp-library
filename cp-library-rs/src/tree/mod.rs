@@ -2,4 +2,4 @@
 
 pub mod arena;
 pub mod implicit_treap;
-pub mod splay_tree;
+pub(crate) mod splay_tree;

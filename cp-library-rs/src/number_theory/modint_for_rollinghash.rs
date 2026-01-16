@@ -8,14 +8,14 @@ pub mod modint {
     fn mul(a: usize, b: usize) -> usize { ((a as u128 * b as u128) % MOD as u128) as usize }
     fn calcmod(x: usize) -> usize { let xu = x >> 61; let xd = x & MOD; let res = xu + xd; if res >= MOD { res - MOD } else { res } }
     use std::{fmt::Display,ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign}, str::FromStr, num::ParseIntError, iter::{Sum, Product}};
-    use rand::{thread_rng, Rng};
+    use rand::{rng, Rng};
 
     use num_traits::{One, Zero};
     #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)] pub struct Modint(pub usize);
     impl Modint { pub fn new(n: usize) -> Self { Self(calcmod(n)) }
     fn is_primitive_root(&self) -> bool { if self.is_zero() { return false; } MOD_MINUS_1_FACTORS.iter().all(|&pi| self.pow((MOD - 1) / pi) != 1) }
     /// MOD における原始根をランダムに生成する
-    pub fn generate_base() -> Self { let mut rng = thread_rng(); loop { let base_candidate = Self(rng.gen_range(2..MOD)); if base_candidate.is_primitive_root() { return base_candidate; } } } }
+    pub fn generate_base() -> Self { let mut rng = rng(); loop { let base_candidate = Self(rng.random_range(2..MOD)); if base_candidate.is_primitive_root() { return base_candidate; } } } }
     impl Neg for Modint { type Output = Self; fn neg(self) -> Self { Modint(if self.0 == 0 { 0 } else { MOD - self.0 }) } }
     impl Add for Modint { type Output = Self; fn add(self, rhs: Self) -> Self { let mut res = self.0 + rhs.0; if res >= MOD { res -= MOD; } Modint(res) } }
     impl Sub for Modint { type Output = Self; fn sub(self, rhs: Self) -> Self { self + (- rhs) } }

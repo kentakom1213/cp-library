@@ -39,13 +39,13 @@ impl<N: ArenaNode> Arena<N> {
     }
 
     /// ノードの不変参照を取得する
-    pub fn get(&self, p: Ptr) -> &N {
-        &self.nodes[p.0]
+    pub fn get(&self, ptr: Ptr) -> &N {
+        &self.nodes[ptr.0]
     }
 
     /// ノードの可変参照を取得する
-    pub fn get_mut(&mut self, p: Ptr) -> &mut N {
-        &mut self.nodes[p.0]
+    pub fn get_mut(&mut self, ptr: Ptr) -> &mut N {
+        &mut self.nodes[ptr.0]
     }
 }
 
