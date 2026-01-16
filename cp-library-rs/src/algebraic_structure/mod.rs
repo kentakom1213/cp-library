@@ -14,3 +14,4 @@ pub mod monoid;
 pub mod operation;
 pub mod ordered_monoid;
 pub mod semilattice;
+pub mod to_acted;

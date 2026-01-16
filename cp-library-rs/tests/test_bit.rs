@@ -1,6 +1,9 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::{algebraic_structure::operation::Add, data_structure::bit::*};
+use cp_library_rs::{
+    algebraic_structure::operation::{Add, WrappingAdd},
+    data_structure::bit::*,
+};
 
 #[test]
 fn test_new() {
@@ -50,7 +53,7 @@ fn test_sum() {
 
 #[test]
 fn test_new_usize() {
-    let mut bit = BIT::<Add<usize>>::new(5);
+    let mut bit = BIT::<WrappingAdd>::new(5);
 
     bit.add(0, 20);
     bit.add(2, 5_usize.wrapping_neg());

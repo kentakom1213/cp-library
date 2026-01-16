@@ -1,21 +1,33 @@
 //! implicit treap
+//!
+//! 列を管理するデータ構造
 
-use std::fmt::Debug;
+use std::{
+    fmt::Debug,
+    ops::{Bound::*, RangeBounds},
+};
 
 use rand::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 use crate::{
+    algebraic_structure::actedmonoid::ActedMonoid,
     tree::arena::{Arena, ArenaNode, Ptr},
     utils::show_binary_tree::ShowBinaryTree,
 };
 
-type A<T> = Arena<TreapNode<T>>;
+type A<M> = Arena<TreapNode<M>>;
 
 // ========== node ==========
+
 /// Treap のノード
-pub struct TreapNode<T> {
-    value: T,
+pub struct TreapNode<M: ActedMonoid> {
+    /// 値
+    val: M::Val,
+    /// 集約値
+    sum: M::Val,
+    /// 作用
+    act: M::Act,
     /// ヒープの重み値
     prio: u32,
     /// 部分木のサイズ
@@ -25,11 +37,13 @@ pub struct TreapNode<T> {
     right: Option<Ptr>,
 }
 
-impl<T> TreapNode<T> {
-    /// value と prio からノードを生成
-    pub fn new(value: T, prio: u32) -> Self {
+impl<M: ActedMonoid> TreapNode<M> {
+    /// val と prio からノードを生成
+    pub fn new(val: M::Val, prio: u32) -> Self {
         Self {
-            value,
+            sum: val.clone(),
+            val,
+            act: M::id(),
             prio,
             size: 1,
             left: None,
@@ -38,20 +52,20 @@ impl<T> TreapNode<T> {
     }
 }
 
-impl<T> ArenaNode for TreapNode<T> {}
+impl<M: ActedMonoid> ArenaNode for TreapNode<M> {}
 
 // ========== implicit treap ==========
 
 /// Implicit Treap
 ///
 /// - 動的な列を管理するデータ構造
-pub struct ImplicitTreap<T> {
-    arena: Arena<TreapNode<T>>,
+pub struct ImplicitTreap<M: ActedMonoid> {
+    arena: Arena<TreapNode<M>>,
     root: Option<Ptr>,
     rng: XorShiftRng,
 }
 
-impl<T> Default for ImplicitTreap<T> {
+impl<M: ActedMonoid> Default for ImplicitTreap<M> {
     fn default() -> Self {
         Self {
             arena: A::new(),
@@ -61,9 +75,9 @@ impl<T> Default for ImplicitTreap<T> {
     }
 }
 
-impl<T> ImplicitTreap<T> {
+impl<M: ActedMonoid> ImplicitTreap<M> {
     /// i 番目の要素の可変参照を取得する
-    pub fn get_mut(&mut self, i: usize) -> Option<&mut T> {
+    pub fn get_mut(&mut self, i: usize) -> Option<&mut M::Val> {
         if self.len() <= i {
             return None;
         }
@@ -73,27 +87,27 @@ impl<T> ImplicitTreap<T> {
         let new_l = self.merge(l, mid);
         self.root = self.merge(new_l, r);
 
-        mid.map(|ptr| &mut self.arena.get_mut(ptr).value)
+        mid.map(|ptr| &mut self.arena.get_mut(ptr).val)
     }
 
     /// i 番目の要素の不変参照を取得する
-    pub fn get(&mut self, i: usize) -> Option<&T> {
+    pub fn get(&mut self, i: usize) -> Option<&M::Val> {
         self.get_mut(i).map(|t| &*t)
     }
 
-    /// i 番目に要素 value を挿入する
+    /// i 番目に要素 val を挿入する
     /// - `self.len() <= i` の場合，末尾に追加する．
-    pub fn insert(&mut self, i: usize, value: T) {
+    pub fn insert(&mut self, i: usize, val: M::Val) {
         let prio = self.rng.next_u32();
         let (l, r) = self.split_nth(self.root, i.min(self.len()));
-        let ptr = self.arena.alloc(TreapNode::new(value, prio));
+        let ptr = self.arena.alloc(TreapNode::new(val, prio));
         let mid = self.merge(l, Some(ptr));
         self.root = self.merge(mid, r);
     }
 
-    /// 末尾に要素 value を挿入する
-    pub fn push_back(&mut self, value: T) {
-        self.insert(self.len(), value);
+    /// 末尾に要素 val を挿入する
+    pub fn push_back(&mut self, val: M::Val) {
+        self.insert(self.len(), val);
     }
 
     /// i 番目の要素を削除する
@@ -105,6 +119,37 @@ impl<T> ImplicitTreap<T> {
         let (l, r) = self.split_nth(self.root, i);
         let (_, r) = self.split_nth(r, 1);
         self.root = self.merge(l, r);
+    }
+
+    /// 区間の集約値を返す
+    pub fn get_range<R: RangeBounds<usize> + Debug>(&mut self, range: R) -> M::Val {
+        let (l, r) = self.parse_range(range);
+
+        let (a, bc) = self.split_nth(self.root, l);
+        let (b, c) = self.split_nth(bc, r - l);
+
+        let ans = b
+            .map(|ptr| self.arena.get(ptr).sum.clone())
+            .unwrap_or(M::e());
+
+        let bc = self.merge(b, c);
+        self.root = self.merge(a, bc);
+        ans
+    }
+
+    /// 区間に作用を適用する
+    pub fn apply<R: RangeBounds<usize> + Debug>(&mut self, range: R, act: M::Act) {
+        let (l, r) = self.parse_range(range);
+
+        let (a, bc) = self.split_nth(self.root, l);
+        let (b, c) = self.split_nth(bc, r - l);
+
+        if let Some(ptr) = b {
+            self.apply_lazy(ptr, &act);
+        }
+
+        let bc = self.merge(b, c);
+        self.root = self.merge(a, bc);
     }
 
     /// 空であるか判定する
@@ -119,22 +164,97 @@ impl<T> ImplicitTreap<T> {
 
     // ========== internal ==========
 
+    /// 区間の取得
+    #[inline]
+    fn parse_range<R: RangeBounds<usize> + Debug>(&self, range: R) -> (usize, usize) {
+        let start = match range.start_bound() {
+            Unbounded => 0,
+            Excluded(&v) => v + 1,
+            Included(&v) => v,
+        };
+        let end = match range.end_bound() {
+            Unbounded => self.len(),
+            Excluded(&v) => v,
+            Included(&v) => v + 1,
+        };
+        if start <= end && end <= self.len() {
+            (start, end)
+        } else {
+            panic!("The given range is wrong: {:?}", range)
+        }
+    }
+
+    /// 部分木のサイズ
+    #[inline]
+    fn size_of(&self, ptr: Option<Ptr>) -> usize {
+        ptr.map(|ptr| self.arena.get(ptr).size).unwrap_or(0)
+    }
+
+    #[inline]
+    fn sum_of(&self, ptr: Option<Ptr>) -> M::Val {
+        ptr.map(|ptr| self.arena.get(ptr).sum.clone())
+            .unwrap_or(M::e())
+    }
+
+    /// ノード `ptr` が表す部分木全体に作用を適用
+    #[inline]
+    fn apply_lazy(&mut self, ptr: Ptr, act: &M::Act) {
+        let (nval, nsum) = {
+            let v = self.arena.get(ptr);
+            (M::mapping(&v.val, act), M::mapping(&v.sum, act))
+        };
+        let composed = {
+            let v = self.arena.get(ptr);
+            M::compose(&v.act, act)
+        };
+
+        let v = self.arena.get_mut(ptr);
+        v.val = nval;
+        v.sum = nsum;
+        v.act = composed;
+    }
+
     /// 子の情報を吸い上げる
     #[inline]
     fn pull(&mut self, ptr: Ptr) {
-        let lsize = self
-            .arena
-            .get(ptr)
-            .left
-            .map(|ptr| self.arena.get(ptr).size)
-            .unwrap_or(0);
-        let rsize = self
-            .arena
-            .get(ptr)
-            .right
-            .map(|ptr| self.arena.get(ptr).size)
-            .unwrap_or(0);
-        self.arena.get_mut(ptr).size = lsize + rsize + 1;
+        let (l, r, val) = {
+            let v = self.arena.get(ptr);
+            (v.left, v.right, v.val.clone())
+        };
+
+        let lsize = self.size_of(l);
+        let rsize = self.size_of(r);
+
+        let lsum = self.sum_of(l);
+        let rsum = self.sum_of(r);
+
+        let sum = M::op(&M::op(&lsum, &val), &rsum);
+
+        let v = self.arena.get_mut(ptr);
+        v.size = lsize + rsize + 1;
+        v.sum = sum;
+    }
+
+    /// 子に伝播する
+    #[inline]
+    fn push(&mut self, ptr: Ptr) {
+        let act = self.arena.get(ptr).act.clone();
+        if act == M::id() {
+            return;
+        }
+
+        let (l, r) = {
+            let v = self.arena.get(ptr);
+            (v.left, v.right)
+        };
+        if let Some(lp) = l {
+            self.apply_lazy(lp, &act);
+        }
+        if let Some(rp) = r {
+            self.apply_lazy(rp, &act);
+        }
+
+        self.arena.get_mut(ptr).act = M::id();
     }
 
     /// ptr を根とする木を，左から n 番目までのノードとそれ以外のノードに分解する
@@ -143,23 +263,19 @@ impl<T> ImplicitTreap<T> {
             return (None, None);
         };
 
-        let lsize = self
-            .arena
-            .get(ptr)
-            .left
-            .map(|p| self.arena.get(p).size)
-            .unwrap_or(0);
+        self.push(ptr);
+
+        let node = self.arena.get(ptr);
+        let lsize = self.size_of(node.left);
 
         if n <= lsize {
-            let lch = self.arena.get(ptr).left;
-            let (l, r) = self.split_nth(lch, n);
+            let (l, r) = self.split_nth(node.left, n);
             self.arena.get_mut(ptr).left = r;
             self.pull(ptr);
 
             (l, Some(ptr))
         } else {
-            let rch = self.arena.get(ptr).right;
-            let (l, r) = self.split_nth(rch, n - lsize - 1);
+            let (l, r) = self.split_nth(node.right, n - lsize - 1);
             self.arena.get_mut(ptr).right = l;
             self.pull(ptr);
 
@@ -177,6 +293,7 @@ impl<T> ImplicitTreap<T> {
 
                 if pl < pr {
                     // left を根にする
+                    self.push(left);
                     let lr = self.arena.get(left).right;
                     self.arena.get_mut(left).right = self.merge(lr, Some(right));
                     self.pull(left);
@@ -184,6 +301,7 @@ impl<T> ImplicitTreap<T> {
                     Some(left)
                 } else {
                     // right を根にする
+                    self.push(right);
                     let rl = self.arena.get(right).left;
                     self.arena.get_mut(right).left = self.merge(Some(left), rl);
                     self.pull(right);
@@ -197,17 +315,12 @@ impl<T> ImplicitTreap<T> {
 
 // ========== debug ==========
 
-impl<T: Debug> Debug for TreapNode<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("TreapNode")
-            .field("value", &self.value)
-            .field("size", &self.size)
-            .field("prio", &self.prio)
-            .finish()
-    }
-}
-
-impl<T: Debug> ShowBinaryTree<Ptr> for ImplicitTreap<T> {
+impl<M> ShowBinaryTree<Ptr> for ImplicitTreap<M>
+where
+    M: ActedMonoid,
+    M::Val: Debug,
+    M::Act: Debug,
+{
     fn get_root(&self) -> Option<Ptr> {
         self.root
     }
@@ -218,6 +331,11 @@ impl<T: Debug> ShowBinaryTree<Ptr> for ImplicitTreap<T> {
         self.arena.get(*ptr).right
     }
     fn print_node(&self, ptr: &Ptr) -> String {
-        format!("{:?}", self.arena.get(*ptr))
+        format!(
+            "[val:{:?}, sum:{:?}, act:{:?}]",
+            self.arena.get(*ptr).val,
+            self.arena.get(*ptr).sum,
+            self.arena.get(*ptr).act,
+        )
     }
 }

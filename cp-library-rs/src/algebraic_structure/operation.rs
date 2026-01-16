@@ -20,6 +20,10 @@ pub struct MinMax<T>(PhantomData<T>);
 #[derive(Debug, Clone)]
 pub struct Add<T>(PhantomData<T>);
 
+/// overflow する和
+#[derive(Debug, Clone)]
+pub struct WrappingAdd;
+
 /// 積
 #[derive(Debug, Clone)]
 pub struct Mul<T>(PhantomData<T>);

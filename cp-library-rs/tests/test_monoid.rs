@@ -3,7 +3,7 @@
 use cp_library_rs::{
     algebraic_structure::{
         monoid::Monoid,
-        operation::{Add, GCD},
+        operation::{Add, WrappingAdd, GCD},
     },
     utils::consts::NEG1,
 };
@@ -15,7 +15,7 @@ fn test_add() {
     assert_eq!(Add::<f64>::op(&0.5, &1.5), 2.0);
 
     // オーバーフロー
-    assert_eq!(Add::<usize>::op(&NEG1, &15), 14);
+    assert_eq!(WrappingAdd::op(&NEG1, &15), 14);
 }
 
 #[test]

@@ -4,25 +4,9 @@
 //! - [`Monoid::e`] ： 単位元を返す関数 $`\varnothing \to S`$
 //! - [`Monoid::op`] ： 演算 $`S\times S \to S`$
 
-macro_rules! impl_monoid_add {
-    ($ty:ty, $e:expr) => {
-        impl Monoid for Add<$ty> {
-            type Val = $ty;
-            fn e() -> Self::Val {
-                $e
-            }
-            fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
-                *left + *right
-            }
-        }
-    };
-}
+use crate::algebraic_structure::operation::{Add, Max, Min, Mul, WrappingAdd, Xor, GCD};
 
-use crate::{
-    algebraic_structure::operation::{Add, Max, Min, Mul, Xor, GCD},
-    number_theory::modint::{M107, M998},
-};
-
+use num::Zero;
 use num_traits::{Bounded, One};
 
 use super::operation::MinMax;
@@ -78,7 +62,17 @@ impl<T: Ord + Bounded + Clone> Monoid for MinMax<T> {
     }
 }
 
-impl Monoid for Add<usize> {
+impl<T: Zero + Clone> Monoid for Add<T> {
+    type Val = T;
+    fn e() -> Self::Val {
+        T::zero()
+    }
+    fn op(left: &Self::Val, right: &Self::Val) -> Self::Val {
+        left.clone() + right.clone()
+    }
+}
+
+impl Monoid for WrappingAdd {
     type Val = usize;
     fn e() -> Self::Val {
         0
@@ -87,10 +81,6 @@ impl Monoid for Add<usize> {
         left.wrapping_add(*right)
     }
 }
-impl_monoid_add!(isize, 0);
-impl_monoid_add!(f64, 0.0);
-impl_monoid_add!(M107, M107::new(0));
-impl_monoid_add!(M998, M998::new(0));
 
 impl<T: One + Clone> Monoid for Mul<T> {
     type Val = T;
