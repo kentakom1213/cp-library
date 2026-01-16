@@ -1,3 +1,5 @@
+//! スプレー木の実装
+
 pub mod find {
     #![allow(clippy::type_complexity)]
 
