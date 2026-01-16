@@ -26,7 +26,9 @@ fn test_range_min() {
 #[test]
 fn test_range_max_random() {
     let N = 500;
-    let arr = (0..N).map(|_| random()).collect::<Vec<isize>>();
+    let arr = (0..N)
+        .map(|_| random::<i64>() as isize)
+        .collect::<Vec<isize>>();
     let table = SparseTable::<Max<_>>::build(&arr);
 
     let get_range = |l, r| *arr[l..r].iter().max().unwrap_or(&isize::MAX);

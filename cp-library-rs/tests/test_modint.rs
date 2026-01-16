@@ -6,7 +6,7 @@ use std::str::FromStr;
 use cp_library_rs::number_theory::modint::*;
 use num::Integer;
 use num_traits::*;
-use rand::prelude::*;
+use rand::{prelude::*, random, rng};
 
 const MOD998: usize = 998244353;
 
@@ -165,17 +165,17 @@ fn test_from_str() {
 #[test]
 fn test_from_isize() {
     for _ in 0..200 {
-        let x: isize = random();
+        let x: isize = random::<i64>() as isize;
         let x_mod = (MOD998 as isize + x % MOD998 as isize) % MOD998 as isize;
-        let y = M998::from_isize(x);
+        let y = M998::from_isize(x as isize);
         assert_eq!(x_mod, y.0 as isize);
     }
 }
 
 /// ランダムな分数を生成する
 fn generate_random_fraction(rng: &mut ThreadRng) -> ((usize, usize), M998) {
-    let n = rng.gen_range(0..=4000);
-    let d = rng.gen_range(1..=4000);
+    let n = rng.random_range(0..=4000);
+    let d = rng.random_range(1..=4000);
     let g = n.gcd(&d);
     let (n, d) = (n / g, d / g);
     // modintを生成
@@ -185,7 +185,7 @@ fn generate_random_fraction(rng: &mut ThreadRng) -> ((usize, usize), M998) {
 
 #[test]
 fn test_rational_reconstruction() {
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
     for _ in 0..200 {
         let ((n, d), m) = generate_random_fraction(&mut rng);

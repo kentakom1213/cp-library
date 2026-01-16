@@ -2,7 +2,7 @@
 #![allow(clippy::needless_range_loop)]
 
 use cp_library_rs::number_theory::dynamic_modint::*;
-use rand::prelude::*;
+use rand::random;
 
 const MOD998: usize = 998244353;
 const MOD1000: usize = 1000;
@@ -140,9 +140,9 @@ fn test_div_assign() {
 #[test]
 fn test_from_isize() {
     for _ in 0..200 {
-        let x: isize = random();
+        let x: i64 = random();
         let x_mod = (998244353 + x % 998244353) as usize % 998244353;
-        let y = Modint2::from_isize(x, MOD998);
+        let y = Modint2::from_isize(x as isize, MOD998);
         assert_eq!(x_mod, y.value);
     }
 }

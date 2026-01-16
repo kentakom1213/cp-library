@@ -3,7 +3,7 @@
 
 use cp_library_rs::{data_structure::acc3d::acc3D, debug2D};
 use itertools::iproduct;
-use rand::{rngs::ThreadRng, thread_rng, Rng};
+use rand::{rng, rngs::ThreadRng, Rng};
 
 #[test]
 fn test_acc3d_simple_1() {
@@ -26,21 +26,21 @@ fn test_acc3d_simple_1() {
 #[test]
 fn test_ramdom() {
     const N_MAX: usize = 100;
-    const X_MAX: isize = 1000;
+    const X_MAX: i64 = 1000;
     const Q: usize = 1000;
 
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
-    let X = rng.gen_range(1..=N_MAX);
-    let Y = rng.gen_range(1..=N_MAX);
-    let Z = rng.gen_range(1..=N_MAX);
+    let X = rng.random_range(1..=N_MAX);
+    let Y = rng.random_range(1..=N_MAX);
+    let Z = rng.random_range(1..=N_MAX);
 
     let mut arr = vec![vec![vec![0; Z]; Y]; X];
 
     for i in 0..X {
         for j in 0..Y {
             for k in 0..Z {
-                arr[i][j][k] = rng.gen_range(-X_MAX..=X_MAX);
+                arr[i][j][k] = rng.random_range(-X_MAX..=X_MAX);
             }
         }
     }
@@ -51,8 +51,8 @@ fn test_ramdom() {
     let sum = acc3D(&arr);
 
     let rand_range = |rng: &mut ThreadRng, max: usize| {
-        let a = rng.gen_range(0..=max);
-        let b = rng.gen_range(0..=max);
+        let a = rng.random_range(0..=max);
+        let b = rng.random_range(0..=max);
         if a > b {
             (b, a)
         } else {
@@ -70,7 +70,7 @@ fn test_ramdom() {
         // 愚直
         let ans = iproduct!(lx..rx, ly..ry, lz..rz)
             .map(|(i, j, k)| arr[i][j][k])
-            .sum::<isize>();
+            .sum::<i64>();
 
         assert_eq!(res, ans);
     }

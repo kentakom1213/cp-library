@@ -4,7 +4,7 @@ use cp_library_rs::{
     algebraic_structure::operation::Add, data_structure::balanced_binary_tree::BalancedBinaryTree,
 };
 use rand::{
-    distributions::{Alphanumeric, DistString},
+    distr::{Alphanumeric, SampleString},
     prelude::*,
 };
 
@@ -14,7 +14,7 @@ fn test_random_insert() {
     const QUERY: usize = 400;
     const SIZE: usize = 400;
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     // 配列
     let mut arr: [isize; SIZE] = [0; SIZE];
@@ -25,8 +25,8 @@ fn test_random_insert() {
     for _ in 0..ITER {
         // 一点更新クエリ
         // ランダムな値
-        let idx = rng.gen_range(0..SIZE);
-        let new_val: isize = rng.gen_range(-1_000_000_000..1_000_000_000);
+        let idx = rng.random_range(0..SIZE);
+        let new_val: isize = rng.random_range(-1_000_000_000..1_000_000_000i64) as isize;
 
         // 配列の更新
         arr[idx] = new_val;
@@ -41,7 +41,7 @@ fn test_random_insert() {
         // 区間取得クエリ
         for _ in 0..QUERY {
             // ランダムな区間
-            let (mut l, mut r) = (rng.gen_range(0..SIZE), rng.gen_range(0..SIZE));
+            let (mut l, mut r) = (rng.random_range(0..SIZE), rng.random_range(0..SIZE));
             if l > r {
                 (l, r) = (r, l);
             }
@@ -57,7 +57,7 @@ fn random_insert_delete() {
     const QUERY: usize = 400;
     const SIZE: usize = 400;
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     // 配列
     let mut arr: [isize; SIZE] = [0; SIZE];
@@ -68,9 +68,9 @@ fn random_insert_delete() {
     for _ in 0..ITER {
         // 一点更新クエリ
         // ランダムな値
-        let idx_insert = rng.gen_range(0..SIZE);
-        let idx_delete = rng.gen_range(0..SIZE);
-        let new_val: isize = rng.gen_range(-1_000_000_000..1_000_000_000);
+        let idx_insert = rng.random_range(0..SIZE);
+        let idx_delete = rng.random_range(0..SIZE);
+        let new_val: isize = rng.random_range(-1_000_000_000..1_000_000_000i64) as isize;
 
         // 配列の更新
         arr[idx_insert] = new_val;
@@ -87,7 +87,7 @@ fn random_insert_delete() {
         // 区間取得クエリ
         for _ in 0..QUERY {
             // ランダムな区間
-            let (mut l, mut r) = (rng.gen_range(0..SIZE), rng.gen_range(0..SIZE));
+            let (mut l, mut r) = (rng.random_range(0..SIZE), rng.random_range(0..SIZE));
             if l > r {
                 (l, r) = (r, l);
             }
@@ -102,7 +102,7 @@ fn random_delete() {
     const ITER: usize = 400;
     const QUERY: usize = 400;
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     // 配列
     let mut arr: Vec<(isize, isize)> = vec![];
@@ -112,8 +112,8 @@ fn random_delete() {
 
     // ランダムな値を追加
     for _ in 0..ITER {
-        let key = rng.gen();
-        let val = rng.gen_range(-1_000_000_000..1_000_000_000);
+        let key = rng.random::<i64>() as isize;
+        let val = rng.random_range(-1_000_000_000..1_000_000_000i64) as isize;
 
         let idx_insert = arr.partition_point(|&(k, _)| k < key);
 
@@ -135,7 +135,7 @@ fn random_delete() {
     for _ in 0..ITER {
         // 一点更新クエリ
         // ランダムな値
-        let idx_delete = rng.gen_range(0..arr.len());
+        let idx_delete = rng.random_range(0..arr.len());
         let (key, arr_delete_val) = arr.remove(idx_delete);
 
         // セグ木の更新
@@ -151,7 +151,7 @@ fn random_delete() {
         // 区間取得クエリ
         for _ in 0..QUERY {
             // ランダムな区間
-            let (mut l, mut r) = (rng.gen(), rng.gen());
+            let (mut l, mut r) = (rng.random::<i64>() as isize, rng.random::<i64>() as isize);
             if l > r {
                 (l, r) = (r, l);
             }
@@ -173,18 +173,18 @@ fn random_delete_str() {
     const QUERY: usize = 200;
     const SIZE: usize = 10;
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     // 配列
-    let mut arr: Vec<(String, isize)> = vec![];
+    let mut arr: Vec<(String, i64)> = vec![];
 
     // セグ木
-    let mut seg: BalancedBinaryTree<String, Add<isize>> = BalancedBinaryTree::default();
+    let mut seg: BalancedBinaryTree<String, Add<i64>> = BalancedBinaryTree::default();
 
     // ランダムな値を追加
     for _ in 0..ITER {
         let key = Alphanumeric.sample_string(&mut rng, SIZE);
-        let val = rng.gen_range(-1_000_000_000..1_000_000_000);
+        let val = rng.random_range(-1_000_000_000..1_000_000_000i64);
 
         let idx_insert = arr.partition_point(|(k, _)| k < &key);
 
@@ -206,7 +206,7 @@ fn random_delete_str() {
     for _ in 0..ITER {
         // 一点更新クエリ
         // ランダムな値
-        let idx_delete = rng.gen_range(0..arr.len());
+        let idx_delete = rng.random_range(0..arr.len());
         let (key, arr_delete_val) = arr.remove(idx_delete);
 
         // セグ木の更新
@@ -232,7 +232,7 @@ fn random_delete_str() {
                 arr.iter()
                     .filter(|(k, _)| &l <= k && k < &r)
                     .map(|&(_, v)| v)
-                    .sum::<isize>(),
+                    .sum::<i64>(),
                 seg.get_range(l..r)
             );
         }

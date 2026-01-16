@@ -4,7 +4,7 @@ use cp_library_rs::{
     convolution::ntt::FFT,
     number_theory::modint::{Modint, M998},
 };
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use rstest::rstest;
 
 #[test]
@@ -99,10 +99,10 @@ fn test_fft() {
     case(200000, 998244353),
 )]
 fn test_fft_large(size: usize, p: usize) {
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
     let arr: Vec<M998> = (0..size)
-        .map(|_| rng.gen_range(0..p))
+        .map(|_| rng.random_range(0..p))
         .map(Modint::from)
         .collect();
 
