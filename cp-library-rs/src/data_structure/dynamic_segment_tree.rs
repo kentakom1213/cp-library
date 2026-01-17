@@ -435,12 +435,10 @@ where
     where
         F: Fn(M::Val) -> bool,
     {
+        assert!(f(M::e_len(0)));
         assert!(self.min_index <= l && l <= self.max_index);
 
-        let len = Self::len(l, self.max_index);
-        assert!(f(M::e_len(len)));
-
-        let mut acc = M::e_len(len);
+        let mut acc = M::e_len(0);
         let x = self.max_right_inner(self.root, self.min_index, self.max_index, l, &f, &mut acc);
         (acc, x)
     }
@@ -494,12 +492,10 @@ where
     where
         F: Fn(M::Val) -> bool,
     {
+        assert!(f(M::e_len(0)));
         assert!(self.min_index <= r && r <= self.max_index);
 
-        let len = Self::len(self.min_index, r);
-        assert!(f(M::e_len(len)));
-
-        let mut acc = M::e_len(len);
+        let mut acc = M::e_len(0);
         let x = self.min_left_inner(self.root, self.min_index, self.max_index, r, &f, &mut acc);
         (acc, x)
     }
