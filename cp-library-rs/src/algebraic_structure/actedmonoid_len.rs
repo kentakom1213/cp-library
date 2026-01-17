@@ -1,0 +1,56 @@
+//! 長さを保持した作用付きモノイド
+
+use std::ops::{Add, Mul};
+
+use num::{Bounded, FromPrimitive, Zero};
+
+use crate::algebraic_structure::{
+    actedmonoid::{
+        examples::{AddMin, AddSum, UpdateMax, UpdateMin, UpdateMinMax, UpdateSum},
+        ActedMonoid,
+    },
+    monoid::Monoid,
+    to_acted::ToActed,
+};
+
+/// 長さを保持した作用付きモノイド
+pub trait ActedMonoidLen: ActedMonoid {
+    /// 区間長 `len` の「単位区間」を表す集約値を返す
+    ///
+    /// 例：`Val = (sum, len)` のとき，`e_len(len) = (0, len)` のようなもの
+    #[inline]
+    fn e_len(_len: usize) -> Self::Val {
+        Self::e()
+    }
+}
+
+// ========== 区間加算，区間更新 + 区間和系の作用付きモノイドに実装 ==========
+impl<T> ActedMonoidLen for AddSum<T>
+where
+    T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
+{
+    fn e_len(len: usize) -> Self::Val {
+        (T::zero(), len)
+    }
+}
+
+impl<T> ActedMonoidLen for UpdateSum<T>
+where
+    T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
+{
+    fn e_len(len: usize) -> Self::Val {
+        (T::zero(), len)
+    }
+}
+
+// ========== その他の作用付きモノイドに実装 ==========
+impl<M> ActedMonoidLen for ToActed<M>
+where
+    M: Monoid,
+    M::Val: PartialEq,
+{
+}
+impl<T: Bounded + Ord + Clone> ActedMonoidLen for UpdateMin<T> {}
+impl<T: Bounded + Ord + Clone> ActedMonoidLen for UpdateMax<T> {}
+impl<T: Bounded + Ord + Clone> ActedMonoidLen for UpdateMinMax<T> {}
+impl<T> ActedMonoidLen for AddMin<T> where T: Zero + Clone + Add<Output = T> + Ord + Bounded {}

@@ -8,10 +8,11 @@ use std::{
     ops::{Bound::*, Deref, DerefMut, RangeBounds},
 };
 
+use num::ToPrimitive;
 use num_traits::PrimInt;
 
 use crate::{
-    algebraic_structure::actedmonoid::ActedMonoid,
+    algebraic_structure::actedmonoid_len::ActedMonoidLen,
     tree::arena::{Arena, ArenaNode, Ptr},
     utils::show_binary_tree::ShowBinaryTree,
 };
@@ -21,21 +22,21 @@ type A<M> = Arena<NodeInner<M>>;
 // ========== node ==========
 
 /// 区間分割型ノード（`I` を持たない）
-struct NodeInner<M: ActedMonoid> {
+struct NodeInner<M: ActedMonoidLen> {
     /// 区間の集約値
     sum: M::Val,
-    /// 作用
+    /// 遅延作用
     act: M::Act,
     left: Option<Ptr>,
     right: Option<Ptr>,
 }
 
-impl<M: ActedMonoid> ArenaNode for NodeInner<M> {}
+impl<M: ActedMonoidLen> ArenaNode for NodeInner<M> {}
 
-impl<M: ActedMonoid> Default for NodeInner<M> {
-    fn default() -> Self {
+impl<M: ActedMonoidLen> NodeInner<M> {
+    fn with_length(len: usize) -> Self {
         Self {
-            sum: M::e(),
+            sum: M::e_len(len),
             act: M::id(),
             left: None,
             right: None,
@@ -45,10 +46,7 @@ impl<M: ActedMonoid> Default for NodeInner<M> {
 
 // ========== dynamic segment tree ==========
 
-/// Dynamic Segment Tree
-///
-/// - 必要になったところだけノードを生成するセグ木
-pub struct DynamicSegmentTree<I: PrimInt, M: ActedMonoid> {
+pub struct DynamicSegmentTree<I: PrimInt, M: ActedMonoidLen> {
     min_index: I,
     max_index: I,
     pub n: I,
@@ -56,8 +54,7 @@ pub struct DynamicSegmentTree<I: PrimInt, M: ActedMonoid> {
     root: Option<Ptr>,
 }
 
-impl<I: PrimInt, M: ActedMonoid> DynamicSegmentTree<I, M> {
-    /// 添字区間 [min, max) から生成する
+impl<I: PrimInt + ToPrimitive, M: ActedMonoidLen> DynamicSegmentTree<I, M> {
     pub fn new(min: I, max: I) -> Self {
         assert!(min < max);
         Self {
@@ -74,34 +71,32 @@ impl<I: PrimInt, M: ActedMonoid> DynamicSegmentTree<I, M> {
     pub fn update(&mut self, index: I, val: M::Val) {
         assert!(self.min_index <= index && index < self.max_index);
         let root = self.root.take();
-        self.root = Self::update_inner(
-            &mut self.arena,
-            root,
-            self.min_index,
-            self.max_index,
-            index,
-            val,
-        );
+        self.root = self.update_inner(root, self.min_index, self.max_index, index, val);
     }
 
-    /// 点取得（未生成は `M::e()`）
-    pub fn get(&self, index: I) -> M::Val {
+    /// 点取得（未生成は `M::e_len()`）
+    /// - 遅延があるので `push` するため `&mut self`
+    pub fn get(&mut self, index: I) -> M::Val {
         assert!(self.min_index <= index && index < self.max_index);
-        Self::get_inner(
-            &self.arena,
-            self.root,
-            self.min_index,
-            self.max_index,
-            index,
-        )
+        self.get_inner(self.root, self.min_index, self.max_index, index)
     }
 
     /// 区間の集約値（RangeBounds を受け取る）
-    pub fn get_range<R: RangeBounds<I> + Debug>(&self, range: R) -> M::Val {
-        let (l, r) = self.parse_range(&range).unwrap_or_else(|| {
-            panic!("The given range is wrong: {:?}", range);
-        });
-        self.get_range_lr(l, r)
+    /// - 遅延があるので `push` するため `&mut self`
+    pub fn get_range<R: RangeBounds<I> + Debug>(&mut self, range: R) -> M::Val {
+        let (l, r) = self
+            .parse_range(&range)
+            .unwrap_or_else(|| panic!("The given range is wrong: {:?}", range));
+        self.get_range_inner(self.root, self.min_index, self.max_index, l, r)
+    }
+
+    /// 区間に作用を適用（遅延）
+    pub fn apply<R: RangeBounds<I> + Debug>(&mut self, range: R, act: M::Act) {
+        let (l, r) = self
+            .parse_range(&range)
+            .unwrap_or_else(|| panic!("The given range is wrong: {:?}", range));
+        let root = self.root.take();
+        self.root = self.apply_inner(root, self.min_index, self.max_index, l, r, &act);
     }
 
     /// `get_mut`（Drop で `update`）
@@ -118,7 +113,12 @@ impl<I: PrimInt, M: ActedMonoid> DynamicSegmentTree<I, M> {
         }
     }
 
-    // ========== internal ==========
+    // ========== internal helpers ==========
+
+    #[inline]
+    fn is_leaf(seg_l: I, seg_r: I) -> bool {
+        seg_r - seg_l == I::one()
+    }
 
     #[inline]
     fn two() -> I {
@@ -131,15 +131,9 @@ impl<I: PrimInt, M: ActedMonoid> DynamicSegmentTree<I, M> {
     }
 
     #[inline]
-    fn sum_of(arena: &A<M>, node: Option<Ptr>) -> M::Val {
-        node.map(|p| arena.get(p).sum.clone()).unwrap_or_else(M::e)
+    fn len(l: I, r: I) -> usize {
+        (r - l).to_usize().unwrap()
     }
-
-    #[inline]
-    fn pull(&mut self, ptr: Ptr) {}
-
-    #[inline]
-    fn push(&mut self, ptr: Ptr) {}
 
     #[inline]
     fn parse_range<R: RangeBounds<I>>(&self, range: &R) -> Option<(I, I)> {
@@ -160,84 +154,214 @@ impl<I: PrimInt, M: ActedMonoid> DynamicSegmentTree<I, M> {
         }
     }
 
-    fn get_range_lr(&self, l: I, r: I) -> M::Val {
-        Self::get_range_inner(&self.arena, self.root, self.min_index, self.max_index, l, r)
+    #[inline]
+    fn sum_of(arena: &A<M>, node: Option<Ptr>, len: usize) -> M::Val {
+        node.map(|p| arena.get(p).sum.clone())
+            .unwrap_or_else(|| M::e_len(len))
     }
 
+    #[inline]
+    fn apply_node(arena: &mut A<M>, ptr: Ptr, act: &M::Act) {
+        let nsum = {
+            let v = arena.get(ptr);
+            M::mapping(&v.sum, act)
+        };
+        let nact = {
+            let v = arena.get(ptr);
+            M::compose(&v.act, act)
+        };
+        let v = arena.get_mut(ptr);
+        v.sum = nsum;
+        v.act = nact;
+    }
+
+    #[inline]
+    fn ensure_left(arena: &mut A<M>, ptr: Ptr, len: usize) -> Ptr {
+        if let Some(lp) = arena.get(ptr).left {
+            lp
+        } else {
+            let lp = arena.alloc(NodeInner::with_length(len));
+            arena.get_mut(ptr).left = Some(lp);
+            lp
+        }
+    }
+
+    #[inline]
+    fn ensure_right(arena: &mut A<M>, ptr: Ptr, len: usize) -> Ptr {
+        if let Some(rp) = arena.get(ptr).right {
+            rp
+        } else {
+            let rp = arena.alloc(NodeInner::with_length(len));
+            arena.get_mut(ptr).right = Some(rp);
+            rp
+        }
+    }
+
+    /// 子へ遅延伝播
+    #[inline]
+    fn push(&mut self, ptr: Ptr, seg_l: I, seg_r: I) {
+        if Self::is_leaf(seg_l, seg_r) {
+            return;
+        }
+        let act = { self.arena.get(ptr).act.clone() };
+        if act == M::id() {
+            return;
+        }
+
+        let mid = Self::mid(seg_l, seg_r);
+        let llen = Self::len(seg_l, mid);
+        let rlen = Self::len(mid, seg_r);
+        let lp = Self::ensure_left(&mut self.arena, ptr, llen);
+        let rp = Self::ensure_right(&mut self.arena, ptr, rlen);
+
+        Self::apply_node(&mut self.arena, lp, &act);
+        Self::apply_node(&mut self.arena, rp, &act);
+
+        self.arena.get_mut(ptr).act = M::id();
+    }
+
+    /// 子の情報を吸い上げ
+    #[inline]
+    fn pull(&mut self, ptr: Ptr, l: I, r: I) {
+        let lp = self.arena.get(ptr).left;
+        let rp = self.arena.get(ptr).right;
+
+        let mid = Self::mid(l, r);
+        let llen = Self::len(l, mid);
+        let rlen = Self::len(mid, r);
+
+        let lsum = Self::sum_of(&self.arena, lp, llen);
+        let rsum = Self::sum_of(&self.arena, rp, rlen);
+
+        self.arena.get_mut(ptr).sum = M::op(&lsum, &rsum);
+    }
+
+    // ========== recursions ==========
+
     fn update_inner(
-        arena: &mut A<M>,
+        &mut self,
         node: Option<Ptr>,
-        l: I,
-        r: I,
+        seg_l: I,
+        seg_r: I,
         index: I,
         val: M::Val,
     ) -> Option<Ptr> {
-        let idx = node.unwrap_or_else(|| arena.alloc_default());
+        let len = Self::len(seg_l, seg_r);
+        let ptr = node.unwrap_or_else(|| self.arena.alloc(NodeInner::with_length(len)));
 
-        if r - l == I::one() {
-            arena.get_mut(idx).sum = val;
-            return Some(idx);
+        if Self::is_leaf(seg_l, seg_r) {
+            let v = self.arena.get_mut(ptr);
+            v.sum = val;
+            v.act = M::id();
+            v.left = None;
+            v.right = None;
+            return Some(ptr);
         }
 
-        let mid = Self::mid(l, r);
+        self.push(ptr, seg_l, seg_r);
 
+        let mid = Self::mid(seg_l, seg_r);
         if index < mid {
-            let left = arena.get(idx).left;
-            let nl = Self::update_inner(arena, left, l, mid, index, val);
-            arena.get_mut(idx).left = nl;
+            let left = self.arena.get(ptr).left;
+            let nl = self.update_inner(left, seg_l, mid, index, val);
+            self.arena.get_mut(ptr).left = nl;
         } else {
-            let right = arena.get(idx).right;
-            let nr = Self::update_inner(arena, right, mid, r, index, val);
-            arena.get_mut(idx).right = nr;
+            let right = self.arena.get(ptr).right;
+            let nr = self.update_inner(right, mid, seg_r, index, val);
+            self.arena.get_mut(ptr).right = nr;
         }
 
-        let lsum = Self::sum_of(arena, arena.get(idx).left);
-        let rsum = Self::sum_of(arena, arena.get(idx).right);
-        arena.get_mut(idx).sum = M::op(&lsum, &rsum);
-
-        Some(idx)
+        self.pull(ptr, seg_l, seg_r);
+        Some(ptr)
     }
 
-    fn get_inner(arena: &A<M>, node: Option<Ptr>, l: I, r: I, index: I) -> M::Val {
-        let Some(idx) = node else {
-            return M::e();
+    fn get_inner(&mut self, node: Option<Ptr>, seg_l: I, seg_r: I, index: I) -> M::Val {
+        let len = Self::len(seg_l, seg_r);
+
+        let Some(ptr) = node else {
+            return M::e_len(len);
         };
-        if r - l == I::one() {
-            return arena.get(idx).sum.clone();
+        if Self::is_leaf(seg_l, seg_r) {
+            return self.arena.get(ptr).sum.clone();
         }
-        let mid = Self::mid(l, r);
+
+        self.push(ptr, seg_l, seg_r);
+
+        let mid = Self::mid(seg_l, seg_r);
         if index < mid {
-            Self::get_inner(arena, arena.get(idx).left, l, mid, index)
+            self.get_inner(self.arena.get(ptr).left, seg_l, mid, index)
         } else {
-            Self::get_inner(arena, arena.get(idx).right, mid, r, index)
+            self.get_inner(self.arena.get(ptr).right, mid, seg_r, index)
         }
     }
 
-    fn get_range_inner(
-        arena: &A<M>,
+    fn get_range_inner(&mut self, node: Option<Ptr>, seg_l: I, seg_r: I, ql: I, qr: I) -> M::Val {
+        let len = Self::len(seg_l, seg_r);
+
+        if qr <= seg_l || seg_r <= ql {
+            return M::e_len(len);
+        }
+
+        let Some(ptr) = node else {
+            return M::e_len(len);
+        };
+
+        if ql <= seg_l && seg_r <= qr {
+            return self.arena.get(ptr).sum.clone();
+        }
+
+        if Self::is_leaf(seg_l, seg_r) {
+            return self.arena.get(ptr).sum.clone();
+        }
+
+        self.push(ptr, seg_l, seg_r);
+
+        let mid = Self::mid(seg_l, seg_r);
+        let a = self.get_range_inner(self.arena.get(ptr).left, seg_l, mid, ql, qr);
+        let b = self.get_range_inner(self.arena.get(ptr).right, mid, seg_r, ql, qr);
+        M::op(&a, &b)
+    }
+
+    fn apply_inner(
+        &mut self,
         node: Option<Ptr>,
         seg_l: I,
         seg_r: I,
         ql: I,
         qr: I,
-    ) -> M::Val {
+        act: &M::Act,
+    ) -> Option<Ptr> {
         if qr <= seg_l || seg_r <= ql {
-            return M::e();
-        }
-        let Some(idx) = node else {
-            return M::e();
-        };
-        if ql <= seg_l && seg_r <= qr {
-            return arena.get(idx).sum.clone();
-        }
-        if seg_r - seg_l == I::one() {
-            return arena.get(idx).sum.clone();
+            return node;
         }
 
+        let len = Self::len(seg_l, seg_r);
+        let ptr = node.unwrap_or_else(|| self.arena.alloc(NodeInner::with_length(len)));
+
+        if ql <= seg_l && seg_r <= qr {
+            Self::apply_node(&mut self.arena, ptr, act);
+            return Some(ptr);
+        }
+
+        if Self::is_leaf(seg_l, seg_r) {
+            Self::apply_node(&mut self.arena, ptr, act);
+            return Some(ptr);
+        }
+
+        self.push(ptr, seg_l, seg_r);
+
         let mid = Self::mid(seg_l, seg_r);
-        let a = Self::get_range_inner(arena, arena.get(idx).left, seg_l, mid, ql, qr);
-        let b = Self::get_range_inner(arena, arena.get(idx).right, mid, seg_r, ql, qr);
-        M::op(&a, &b)
+
+        let left = self.arena.get(ptr).left;
+        let nl = self.apply_inner(left, seg_l, mid, ql, qr, act);
+        self.arena.get_mut(ptr).left = nl;
+
+        let right = self.arena.get(ptr).right;
+        let nr = self.apply_inner(right, mid, seg_r, ql, qr, act);
+        self.arena.get_mut(ptr).right = nr;
+
+        self.pull(ptr, seg_l, seg_r);
+        Some(ptr)
     }
 }
 
@@ -246,7 +370,7 @@ impl<I: PrimInt, M: ActedMonoid> DynamicSegmentTree<I, M> {
 pub struct ValMut<'a, I, M>
 where
     I: PrimInt,
-    M: ActedMonoid,
+    M: ActedMonoidLen,
 {
     segself: &'a mut DynamicSegmentTree<I, M>,
     idx: I,
@@ -256,7 +380,7 @@ where
 impl<I, M> Debug for ValMut<'_, I, M>
 where
     I: PrimInt,
-    M: ActedMonoid,
+    M: ActedMonoidLen,
     M::Val: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -267,7 +391,7 @@ where
 impl<I, M> Drop for ValMut<'_, I, M>
 where
     I: PrimInt,
-    M: ActedMonoid,
+    M: ActedMonoidLen,
 {
     fn drop(&mut self) {
         self.segself.update(self.idx, self.new_val.clone());
@@ -277,7 +401,7 @@ where
 impl<I, M> Deref for ValMut<'_, I, M>
 where
     I: PrimInt,
-    M: ActedMonoid,
+    M: ActedMonoidLen,
 {
     type Target = M::Val;
     fn deref(&self) -> &Self::Target {
@@ -288,7 +412,7 @@ where
 impl<I, M> DerefMut for ValMut<'_, I, M>
 where
     I: PrimInt,
-    M: ActedMonoid,
+    M: ActedMonoidLen,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.new_val
@@ -296,32 +420,33 @@ where
 }
 
 // ========== max_right / min_left ==========
+//
+// 遅延があるので `push` が必要．そのため `&mut self` にする．
 
 impl<I, M> DynamicSegmentTree<I, M>
 where
-    I: PrimInt + Debug,
-    M: ActedMonoid,
+    I: PrimInt,
+    M: ActedMonoidLen,
     M::Val: Debug,
 {
-    pub fn max_right<F>(&self, l: I, f: F) -> (M::Val, I)
+    /// 左端固定二分探索
+    /// 返り値：(`get_range(l..x)`, `x`)
+    pub fn max_right<F>(&mut self, l: I, f: F) -> (M::Val, I)
     where
         F: Fn(M::Val) -> bool,
     {
-        let mut acc = M::e();
-        let x = Self::max_right_inner(
-            &self.arena,
-            self.root,
-            self.min_index,
-            self.max_index,
-            l,
-            &f,
-            &mut acc,
-        );
+        assert!(self.min_index <= l && l <= self.max_index);
+
+        let len = Self::len(l, self.max_index);
+        assert!(f(M::e_len(len)));
+
+        let mut acc = M::e_len(len);
+        let x = self.max_right_inner(self.root, self.min_index, self.max_index, l, &f, &mut acc);
         (acc, x)
     }
 
     fn max_right_inner<F>(
-        arena: &A<M>,
+        &mut self,
         node: Option<Ptr>,
         seg_l: I,
         seg_r: I,
@@ -335,49 +460,52 @@ where
         if seg_r <= ql {
             return seg_r;
         }
-        let Some(idx) = node else {
+
+        let Some(ptr) = node else {
+            // 未生成区間は全て `M::e_len()` なので，どこまで進んでも `acc` は変わらない
             return seg_r;
         };
 
         if ql <= seg_l {
-            let tmp = M::op(acc, &arena.get(idx).sum);
+            let tmp = M::op(acc, &self.arena.get(ptr).sum);
             if f(tmp.clone()) {
                 *acc = tmp;
                 return seg_r;
             }
         }
 
-        if seg_r - seg_l == I::one() {
+        if Self::is_leaf(seg_l, seg_r) {
             return seg_l;
         }
 
-        let mid = DynamicSegmentTree::<I, M>::mid(seg_l, seg_r);
-        let res = Self::max_right_inner(arena, arena.get(idx).left, seg_l, mid, ql, f, acc);
-        if res != mid {
-            return res;
+        self.push(ptr, seg_l, seg_r);
+
+        let mid = Self::mid(seg_l, seg_r);
+        let left_res = self.max_right_inner(self.arena.get(ptr).left, seg_l, mid, ql, f, acc);
+        if left_res != mid {
+            return left_res;
         }
-        Self::max_right_inner(arena, arena.get(idx).right, mid, seg_r, ql, f, acc)
+        self.max_right_inner(self.arena.get(ptr).right, mid, seg_r, ql, f, acc)
     }
 
-    pub fn min_left<F>(&self, r: I, f: F) -> (M::Val, I)
+    /// 右端固定二分探索
+    /// 返り値：(`get_range(x..r)`, `x`)
+    pub fn min_left<F>(&mut self, r: I, f: F) -> (M::Val, I)
     where
         F: Fn(M::Val) -> bool,
     {
-        let mut acc = M::e();
-        let x = Self::min_left_inner(
-            &self.arena,
-            self.root,
-            self.min_index,
-            self.max_index,
-            r,
-            &f,
-            &mut acc,
-        );
+        assert!(self.min_index <= r && r <= self.max_index);
+
+        let len = Self::len(self.min_index, r);
+        assert!(f(M::e_len(len)));
+
+        let mut acc = M::e_len(len);
+        let x = self.min_left_inner(self.root, self.min_index, self.max_index, r, &f, &mut acc);
         (acc, x)
     }
 
     fn min_left_inner<F>(
-        arena: &A<M>,
+        &mut self,
         node: Option<Ptr>,
         seg_l: I,
         seg_r: I,
@@ -391,28 +519,31 @@ where
         if qr <= seg_l {
             return seg_l;
         }
-        let Some(idx) = node else {
+
+        let Some(ptr) = node else {
             return seg_l;
         };
 
         if seg_r <= qr {
-            let tmp = M::op(&arena.get(idx).sum, acc);
+            let tmp = M::op(&self.arena.get(ptr).sum, acc);
             if f(tmp.clone()) {
                 *acc = tmp;
                 return seg_l;
             }
         }
 
-        if seg_r - seg_l == I::one() {
+        if Self::is_leaf(seg_l, seg_r) {
             return seg_r;
         }
 
-        let mid = DynamicSegmentTree::<I, M>::mid(seg_l, seg_r);
-        let res = Self::min_left_inner(arena, arena.get(idx).right, mid, seg_r, qr, f, acc);
-        if res != mid {
-            return res;
+        self.push(ptr, seg_l, seg_r);
+
+        let mid = Self::mid(seg_l, seg_r);
+        let right_res = self.min_left_inner(self.arena.get(ptr).right, mid, seg_r, qr, f, acc);
+        if right_res != mid {
+            return right_res;
         }
-        Self::min_left_inner(arena, arena.get(idx).left, seg_l, mid, qr, f, acc)
+        self.min_left_inner(self.arena.get(ptr).left, seg_l, mid, qr, f, acc)
     }
 }
 
@@ -420,9 +551,10 @@ where
 
 impl<I, M> ShowBinaryTree<Ptr> for DynamicSegmentTree<I, M>
 where
-    I: PrimInt + Debug,
-    M: ActedMonoid,
+    I: PrimInt,
+    M: ActedMonoidLen,
     M::Val: Debug,
+    M::Act: Debug,
 {
     fn get_root(&self) -> Option<Ptr> {
         self.root
@@ -437,6 +569,7 @@ where
     }
 
     fn print_node(&self, ptr: &Ptr) -> String {
-        format!("[{:?}]", self.arena.get(*ptr).sum)
+        let node = self.arena.get(*ptr);
+        format!("[val:{:?}, act:{:?}]", node.sum, node.act)
     }
 }
