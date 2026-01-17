@@ -1,10 +1,19 @@
 use std::ops::Bound;
 
 use cp_library_rs::{
-    algebraic_structure::actedmonoid::examples::AddSum, tree::implicit_treap::ImplicitTreap,
+    algebraic_structure::{
+        actedmonoid::examples::AddSum,
+        actedmonoid_mod::AffineUpdateComposite,
+        affine1d::{Affine, AffineTransform},
+        operation::Add,
+        to_acted::ToActed,
+    },
+    number_theory::modint::{M998, MOD998},
+    tree::implicit_treap::ImplicitTreap,
 };
-use rand::{Rng, SeedableRng};
+use rand::{rng, Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
+use rstest::rstest;
 
 fn pack(x: i64) -> (i64, usize) {
     (x, 1)
@@ -41,14 +50,6 @@ fn basic_insert_remove_get_range_apply() {
     tr.remove(4);
     assert_eq!(tr.len(), 5);
     assert_eq!(unpack_sum(tr.get_range(0..5)), 1 + 12 + 7 + 13 + 5);
-
-    // get（中身は (sum,size) なので sum だけ確認）
-    assert_eq!(tr.get(0).map(|v| v.0), Some(1));
-    assert_eq!(tr.get(1).map(|v| v.0), Some(12));
-    assert_eq!(tr.get(2).map(|v| v.0), Some(7));
-    assert_eq!(tr.get(3).map(|v| v.0), Some(13));
-    assert_eq!(tr.get(4).map(|v| v.0), Some(5));
-    assert_eq!(tr.get(5).map(|v| v.0), None);
 }
 
 #[test]
@@ -146,4 +147,97 @@ fn range_bounds_variants() {
     tr.apply(..=4, 1); // 0..=4 に +1
     let expected: i64 = (0..=4).map(|x| x + 1).sum::<i64>() + (5..10).sum::<i64>();
     assert_eq!(unpack_sum(tr.get_range(..)), expected);
+}
+
+/// [0, n) のランダムな区間 [l, r) を返す
+fn random_range<R: Rng + ?Sized>(rng: &mut R, n: usize) -> (usize, usize) {
+    let a = rng.random_range(0..=n);
+    let b = rng.random_range(0..=n);
+    if a <= b {
+        (a, b)
+    } else {
+        (b, a)
+    }
+}
+
+#[rstest(
+    size,
+    query,
+    case(1_000, 1_000),
+    case(1_000, 1_000),
+    case(5_000, 5_000)
+)]
+fn range_reverse(size: usize, query: usize) {
+    const MIN: i64 = -1_000_000_000;
+    const MAX: i64 = 1_000_000_000;
+
+    let mut rng = rng();
+
+    let mut ar: Vec<i64> = vec![];
+    let mut tr = ImplicitTreap::<ToActed<Add<i64>>>::default();
+
+    // ランダムに初期化
+    for _ in 0..size {
+        let x = rng.random_range(MIN..MAX);
+        ar.push(x);
+        tr.push_back(x);
+    }
+
+    // クエリ
+    for _ in 0..query {
+        let (l, r) = random_range(&mut rng, size);
+
+        // 合成
+        let actually = tr.get_range(l..r);
+        let expected: i64 = ar[l..r].iter().sum();
+        assert_eq!(actually, expected);
+
+        // 区間の反転
+        ar[l..r].reverse();
+        tr.reverse(l..r);
+    }
+
+    let finally = (0..size).map(|i| tr.get(i)).collect::<Vec<_>>();
+    assert_eq!(finally, ar);
+}
+
+#[rstest(
+    size,
+    query,
+    case(1_000, 1_000),
+    case(1_000, 1_000),
+    case(5_000, 5_000)
+)]
+fn range_reverse_affine(size: usize, query: usize) {
+    let mut rng = rng();
+
+    let mut ar: Vec<Affine<M998>> = vec![];
+    let mut tr = ImplicitTreap::<AffineUpdateComposite<M998>>::default();
+
+    // ランダムに初期化
+    for _ in 0..size {
+        let a = rng.random_range(1..MOD998);
+        let b = rng.random_range(0..MOD998);
+        ar.push((a.into(), b.into()));
+        tr.push_back((a.into(), b.into()));
+    }
+
+    // クエリ
+    for _ in 0..query {
+        let (l, r) = random_range(&mut rng, size);
+
+        // 合成
+        let actually = tr.get_range(l..r);
+        let expected = ar[l..r]
+            .iter()
+            .fold((1.into(), 0.into()), |acc, f| f.compose(&acc));
+        assert_eq!(actually, expected);
+
+        // 区間の反転
+        ar[l..r].reverse();
+        tr.reverse(l..r);
+    }
+
+    let finally = (0..size).map(|i| tr.get(i)).collect::<Vec<_>>();
+    assert_eq!(finally, ar);
 }

@@ -27,7 +27,7 @@ pub trait AffineTransform<T> {
 
 impl<T> AffineTransform<T> for Affine<T>
 where
-    T: Add<Output = T> + Mul<Output = T> + Zero + One + Copy,
+    T: Add<Output = T> + Mul<Output = T> + Zero + One + Copy + PartialEq,
 {
     fn id_() -> Self {
         (T::one(), T::zero())

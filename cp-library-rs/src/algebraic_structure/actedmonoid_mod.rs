@@ -1,25 +1,32 @@
 //! modを取る作用付きモノイド
 
-use crate::{
-    algebraic_structure::{
-        actedmonoid::ActedMonoid,
-        affine1d::{Affine, AffineTransform},
-    },
-    number_theory::modint::*,
+use std::{
+    marker::PhantomData,
+    ops::{Add, Mul},
 };
 
+use crate::algebraic_structure::{
+    actedmonoid::ActedMonoid,
+    affine1d::{Affine, AffineTransform},
+};
+
+use num::One;
 use num_traits::Zero;
 
 /// 1次元Affine変換
 /// - 区間を $`ax + b`$ で更新（Affine変換）
 /// - 区間和を取得
 #[derive(Debug)]
-pub struct AffineSum<const MOD: usize>;
-impl<const MOD: usize> ActedMonoid for AffineSum<MOD> {
-    type Val = (Modint<MOD>, usize);
-    type Act = Affine<Modint<MOD>>;
+pub struct AffineSum<T>(PhantomData<T>);
+
+impl<T> ActedMonoid for AffineSum<T>
+where
+    T: Add<Output = T> + Mul<Output = T> + Zero + One + Copy + PartialEq + Mul<usize, Output = T>,
+{
+    type Val = (T, usize);
+    type Act = Affine<T>;
     fn e() -> Self::Val {
-        (Modint::zero(), 0)
+        (T::zero(), 0)
     }
     fn id() -> Self::Act {
         Self::Act::id_()
@@ -35,7 +42,7 @@ impl<const MOD: usize> ActedMonoid for AffineSum<MOD> {
     fn mapping(x: &Self::Val, y: &Self::Act) -> Self::Val {
         let (a, b) = *y;
         let (val, size) = *x;
-        (a * val + b * Modint::from(size), size)
+        (a * val + b * size, size)
     }
 }
 
@@ -43,10 +50,14 @@ impl<const MOD: usize> ActedMonoid for AffineSum<MOD> {
 /// - 区間を $`ax + b`$ で更新
 /// - 区間を関数として合成
 #[derive(Debug)]
-pub struct AffineUpdateComposite<const MOD: usize>;
-impl<const MOD: usize> ActedMonoid for AffineUpdateComposite<MOD> {
-    type Val = Affine<Modint<MOD>>;
-    type Act = Affine<Modint<MOD>>;
+pub struct AffineUpdateComposite<T>(PhantomData<T>);
+
+impl<T> ActedMonoid for AffineUpdateComposite<T>
+where
+    T: Add<Output = T> + Mul<Output = T> + Zero + One + Copy + PartialEq,
+{
+    type Val = Affine<T>;
+    type Act = Affine<T>;
     fn e() -> Self::Val {
         Self::Val::id_()
     }

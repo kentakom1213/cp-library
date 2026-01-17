@@ -24,10 +24,14 @@ type A<M> = Arena<TreapNode<M>>;
 pub struct TreapNode<M: ActedMonoid> {
     /// 値
     val: M::Val,
-    /// 集約値
+    /// 集約値（正順）
     sum: M::Val,
+    /// 集約値（逆順）
+    rsum: M::Val,
     /// 作用
     act: M::Act,
+    /// 反転フラグ
+    rev: bool,
     /// ヒープの重み値
     prio: u32,
     /// 部分木のサイズ
@@ -42,8 +46,10 @@ impl<M: ActedMonoid> TreapNode<M> {
     pub fn new(val: M::Val, prio: u32) -> Self {
         Self {
             sum: val.clone(),
+            rsum: val.clone(),
             val,
             act: M::id(),
+            rev: false,
             prio,
             size: 1,
             left: None,
@@ -76,23 +82,9 @@ impl<M: ActedMonoid> Default for ImplicitTreap<M> {
 }
 
 impl<M: ActedMonoid> ImplicitTreap<M> {
-    /// i 番目の要素の可変参照を取得する
-    pub fn get_mut(&mut self, i: usize) -> Option<&mut M::Val> {
-        if self.len() <= i {
-            return None;
-        }
-        let (l, r) = self.split_nth(self.root, i);
-        let (mid, r) = self.split_nth(r, 1);
-
-        let new_l = self.merge(l, mid);
-        self.root = self.merge(new_l, r);
-
-        mid.map(|ptr| &mut self.arena.get_mut(ptr).val)
-    }
-
     /// i 番目の要素の不変参照を取得する
-    pub fn get(&mut self, i: usize) -> Option<&M::Val> {
-        self.get_mut(i).map(|t| &*t)
+    pub fn get(&mut self, i: usize) -> M::Val {
+        self.get_range(i..=i)
     }
 
     /// i 番目に要素 val を挿入する
@@ -152,6 +144,21 @@ impl<M: ActedMonoid> ImplicitTreap<M> {
         self.root = self.merge(a, bc);
     }
 
+    /// 区間反転
+    pub fn reverse<R: RangeBounds<usize> + Debug>(&mut self, range: R) {
+        let (l, r) = self.parse_range(range);
+
+        let (a, bc) = self.split_nth(self.root, l);
+        let (b, c) = self.split_nth(bc, r - l);
+
+        if let Some(ptr) = b {
+            self.apply_rev(ptr);
+        }
+
+        let bc = self.merge(b, c);
+        self.root = self.merge(a, bc);
+    }
+
     /// 空であるか判定する
     pub fn is_empty(&self) -> bool {
         self.len() == 0
@@ -190,18 +197,30 @@ impl<M: ActedMonoid> ImplicitTreap<M> {
         ptr.map(|ptr| self.arena.get(ptr).size).unwrap_or(0)
     }
 
+    /// 部分木の集約
     #[inline]
     fn sum_of(&self, ptr: Option<Ptr>) -> M::Val {
         ptr.map(|ptr| self.arena.get(ptr).sum.clone())
             .unwrap_or(M::e())
     }
 
+    // 逆順集約
+    #[inline]
+    fn rsum_of(&self, ptr: Option<Ptr>) -> M::Val {
+        ptr.map(|ptr| self.arena.get(ptr).rsum.clone())
+            .unwrap_or(M::e())
+    }
+
     /// ノード `ptr` が表す部分木全体に作用を適用
     #[inline]
     fn apply_lazy(&mut self, ptr: Ptr, act: &M::Act) {
-        let (nval, nsum) = {
+        let (nval, nsum, nrsum) = {
             let v = self.arena.get(ptr);
-            (M::mapping(&v.val, act), M::mapping(&v.sum, act))
+            (
+                M::mapping(&v.val, act),
+                M::mapping(&v.sum, act),
+                M::mapping(&v.rsum, act),
+            )
         };
         let composed = {
             let v = self.arena.get(ptr);
@@ -211,7 +230,23 @@ impl<M: ActedMonoid> ImplicitTreap<M> {
         let v = self.arena.get_mut(ptr);
         v.val = nval;
         v.sum = nsum;
+        v.rsum = nrsum;
         v.act = composed;
+    }
+
+    /// ノード `ptr` が表す部分木全体を反転（遅延）
+    #[inline]
+    fn apply_rev(&mut self, ptr: Ptr) {
+        let (l, r, sum, rsum) = {
+            let v = self.arena.get(ptr);
+            (v.left, v.right, v.sum.clone(), v.rsum.clone())
+        };
+        let v = self.arena.get_mut(ptr);
+        v.left = r;
+        v.right = l;
+        v.sum = rsum;
+        v.rsum = sum;
+        v.rev = !v.rev;
     }
 
     /// 子の情報を吸い上げる
@@ -228,33 +263,49 @@ impl<M: ActedMonoid> ImplicitTreap<M> {
         let lsum = self.sum_of(l);
         let rsum = self.sum_of(r);
 
+        let lrsum = self.rsum_of(l);
+        let rrsum = self.rsum_of(r);
+
+        // 正順: L + [val] + R
         let sum = M::op(&M::op(&lsum, &val), &rsum);
+        // 逆順: reverse(R) + [val] + reverse(L)
+        let rev_sum = M::op(&M::op(&rrsum, &val), &lrsum);
 
         let v = self.arena.get_mut(ptr);
         v.size = lsize + rsize + 1;
         v.sum = sum;
+        v.rsum = rev_sum;
     }
 
-    /// 子に伝播する
+    /// 子に伝播する（act と rev の両方）
     #[inline]
     fn push(&mut self, ptr: Ptr) {
-        let act = self.arena.get(ptr).act.clone();
-        if act == M::id() {
-            return;
-        }
-
-        let (l, r) = {
+        let (act, rev, l, r) = {
             let v = self.arena.get(ptr);
-            (v.left, v.right)
+            (v.act.clone(), v.rev, v.left, v.right)
         };
-        if let Some(lp) = l {
-            self.apply_lazy(lp, &act);
-        }
-        if let Some(rp) = r {
-            self.apply_lazy(rp, &act);
+
+        // 反転の伝播
+        if rev {
+            if let Some(lp) = l {
+                self.apply_rev(lp);
+            }
+            if let Some(rp) = r {
+                self.apply_rev(rp);
+            }
+            self.arena.get_mut(ptr).rev = false;
         }
 
-        self.arena.get_mut(ptr).act = M::id();
+        // 作用の伝播
+        if act != M::id() {
+            if let Some(lp) = l {
+                self.apply_lazy(lp, &act);
+            }
+            if let Some(rp) = r {
+                self.apply_lazy(rp, &act);
+            }
+            self.arena.get_mut(ptr).act = M::id();
+        }
     }
 
     /// ptr を根とする木を，左から n 番目までのノードとそれ以外のノードに分解する
@@ -332,10 +383,11 @@ where
     }
     fn print_node(&self, ptr: &Ptr) -> String {
         format!(
-            "[val:{:?}, sum:{:?}, act:{:?}]",
+            "[val:{:?}, sum:{:?}, act:{:?}, rev:{:?}]",
             self.arena.get(*ptr).val,
             self.arena.get(*ptr).sum,
             self.arena.get(*ptr).act,
+            self.arena.get(*ptr).rev,
         )
     }
 }
