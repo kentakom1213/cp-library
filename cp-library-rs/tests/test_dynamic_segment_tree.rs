@@ -33,25 +33,13 @@ fn prod_small_ranges() {
     seg.update(3, 10);
     seg.update(6, -2);
 
-    // prod([l, r))
-    assert_eq!(seg.prod(0, 8), 13);
-    assert_eq!(seg.prod(0, 1), 0);
-    assert_eq!(seg.prod(1, 2), 5);
-    assert_eq!(seg.prod(2, 4), 10);
-    assert_eq!(seg.prod(4, 7), -2);
-    assert_eq!(seg.prod(7, 8), 0);
-
-    // 追加：prod ではなく get_range（RangeBounds）でも取得できることを確認
+    // get_range([l, r))
     assert_eq!(seg.get_range(0..8), 13);
     assert_eq!(seg.get_range(0..1), 0);
     assert_eq!(seg.get_range(1..2), 5);
     assert_eq!(seg.get_range(2..4), 10);
     assert_eq!(seg.get_range(4..7), -2);
     assert_eq!(seg.get_range(7..8), 0);
-
-    // 同一区間で一致することを確認
-    assert_eq!(seg.get_range(2..4), seg.prod(2, 4));
-    assert_eq!(seg.get_range(4..7), seg.prod(4, 7));
 }
 
 #[test]
@@ -87,7 +75,7 @@ fn get_mut_updates_on_drop() {
     }
 
     assert_eq!(seg.get(4), 7);
-    assert_eq!(seg.prod(0, 8), 7);
+    assert_eq!(seg.get_range(0..8), 7);
 
     // 追加：update を使わず get_mut だけで複数箇所を変更
     {

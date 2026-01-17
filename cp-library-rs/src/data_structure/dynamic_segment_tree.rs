@@ -1,28 +1,26 @@
 //! 必要なところだけ作る（区間分割型）セグ木（arena 版）
+//!
+//! - dynamic segment tree（implicit segment tree）
+//! - 添字区間は [min, max)
 
-use crate::algebraic_structure::monoid::Monoid;
-use crate::tree::arena::{Arena, ArenaNode, Ptr};
-use crate::utils::show_binary_tree::ShowBinaryTree;
-
-use std::fmt::{self, Debug};
-use std::ops::{
-    Bound::{Excluded, Included, Unbounded},
-    Deref, DerefMut, RangeBounds,
+use std::{
+    fmt::{self, Debug},
+    ops::{Bound::*, Deref, DerefMut, RangeBounds},
 };
 
 use num_traits::PrimInt;
 
-/// 区間分割型 dynamic segment tree（implicit segment tree）
-/// - 取り扱う添字区間は [min, max)
-pub struct DynamicSegmentTree<I: PrimInt, M: Monoid> {
-    min_index: I,
-    max_index: I,
-    pub n: I,
-    root: Option<Ptr>,
-    arena: Arena<NodeInner<M>>,
-}
+use crate::{
+    algebraic_structure::monoid::Monoid,
+    tree::arena::{Arena, ArenaNode, Ptr},
+    utils::show_binary_tree::ShowBinaryTree,
+};
 
-/// 区間分割型ノード（I を持たない）
+type A<M> = Arena<NodeInner<M>>;
+
+// ========== node ==========
+
+/// 区間分割型ノード（`I` を持たない）
 struct NodeInner<M: Monoid> {
     /// 区間の集約値
     sum: M::Val,
@@ -42,16 +40,29 @@ impl<M: Monoid> Default for NodeInner<M> {
     }
 }
 
+// ========== dynamic segment tree ==========
+
+/// Dynamic Segment Tree
+///
+/// - 必要になったところだけノードを生成するセグ木
+pub struct DynamicSegmentTree<I: PrimInt, M: Monoid> {
+    min_index: I,
+    max_index: I,
+    pub n: I,
+    arena: A<M>,
+    root: Option<Ptr>,
+}
+
 impl<I: PrimInt, M: Monoid> DynamicSegmentTree<I, M> {
-    /// インデックスの最小値，最大値（半開区間 [min, max)）から生成する
+    /// 添字区間 [min, max) から生成する
     pub fn new(min: I, max: I) -> Self {
         assert!(min < max);
         Self {
             min_index: min,
             max_index: max,
             n: max - min,
+            arena: A::new(),
             root: None,
-            arena: Arena::new(),
         }
     }
 
@@ -70,8 +81,7 @@ impl<I: PrimInt, M: Monoid> DynamicSegmentTree<I, M> {
         );
     }
 
-    /// 点取得（未生成は id）
-    /// - 計算量：\(O(\log (max-min))\)
+    /// 点取得（未生成は `M::e()`）
     pub fn get(&self, index: I) -> M::Val {
         assert!(self.min_index <= index && index < self.max_index);
         Self::get_inner(
@@ -83,21 +93,15 @@ impl<I: PrimInt, M: Monoid> DynamicSegmentTree<I, M> {
         )
     }
 
-    /// 区間積（半開区間 [l, r)）
-    /// - 計算量：\(O(\log (max-min))\) 程度
-    pub fn prod(&self, l: I, r: I) -> M::Val {
-        assert!(self.min_index <= l && l <= r && r <= self.max_index);
-        Self::prod_inner(&self.arena, self.root, self.min_index, self.max_index, l, r)
+    /// 区間の集約値（RangeBounds を受け取る）
+    pub fn get_range<R: RangeBounds<I> + Debug>(&self, range: R) -> M::Val {
+        let (l, r) = self.parse_range(&range).unwrap_or_else(|| {
+            panic!("The given range is wrong: {:?}", range);
+        });
+        self.get_range_lr(l, r)
     }
 
-    /// 全体の積
-    pub fn all_prod(&self) -> M::Val {
-        self.root
-            .map(|i| self.arena.get(i).sum.clone())
-            .unwrap_or_else(M::e)
-    }
-
-    /// get_mut（Drop で update）
+    /// `get_mut`（Drop で `update`）
     pub fn get_mut(&mut self, i: I) -> Option<ValMut<'_, I, M>> {
         if self.min_index <= i && i < self.max_index {
             let default = self.get(i);
@@ -111,21 +115,7 @@ impl<I: PrimInt, M: Monoid> DynamicSegmentTree<I, M> {
         }
     }
 
-    /// RangeBounds を受け取る区間積
-    pub fn get_range<R>(&self, range: R) -> M::Val
-    where
-        R: RangeBounds<I> + Debug,
-    {
-        let (l, r) = match self.parse_range(&range) {
-            Some(x) => x,
-            None => panic!("The given range is wrong: {:?}", range),
-        };
-        self.prod(l, r)
-    }
-
-    // ----------------
-    // 内部ユーティリティ
-    // ----------------
+    // ========== internal ==========
 
     #[inline]
     fn two() -> I {
@@ -156,8 +146,17 @@ impl<I: PrimInt, M: Monoid> DynamicSegmentTree<I, M> {
         }
     }
 
+    #[inline]
+    fn sum_of(arena: &A<M>, node: Option<Ptr>) -> M::Val {
+        node.map(|p| arena.get(p).sum.clone()).unwrap_or_else(M::e)
+    }
+
+    fn get_range_lr(&self, l: I, r: I) -> M::Val {
+        Self::get_range_inner(&self.arena, self.root, self.min_index, self.max_index, l, r)
+    }
+
     fn update_inner(
-        arena: &mut Arena<NodeInner<M>>,
+        arena: &mut A<M>,
         node: Option<Ptr>,
         l: I,
         r: I,
@@ -175,25 +174,22 @@ impl<I: PrimInt, M: Monoid> DynamicSegmentTree<I, M> {
 
         if index < mid {
             let left = arena.get(idx).left;
-            let new_left = Self::update_inner(arena, left, l, mid, index, val);
-            arena.get_mut(idx).left = new_left;
+            let nl = Self::update_inner(arena, left, l, mid, index, val);
+            arena.get_mut(idx).left = nl;
         } else {
             let right = arena.get(idx).right;
-            let new_right = Self::update_inner(arena, right, mid, r, index, val);
-            arena.get_mut(idx).right = new_right;
+            let nr = Self::update_inner(arena, right, mid, r, index, val);
+            arena.get_mut(idx).right = nr;
         }
 
-        // eval（借用を切ってから集約）
-        let left = arena.get(idx).left;
-        let right = arena.get(idx).right;
-        let lsum = left.map(|p| arena.get(p).sum.clone()).unwrap_or(M::e());
-        let rsum = right.map(|p| arena.get(p).sum.clone()).unwrap_or(M::e());
+        let lsum = Self::sum_of(arena, arena.get(idx).left);
+        let rsum = Self::sum_of(arena, arena.get(idx).right);
         arena.get_mut(idx).sum = M::op(&lsum, &rsum);
 
         Some(idx)
     }
 
-    fn get_inner(arena: &Arena<NodeInner<M>>, node: Option<Ptr>, l: I, r: I, index: I) -> M::Val {
+    fn get_inner(arena: &A<M>, node: Option<Ptr>, l: I, r: I, index: I) -> M::Val {
         let Some(idx) = node else {
             return M::e();
         };
@@ -208,34 +204,36 @@ impl<I: PrimInt, M: Monoid> DynamicSegmentTree<I, M> {
         }
     }
 
-    fn prod_inner(
-        arena: &Arena<NodeInner<M>>,
+    fn get_range_inner(
+        arena: &A<M>,
         node: Option<Ptr>,
-        l: I,
-        r: I,
+        seg_l: I,
+        seg_r: I,
         ql: I,
         qr: I,
     ) -> M::Val {
-        if qr <= l || r <= ql {
+        if qr <= seg_l || seg_r <= ql {
             return M::e();
         }
         let Some(idx) = node else {
             return M::e();
         };
-        if ql <= l && r <= qr {
+        if ql <= seg_l && seg_r <= qr {
             return arena.get(idx).sum.clone();
         }
-        if r - l == I::one() {
+        if seg_r - seg_l == I::one() {
             return arena.get(idx).sum.clone();
         }
-        let mid = Self::mid(l, r);
-        let a = Self::prod_inner(arena, arena.get(idx).left, l, mid, ql, qr);
-        let b = Self::prod_inner(arena, arena.get(idx).right, mid, r, ql, qr);
+
+        let mid = Self::mid(seg_l, seg_r);
+        let a = Self::get_range_inner(arena, arena.get(idx).left, seg_l, mid, ql, qr);
+        let b = Self::get_range_inner(arena, arena.get(idx).right, mid, seg_r, ql, qr);
         M::op(&a, &b)
     }
 }
 
-/// SegmentTree の ValMut と同じ設計（idx は I）
+// ========== ValMut ==========
+
 pub struct ValMut<'a, I, M>
 where
     I: PrimInt,
@@ -288,49 +286,18 @@ where
     }
 }
 
-impl<I, M> Debug for DynamicSegmentTree<I, M>
-where
-    I: PrimInt,
-    M: Monoid,
-    M::Val: Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "DynamicSegmentTree {{ [").ok();
-        let mut i = self.min_index;
-        while i < self.max_index {
-            let v = self.get(i);
-            let ni = i + I::one();
-            if ni < self.max_index {
-                write!(f, "{:?}, ", v).ok();
-            } else {
-                write!(f, "{:?}", v).ok();
-            }
-            i = ni;
-        }
-        write!(f, "] }}")
-    }
-}
+// ========== max_right / min_left ==========
 
-// セグ木上の 2 分探索（OrderedMonoid）
 impl<I, M> DynamicSegmentTree<I, M>
 where
     I: PrimInt + Debug,
     M: Monoid,
     M::Val: Debug,
 {
-    /// 左端固定二分探索
-    /// 返り値： (prod([l, x)), x)
     pub fn max_right<F>(&self, l: I, f: F) -> (M::Val, I)
     where
         F: Fn(M::Val) -> bool,
     {
-        assert!(f(M::e()));
-        assert!(self.min_index <= l && l <= self.max_index);
-
-        if l == self.max_index {
-            return (M::e(), self.max_index);
-        }
-
         let mut acc = M::e();
         let x = Self::max_right_inner(
             &self.arena,
@@ -345,7 +312,7 @@ where
     }
 
     fn max_right_inner<F>(
-        arena: &Arena<NodeInner<M>>,
+        arena: &A<M>,
         node: Option<Ptr>,
         seg_l: I,
         seg_r: I,
@@ -359,7 +326,6 @@ where
         if seg_r <= ql {
             return seg_r;
         }
-
         let Some(idx) = node else {
             return seg_r;
         };
@@ -377,27 +343,17 @@ where
         }
 
         let mid = DynamicSegmentTree::<I, M>::mid(seg_l, seg_r);
-
-        let left_res = Self::max_right_inner(arena, arena.get(idx).left, seg_l, mid, ql, f, acc);
-        if left_res != mid {
-            return left_res;
+        let res = Self::max_right_inner(arena, arena.get(idx).left, seg_l, mid, ql, f, acc);
+        if res != mid {
+            return res;
         }
         Self::max_right_inner(arena, arena.get(idx).right, mid, seg_r, ql, f, acc)
     }
 
-    /// 右端固定二分探索
-    /// 返り値： (prod([x, r)), x)
     pub fn min_left<F>(&self, r: I, f: F) -> (M::Val, I)
     where
         F: Fn(M::Val) -> bool,
     {
-        assert!(f(M::e()));
-        assert!(self.min_index <= r && r <= self.max_index);
-
-        if r == self.min_index {
-            return (M::e(), self.min_index);
-        }
-
         let mut acc = M::e();
         let x = Self::min_left_inner(
             &self.arena,
@@ -412,7 +368,7 @@ where
     }
 
     fn min_left_inner<F>(
-        arena: &Arena<NodeInner<M>>,
+        arena: &A<M>,
         node: Option<Ptr>,
         seg_l: I,
         seg_r: I,
@@ -426,7 +382,6 @@ where
         if qr <= seg_l {
             return seg_l;
         }
-
         let Some(idx) = node else {
             return seg_l;
         };
@@ -444,66 +399,35 @@ where
         }
 
         let mid = DynamicSegmentTree::<I, M>::mid(seg_l, seg_r);
-
-        let right_res = Self::min_left_inner(arena, arena.get(idx).right, mid, seg_r, qr, f, acc);
-        if right_res != mid {
-            return right_res;
+        let res = Self::min_left_inner(arena, arena.get(idx).right, mid, seg_r, qr, f, acc);
+        if res != mid {
+            return res;
         }
         Self::min_left_inner(arena, arena.get(idx).left, seg_l, mid, qr, f, acc)
     }
 }
 
-/// ShowBinaryTree 用の「ポインタ」
-/// - idx: arena 上のノード番号
-/// - l,r: このノードが担当する区間 [l,r)
-#[derive(Clone, Copy)]
-pub struct DynSegPtr<I>
-where
-    I: PrimInt,
-{
-    ptr: Ptr,
-    l: I,
-    r: I,
-}
+// ========== ShowBinaryTree ==========
 
-impl<I, M> DynamicSegmentTree<I, M>
-where
-    I: PrimInt,
-    M: Monoid,
-{
-    #[inline]
-    fn mk_ptr(&self, ptr: Ptr, l: I, r: I) -> DynSegPtr<I> {
-        DynSegPtr { ptr, l, r }
-    }
-}
-
-impl<I, M> ShowBinaryTree<DynSegPtr<I>> for DynamicSegmentTree<I, M>
+impl<I, M> ShowBinaryTree<Ptr> for DynamicSegmentTree<I, M>
 where
     I: PrimInt + Debug,
     M: Monoid,
     M::Val: Debug,
 {
-    fn get_left(&self, ptr: &DynSegPtr<I>) -> Option<DynSegPtr<I>> {
-        let t = &self.arena.get(ptr.ptr);
-        let left = t.left?;
-        let mid = Self::mid(ptr.l, ptr.r);
-        Some(self.mk_ptr(left, ptr.l, mid))
+    fn get_root(&self) -> Option<Ptr> {
+        self.root
     }
 
-    fn get_right(&self, ptr: &DynSegPtr<I>) -> Option<DynSegPtr<I>> {
-        let t = &self.arena.get(ptr.ptr);
-        let right = t.right?;
-        let mid = Self::mid(ptr.l, ptr.r);
-        Some(self.mk_ptr(right, mid, ptr.r))
+    fn get_left(&self, ptr: &Ptr) -> Option<Ptr> {
+        self.arena.get(*ptr).left
     }
 
-    fn get_root(&self) -> Option<DynSegPtr<I>> {
-        let root = self.root?;
-        Some(self.mk_ptr(root, self.min_index, self.max_index))
+    fn get_right(&self, ptr: &Ptr) -> Option<Ptr> {
+        self.arena.get(*ptr).right
     }
 
-    fn print_node(&self, ptr: &DynSegPtr<I>) -> String {
-        let t = &self.arena.get(ptr.ptr);
-        format!("[{:?}, {:?}) sum={:?}", ptr.l, ptr.r, t.sum)
+    fn print_node(&self, ptr: &Ptr) -> String {
+        format!("[{:?}]", self.arena.get(*ptr).sum)
     }
 }
