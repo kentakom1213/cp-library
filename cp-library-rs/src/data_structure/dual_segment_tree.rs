@@ -51,10 +51,12 @@ impl<M: CommutativeMonoid> DualSegmentTree<M> {
     }
 
     /// 配列から双対セグメント木を構築する
-    pub fn build(arr: &[M::Val]) -> Self {
+    pub fn from_vec(arr: Vec<M::Val>) -> Self {
         let offset = arr.len();
         let mut seg = Self::new(offset);
-        seg.data[offset..].clone_from_slice(arr);
+        for (i, v) in arr.into_iter().enumerate() {
+            seg.data[offset + i] = v;
+        }
         seg
     }
 

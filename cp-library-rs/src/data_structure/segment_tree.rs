@@ -8,10 +8,7 @@
 //!
 //! をそれぞれ $`O(\log N)`$ で行う．（$`N = |A|`$）
 
-use crate::{
-    algebraic_structure::{monoid::Monoid, ordered_monoid::OrderedMonoid},
-    utils::show_binary_tree::ShowBinaryTree,
-};
+use crate::{algebraic_structure::monoid::Monoid, utils::show_binary_tree::ShowBinaryTree};
 use std::{
     fmt::{self, Debug},
     ops::{
@@ -200,11 +197,7 @@ impl<M: Monoid> DerefMut for ValMut<'_, M> {
 }
 
 // セグ木上の2分探索
-impl<M> SegmentTree<M>
-where
-    M: OrderedMonoid,
-    M::Val: Debug,
-{
+impl<M: Monoid> SegmentTree<M> {
     /// 左端を固定した2分探索
     /// - 引数`l`と関数`f`に対して，
     ///     - `f( seg.get(l..x) ) = true`
