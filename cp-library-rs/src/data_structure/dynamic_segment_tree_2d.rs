@@ -130,10 +130,8 @@ where
 
         self.get_range_inner(
             self.root,
-            (self.xmin, self.xmax),
-            (self.ymin, self.ymax),
-            (qxl, qxr),
-            (qyl, qyr),
+            ((self.xmin, self.xmax), (self.ymin, self.ymax)),
+            ((qxl, qxr), (qyl, qyr)),
             Axis::X,
         )
     }
@@ -196,29 +194,19 @@ where
     }
 
     #[inline]
-    fn area((xl, xr): Range<I>, (yl, yr): Range<I>) -> usize {
+    fn area(((xl, xr), (yl, yr)): Rect<I>) -> usize {
         let xlen = Self::len(xl, xr);
         let ylen = Self::len(yl, yr);
         xlen * ylen
     }
 
     #[inline]
-    fn intersects(
-        (xl, xr): Range<I>,
-        (yl, yr): Range<I>,
-        (qxl, qxr): Range<I>,
-        (qyl, qyr): Range<I>,
-    ) -> bool {
+    fn intersects(((xl, xr), (yl, yr)): Rect<I>, ((qxl, qxr), (qyl, qyr)): Rect<I>) -> bool {
         !(qxr <= xl || xr <= qxl || qyr <= yl || yr <= qyl)
     }
 
     #[inline]
-    fn covered_by(
-        (xl, xr): Range<I>,
-        (yl, yr): Range<I>,
-        (qxl, qxr): Range<I>,
-        (qyl, qyr): Range<I>,
-    ) -> bool {
+    fn covered_by(((xl, xr), (yl, yr)): Rect<I>, ((qxl, qxr), (qyl, qyr)): Rect<I>) -> bool {
         qxl <= xl && xr <= qxr && qyl <= yl && yr <= qyr
     }
 
@@ -312,14 +300,14 @@ where
         match axis_eff {
             Axis::X => {
                 let xm = mid;
-                let a1 = Self::area((xl, xm), (yl, yr));
-                let a2 = Self::area((xm, xr), (yl, yr));
+                let a1 = Self::area(((xl, xm), (yl, yr)));
+                let a2 = Self::area(((xm, xr), (yl, yr)));
                 ((((xl, xm), (yl, yr)), a1), (((xm, xr), (yl, yr)), a2))
             }
             Axis::Y => {
                 let ym = mid;
-                let a1 = Self::area((xl, xr), (yl, ym));
-                let a2 = Self::area((xl, xr), (ym, yr));
+                let a1 = Self::area(((xl, xr), (yl, ym)));
+                let a2 = Self::area(((xl, xr), (ym, yr)));
                 ((((xl, xr), (yl, ym)), a1), (((xl, xr), (ym, yr)), a2))
             }
         }
@@ -391,14 +379,14 @@ where
         act: &M::Act,
         axis: Axis,
     ) -> Option<Ptr> {
-        if !Self::intersects((xl, xr), (yl, yr), (qxl, qxr), (qyl, qyr)) {
+        if !Self::intersects(((xl, xr), (yl, yr)), ((qxl, qxr), (qyl, qyr))) {
             return node;
         }
 
-        let area = Self::area((xl, xr), (yl, yr));
+        let area = Self::area(((xl, xr), (yl, yr)));
         let ptr = node.unwrap_or_else(|| self.arena.alloc(NodeInner::<M>::with_area(area)));
 
-        if Self::covered_by((xl, xr), (yl, yr), (qxl, qxr), (qyl, qyr)) {
+        if Self::covered_by(((xl, xr), (yl, yr)), ((qxl, qxr), (qyl, qyr))) {
             self.apply_node(ptr, act);
             return Some(ptr);
         }
@@ -450,19 +438,16 @@ where
     fn get_range_inner(
         &mut self,
         node: Option<Ptr>,
-        (xl, xr): Range<I>,
-        (yl, yr): Range<I>,
-        (qxl, qxr): Range<I>,
-        (qyl, qyr): Range<I>,
+        ((xl, xr), (yl, yr)): Rect<I>,
+        ((qxl, qxr), (qyl, qyr)): Rect<I>,
         axis: Axis,
     ) -> M::Val {
-        if !Self::intersects((xl, xr), (yl, yr), (qxl, qxr), (qyl, qyr)) {
+        if !Self::intersects(((xl, xr), (yl, yr)), ((qxl, qxr), (qyl, qyr))) {
             return M::e_len(0);
         }
 
-        let area = Self::area((xl, xr), (yl, yr));
-
-        if Self::covered_by((xl, xr), (yl, yr), (qxl, qxr), (qyl, qyr)) {
+        let area = Self::area(((xl, xr), (yl, yr)));
+        if Self::covered_by(((xl, xr), (yl, yr)), ((qxl, qxr), (qyl, qyr))) {
             return node
                 .map(|p| self.arena.get(p).sum.clone())
                 .unwrap_or_else(|| M::e_len(area));
@@ -488,18 +473,14 @@ where
 
             let a = self.get_range_inner(
                 None,
-                (xl1, xr1),
-                (yl1, yr1),
-                (qxl, qxr),
-                (qyl, qyr),
+                ((xl1, xr1), (yl1, yr1)),
+                ((qxl, qxr), (qyl, qyr)),
                 next_axis,
             );
             let b = self.get_range_inner(
                 None,
-                (xl2, xr2),
-                (yl2, yr2),
-                (qxl, qxr),
-                (qyl, qyr),
+                ((xl2, xr2), (yl2, yr2)),
+                ((qxl, qxr), (qyl, qyr)),
                 next_axis,
             );
             return M::op(&a, &b);
@@ -519,18 +500,14 @@ where
 
         let a = self.get_range_inner(
             self.arena.get(ptr).left,
-            (xl1, xr1),
-            (yl1, yr1),
-            (qxl, qxr),
-            (qyl, qyr),
+            ((xl1, xr1), (yl1, yr1)),
+            ((qxl, qxr), (qyl, qyr)),
             next_axis,
         );
         let b = self.get_range_inner(
             self.arena.get(ptr).right,
-            (xl2, xr2),
-            (yl2, yr2),
-            (qxl, qxr),
-            (qyl, qyr),
+            ((xl2, xr2), (yl2, yr2)),
+            ((qxl, qxr), (qyl, qyr)),
             next_axis,
         );
         M::op(&a, &b)
