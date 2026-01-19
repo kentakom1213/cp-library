@@ -12,7 +12,7 @@ use num::ToPrimitive;
 use num_traits::PrimInt;
 
 use crate::{
-    algebraic_structure::actedmonoid_len::ActedMonoidLen,
+    algebraic_structure::actedmonoid_with_size::ActedMonoidWithSize,
     tree::arena::{Arena, ArenaNode, Ptr},
     utils::show_binary_tree::ShowBinaryTree,
 };
@@ -22,7 +22,7 @@ type A<M> = Arena<NodeInner<M>>;
 // ========== node ==========
 
 /// 区間分割型ノード（`I` を持たない）
-struct NodeInner<M: ActedMonoidLen> {
+struct NodeInner<M: ActedMonoidWithSize> {
     /// 区間の集約値
     sum: M::Val,
     /// 遅延作用
@@ -31,9 +31,9 @@ struct NodeInner<M: ActedMonoidLen> {
     right: Option<Ptr>,
 }
 
-impl<M: ActedMonoidLen> ArenaNode for NodeInner<M> {}
+impl<M: ActedMonoidWithSize> ArenaNode for NodeInner<M> {}
 
-impl<M: ActedMonoidLen> NodeInner<M> {
+impl<M: ActedMonoidWithSize> NodeInner<M> {
     fn with_length(len: usize) -> Self {
         Self {
             sum: M::e_len(len),
@@ -46,7 +46,7 @@ impl<M: ActedMonoidLen> NodeInner<M> {
 
 // ========== dynamic segment tree ==========
 
-pub struct DynamicSegmentTree<I: PrimInt, M: ActedMonoidLen> {
+pub struct DynamicSegmentTree<I: PrimInt, M: ActedMonoidWithSize> {
     min_index: I,
     max_index: I,
     pub n: I,
@@ -54,7 +54,7 @@ pub struct DynamicSegmentTree<I: PrimInt, M: ActedMonoidLen> {
     root: Option<Ptr>,
 }
 
-impl<I: PrimInt + ToPrimitive, M: ActedMonoidLen> DynamicSegmentTree<I, M> {
+impl<I: PrimInt + ToPrimitive, M: ActedMonoidWithSize> DynamicSegmentTree<I, M> {
     pub fn new(min: I, max: I) -> Self {
         assert!(min < max);
         Self {
@@ -370,7 +370,7 @@ impl<I: PrimInt + ToPrimitive, M: ActedMonoidLen> DynamicSegmentTree<I, M> {
 pub struct ValMut<'a, I, M>
 where
     I: PrimInt,
-    M: ActedMonoidLen,
+    M: ActedMonoidWithSize,
 {
     segself: &'a mut DynamicSegmentTree<I, M>,
     idx: I,
@@ -380,7 +380,7 @@ where
 impl<I, M> Debug for ValMut<'_, I, M>
 where
     I: PrimInt,
-    M: ActedMonoidLen,
+    M: ActedMonoidWithSize,
     M::Val: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -391,7 +391,7 @@ where
 impl<I, M> Drop for ValMut<'_, I, M>
 where
     I: PrimInt,
-    M: ActedMonoidLen,
+    M: ActedMonoidWithSize,
 {
     fn drop(&mut self) {
         self.segself.update(self.idx, self.new_val.clone());
@@ -401,7 +401,7 @@ where
 impl<I, M> Deref for ValMut<'_, I, M>
 where
     I: PrimInt,
-    M: ActedMonoidLen,
+    M: ActedMonoidWithSize,
 {
     type Target = M::Val;
     fn deref(&self) -> &Self::Target {
@@ -412,7 +412,7 @@ where
 impl<I, M> DerefMut for ValMut<'_, I, M>
 where
     I: PrimInt,
-    M: ActedMonoidLen,
+    M: ActedMonoidWithSize,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.new_val
@@ -426,7 +426,7 @@ where
 impl<I, M> DynamicSegmentTree<I, M>
 where
     I: PrimInt,
-    M: ActedMonoidLen,
+    M: ActedMonoidWithSize,
     M::Val: Debug,
 {
     /// 左端固定二分探索
@@ -548,7 +548,7 @@ where
 impl<I, M> ShowBinaryTree<Ptr> for DynamicSegmentTree<I, M>
 where
     I: PrimInt,
-    M: ActedMonoidLen,
+    M: ActedMonoidWithSize,
     M::Val: Debug,
     M::Act: Debug,
 {

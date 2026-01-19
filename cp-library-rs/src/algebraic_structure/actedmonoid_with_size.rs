@@ -14,7 +14,7 @@ use crate::algebraic_structure::{
 };
 
 /// 長さを保持した作用付きモノイド
-pub trait ActedMonoidLen: ActedMonoid {
+pub trait ActedMonoidWithSize: ActedMonoid {
     /// 区間長 `len` の「単位区間」を表す集約値を返す
     ///
     /// 例：`Val = (sum, len)` のとき，`e_len(len) = (0, len)` のようなもの
@@ -25,7 +25,7 @@ pub trait ActedMonoidLen: ActedMonoid {
 }
 
 // ========== 区間加算，区間更新 + 区間和系の作用付きモノイドに実装 ==========
-impl<T> ActedMonoidLen for AddSum<T>
+impl<T> ActedMonoidWithSize for AddSum<T>
 where
     T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
 {
@@ -34,7 +34,7 @@ where
     }
 }
 
-impl<T> ActedMonoidLen for UpdateSum<T>
+impl<T> ActedMonoidWithSize for UpdateSum<T>
 where
     T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
 {
@@ -44,13 +44,13 @@ where
 }
 
 // ========== その他の作用付きモノイドに実装 ==========
-impl<M> ActedMonoidLen for ToActed<M>
+impl<M> ActedMonoidWithSize for ToActed<M>
 where
     M: Monoid,
     M::Val: PartialEq,
 {
 }
-impl<T: Bounded + Ord + Clone> ActedMonoidLen for UpdateMin<T> {}
-impl<T: Bounded + Ord + Clone> ActedMonoidLen for UpdateMax<T> {}
-impl<T: Bounded + Ord + Clone> ActedMonoidLen for UpdateMinMax<T> {}
-impl<T> ActedMonoidLen for AddMin<T> where T: Zero + Clone + Add<Output = T> + Ord + Bounded {}
+impl<T: Bounded + Ord + Clone> ActedMonoidWithSize for UpdateMin<T> {}
+impl<T: Bounded + Ord + Clone> ActedMonoidWithSize for UpdateMax<T> {}
+impl<T: Bounded + Ord + Clone> ActedMonoidWithSize for UpdateMinMax<T> {}
+impl<T> ActedMonoidWithSize for AddMin<T> where T: Zero + Clone + Add<Output = T> + Ord + Bounded {}

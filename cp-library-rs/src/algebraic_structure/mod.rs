@@ -4,7 +4,7 @@
 
 pub mod abel;
 pub mod actedmonoid;
-pub mod actedmonoid_len;
+pub mod actedmonoid_with_size;
 pub mod actedmonoid_mod;
 pub mod affine1d;
 pub mod affine2d;
