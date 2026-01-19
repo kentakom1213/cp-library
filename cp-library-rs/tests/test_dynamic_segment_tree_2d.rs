@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+#![allow(clippy::needless_range_loop)]
 
 use cp_library_rs::{
     algebraic_structure::actedmonoid::examples::AddSum,
@@ -9,7 +10,7 @@ use rstest::rstest;
 
 #[test]
 fn point_apply_and_get() {
-    let mut seg = DynamicSegmentTree2D::<usize, AddSum<i64>>::new(0, 8, 0, 8);
+    let mut seg = DynamicSegmentTree2D::<usize, AddSum<i64>>::new((0, 8), (0, 8));
 
     // 未生成はデフォルト（面積 1 の e_len）
     assert_eq!(seg.get(0, 0).0, 0);
@@ -32,7 +33,7 @@ fn point_apply_and_get() {
 #[test]
 fn rect_apply_and_query_small() {
     // 4x4
-    let mut seg = DynamicSegmentTree2D::<usize, AddSum<i64>>::new(0, 4, 0, 4);
+    let mut seg = DynamicSegmentTree2D::<usize, AddSum<i64>>::new((0, 4), (0, 4));
 
     // 全体和は 0
     assert_eq!(seg.get_range(0..4, 0..4).0, 0);
@@ -68,7 +69,7 @@ fn rect_apply_and_query_small() {
 
 #[test]
 fn get_range_bounds_compat_2d() {
-    let mut seg = DynamicSegmentTree2D::<usize, AddSum<i64>>::new(0, 8, 0, 8);
+    let mut seg = DynamicSegmentTree2D::<usize, AddSum<i64>>::new((0, 8), (0, 8));
 
     seg.apply(1..3, 2..5, 4); // 面積 2*3=6 => +24
     seg.apply(6..7, 7..8, -2); // 面積 1 => -2
@@ -115,7 +116,7 @@ fn test_randomly_rect_add_and_query(w: usize, h: usize, query: usize) {
     let mut a = vec![vec![0_i64; h]; w];
 
     // 2D seg
-    let mut seg = DynamicSegmentTree2D::<usize, AddSum<i64>>::new(0, w, 0, h);
+    let mut seg = DynamicSegmentTree2D::<usize, AddSum<i64>>::new((0, w), (0, h));
 
     for _ in 0..query {
         // 矩形取得
