@@ -105,14 +105,10 @@ where
         let root = self.root.take();
         self.root = self.apply_inner(
             root,
-            self.xmin,
-            self.xmax,
-            self.ymin,
-            self.ymax,
-            qxl,
-            qxr,
-            qyl,
-            qyr,
+            (self.xmin, self.xmax),
+            (self.ymin, self.ymax),
+            (qxl, qxr),
+            (qyl, qyr),
             &act,
             Axis::X,
         );
@@ -133,14 +129,10 @@ where
 
         self.get_range_inner(
             self.root,
-            self.xmin,
-            self.xmax,
-            self.ymin,
-            self.ymax,
-            qxl,
-            qxr,
-            qyl,
-            qyr,
+            (self.xmin, self.xmax),
+            (self.ymin, self.ymax),
+            (qxl, qxr),
+            (qyl, qyr),
             Axis::X,
         )
     }
@@ -203,19 +195,29 @@ where
     }
 
     #[inline]
-    fn area(xl: I, xr: I, yl: I, yr: I) -> usize {
+    fn area((xl, xr): (I, I), (yl, yr): (I, I)) -> usize {
         let xlen = Self::len(xl, xr);
         let ylen = Self::len(yl, yr);
         xlen * ylen
     }
 
     #[inline]
-    fn intersects(xl: I, xr: I, yl: I, yr: I, qxl: I, qxr: I, qyl: I, qyr: I) -> bool {
+    fn intersects(
+        (xl, xr): (I, I),
+        (yl, yr): (I, I),
+        (qxl, qxr): (I, I),
+        (qyl, qyr): (I, I),
+    ) -> bool {
         !(qxr <= xl || xr <= qxl || qyr <= yl || yr <= qyl)
     }
 
     #[inline]
-    fn covered_by(xl: I, xr: I, yl: I, yr: I, qxl: I, qxr: I, qyl: I, qyr: I) -> bool {
+    fn covered_by(
+        (xl, xr): (I, I),
+        (yl, yr): (I, I),
+        (qxl, qxr): (I, I),
+        (qyl, qyr): (I, I),
+    ) -> bool {
         qxl <= xl && xr <= qxr && qyl <= yl && yr <= qyr
     }
 
@@ -267,7 +269,7 @@ where
     // ---------- axis / split rule ----------
 
     #[inline]
-    fn can_split(axis: Axis, xl: I, xr: I, yl: I, yr: I) -> bool {
+    fn can_split(axis: Axis, (xl, xr): (I, I), (yl, yr): (I, I)) -> bool {
         match axis {
             Axis::X => xr - xl > I::one(),
             Axis::Y => yr - yl > I::one(),
@@ -279,8 +281,8 @@ where
     /// 戻り値：
     /// - `axis_eff`：実際に split に用いる軸
     /// - `mid`：その軸での中点（split 不能な場合でも返すが，呼び出し側で葉判定すること）
-    fn choose_axis_and_mid(&self, axis: Axis, xl: I, xr: I, yl: I, yr: I) -> (Axis, I) {
-        if Self::can_split(axis, xl, xr, yl, yr) {
+    fn choose_axis_and_mid(&self, axis: Axis, (xl, xr): (I, I), (yl, yr): (I, I)) -> (Axis, I) {
+        if Self::can_split(axis, (xl, xr), (yl, yr)) {
             let mid = match axis {
                 Axis::X => Self::mid(xl, xr),
                 Axis::Y => Self::mid(yl, yr),
@@ -288,7 +290,7 @@ where
             return (axis, mid);
         }
         let axis2 = axis.flip();
-        if Self::can_split(axis2, xl, xr, yl, yr) {
+        if Self::can_split(axis2, (xl, xr), (yl, yr)) {
             let mid = match axis2 {
                 Axis::X => Self::mid(xl, xr),
                 Axis::Y => Self::mid(yl, yr),
@@ -302,23 +304,21 @@ where
     fn child_regions(
         &self,
         axis_eff: Axis,
-        xl: I,
-        xr: I,
-        yl: I,
-        yr: I,
+        (xl, xr): (I, I),
+        (yl, yr): (I, I),
         mid: I,
     ) -> ((I, I, I, I, usize), (I, I, I, I, usize)) {
         match axis_eff {
             Axis::X => {
                 let xm = mid;
-                let a1 = Self::area(xl, xm, yl, yr);
-                let a2 = Self::area(xm, xr, yl, yr);
+                let a1 = Self::area((xl, xm), (yl, yr));
+                let a2 = Self::area((xm, xr), (yl, yr));
                 ((xl, xm, yl, yr, a1), (xm, xr, yl, yr, a2))
             }
             Axis::Y => {
                 let ym = mid;
-                let a1 = Self::area(xl, xr, yl, ym);
-                let a2 = Self::area(xl, xr, ym, yr);
+                let a1 = Self::area((xl, xr), (yl, ym));
+                let a2 = Self::area((xl, xr), (ym, yr));
                 ((xl, xr, yl, ym, a1), (xl, xr, ym, yr, a2))
             }
         }
@@ -326,7 +326,7 @@ where
 
     // ---------- lazy propagation ----------
 
-    fn push(&mut self, ptr: Ptr, xl: I, xr: I, yl: I, yr: I, axis: Axis) {
+    fn push(&mut self, ptr: Ptr, (xl, xr): (I, I), (yl, yr): (I, I), axis: Axis) {
         // 真の葉
         if xr - xl == I::one() && yr - yl == I::one() {
             return;
@@ -337,13 +337,13 @@ where
             return;
         }
 
-        let (axis_eff, mid) = self.choose_axis_and_mid(axis, xl, xr, yl, yr);
-        if !Self::can_split(axis_eff, xl, xr, yl, yr) {
+        let (axis_eff, mid) = self.choose_axis_and_mid(axis, (xl, xr), (yl, yr));
+        if !Self::can_split(axis_eff, (xl, xr), (yl, yr)) {
             // 真の葉（念のため）
             return;
         }
 
-        let (c1, c2) = self.child_regions(axis_eff, xl, xr, yl, yr, mid);
+        let (c1, c2) = self.child_regions(axis_eff, (xl, xr), (yl, yr), mid);
         let (_xl1, _xr1, _yl1, _yr1, a1) = c1;
         let (_xl2, _xr2, _yl2, _yr2, a2) = c2;
 
@@ -356,18 +356,18 @@ where
         self.arena.get_mut(ptr).act = M::id();
     }
 
-    fn pull(&mut self, ptr: Ptr, xl: I, xr: I, yl: I, yr: I, axis: Axis) {
+    fn pull(&mut self, ptr: Ptr, (xl, xr): (I, I), (yl, yr): (I, I), axis: Axis) {
         // 真の葉なら sum は既に正しい前提（apply_node が更新する）
         if xr - xl == I::one() && yr - yl == I::one() {
             return;
         }
 
-        let (axis_eff, mid) = self.choose_axis_and_mid(axis, xl, xr, yl, yr);
-        if !Self::can_split(axis_eff, xl, xr, yl, yr) {
+        let (axis_eff, mid) = self.choose_axis_and_mid(axis, (xl, xr), (yl, yr));
+        if !Self::can_split(axis_eff, (xl, xr), (yl, yr)) {
             return;
         }
 
-        let (c1, c2) = self.child_regions(axis_eff, xl, xr, yl, yr, mid);
+        let (c1, c2) = self.child_regions(axis_eff, (xl, xr), (yl, yr), mid);
         let (_xl1, _xr1, _yl1, _yr1, a1) = c1;
         let (_xl2, _xr2, _yl2, _yr2, a2) = c2;
 
@@ -385,25 +385,21 @@ where
     fn apply_inner(
         &mut self,
         node: Option<Ptr>,
-        xl: I,
-        xr: I,
-        yl: I,
-        yr: I,
-        qxl: I,
-        qxr: I,
-        qyl: I,
-        qyr: I,
+        (xl, xr): (I, I),
+        (yl, yr): (I, I),
+        (qxl, qxr): (I, I),
+        (qyl, qyr): (I, I),
         act: &M::Act,
         axis: Axis,
     ) -> Option<Ptr> {
-        if !Self::intersects(xl, xr, yl, yr, qxl, qxr, qyl, qyr) {
+        if !Self::intersects((xl, xr), (yl, yr), (qxl, qxr), (qyl, qyr)) {
             return node;
         }
 
-        let area = Self::area(xl, xr, yl, yr);
+        let area = Self::area((xl, xr), (yl, yr));
         let ptr = node.unwrap_or_else(|| self.arena.alloc(NodeInner::<M>::with_area(area)));
 
-        if Self::covered_by(xl, xr, yl, yr, qxl, qxr, qyl, qyr) {
+        if Self::covered_by((xl, xr), (yl, yr), (qxl, qxr), (qyl, qyr)) {
             self.apply_node(ptr, act);
             return Some(ptr);
         }
@@ -414,54 +410,64 @@ where
             return Some(ptr);
         }
 
-        self.push(ptr, xl, xr, yl, yr, axis);
+        self.push(ptr, (xl, xr), (yl, yr), axis);
 
-        let (axis_eff, mid) = self.choose_axis_and_mid(axis, xl, xr, yl, yr);
-        if !Self::can_split(axis_eff, xl, xr, yl, yr) {
+        let (axis_eff, mid) = self.choose_axis_and_mid(axis, (xl, xr), (yl, yr));
+        if !Self::can_split(axis_eff, (xl, xr), (yl, yr)) {
             // 念のため（真の葉）
             self.apply_node(ptr, act);
             return Some(ptr);
         }
 
         let next_axis = axis_eff.flip();
-        let (c1, c2) = self.child_regions(axis_eff, xl, xr, yl, yr, mid);
+        let (c1, c2) = self.child_regions(axis_eff, (xl, xr), (yl, yr), mid);
         let (xl1, xr1, yl1, yr1, _a1) = c1;
         let (xl2, xr2, yl2, yr2, _a2) = c2;
 
         let left = self.arena.get(ptr).left;
-        let nl = self.apply_inner(left, xl1, xr1, yl1, yr1, qxl, qxr, qyl, qyr, act, next_axis);
+        let nl = self.apply_inner(
+            left,
+            (xl1, xr1),
+            (yl1, yr1),
+            (qxl, qxr),
+            (qyl, qyr),
+            act,
+            next_axis,
+        );
         self.arena.get_mut(ptr).left = nl;
 
         let right = self.arena.get(ptr).right;
         let nr = self.apply_inner(
-            right, xl2, xr2, yl2, yr2, qxl, qxr, qyl, qyr, act, next_axis,
+            right,
+            (xl2, xr2),
+            (yl2, yr2),
+            (qxl, qxr),
+            (qyl, qyr),
+            act,
+            next_axis,
         );
         self.arena.get_mut(ptr).right = nr;
 
-        self.pull(ptr, xl, xr, yl, yr, axis);
+        self.pull(ptr, (xl, xr), (yl, yr), axis);
         Some(ptr)
     }
 
     fn get_range_inner(
         &mut self,
         node: Option<Ptr>,
-        xl: I,
-        xr: I,
-        yl: I,
-        yr: I,
-        qxl: I,
-        qxr: I,
-        qyl: I,
-        qyr: I,
+        (xl, xr): (I, I),
+        (yl, yr): (I, I),
+        (qxl, qxr): (I, I),
+        (qyl, qyr): (I, I),
         axis: Axis,
     ) -> M::Val {
-        if !Self::intersects(xl, xr, yl, yr, qxl, qxr, qyl, qyr) {
+        if !Self::intersects((xl, xr), (yl, yr), (qxl, qxr), (qyl, qyr)) {
             return M::e_len(0);
         }
 
-        let area = Self::area(xl, xr, yl, yr);
+        let area = Self::area((xl, xr), (yl, yr));
 
-        if Self::covered_by(xl, xr, yl, yr, qxl, qxr, qyl, qyr) {
+        if Self::covered_by((xl, xr), (yl, yr), (qxl, qxr), (qyl, qyr)) {
             return node
                 .map(|p| self.arena.get(p).sum.clone())
                 .unwrap_or_else(|| M::e_len(area));
@@ -476,54 +482,60 @@ where
 
         let Some(ptr) = node else {
             // 未生成かつ部分被覆：分割して足し合わせる
-            let (axis_eff, mid) = self.choose_axis_and_mid(axis, xl, xr, yl, yr);
-            if !Self::can_split(axis_eff, xl, xr, yl, yr) {
+            let (axis_eff, mid) = self.choose_axis_and_mid(axis, (xl, xr), (yl, yr));
+            if !Self::can_split(axis_eff, (xl, xr), (yl, yr)) {
                 return M::e_len(area);
             }
             let next_axis = axis_eff.flip();
-            let (c1, c2) = self.child_regions(axis_eff, xl, xr, yl, yr, mid);
+            let (c1, c2) = self.child_regions(axis_eff, (xl, xr), (yl, yr), mid);
             let (xl1, xr1, yl1, yr1, _a1) = c1;
             let (xl2, xr2, yl2, yr2, _a2) = c2;
 
-            let a = self.get_range_inner(None, xl1, xr1, yl1, yr1, qxl, qxr, qyl, qyr, next_axis);
-            let b = self.get_range_inner(None, xl2, xr2, yl2, yr2, qxl, qxr, qyl, qyr, next_axis);
+            let a = self.get_range_inner(
+                None,
+                (xl1, xr1),
+                (yl1, yr1),
+                (qxl, qxr),
+                (qyl, qyr),
+                next_axis,
+            );
+            let b = self.get_range_inner(
+                None,
+                (xl2, xr2),
+                (yl2, yr2),
+                (qxl, qxr),
+                (qyl, qyr),
+                next_axis,
+            );
             return M::op(&a, &b);
         };
 
-        self.push(ptr, xl, xr, yl, yr, axis);
+        self.push(ptr, (xl, xr), (yl, yr), axis);
 
-        let (axis_eff, mid) = self.choose_axis_and_mid(axis, xl, xr, yl, yr);
-        if !Self::can_split(axis_eff, xl, xr, yl, yr) {
+        let (axis_eff, mid) = self.choose_axis_and_mid(axis, (xl, xr), (yl, yr));
+        if !Self::can_split(axis_eff, (xl, xr), (yl, yr)) {
             return self.arena.get(ptr).sum.clone();
         }
 
         let next_axis = axis_eff.flip();
-        let (c1, c2) = self.child_regions(axis_eff, xl, xr, yl, yr, mid);
+        let (c1, c2) = self.child_regions(axis_eff, (xl, xr), (yl, yr), mid);
         let (xl1, xr1, yl1, yr1, _a1) = c1;
         let (xl2, xr2, yl2, yr2, _a2) = c2;
 
         let a = self.get_range_inner(
             self.arena.get(ptr).left,
-            xl1,
-            xr1,
-            yl1,
-            yr1,
-            qxl,
-            qxr,
-            qyl,
-            qyr,
+            (xl1, xr1),
+            (yl1, yr1),
+            (qxl, qxr),
+            (qyl, qyr),
             next_axis,
         );
         let b = self.get_range_inner(
             self.arena.get(ptr).right,
-            xl2,
-            xr2,
-            yl2,
-            yr2,
-            qxl,
-            qxr,
-            qyl,
-            qyr,
+            (xl2, xr2),
+            (yl2, yr2),
+            (qxl, qxr),
+            (qyl, qyr),
             next_axis,
         );
         M::op(&a, &b)
