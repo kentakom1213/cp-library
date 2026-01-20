@@ -461,29 +461,19 @@ where
         }
 
         let Some(ptr) = node else {
-            // 未生成かつ部分被覆：分割して足し合わせる
-            let (axis_eff, mid) = self.choose_axis_and_mid(axis, (xl, xr), (yl, yr));
-            if !Self::can_split(axis_eff, (xl, xr), (yl, yr)) {
-                return M::e_len(area);
-            }
-            let next_axis = axis_eff.flip();
-            let (c1, c2) = self.child_regions(axis_eff, (xl, xr), (yl, yr), mid);
-            let (((xl1, xr1), (yl1, yr1)), _a1) = c1;
-            let (((xl2, xr2), (yl2, yr2)), _a2) = c2;
+            // 未生成かつ部分被覆：
+            // その領域はすべて単位元なので，交差面積ぶんを即返す
+            let ix_l = std::cmp::max(xl, qxl);
+            let ix_r = std::cmp::min(xr, qxr);
+            let iy_l = std::cmp::max(yl, qyl);
+            let iy_r = std::cmp::min(yr, qyr);
 
-            let a = self.get_range_inner(
-                None,
-                ((xl1, xr1), (yl1, yr1)),
-                ((qxl, qxr), (qyl, qyr)),
-                next_axis,
-            );
-            let b = self.get_range_inner(
-                None,
-                ((xl2, xr2), (yl2, yr2)),
-                ((qxl, qxr), (qyl, qyr)),
-                next_axis,
-            );
-            return M::op(&a, &b);
+            if ix_l >= ix_r || iy_l >= iy_r {
+                return M::e_len(0);
+            }
+
+            let inter_area = (ix_r - ix_l) * (iy_r - iy_l);
+            return M::e_len(inter_area.to_usize().unwrap());
         };
 
         self.push(ptr, (xl, xr), (yl, yr), axis);
