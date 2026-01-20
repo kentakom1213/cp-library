@@ -1,6 +1,8 @@
 #![allow(non_snake_case)]
 #![allow(clippy::needless_range_loop)]
 
+use std::{sync::mpsc, time::Duration};
+
 use cp_library_rs::{
     algebraic_structure::actedmonoid::examples::AddSum,
     data_structure::dynamic_segment_tree_2d::DynamicSegmentTree2D,
@@ -28,6 +30,40 @@ fn point_apply_and_get() {
     assert_eq!(seg.get_range(3..4, 5..6).0, 10);
     assert_eq!(seg.get_range(6..7, 1..2).0, -2);
     assert_eq!(seg.get_range(2..3, 2..3).0, 0);
+}
+
+#[test]
+fn empty_rect_query_should_return_immediately() {
+    // main と同程度の巨大座標を使う（深さが大きく，指数爆発が顕在化しやすい）
+    let (xmin, xmax) = (0usize, 1_001_001_001usize);
+    let (ymin, ymax) = (0usize, 1_001_001_001usize);
+
+    let (tx, rx) = mpsc::channel();
+
+    std::thread::spawn(move || {
+        let mut seg = DynamicSegmentTree2D::<usize, AddSum<usize>>::new((xmin, xmax), (ymin, ymax));
+
+        // 加算クエリ
+        seg.apply(10.., 10.., 1);
+
+        // 取得クエリ
+        let v = seg.get_range(10.., 10..);
+
+        // AddSum の Val は (sum, size) なので，sum を返す
+        let _ = tx.send(v.0);
+    });
+
+    // バグがあるとここが返ってこず timeout になる（≒ 無限ループに見える）
+    match rx.recv_timeout(Duration::from_millis(200)) {
+        Ok(sum) => {
+            assert_eq!(sum, 0);
+        }
+        Err(_) => {
+            panic!(
+                "timeout: empty rectangle query did not finish (likely exponential recursion bug)"
+            );
+        }
+    }
 }
 
 #[test]
