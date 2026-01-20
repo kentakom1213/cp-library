@@ -1,9 +1,12 @@
-//! 2D dynamic segment tree（implicit，交互 2 分木）
+//! 2D dynamic segment tree（implicit，交互 2 分木 + split 軸キャッシュ）
 //!
 //! 方針：
 //! - 本体 API は `apply(rx, ry, act)` と `get_range(rx, ry)`
 //! - `get(x, y)` は `get_range(x..x+1, y..y+1)` のラッパー
-//! - split 不能（軸長 1）なら，同深さのまま軸反転して split を試みる
+//! - 重要：ノードごとに「このノードはどちらの軸で split するか」を 1 度だけ決めて保持する
+//!   - クエリ依存の軸選択は「未決定ノードの初回 split 決定」にだけ使う
+//!   - これにより `left/right` が表す領域の意味が常に一意になり，正しさが保たれる
+//! - split 不能（軸長 1）なら反転して試す，両方不能なら真の葉
 //! - `ActedMonoidWithSize::e_len(len)` の `len` は「面積 area」とみなす
 
 use std::fmt::Debug;
@@ -17,17 +20,16 @@ use crate::{
     tree::arena::{Arena, ArenaNode, Ptr},
 };
 
-type A<M> = Arena<NodeInner<M>>;
-
 type Range<I> = (I, I);
 type Rect<I> = (Range<I>, Range<I>);
+
+type A<M> = Arena<NodeInner<M>>;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Axis {
     X,
     Y,
 }
-
 impl Axis {
     #[inline]
     fn flip(self) -> Self {
@@ -45,6 +47,8 @@ struct NodeInner<M: ActedMonoidWithSize> {
     act: M::Act,
     left: Option<Ptr>,
     right: Option<Ptr>,
+    /// このノードの split 軸（未決定なら `None`）
+    split_axis: Option<Axis>,
 }
 
 impl<M: ActedMonoidWithSize> ArenaNode for NodeInner<M> {}
@@ -56,6 +60,7 @@ impl<M: ActedMonoidWithSize> NodeInner<M> {
             act: M::id(),
             left: None,
             right: None,
+            split_axis: None,
         }
     }
 }
@@ -141,7 +146,6 @@ where
         assert!(self.xmin <= x && x < self.xmax);
         assert!(self.ymin <= y && y < self.ymax);
         let one = I::one();
-        // 範囲外に出ないことを保証（x < xmax なので x+1 <= xmax）
         self.get_range(x..(x + one), y..(y + one))
     }
 
@@ -195,9 +199,12 @@ where
 
     #[inline]
     fn area(((xl, xr), (yl, yr)): Rect<I>) -> usize {
-        let xlen = Self::len(xl, xr);
-        let ylen = Self::len(yl, yr);
-        xlen * ylen
+        Self::len(xl, xr) * Self::len(yl, yr)
+    }
+
+    #[inline]
+    fn is_leaf(((xl, xr), (yl, yr)): Rect<I>) -> bool {
+        xr - xl == I::one() && yr - yl == I::one()
     }
 
     #[inline]
@@ -210,13 +217,15 @@ where
         qxl <= xl && xr <= qxr && qyl <= yl && yr <= qyr
     }
 
-    // ---------- node helpers ----------
-
     #[inline]
-    fn sum_of(&self, node: Option<Ptr>, area: usize) -> M::Val {
-        node.map(|p| self.arena.get(p).sum.clone())
-            .unwrap_or_else(|| M::e_len(area))
+    fn can_split(axis: Axis, ((xl, xr), (yl, yr)): Rect<I>) -> bool {
+        match axis {
+            Axis::X => xr - xl > I::one(),
+            Axis::Y => yr - yl > I::one(),
+        }
     }
+
+    // ---------- node helpers ----------
 
     #[inline]
     fn apply_node(&mut self, ptr: Ptr, act: &M::Act) {
@@ -255,118 +264,180 @@ where
         }
     }
 
-    // ---------- axis / split rule ----------
+    // ---------- split decision（固定） ----------
 
-    #[inline]
-    fn can_split(axis: Axis, (xl, xr): Range<I>, (yl, yr): Range<I>) -> bool {
-        match axis {
-            Axis::X => xr - xl > I::one(),
-            Axis::Y => yr - yl > I::one(),
-        }
-    }
-
-    /// 代替案ルール：split 不能なら「同深さで」軸反転して split
+    /// 未決定ノードに対してのみ呼ぶこと．決めたら `split_axis` に保存する．
     ///
-    /// 戻り値：
-    /// - `axis_eff`：実際に split に用いる軸
-    /// - `mid`：その軸での中点（split 不能な場合でも返すが，呼び出し側で葉判定すること）
-    fn choose_axis_and_mid(&self, axis: Axis, (xl, xr): Range<I>, (yl, yr): Range<I>) -> (Axis, I) {
-        if Self::can_split(axis, (xl, xr), (yl, yr)) {
-            let mid = match axis {
-                Axis::X => Self::mid(xl, xr),
-                Axis::Y => Self::mid(yl, yr),
-            };
-            return (axis, mid);
+    /// 優先順位：
+    /// 1) クエリがその軸で部分被覆ならその軸（境界を跨ぐ軸を先に潰す）
+    /// 2) それ以外は長い方
+    /// 3) tie は `axis_hint`
+    /// 4) split 不能なら反転して試す
+    fn decide_split_axis(
+        &self,
+        axis_hint: Axis,
+        node_rect: Rect<I>,
+        query: Rect<I>,
+    ) -> Axis {
+        let ((xl, xr), (yl, yr)) = node_rect;
+        let ((qxl, qxr), (qyl, qyr)) = query;
+
+        let x_can = Self::can_split(Axis::X, node_rect);
+        let y_can = Self::can_split(Axis::Y, node_rect);
+
+        if !x_can && !y_can {
+            return axis_hint;
         }
-        let axis2 = axis.flip();
-        if Self::can_split(axis2, (xl, xr), (yl, yr)) {
-            let mid = match axis2 {
-                Axis::X => Self::mid(xl, xr),
-                Axis::Y => Self::mid(yl, yr),
-            };
-            return (axis2, mid);
+        if x_can && !y_can {
+            return Axis::X;
         }
-        // 両方 split 不能（= 真の葉）．mid はダミー
-        (axis, xl)
+        if y_can && !x_can {
+            return Axis::Y;
+        }
+
+        // 交差している前提だが，軸方向の交差も念のため見る
+        let x_intersects = !(qxr <= xl || xr <= qxl);
+        let y_intersects = !(qyr <= yl || yr <= qyl);
+
+        let x_full = qxl <= xl && xr <= qxr;
+        let y_full = qyl <= yl && yr <= qyr;
+
+        let x_partial = x_intersects && !x_full;
+        let y_partial = y_intersects && !y_full;
+
+        if x_partial {
+            return Axis::X;
+        }
+        if y_partial {
+            return Axis::Y;
+        }
+
+        // 長い方
+        let x_len = xr - xl;
+        let y_len = yr - yl;
+        if x_len > y_len {
+            return Axis::X;
+        }
+        if y_len > x_len {
+            return Axis::Y;
+        }
+
+        // tie
+        axis_hint
     }
 
-    fn child_regions(
-        &self,
-        axis_eff: Axis,
-        (xl, xr): Range<I>,
-        (yl, yr): Range<I>,
-        mid: I,
-    ) -> ((Rect<I>, usize), (Rect<I>, usize)) {
-        match axis_eff {
+    /// ノード `ptr` の split 軸を確定して返す（既にあればそれを返す）．
+    fn ensure_split_axis(&mut self, ptr: Ptr, node_rect: Rect<I>, query: Rect<I>, hint: Axis) -> Axis {
+        if let Some(ax) = self.arena.get(ptr).split_axis {
+            return ax;
+        }
+        let ax = self.decide_split_axis(hint, node_rect, query);
+        self.arena.get_mut(ptr).split_axis = Some(ax);
+        ax
+    }
+
+    /// split 軸が与えられたときの子領域を返す．
+    fn child_regions(&self, axis: Axis, ((xl, xr), (yl, yr)): Rect<I>) -> (Rect<I>, usize, Rect<I>, usize) {
+        match axis {
             Axis::X => {
-                let xm = mid;
-                let a1 = Self::area(((xl, xm), (yl, yr)));
-                let a2 = Self::area(((xm, xr), (yl, yr)));
-                ((((xl, xm), (yl, yr)), a1), (((xm, xr), (yl, yr)), a2))
+                let xm = Self::mid(xl, xr);
+                let r1 = ((xl, xm), (yl, yr));
+                let r2 = ((xm, xr), (yl, yr));
+                (r1, Self::area(r1), r2, Self::area(r2))
             }
             Axis::Y => {
-                let ym = mid;
-                let a1 = Self::area(((xl, xr), (yl, ym)));
-                let a2 = Self::area(((xl, xr), (ym, yr)));
-                ((((xl, xr), (yl, ym)), a1), (((xl, xr), (ym, yr)), a2))
+                let ym = Self::mid(yl, yr);
+                let r1 = ((xl, xr), (yl, ym));
+                let r2 = ((xl, xr), (ym, yr));
+                (r1, Self::area(r1), r2, Self::area(r2))
             }
         }
     }
 
     // ---------- lazy propagation ----------
 
-    fn push(&mut self, ptr: Ptr, (xl, xr): Range<I>, (yl, yr): Range<I>, axis: Axis) {
-        // 真の葉
-        if xr - xl == I::one() && yr - yl == I::one() {
+    /// 遅延を子へ伝播（split 軸はノードに保存済みのものを使用）
+    fn push(&mut self, ptr: Ptr, node_rect: Rect<I>) {
+        if Self::is_leaf(node_rect) {
             return;
         }
-
         let act = { self.arena.get(ptr).act.clone() };
         if act == M::id() {
             return;
         }
 
-        let (axis_eff, mid) = self.choose_axis_and_mid(axis, (xl, xr), (yl, yr));
-        if !Self::can_split(axis_eff, (xl, xr), (yl, yr)) {
-            // 真の葉（念のため）
-            return;
-        }
+        // クエリ非依存に push したいので，split 軸は「既に決まっている」前提にする
+        // 未決定の可能性があるなら，ここで「領域だけ」で決める fallback を入れる
+        let axis = self.arena.get(ptr).split_axis.unwrap_or_else(|| {
+            // 領域だけで決める（tie は X）
+            let ((xl, xr), (yl, yr)) = node_rect;
+            let x_can = xr - xl > I::one();
+            let y_can = yr - yl > I::one();
+            if x_can && !y_can {
+                Axis::X
+            } else if y_can && !x_can {
+                Axis::Y
+            } else {
+                let x_len = xr - xl;
+                let y_len = yr - yl;
+                if x_len >= y_len { Axis::X } else { Axis::Y }
+            }
+        });
 
-        let (c1, c2) = self.child_regions(axis_eff, (xl, xr), (yl, yr), mid);
-        let (((_xl1, _xr1), (_yl1, _yr1)), a1) = c1;
-        let (((_xl2, _xr2), (_yl2, _yr2)), a2) = c2;
+        let (r1, a1, r2, a2) = self.child_regions(axis, node_rect);
 
-        let lp = Self::ensure_left(self, ptr, a1);
-        let rp = Self::ensure_right(self, ptr, a2);
+        let lp = self.ensure_left(ptr, a1);
+        let rp = self.ensure_right(ptr, a2);
 
         self.apply_node(lp, &act);
         self.apply_node(rp, &act);
 
         self.arena.get_mut(ptr).act = M::id();
+
+        // push の時点で split 軸が未決定だったなら，ここで固定しておく（以後の一貫性のため）
+        if self.arena.get(ptr).split_axis.is_none() {
+            self.arena.get_mut(ptr).split_axis = Some(axis);
+        }
+
+        let _ = (r1, r2); // 参照用
     }
 
-    fn pull(&mut self, ptr: Ptr, (xl, xr): Range<I>, (yl, yr): Range<I>, axis: Axis) {
-        // 真の葉なら sum は既に正しい前提（apply_node が更新する）
-        if xr - xl == I::one() && yr - yl == I::one() {
+    fn pull(&mut self, ptr: Ptr, node_rect: Rect<I>) {
+        if Self::is_leaf(node_rect) {
             return;
         }
+        let axis = self.arena.get(ptr).split_axis.unwrap_or_else(|| {
+            // `push` と同じ fallback（理想は必ず Some になっていること）
+            let ((xl, xr), (yl, yr)) = node_rect;
+            let x_can = xr - xl > I::one();
+            let y_can = yr - yl > I::one();
+            if x_can && !y_can {
+                Axis::X
+            } else if y_can && !x_can {
+                Axis::Y
+            } else {
+                let x_len = xr - xl;
+                let y_len = yr - yl;
+                if x_len >= y_len { Axis::X } else { Axis::Y }
+            }
+        });
 
-        let (axis_eff, mid) = self.choose_axis_and_mid(axis, (xl, xr), (yl, yr));
-        if !Self::can_split(axis_eff, (xl, xr), (yl, yr)) {
-            return;
-        }
-
-        let (c1, c2) = self.child_regions(axis_eff, (xl, xr), (yl, yr), mid);
-        let (((_xl1, _xr1), (_yl1, _yr1)), a1) = c1;
-        let (((_xl2, _xr2), (_yl2, _yr2)), a2) = c2;
+        let (r1, a1, r2, a2) = self.child_regions(axis, node_rect);
 
         let lp = self.arena.get(ptr).left;
         let rp = self.arena.get(ptr).right;
 
-        let lsum = self.sum_of(lp, a1);
-        let rsum = self.sum_of(rp, a2);
+        let lsum = lp.map(|p| self.arena.get(p).sum.clone()).unwrap_or_else(|| M::e_len(a1));
+        let rsum = rp.map(|p| self.arena.get(p).sum.clone()).unwrap_or_else(|| M::e_len(a2));
 
         self.arena.get_mut(ptr).sum = M::op(&lsum, &rsum);
+
+        // 念のため固定
+        if self.arena.get(ptr).split_axis.is_none() {
+            self.arena.get_mut(ptr).split_axis = Some(axis);
+        }
+
+        let _ = (r1, r2);
     }
 
     // ---------- recursions ----------
@@ -374,132 +445,93 @@ where
     fn apply_inner(
         &mut self,
         node: Option<Ptr>,
-        ((xl, xr), (yl, yr)): Rect<I>,
-        ((qxl, qxr), (qyl, qyr)): Rect<I>,
+        node_rect: Rect<I>,
+        query: Rect<I>,
         act: &M::Act,
-        axis: Axis,
+        axis_hint: Axis,
     ) -> Option<Ptr> {
-        if !Self::intersects(((xl, xr), (yl, yr)), ((qxl, qxr), (qyl, qyr))) {
+        if !Self::intersects(node_rect, query) {
             return node;
         }
 
-        let area = Self::area(((xl, xr), (yl, yr)));
+        let area = Self::area(node_rect);
         let ptr = node.unwrap_or_else(|| self.arena.alloc(NodeInner::<M>::with_area(area)));
 
-        if Self::covered_by(((xl, xr), (yl, yr)), ((qxl, qxr), (qyl, qyr))) {
+        if Self::covered_by(node_rect, query) {
             self.apply_node(ptr, act);
             return Some(ptr);
         }
 
-        // 真の葉
-        if xr - xl == I::one() && yr - yl == I::one() {
+        if Self::is_leaf(node_rect) {
             self.apply_node(ptr, act);
             return Some(ptr);
         }
 
-        self.push(ptr, (xl, xr), (yl, yr), axis);
+        // 子へ遅延伝播（split 軸は固定されたものを使う）
+        self.push(ptr, node_rect);
 
-        let (axis_eff, mid) = self.choose_axis_and_mid(axis, (xl, xr), (yl, yr));
-        if !Self::can_split(axis_eff, (xl, xr), (yl, yr)) {
-            // 念のため（真の葉）
-            self.apply_node(ptr, act);
-            return Some(ptr);
-        }
+        // split 軸の確定（未決定なら，このクエリと hint を使って決めて固定）
+        let axis = self.ensure_split_axis(ptr, node_rect, query, axis_hint);
 
-        let next_axis = axis_eff.flip();
-        let (c1, c2) = self.child_regions(axis_eff, (xl, xr), (yl, yr), mid);
-        let (((xl1, xr1), (yl1, yr1)), _a1) = c1;
-        let (((xl2, xr2), (yl2, yr2)), _a2) = c2;
+        let (r1, a1, r2, a2) = self.child_regions(axis, node_rect);
 
         let left = self.arena.get(ptr).left;
-        let nl = self.apply_inner(
-            left,
-            ((xl1, xr1), (yl1, yr1)),
-            ((qxl, qxr), (qyl, qyr)),
-            act,
-            next_axis,
-        );
+        let nl = self.apply_inner(left, r1, query, act, axis.flip());
         self.arena.get_mut(ptr).left = nl;
 
         let right = self.arena.get(ptr).right;
-        let nr = self.apply_inner(
-            right,
-            ((xl2, xr2), (yl2, yr2)),
-            ((qxl, qxr), (qyl, qyr)),
-            act,
-            next_axis,
-        );
+        let nr = self.apply_inner(right, r2, query, act, axis.flip());
         self.arena.get_mut(ptr).right = nr;
 
-        self.pull(ptr, (xl, xr), (yl, yr), axis);
+        // 吸い上げ
+        self.pull(ptr, node_rect);
+
+        let _ = (a1, a2);
         Some(ptr)
     }
 
     fn get_range_inner(
         &mut self,
         node: Option<Ptr>,
-        ((xl, xr), (yl, yr)): Rect<I>,
-        ((qxl, qxr), (qyl, qyr)): Rect<I>,
-        axis: Axis,
+        node_rect: Rect<I>,
+        query: Rect<I>,
+        axis_hint: Axis,
     ) -> M::Val {
-        if !Self::intersects(((xl, xr), (yl, yr)), ((qxl, qxr), (qyl, qyr))) {
+        if !Self::intersects(node_rect, query) {
             return M::e_len(0);
         }
 
-        let area = Self::area(((xl, xr), (yl, yr)));
-        if Self::covered_by(((xl, xr), (yl, yr)), ((qxl, qxr), (qyl, qyr))) {
+        let area = Self::area(node_rect);
+        if Self::covered_by(node_rect, query) {
             return node
                 .map(|p| self.arena.get(p).sum.clone())
                 .unwrap_or_else(|| M::e_len(area));
         }
 
-        // 真の葉（交差していて完全被覆でない，は半開区間では起きにくいが安全側に）
-        if xr - xl == I::one() && yr - yl == I::one() {
+        if Self::is_leaf(node_rect) {
             return node
                 .map(|p| self.arena.get(p).sum.clone())
                 .unwrap_or_else(|| M::e_len(area));
         }
 
         let Some(ptr) = node else {
-            // 未生成かつ部分被覆：
-            // その領域はすべて単位元なので，交差面積ぶんを即返す
-            let ix_l = std::cmp::max(xl, qxl);
-            let ix_r = std::cmp::min(xr, qxr);
-            let iy_l = std::cmp::max(yl, qyl);
-            let iy_r = std::cmp::min(yr, qyr);
+            // 一般の `ActedMonoidWithSize` に対して安全にするため，
+            // `None` でも分割して `op` で合成する（面積だけで即返ししない）
+            let axis = self.decide_split_axis(axis_hint, node_rect, query);
+            let (r1, _a1, r2, _a2) = self.child_regions(axis, node_rect);
 
-            if ix_l >= ix_r || iy_l >= iy_r {
-                return M::e_len(0);
-            }
-
-            let inter_area = (ix_r - ix_l) * (iy_r - iy_l);
-            return M::e_len(inter_area.to_usize().unwrap());
+            let a = self.get_range_inner(None, r1, query, axis.flip());
+            let b = self.get_range_inner(None, r2, query, axis.flip());
+            return M::op(&a, &b);
         };
 
-        self.push(ptr, (xl, xr), (yl, yr), axis);
+        self.push(ptr, node_rect);
 
-        let (axis_eff, mid) = self.choose_axis_and_mid(axis, (xl, xr), (yl, yr));
-        if !Self::can_split(axis_eff, (xl, xr), (yl, yr)) {
-            return self.arena.get(ptr).sum.clone();
-        }
+        let axis = self.ensure_split_axis(ptr, node_rect, query, axis_hint);
+        let (r1, _a1, r2, _a2) = self.child_regions(axis, node_rect);
 
-        let next_axis = axis_eff.flip();
-        let (c1, c2) = self.child_regions(axis_eff, (xl, xr), (yl, yr), mid);
-        let (((xl1, xr1), (yl1, yr1)), _a1) = c1;
-        let (((xl2, xr2), (yl2, yr2)), _a2) = c2;
-
-        let a = self.get_range_inner(
-            self.arena.get(ptr).left,
-            ((xl1, xr1), (yl1, yr1)),
-            ((qxl, qxr), (qyl, qyr)),
-            next_axis,
-        );
-        let b = self.get_range_inner(
-            self.arena.get(ptr).right,
-            ((xl2, xr2), (yl2, yr2)),
-            ((qxl, qxr), (qyl, qyr)),
-            next_axis,
-        );
+        let a = self.get_range_inner(self.arena.get(ptr).left, r1, query, axis.flip());
+        let b = self.get_range_inner(self.arena.get(ptr).right, r2, query, axis.flip());
         M::op(&a, &b)
     }
 }

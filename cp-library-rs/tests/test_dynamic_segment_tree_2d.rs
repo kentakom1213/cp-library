@@ -95,6 +95,10 @@ fn empty_rect_apply_query_should_return_immediately() {
 fn rect_apply_and_query_small() {
     // 4x4
     let mut seg = DynamicSegmentTree2D::<usize, AddSum<i64>>::new((0, 4), (0, 4));
+    // [[0, 0, 0, 0],
+    //  [0, 0, 0, 0],
+    //  [0, 0, 0, 0],
+    //  [0, 0, 0, 0]]
 
     // 全体和は 0
     assert_eq!(seg.get_range(0..4, 0..4).0, 0);
@@ -103,6 +107,10 @@ fn rect_apply_and_query_small() {
     // [x:1..3) × [y:0..2) に +5（面積 2*2=4 => +20）
     seg.apply(1..3, 0..2, 5);
     assert_eq!(seg.get_range(0..4, 0..4).0, 20);
+    // [[0, 0, 0, 0],
+    //  [5, 5, 0, 0],
+    //  [5, 5, 0, 0],
+    //  [0, 0, 0, 0]]
 
     // 部分チェック
     assert_eq!(seg.get_range(1..3, 0..2).0, 20);
@@ -113,6 +121,10 @@ fn rect_apply_and_query_small() {
     // [x:2..4) × [y:1..4) に -3（面積 2*3=6 => -18）
     // 重なり領域 [2..3)×[1..2) は +5 と -3 が両方入る
     seg.apply(2..4, 1..4, -3);
+    // [[ 0,  0,  0,  0],
+    //  [ 5,  5,  0,  0],
+    //  [ 5,  2, -3, -3],
+    //  [ 0, -3, -3, -3]]
 
     // 期待値を手計算
     // 1つ目の +5: 4セル
