@@ -139,7 +139,7 @@ pub mod {} {{
             prev_category = match dep {
                 ModulePath::Macro { .. } => {
                     if !prev_category.is_empty() {
-                        writeln!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
+                        writeln!(&mut contents, "{TAB}}}").unwrap();
                     }
                     contents += &self.get_module(dep, 1)?;
                     ""
@@ -149,18 +149,18 @@ pub mod {} {{
                         contents += &self.get_module(dep, 2)?;
                     } else {
                         if !prev_category.is_empty() {
-                            writeln!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
+                            writeln!(&mut contents, "{TAB}}}").unwrap();
                         }
-                        writeln!(&mut contents, "{}pub mod {category} {{", TAB.repeat(1)).unwrap();
+                        writeln!(&mut contents, "{TAB}pub mod {category} {{").unwrap();
                         contents += &self.get_module(dep, 2)?;
                     }
-                    &category
+                    category
                 }
             };
         }
 
         if !prev_category.is_empty() {
-            writeln!(&mut contents, "{}}}", TAB.repeat(1)).unwrap();
+            writeln!(&mut contents, "{TAB}}}").unwrap();
         }
         contents += "}";
 
@@ -191,7 +191,7 @@ pub mod {} {{
             res += "\n";
         }
 
-        write!(&mut res, "{}}}\n", TAB.repeat(indent)).unwrap();
+        writeln!(&mut res, "{}}}", TAB.repeat(indent)).unwrap();
 
         Ok(res)
     }
@@ -227,7 +227,7 @@ pub mod {} {{
         );
 
         // library以降を削除
-        file = file.lines().take_while(|&l| l != &library_begin).join("\n");
+        file = file.lines().take_while(|&l| l != library_begin).join("\n");
 
         // 元のファイルに書き出し
         match fs::write(&self.entry_file, file) {
