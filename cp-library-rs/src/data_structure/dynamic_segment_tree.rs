@@ -36,7 +36,7 @@ impl<M: ActedMonoidWithSize> ArenaNode for NodeInner<M> {}
 impl<M: ActedMonoidWithSize> NodeInner<M> {
     fn with_length(len: usize) -> Self {
         Self {
-            sum: M::e_len(len),
+            sum: M::e_with_size(len),
             act: M::id(),
             left: None,
             right: None,
@@ -74,7 +74,7 @@ impl<I: PrimInt + ToPrimitive, M: ActedMonoidWithSize> DynamicSegmentTree<I, M> 
         self.root = self.update_inner(root, self.min_index, self.max_index, index, val);
     }
 
-    /// 点取得（未生成は `M::e_len()`）
+    /// 点取得（未生成は `M::e_with_size()`）
     /// - 遅延があるので `push` するため `&mut self`
     pub fn get(&mut self, index: I) -> M::Val {
         assert!(self.min_index <= index && index < self.max_index);
@@ -157,7 +157,7 @@ impl<I: PrimInt + ToPrimitive, M: ActedMonoidWithSize> DynamicSegmentTree<I, M> 
     #[inline]
     fn sum_of(arena: &A<M>, node: Option<Ptr>, len: usize) -> M::Val {
         node.map(|p| arena.get(p).sum.clone())
-            .unwrap_or_else(|| M::e_len(len))
+            .unwrap_or_else(|| M::e_with_size(len))
     }
 
     #[inline]
@@ -279,7 +279,7 @@ impl<I: PrimInt + ToPrimitive, M: ActedMonoidWithSize> DynamicSegmentTree<I, M> 
         let len = Self::len(seg_l, seg_r);
 
         let Some(ptr) = node else {
-            return M::e_len(len);
+            return M::e_with_size(len);
         };
         if Self::is_leaf(seg_l, seg_r) {
             return self.arena.get(ptr).sum.clone();
@@ -299,11 +299,11 @@ impl<I: PrimInt + ToPrimitive, M: ActedMonoidWithSize> DynamicSegmentTree<I, M> 
         let len = Self::len(seg_l, seg_r);
 
         if qr <= seg_l || seg_r <= ql {
-            return M::e_len(len);
+            return M::e_with_size(len);
         }
 
         let Some(ptr) = node else {
-            return M::e_len(len);
+            return M::e_with_size(len);
         };
 
         if ql <= seg_l && seg_r <= qr {
@@ -435,10 +435,10 @@ where
     where
         F: Fn(M::Val) -> bool,
     {
-        assert!(f(M::e_len(0)));
+        assert!(f(M::e_with_size(0)));
         assert!(self.min_index <= l && l <= self.max_index);
 
-        let mut acc = M::e_len(0);
+        let mut acc = M::e_with_size(0);
         let x = self.max_right_inner(self.root, self.min_index, self.max_index, l, &f, &mut acc);
         (acc, x)
     }
@@ -460,7 +460,7 @@ where
         }
 
         let Some(ptr) = node else {
-            // 未生成区間は全て `M::e_len()` なので，どこまで進んでも `acc` は変わらない
+            // 未生成区間は全て `M::e_with_size()` なので，どこまで進んでも `acc` は変わらない
             return seg_r;
         };
 
@@ -492,10 +492,10 @@ where
     where
         F: Fn(M::Val) -> bool,
     {
-        assert!(f(M::e_len(0)));
+        assert!(f(M::e_with_size(0)));
         assert!(self.min_index <= r && r <= self.max_index);
 
-        let mut acc = M::e_len(0);
+        let mut acc = M::e_with_size(0);
         let x = self.min_left_inner(self.root, self.min_index, self.max_index, r, &f, &mut acc);
         (acc, x)
     }

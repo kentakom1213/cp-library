@@ -7,7 +7,7 @@
 //!   - クエリ依存の軸選択は「未決定ノードの初回 split 決定」にだけ使う
 //!   - これにより `left/right` が表す領域の意味が常に一意になり，正しさが保たれる
 //! - split 不能（軸長 1）なら反転して試す，両方不能なら真の葉
-//! - `ActedMonoidWithSize::e_len(len)` の `len` は「面積 area」とみなす
+//! - `ActedMonoidWithSize::e_with_size(len)` の `len` は「面積 area」とみなす
 
 use std::fmt::Debug;
 use std::ops::{Bound::*, RangeBounds};
@@ -56,7 +56,7 @@ impl<M: ActedMonoidWithSize> ArenaNode for NodeInner<M> {}
 impl<M: ActedMonoidWithSize> NodeInner<M> {
     fn with_area(area: usize) -> Self {
         Self {
-            sum: M::e_len(area),
+            sum: M::e_with_size(area),
             act: M::id(),
             left: None,
             right: None,
@@ -273,12 +273,7 @@ where
     /// 2) それ以外は長い方
     /// 3) tie は `axis_hint`
     /// 4) split 不能なら反転して試す
-    fn decide_split_axis(
-        &self,
-        axis_hint: Axis,
-        node_rect: Rect<I>,
-        query: Rect<I>,
-    ) -> Axis {
+    fn decide_split_axis(&self, axis_hint: Axis, node_rect: Rect<I>, query: Rect<I>) -> Axis {
         let ((xl, xr), (yl, yr)) = node_rect;
         let ((qxl, qxr), (qyl, qyr)) = query;
 
@@ -327,7 +322,13 @@ where
     }
 
     /// ノード `ptr` の split 軸を確定して返す（既にあればそれを返す）．
-    fn ensure_split_axis(&mut self, ptr: Ptr, node_rect: Rect<I>, query: Rect<I>, hint: Axis) -> Axis {
+    fn ensure_split_axis(
+        &mut self,
+        ptr: Ptr,
+        node_rect: Rect<I>,
+        query: Rect<I>,
+        hint: Axis,
+    ) -> Axis {
         if let Some(ax) = self.arena.get(ptr).split_axis {
             return ax;
         }
@@ -337,7 +338,11 @@ where
     }
 
     /// split 軸が与えられたときの子領域を返す．
-    fn child_regions(&self, axis: Axis, ((xl, xr), (yl, yr)): Rect<I>) -> (Rect<I>, usize, Rect<I>, usize) {
+    fn child_regions(
+        &self,
+        axis: Axis,
+        ((xl, xr), (yl, yr)): Rect<I>,
+    ) -> (Rect<I>, usize, Rect<I>, usize) {
         match axis {
             Axis::X => {
                 let xm = Self::mid(xl, xr);
@@ -380,7 +385,11 @@ where
             } else {
                 let x_len = xr - xl;
                 let y_len = yr - yl;
-                if x_len >= y_len { Axis::X } else { Axis::Y }
+                if x_len >= y_len {
+                    Axis::X
+                } else {
+                    Axis::Y
+                }
             }
         });
 
@@ -418,7 +427,11 @@ where
             } else {
                 let x_len = xr - xl;
                 let y_len = yr - yl;
-                if x_len >= y_len { Axis::X } else { Axis::Y }
+                if x_len >= y_len {
+                    Axis::X
+                } else {
+                    Axis::Y
+                }
             }
         });
 
@@ -427,8 +440,12 @@ where
         let lp = self.arena.get(ptr).left;
         let rp = self.arena.get(ptr).right;
 
-        let lsum = lp.map(|p| self.arena.get(p).sum.clone()).unwrap_or_else(|| M::e_len(a1));
-        let rsum = rp.map(|p| self.arena.get(p).sum.clone()).unwrap_or_else(|| M::e_len(a2));
+        let lsum = lp
+            .map(|p| self.arena.get(p).sum.clone())
+            .unwrap_or_else(|| M::e_with_size(a1));
+        let rsum = rp
+            .map(|p| self.arena.get(p).sum.clone())
+            .unwrap_or_else(|| M::e_with_size(a2));
 
         self.arena.get_mut(ptr).sum = M::op(&lsum, &rsum);
 
@@ -498,20 +515,20 @@ where
         axis_hint: Axis,
     ) -> M::Val {
         if !Self::intersects(node_rect, query) {
-            return M::e_len(0);
+            return M::e_with_size(0);
         }
 
         let area = Self::area(node_rect);
         if Self::covered_by(node_rect, query) {
             return node
                 .map(|p| self.arena.get(p).sum.clone())
-                .unwrap_or_else(|| M::e_len(area));
+                .unwrap_or_else(|| M::e_with_size(area));
         }
 
         if Self::is_leaf(node_rect) {
             return node
                 .map(|p| self.arena.get(p).sum.clone())
-                .unwrap_or_else(|| M::e_len(area));
+                .unwrap_or_else(|| M::e_with_size(area));
         }
 
         let Some(ptr) = node else {

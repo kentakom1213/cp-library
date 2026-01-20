@@ -15,11 +15,11 @@ use crate::algebraic_structure::{
 
 /// 長さを保持した作用付きモノイド
 pub trait ActedMonoidWithSize: ActedMonoid {
-    /// 区間長 `len` の「単位区間」を表す集約値を返す
+    /// 区間長 `size` の「単位区間」を表す集約値を返す
     ///
-    /// 例：`Val = (sum, len)` のとき，`e_len(len) = (0, len)` のようなもの
+    /// 例：`Val = (sum, size)` のとき，`e_with_size(size) = (0, size)` のようなもの
     #[inline]
-    fn e_len(_len: usize) -> Self::Val {
+    fn e_with_size(_size: usize) -> Self::Val {
         Self::e()
     }
 }
@@ -29,8 +29,8 @@ impl<T> ActedMonoidWithSize for AddSum<T>
 where
     T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
 {
-    fn e_len(len: usize) -> Self::Val {
-        (T::zero(), len)
+    fn e_with_size(size: usize) -> Self::Val {
+        (T::zero(), size)
     }
 }
 
@@ -38,8 +38,8 @@ impl<T> ActedMonoidWithSize for UpdateSum<T>
 where
     T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
 {
-    fn e_len(len: usize) -> Self::Val {
-        (T::zero(), len)
+    fn e_with_size(size: usize) -> Self::Val {
+        (T::zero(), size)
     }
 }
 
