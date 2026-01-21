@@ -51,7 +51,7 @@ impl<N: NumProbability> Comb<N> {
         Comb { fac, finv }
     }
 
-    /// n個からr個選ぶ組合せ
+    /// n 個から r 個選ぶ組合せ
     ///
     /// - 時間計算量: $`O(1)`$
     pub fn comb(&self, n: usize, r: usize) -> N {
@@ -61,7 +61,7 @@ impl<N: NumProbability> Comb<N> {
         self.fac[n] * self.finv[r] * self.finv[n - r]
     }
 
-    /// n個からr個を選び並べる順列
+    /// n 個から r 個を選び並べる順列
     ///
     /// - 時間計算量: $`O(1)`$
     pub fn perm(&self, n: usize, r: usize) -> N {
@@ -73,9 +73,9 @@ impl<N: NumProbability> Comb<N> {
 
     /// 重複組合せ
     ///
-    /// - n個の区別しない玉をr個の区別する箱に入れる組合せ
+    /// - balls 個の区別しない玉を boxes 個の区別する箱に入れる組合せ
     /// - 時間計算量: $`O(1)`$
-    pub fn comb_with_rep(&self, n: usize, r: usize) -> N {
-        self.comb(n + r - 1, n)
+    pub fn comb_with_rep(&self, balls: usize, boxes: usize) -> N {
+        self.comb(balls + boxes - 1, balls)
     }
 }
