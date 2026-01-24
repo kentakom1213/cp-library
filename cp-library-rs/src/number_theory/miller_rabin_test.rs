@@ -1,7 +1,7 @@
 //! ミラー・ラビン素数判定法
 
 /// 余りをとる累乗
-pub fn powmod(a: usize, b: usize, m: usize) -> usize {
+fn powmod(a: usize, b: usize, m: usize) -> usize {
     let (mut a, mut b, m) = (a as u128, b as u128, m as u128);
     let mut res = 1;
     while b > 0 {
