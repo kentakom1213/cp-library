@@ -4,12 +4,10 @@
 //! - [`Monoid::e`] ： 単位元を返す関数 $`\varnothing \to S`$
 //! - [`Monoid::op`] ： 演算 $`S\times S \to S`$
 
-use crate::algebraic_structure::operation::{Add, Max, Min, Mul, WrappingAdd, Xor, GCD};
+use crate::algebraic_structure::operation::{Add, Max, Min, MinMax, Mul, WrappingAdd, Xor, GCD};
 
 use num::Zero;
 use num_traits::{Bounded, One};
-
-use super::operation::MinMax;
 
 /// モノイド
 ///

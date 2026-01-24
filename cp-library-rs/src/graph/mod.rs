@@ -12,5 +12,6 @@ pub mod loop_detection;
 pub mod loop_detection_fold;
 pub mod namori;
 pub mod rerooting;
+pub mod rerooting2;
 pub mod scc;
 pub mod simple_graph;

@@ -4,14 +4,15 @@
 
 pub mod abel;
 pub mod actedmonoid;
-pub mod actedmonoid_with_size;
 pub mod actedmonoid_mod;
+pub mod actedmonoid_with_size;
 pub mod affine1d;
 pub mod affine2d;
 pub mod commutative;
 pub mod group;
 pub mod indexed_monoid;
 pub mod monoid;
+pub mod monoid_mut;
 pub mod operation;
 pub mod ordered_monoid;
 pub mod semilattice;

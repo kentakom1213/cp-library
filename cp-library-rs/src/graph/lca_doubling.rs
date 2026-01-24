@@ -30,7 +30,12 @@ impl LCA {
             }
         }
 
-        Self { root, logn, double, depth }
+        Self {
+            root,
+            logn,
+            double,
+            depth,
+        }
     }
 
     fn dfs(u: usize, par: &mut Vec<usize>, depth: &mut Vec<usize>, tree: &Graph) {
