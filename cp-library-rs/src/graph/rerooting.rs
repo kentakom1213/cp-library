@@ -1,136 +1,169 @@
 //! 全方位木DP
 
-use std::fmt::Debug;
+use crate::algebraic_structure::monoid_with_context::MonoidCtx;
 
-use crate::utils::consts::INF;
-
-pub trait TreeMonoid {
-    /// データの型
-    type T: Clone + Debug;
-    /// 辺重みの型
-    type W: Clone;
-    /// 単位元を返す関数
-    fn id() -> Self::T;
-    /// 値同士の合成
-    fn merge(x: &Self::T, y: &Self::T) -> Self::T;
-    /// 辺の作用
-    fn put_edge(x: &Self::T, weight: &Self::W) -> Self::T;
+pub trait TreeMonoid: MonoidCtx {
+    /// DP の値
+    type T: Clone;
+    /// 辺番号 i の辺を付加する
+    fn put_edge(&self, x: &Self::T, i: usize) -> Self::Val;
+    /// 頂点番号 v の頂点を付加する
+    fn put_vertex(&self, x: &Self::Val, v: usize) -> Self::T;
 }
 
-pub mod examples {
-    use super::TreeMonoid;
-    pub struct Diameter;
-    impl TreeMonoid for Diameter {
-        type T = isize;
-        type W = isize;
-        fn id() -> Self::T {
-            0
-        }
-        fn merge(x: &Self::T, y: &Self::T) -> Self::T {
-            *x.max(y)
-        }
-        fn put_edge(x: &Self::T, weight: &Self::W) -> Self::T {
-            x + weight
-        }
-    }
-}
 /// 辺重みを持つグラフ
-pub type Graph<T> = Vec<Vec<Edge<T>>>;
+pub type Graph = Vec<Vec<Edge>>;
+
 /// 辺の構造体
 #[derive(Clone, Debug)]
-pub struct Edge<T> {
+pub struct Edge {
     pub to: usize,
-    /// 辺重み
-    pub weight: T,
+    /// 辺のインデックス
+    pub idx: usize,
+    /// 逆辺のインデックス
+    pub ridx: usize,
 }
+
 /// 全方位木DP
-pub struct Rerooting<M: TreeMonoid> {
-    /// dpテーブル
-    pub dp: Vec<Vec<M::T>>,
-    /// 結果を保存する配列
-    pub ans: Vec<M::T>,
-    /// グラフ
-    pub G: Graph<M::W>,
+pub struct RerootingDP<M: TreeMonoid> {
+    n: usize,
+    g: Graph,
+    root: usize,
+    monoid: M,
 }
-impl<M: TreeMonoid> Rerooting<M> {
-    /// 木を初期化する
-    pub fn new(N: usize) -> Self {
+
+impl<M: TreeMonoid> RerootingDP<M>
+where
+    M::T: std::fmt::Debug,
+{
+    /// 空のグラフを初期化する
+    pub fn new(n: usize, monoid: M) -> Self {
         Self {
-            dp: vec![vec![]; N],
-            ans: vec![M::id(); N],
-            G: vec![vec![]; N],
+            n,
+            g: vec![vec![]; n],
+            root: 0,
+            monoid,
         }
     }
-    /// 重み`w`の有向辺 `(u,v)` を追加する
-    pub fn add_edge(&mut self, u: usize, v: usize, w: M::W) {
-        self.G[u].push(Edge { to: v, weight: w });
-    }
-    /// 重み`w`の有向辺 `(u,v)` / `(v,u)` を追加する
-    pub fn add_edge2(&mut self, u: usize, v: usize, w: M::W) {
-        self.G[u].push(Edge {
-            to: v,
-            weight: w.clone(),
+
+    /// 辺 (u,v) を追加する
+    pub fn add_edge(&mut self, u: usize, v: usize, idx: usize, ridx: usize) {
+        self.g[u].push(Edge { to: v, idx, ridx });
+        self.g[v].push(Edge {
+            to: u,
+            idx: ridx,
+            ridx: idx,
         });
-        self.G[v].push(Edge { to: u, weight: w });
     }
-    /// すべての頂点`v`について，`v`を根として集約した値を求める
-    pub fn build(&mut self) {
-        // 頂点0に集約
-        self.aggregate(INF, 0);
-        // rerooting
-        self.reroot(INF, 0, &M::id());
+
+    /// 全方位木DP を行う
+    pub fn build(&mut self, root: usize) -> Vec<M::T> {
+        self.root = root;
+
+        let (par, order) = self.rooted_order(root);
+        let agg = self.aggregate(root, &par, &order);
+
+        self.propagate(root, &par, &order, &agg)
     }
-    /// 頂点`u`に対して値を集約する
-    pub fn aggregate(&mut self, p: usize, u: usize) -> M::T {
-        let mut res = M::id();
-        let deg = self.G[u].len();
-        self.dp[u] = vec![M::id(); deg];
-        for i in 0..deg {
-            let Edge { to: v, weight } = self.G[u][i].clone();
-            if v == p {
-                continue;
+
+    // ========== internal ==========
+
+    /// root = r で根付けし，親 `par` と DFS 順 `order` を返す
+    fn rooted_order(&self, r: usize) -> (Vec<usize>, Vec<usize>) {
+        let n = self.n;
+        let mut par = vec![usize::MAX; n];
+        par[r] = r;
+
+        let mut order = Vec::with_capacity(n);
+        let mut st = vec![r];
+        while let Some(u) = st.pop() {
+            order.push(u);
+            for e in &self.g[u] {
+                let v = e.to;
+                if par[v] != usize::MAX {
+                    continue;
+                }
+                par[v] = u;
+                st.push(v);
             }
-            // 再帰的に計算
-            let mut val = self.aggregate(u, v);
-            val = M::put_edge(&val, &weight);
-            res = M::merge(&res, &val);
-            self.dp[u][i] = val;
         }
-        res
+        (par, order)
     }
-    /// rerootingを行う
-    /// （実際にはdfsで処理）
-    pub fn reroot(&mut self, p: usize, u: usize, dp_p: &M::T) {
-        let deg = self.G[u].len();
-        // 部分木の集約値を保存
-        for i in 0..deg {
-            let Edge { to: v, weight } = &self.G[u][i];
-            if *v == p {
-                self.dp[u][i] = M::put_edge(dp_p, weight);
+
+    /// 根に集約する
+    fn aggregate(&self, r: usize, par: &[usize], order: &[usize]) -> Vec<M::T> {
+        let n = self.n;
+
+        let mut agg = vec![self.monoid.put_vertex(&self.monoid.e(), 0); n];
+
+        for &u in order.iter().rev() {
+            let mut prod = self.monoid.e();
+            for e in &self.g[u] {
+                let v = e.to;
+                if u != r && v == par[u] {
+                    // 親方向からは集約しない
+                    continue;
+                }
+                let val = self.monoid.put_edge(&agg[v], e.idx);
+                prod = self.monoid.op(&prod, &val);
+            }
+            agg[u] = self.monoid.put_vertex(&prod, u);
+        }
+
+        agg
+    }
+
+    /// 根から伝播する
+    fn propagate(&self, r: usize, par: &[usize], order: &[usize], agg: &[M::T]) -> Vec<M::T> {
+        let n = self.n;
+
+        // 親側の部分木の集約値
+        let mut par_dp = vec![self.monoid.put_vertex(&self.monoid.e(), r); n];
+        let mut ans = vec![self.monoid.put_vertex(&self.monoid.e(), 0); n];
+
+        for &u in order {
+            let deg = self.g[u].len();
+
+            let mut vals: Vec<M::Val> = Vec::with_capacity(deg);
+            for e in &self.g[u] {
+                let v = e.to;
+                let t = if u != r && v == par[u] {
+                    &par_dp[u]
+                } else {
+                    &agg[v]
+                };
+                vals.push(self.monoid.put_edge(t, e.idx));
+            }
+
+            // 先頭からの累積
+            let mut pre: Vec<M::Val> = vec![self.monoid.e(); deg + 1];
+            for i in 0..deg {
+                pre[i + 1] = self.monoid.op(&pre[i], &vals[i]);
+            }
+            // 末尾からの累積
+            let mut suf = vec![self.monoid.e(); deg + 1];
+            for i in (0..deg).rev() {
+                suf[i] = self.monoid.op(&vals[i], &suf[i + 1]);
+            }
+
+            // ans[u] := put_vertex(隣接項の積, u)
+            ans[u] = self.monoid.put_vertex(&pre[deg], u);
+
+            // 子へ伝播
+            for i in 0..deg {
+                let v = self.g[u][i].to;
+                if u != r && v == par[u] {
+                    continue;
+                }
+                let left = &pre[i];
+                let right = &suf[i + 1];
+                let total_except_i = self.monoid.op(left, right);
+
+                // 親側の集約値を反映
+                par_dp[v] = self.monoid.put_vertex(&total_except_i, u);
             }
         }
 
-        // 左右からの累積を保存する配列
-        let mut Sl = vec![M::id(); deg + 1];
-        let mut Sr = vec![M::id(); deg + 1];
-        for i in 0..deg {
-            Sl[i + 1] = M::merge(&Sl[i], &self.dp[u][i]);
-        }
-        for i in (0..deg).rev() {
-            Sr[i] = M::merge(&self.dp[u][i], &Sr[i + 1]);
-        }
-
-        // 解の計算
-        self.ans[u] = Sl[deg].clone();
-
-        // 根を移動させる
-        for i in 0..deg {
-            let v = self.G[u][i].to;
-            if v == p {
-                continue;
-            }
-            let val = M::merge(&Sl[i], &Sr[i + 1]);
-            self.reroot(u, v, &val);
-        }
+        ans
     }
 }

@@ -1,6 +1,6 @@
 //! ## セグメント木
 //!
-//! 集合 $`S`$ と演算 $`\circ`$ の組 $`(S,\circ)`$ がモノイド（[`MonoidMut`]）であるとき，
+//! 集合 $`S`$ と演算 $`\circ`$ の組 $`(S,\circ)`$ がモノイド（[`MonoidCtx`]）であるとき，
 //! $`S`$ の要素の列 $`A`$ に対し，
 //!
 //! - 区間積の取得 ： $`A[l] \circ A[l+1] \circ \cdots \circ A[r]`$
@@ -8,7 +8,9 @@
 //!
 //! をそれぞれ $`O(\log N)`$ で行う．（$`N = |A|`$）
 
-use crate::{algebraic_structure::monoid_mut::MonoidMut, utils::show_binary_tree::ShowBinaryTree};
+use crate::{
+    algebraic_structure::monoid_with_context::MonoidCtx, utils::show_binary_tree::ShowBinaryTree,
+};
 use std::{
     fmt::{self, Debug},
     ops::{
@@ -18,7 +20,7 @@ use std::{
 };
 
 /// セグメント木
-pub struct SegmentTreeMut<M: MonoidMut> {
+pub struct SegmentTreeCtx<M: MonoidCtx> {
     /// 要素数
     pub N: usize,
     offset: usize,
@@ -26,14 +28,14 @@ pub struct SegmentTreeMut<M: MonoidMut> {
     monoid: M,
 }
 
-impl<M: MonoidMut> Index<usize> for SegmentTreeMut<M> {
+impl<M: MonoidCtx> Index<usize> for SegmentTreeCtx<M> {
     type Output = M::Val;
     fn index(&self, idx: usize) -> &Self::Output {
         &self.data[self.offset + idx]
     }
 }
 
-impl<M: MonoidMut> SegmentTreeMut<M> {
+impl<M: MonoidCtx> SegmentTreeCtx<M> {
     #[inline]
     fn parse_range<R: RangeBounds<usize>>(&self, range: &R) -> Option<(usize, usize)> {
         let start = match range.start_bound() {
@@ -136,13 +138,13 @@ impl<M: MonoidMut> SegmentTreeMut<M> {
     }
 }
 
-impl<M> Debug for SegmentTreeMut<M>
+impl<M> Debug for SegmentTreeCtx<M>
 where
-    M: MonoidMut,
+    M: MonoidCtx,
     M::Val: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SegmentTreeMut {{ [").ok();
+        write!(f, "SegmentTreeCtx {{ [").ok();
         for i in 0..self.N {
             if i + 1 < self.N {
                 write!(f, "{:?}, ", self.data[self.offset + i]).ok();
@@ -155,15 +157,15 @@ where
 }
 
 /// セグメント木の要素の可変参照
-pub struct ValMut<'s, M: MonoidMut> {
-    segself: &'s mut SegmentTreeMut<M>,
+pub struct ValMut<'s, M: MonoidCtx> {
+    segself: &'s mut SegmentTreeCtx<M>,
     idx: usize,
     new_val: M::Val,
 }
 
 impl<M> Debug for ValMut<'_, M>
 where
-    M: MonoidMut,
+    M: MonoidCtx,
     M::Val: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -171,27 +173,27 @@ where
     }
 }
 
-impl<M: MonoidMut> Drop for ValMut<'_, M> {
+impl<M: MonoidCtx> Drop for ValMut<'_, M> {
     fn drop(&mut self) {
         self.segself.update(self.idx, self.new_val.clone());
     }
 }
 
-impl<M: MonoidMut> Deref for ValMut<'_, M> {
+impl<M: MonoidCtx> Deref for ValMut<'_, M> {
     type Target = M::Val;
     fn deref(&self) -> &Self::Target {
         &self.new_val
     }
 }
 
-impl<M: MonoidMut> DerefMut for ValMut<'_, M> {
+impl<M: MonoidCtx> DerefMut for ValMut<'_, M> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.new_val
     }
 }
 
 // セグ木上の2分探索
-impl<M: MonoidMut> SegmentTreeMut<M> {
+impl<M: MonoidCtx> SegmentTreeCtx<M> {
     /// 左端を固定した2分探索
     /// - 引数`l`と関数`f`に対して，
     ///     - `f( seg.get(l..x) ) = true`
@@ -323,9 +325,9 @@ impl<M: MonoidMut> SegmentTreeMut<M> {
     }
 }
 
-impl<M> ShowBinaryTree<usize> for SegmentTreeMut<M>
+impl<M> ShowBinaryTree<usize> for SegmentTreeCtx<M>
 where
-    M: MonoidMut,
+    M: MonoidCtx,
     M::Val: Debug,
 {
     fn get_root(&self) -> Option<usize> {

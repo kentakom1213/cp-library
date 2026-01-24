@@ -12,7 +12,7 @@ pub mod commutative;
 pub mod group;
 pub mod indexed_monoid;
 pub mod monoid;
-pub mod monoid_mut;
+pub mod monoid_with_context;
 pub mod operation;
 pub mod ordered_monoid;
 pub mod semilattice;

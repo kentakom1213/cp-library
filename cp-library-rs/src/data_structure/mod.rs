@@ -18,7 +18,7 @@ pub mod multiset_splay_tree;
 pub mod rollback_unionfind;
 pub mod segment_tree;
 pub mod segment_tree_2d;
-pub mod segment_tree_mut;
+pub mod segment_tree_ctx;
 pub mod segmented_sieve;
 pub mod sparse_table;
 pub mod trie;

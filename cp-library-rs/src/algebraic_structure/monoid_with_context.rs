@@ -9,7 +9,7 @@
 /// - [`Monoid::Val`] ： データの型 $`S`$
 /// - [`Monoid::e`] ： 単位元を返す関数 $`\varnothing \to S`$
 /// - [`Monoid::op`] ： 演算 $`S\times S \to S`$
-pub trait MonoidMut {
+pub trait MonoidCtx {
     /// データの型 （$`S`$）
     type Val: Clone;
     /// 単位元 （$`\varnothing \to S`$）
@@ -25,12 +25,12 @@ pub mod examples {
 
     use num::{One, Zero};
 
-    use crate::algebraic_structure::monoid_mut::MonoidMut;
+    use crate::algebraic_structure::monoid_with_context::MonoidCtx;
 
     /// 法が与えられる区間和
     pub struct AddMod<T>(pub T);
 
-    impl<T> MonoidMut for AddMod<T>
+    impl<T> MonoidCtx for AddMod<T>
     where
         T: Clone + Zero + Add + Rem<Output = T>,
     {
@@ -46,7 +46,7 @@ pub mod examples {
     /// 法が与えられる区間積
     pub struct MulMod<T>(pub T);
 
-    impl<T> MonoidMut for MulMod<T>
+    impl<T> MonoidCtx for MulMod<T>
     where
         T: Clone + One + Mul + Rem<Output = T>,
     {

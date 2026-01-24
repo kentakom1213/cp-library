@@ -1,14 +1,14 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::{
-    algebraic_structure::monoid_mut::examples::{AddMod, MulMod},
-    data_structure::segment_tree_mut::SegmentTreeMut,
+    algebraic_structure::monoid_with_context::examples::{AddMod, MulMod},
+    data_structure::segment_tree_ctx::SegmentTreeCtx,
     utils::show_binary_tree::ShowBinaryTree,
 };
 
 #[test]
 fn test_get_point() {
-    let segtree = SegmentTreeMut::from_vec(vec![1, 2, 3, 4, 5], AddMod(5));
+    let segtree = SegmentTreeCtx::from_vec(vec![1, 2, 3, 4, 5], AddMod(5));
 
     assert_eq!(segtree[0], 1);
     assert_eq!(segtree[1], 2);
@@ -19,7 +19,7 @@ fn test_get_point() {
 
 #[test]
 fn test_RSQ() {
-    let mut segtree = SegmentTreeMut::new(3, AddMod(4));
+    let mut segtree = SegmentTreeCtx::new(3, AddMod(4));
 
     // segtree.update(0, 1);
     *segtree.get_mut(0).unwrap() += 1;
@@ -36,10 +36,10 @@ fn test_RSQ() {
 #[test]
 fn test_debug_print() {
     let arr = vec![20, 4, 5, 6, 8, 9, 100];
-    let segtree = SegmentTreeMut::from_vec(arr, MulMod(101));
+    let segtree = SegmentTreeCtx::from_vec(arr, MulMod(101));
 
     let dbg = format!("{:?}", &segtree);
-    assert_eq!(&dbg, "SegmentTreeMut { [20, 4, 5, 6, 8, 9, 100] }");
+    assert_eq!(&dbg, "SegmentTreeCtx { [20, 4, 5, 6, 8, 9, 100] }");
 
     segtree.print_as_binary_tree();
 }
