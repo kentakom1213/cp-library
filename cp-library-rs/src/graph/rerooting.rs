@@ -32,10 +32,7 @@ pub struct RerootingDP<M: TreeMonoid> {
     monoid: M,
 }
 
-impl<M: TreeMonoid> RerootingDP<M>
-where
-    M::T: std::fmt::Debug,
-{
+impl<M: TreeMonoid> RerootingDP<M> {
     /// 空のグラフを初期化する
     pub fn new(n: usize, monoid: M) -> Self {
         Self {
