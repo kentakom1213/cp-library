@@ -211,3 +211,16 @@ fn test_rational_reconstruction() {
         assert_eq!((i, 23), (p, q));
     }
 }
+
+#[test]
+fn test_powi() {
+    let x: M998 = 3.into();
+    assert_eq!(x.powi(0), M998::one());
+    assert_eq!(x.powi(1), x);
+    assert_eq!(x.powi(2), x * x);
+    assert_eq!(x.powi(10), x.pow(10));
+
+    assert_eq!(x.powi(-1), x.inv());
+    assert_eq!(x.powi(-2), x.inv() * x.inv());
+    assert_eq!(x.powi(-10), x.inv().pow(10));
+}
