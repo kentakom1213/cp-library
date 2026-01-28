@@ -1,6 +1,8 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::{algebraic_structure::operation::Add, tree::bbt_aa::BalancedBinaryTree};
+use cp_library_rs::{
+    algebraic_structure::operation::Add, data_structure::bbt_aa::BalancedBinaryTree,
+};
 use rand::{
     distr::{Alphanumeric, SampleString},
     prelude::*,
@@ -198,8 +200,8 @@ fn random_delete_str() {
         seg.insert(key, val);
     }
 
-    println!("{:?}", arr);
-    seg.print_as_binary_tree();
+    // println!("{:?}", arr);
+    // seg.print_as_binary_tree();
 
     for _ in 0..ITER {
         // 一点更新クエリ

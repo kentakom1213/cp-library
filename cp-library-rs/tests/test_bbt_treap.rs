@@ -2,7 +2,7 @@
 
 use cp_library_rs::{
     algebraic_structure::actedmonoid::examples::{AddSum, UpdateSum},
-    tree::bbt_treap::BalancedBinaryTree,
+    data_structure::bbt_treap::BalancedBinaryTree,
     utils::show_binary_tree::ShowBinaryTree,
 };
 use rand::{

@@ -3,12 +3,15 @@
 pub mod acc2d;
 pub mod acc2d_cyclic;
 pub mod acc3d;
+pub mod bbt_aa;
+pub mod bbt_treap;
 pub mod bit;
 pub mod bit_2d;
 pub mod bitset;
 pub mod dual_segment_tree;
 pub mod dynamic_segment_tree;
 pub mod dynamic_segment_tree_2d;
+pub mod implicit_treap;
 pub mod indexedset;
 pub mod lazy_segment_tree;
 pub mod mex_set;

@@ -8,8 +8,8 @@ use cp_library_rs::{
         operation::Add,
         to_acted::ToActed,
     },
+    data_structure::implicit_treap::ImplicitTreap,
     number_theory::modint::{M998, MOD998},
-    tree::implicit_treap::ImplicitTreap,
 };
 use rand::{rng, Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
