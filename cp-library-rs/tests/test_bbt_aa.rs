@@ -1,8 +1,6 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::{
-    algebraic_structure::operation::Add, data_structure::balanced_binary_tree::BalancedBinaryTree,
-};
+use cp_library_rs::{algebraic_structure::operation::Add, tree::bbt_aa::BalancedBinaryTree};
 use rand::{
     distr::{Alphanumeric, SampleString},
     prelude::*,

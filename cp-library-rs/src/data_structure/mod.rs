@@ -3,7 +3,6 @@
 pub mod acc2d;
 pub mod acc2d_cyclic;
 pub mod acc3d;
-pub mod balanced_binary_tree;
 pub mod bit;
 pub mod bit_2d;
 pub mod bitset;
