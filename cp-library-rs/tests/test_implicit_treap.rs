@@ -241,3 +241,152 @@ fn range_reverse_affine(size: usize, query: usize) {
     let finally = (0..size).map(|i| tr.get(i)).collect::<Vec<_>>();
     assert_eq!(finally, ar);
 }
+
+// ========== binary search tests (max_right / min_left) ==========
+
+fn model_max_right_addsum(vec: &[i64], l: usize, limit: i64) -> (i64, usize) {
+    let mut s = 0_i64;
+    let mut x = l;
+    while x < vec.len() {
+        let ns = s + vec[x];
+        if ns <= limit {
+            s = ns;
+            x += 1;
+        } else {
+            break;
+        }
+    }
+    (s, x)
+}
+
+fn model_min_left_addsum(vec: &[i64], r: usize, limit: i64) -> (i64, usize) {
+    let mut s = 0_i64;
+    let mut x = r;
+    while x > 0 {
+        let ns = vec[x - 1] + s;
+        if ns <= limit {
+            s = ns;
+            x -= 1;
+        } else {
+            break;
+        }
+    }
+    (s, x)
+}
+
+#[test]
+fn binary_search_basic_addsum() {
+    // 単調性が必要なので，非負で作る
+    let mut tr = ImplicitTreap::<AddSum<i64>>::default();
+    let mut vec = vec![];
+
+    for &x in &[3_i64, 1, 4, 1, 5, 9, 2, 6] {
+        tr.push_back(pack(x));
+        vec.push(x);
+    }
+
+    // max_right
+    // l=2 から sum <= 6 で伸ばす：4 + 1 = 5 まで，次の 5 は入らない
+    let (got_sum, got_x) = tr.max_right(2, |v| unpack_sum(v) <= 6);
+    let (exp_sum, exp_x) = model_max_right_addsum(&vec, 2, 6);
+    assert_eq!(unpack_sum(got_sum), exp_sum);
+    assert_eq!(got_x, exp_x);
+
+    // min_left
+    // r=7 までで suffix の sum <= 10：6 + 2 = 8 まで，次の 9 は入らない
+    let (got_sum, got_x) = tr.min_left(7, |v| unpack_sum(v) <= 10);
+    let (exp_sum, exp_x) = model_min_left_addsum(&vec, 7, 10);
+    assert_eq!(unpack_sum(got_sum), exp_sum);
+    assert_eq!(got_x, exp_x);
+
+    // 空区間も許す（f(e)=true が前提）
+    let (got_sum, got_x) = tr.max_right(tr.len(), |v| unpack_sum(v) <= 0);
+    assert_eq!(unpack_sum(got_sum), 0);
+    assert_eq!(got_x, tr.len());
+}
+
+#[test]
+fn binary_search_randomized_addsum_monotone_only() {
+    // max_right / min_left の前提（単調性）を満たすため，
+    // 値と加算をすべて非負に制限する
+    let mut tr = ImplicitTreap::<AddSum<i64>>::default();
+    let mut vec: Vec<i64> = vec![];
+
+    let mut rng = XorShiftRng::seed_from_u64(20260201);
+
+    for _step in 0..3000 {
+        let op = rng.random_range(0..6);
+
+        match op {
+            0 => {
+                // push_back
+                let x = rng.random_range(0..=20);
+                tr.push_back(pack(x));
+                vec.push(x);
+            }
+            1 => {
+                // insert
+                let x = rng.random_range(0..=20);
+                let i = if vec.is_empty() {
+                    0
+                } else {
+                    rng.random_range(0..=vec.len())
+                };
+                tr.insert(i, pack(x));
+                vec.insert(i, x);
+            }
+            2 => {
+                // remove
+                if !vec.is_empty() {
+                    let i = rng.random_range(0..vec.len());
+                    tr.remove(i);
+                    vec.remove(i);
+                } else {
+                    tr.remove(0);
+                }
+            }
+            3 => {
+                // apply range add（非負）
+                if !vec.is_empty() {
+                    let l = rng.random_range(0..vec.len());
+                    let r = rng.random_range(l..=vec.len());
+                    let add = rng.random_range(0..=10);
+                    tr.apply(l..r, add);
+                    for v in &mut vec[l..r] {
+                        *v += add;
+                    }
+                }
+            }
+            4 => {
+                // max_right を検証
+                let n = vec.len();
+                let l = if n == 0 { 0 } else { rng.random_range(0..=n) };
+                let limit = rng.random_range(0..=200);
+
+                let (got_sum, got_x) = tr.max_right(l, |v| unpack_sum(v) <= limit);
+                let (exp_sum, exp_x) = model_max_right_addsum(&vec, l, limit);
+
+                assert_eq!(unpack_sum(got_sum), exp_sum);
+                assert_eq!(got_x, exp_x);
+            }
+            _ => {
+                // min_left を検証
+                let n = vec.len();
+                let r = if n == 0 { 0 } else { rng.random_range(0..=n) };
+                let limit = rng.random_range(0..=200);
+
+                let (got_sum, got_x) = tr.min_left(r, |v| unpack_sum(v) <= limit);
+                let (exp_sum, exp_x) = model_min_left_addsum(&vec, r, limit);
+
+                assert_eq!(unpack_sum(got_sum), exp_sum);
+                assert_eq!(got_x, exp_x);
+            }
+        }
+
+        // ついでに全体和一致も軽く見る
+        let got_all = unpack_sum(tr.get_range(0..tr.len()));
+        let exp_all: i64 = vec.iter().sum();
+        assert_eq!(tr.len(), vec.len());
+        assert_eq!(got_all, exp_all);
+    }
+}

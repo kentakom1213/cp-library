@@ -67,7 +67,7 @@ impl<M: ActedMonoid> ArenaNode for TreapNode<M> {}
 /// - 動的な列を管理するデータ構造
 pub struct ImplicitTreap<M: ActedMonoid> {
     arena: Arena<TreapNode<M>>,
-    root: Option<Ptr>,
+    pub root: Option<Ptr>,
     rng: XorShiftRng,
 }
 
@@ -82,9 +82,26 @@ impl<M: ActedMonoid> Default for ImplicitTreap<M> {
 }
 
 impl<M: ActedMonoid> ImplicitTreap<M> {
-    /// i 番目の要素の不変参照を取得する
+    /// i 番目の要素の値を取得する（clone）
     pub fn get(&mut self, i: usize) -> M::Val {
-        self.get_range(i..=i)
+        assert!(i < self.len());
+
+        let (a, bc) = self.split_nth(self.root, i);
+        let (b, c) = self.split_nth(bc, 1);
+
+        let val = match b {
+            Some(ptr) => {
+                // b は 1 要素の木だが，念のため遅延を落としてから読む
+                self.push(ptr);
+                self.arena.get(ptr).val.clone()
+            }
+            None => unreachable!(),
+        };
+
+        let bc = self.merge(b, c);
+        self.root = self.merge(a, bc);
+
+        val
     }
 
     /// i 番目に要素 val を挿入する
@@ -167,6 +184,63 @@ impl<M: ActedMonoid> ImplicitTreap<M> {
     /// 要素数をカウントする
     pub fn len(&self) -> usize {
         self.root.map(|p| self.arena.get(p).size).unwrap_or(0)
+    }
+
+    // ========== split / merge ==========
+
+    /// ptr を根とする木を，左から n 番目までのノードとそれ以外のノードに分解する
+    pub fn split_nth(&mut self, ptr: Option<Ptr>, n: usize) -> (Option<Ptr>, Option<Ptr>) {
+        let Some(ptr) = ptr else {
+            return (None, None);
+        };
+
+        self.push(ptr);
+
+        let node = self.arena.get(ptr);
+        let lsize = self.size_of(node.left);
+
+        if n <= lsize {
+            let (l, r) = self.split_nth(node.left, n);
+            self.arena.get_mut(ptr).left = r;
+            self.pull(ptr);
+
+            (l, Some(ptr))
+        } else {
+            let (l, r) = self.split_nth(node.right, n - lsize - 1);
+            self.arena.get_mut(ptr).right = l;
+            self.pull(ptr);
+
+            (Some(ptr), r)
+        }
+    }
+
+    /// left, right を根とする木を併合する
+    pub fn merge(&mut self, left: Option<Ptr>, right: Option<Ptr>) -> Option<Ptr> {
+        match (left, right) {
+            (None, ptr) | (ptr, None) => ptr,
+            (Some(left), Some(right)) => {
+                let pl = self.arena.get(left).prio;
+                let pr = self.arena.get(right).prio;
+
+                if pl < pr {
+                    // left を根にする
+                    self.push(left);
+                    let lr = self.arena.get(left).right;
+                    self.arena.get_mut(left).right = self.merge(lr, Some(right));
+                    self.pull(left);
+
+                    Some(left)
+                } else {
+                    // right を根にする
+                    self.push(right);
+                    let rl = self.arena.get(right).left;
+                    self.arena.get_mut(right).left = self.merge(Some(left), rl);
+                    self.pull(right);
+
+                    Some(right)
+                }
+            }
+        }
     }
 
     // ========== internal ==========
@@ -307,60 +381,144 @@ impl<M: ActedMonoid> ImplicitTreap<M> {
             self.arena.get_mut(ptr).act = M::id();
         }
     }
+}
 
-    /// ptr を根とする木を，左から n 番目までのノードとそれ以外のノードに分解する
-    fn split_nth(&mut self, ptr: Option<Ptr>, n: usize) -> (Option<Ptr>, Option<Ptr>) {
-        let Some(ptr) = ptr else {
-            return (None, None);
-        };
+// ========== binary search (like segtree max_right / min_left) ==========
 
-        self.push(ptr);
+impl<M: ActedMonoid> ImplicitTreap<M> {
+    /// 左端固定二分探索（segtree の max_right と同じ）
+    ///
+    /// 返り値：(`get_range(l..x)`, `x`)
+    /// 条件：`f(M::e()) == true`
+    pub fn max_right<F>(&mut self, l: usize, f: F) -> (M::Val, usize)
+    where
+        F: Fn(M::Val) -> bool,
+    {
+        assert!(l <= self.len());
+        assert!(f(M::e()));
 
-        let node = self.arena.get(ptr);
-        let lsize = self.size_of(node.left);
+        // [0, l) と [l, n) に分割
+        let (a, b) = self.split_nth(self.root, l);
 
-        if n <= lsize {
-            let (l, r) = self.split_nth(node.left, n);
-            self.arena.get_mut(ptr).left = r;
-            self.pull(ptr);
+        let mut acc = M::e();
+        let take = self.max_right_inner(b, &f, &mut acc);
 
-            (l, Some(ptr))
-        } else {
-            let (l, r) = self.split_nth(node.right, n - lsize - 1);
-            self.arena.get_mut(ptr).right = l;
-            self.pull(ptr);
+        // 元に戻す
+        self.root = self.merge(a, b);
 
-            (Some(ptr), r)
-        }
+        (acc, l + take)
     }
 
-    /// left, right を根とする木を併合する
-    fn merge(&mut self, left: Option<Ptr>, right: Option<Ptr>) -> Option<Ptr> {
-        match (left, right) {
-            (None, ptr) | (ptr, None) => ptr,
-            (Some(left), Some(right)) => {
-                let pl = self.arena.get(left).prio;
-                let pr = self.arena.get(right).prio;
+    /// `ptr` が表す列の prefix を，左から何個取れるか
+    /// 返り値：取れる要素数
+    fn max_right_inner<F>(&mut self, ptr: Option<Ptr>, f: &F, acc: &mut M::Val) -> usize
+    where
+        F: Fn(M::Val) -> bool,
+    {
+        let Some(p) = ptr else {
+            return 0;
+        };
 
-                if pl < pr {
-                    // left を根にする
-                    self.push(left);
-                    let lr = self.arena.get(left).right;
-                    self.arena.get_mut(left).right = self.merge(lr, Some(right));
-                    self.pull(left);
+        self.push(p);
 
-                    Some(left)
-                } else {
-                    // right を根にする
-                    self.push(right);
-                    let rl = self.arena.get(right).left;
-                    self.arena.get_mut(right).left = self.merge(Some(left), rl);
-                    self.pull(right);
+        let (l, r, val) = {
+            let v = self.arena.get(p);
+            (v.left, v.right, v.val.clone())
+        };
 
-                    Some(right)
-                }
-            }
+        let lsize = self.size_of(l);
+        let lsum = self.sum_of(l);
+
+        // まず左部分木を丸ごと入れられるか？
+        let tmp = M::op(acc, &lsum);
+        if !f(tmp.clone()) {
+            // 左部分木の中で探す
+            return self.max_right_inner(l, f, acc);
         }
+
+        // 左部分木は全て入れられる
+        *acc = tmp;
+
+        // 次に現在ノード val を入れられるか？
+        let tmp2 = M::op(acc, &val);
+        if !f(tmp2.clone()) {
+            // val は入れられないので，取れるのは左部分木まで
+            return lsize;
+        }
+
+        // val も入れられる
+        *acc = tmp2;
+
+        // 右部分木へ
+        lsize + 1 + self.max_right_inner(r, f, acc)
+    }
+
+    /// 右端固定二分探索（segtree の min_left と同じ）
+    ///
+    /// 返り値：(`get_range(x..r)`, `x`)
+    /// 条件：`f(M::e()) == true`
+    pub fn min_left<F>(&mut self, r: usize, f: F) -> (M::Val, usize)
+    where
+        F: Fn(M::Val) -> bool,
+    {
+        assert!(r <= self.len());
+        assert!(f(M::e()));
+
+        // [0, r) と [r, n) に分割
+        let (a, b) = self.split_nth(self.root, r);
+
+        let mut acc = M::e();
+        let take = self.min_left_inner(a, &f, &mut acc);
+
+        // 元に戻す
+        self.root = self.merge(a, b);
+
+        (acc, r - take)
+    }
+
+    /// `ptr` が表す列の suffix を，右から何個取れるか
+    /// 返り値：取れる要素数
+    fn min_left_inner<F>(&mut self, ptr: Option<Ptr>, f: &F, acc: &mut M::Val) -> usize
+    where
+        F: Fn(M::Val) -> bool,
+    {
+        let Some(p) = ptr else {
+            return 0;
+        };
+
+        self.push(p);
+
+        let (l, r, val) = {
+            let v = self.arena.get(p);
+            (v.left, v.right, v.val.clone())
+        };
+
+        let rsize = self.size_of(r);
+        let rsum = self.sum_of(r);
+
+        // まず右部分木を丸ごと「前に付け足して」良いか？
+        // suffix を伸ばすので，新規部分は常に acc の前に来る：op(new, acc)
+        let tmp = M::op(&rsum, acc);
+        if !f(tmp.clone()) {
+            // 右部分木の中で探す
+            return self.min_left_inner(r, f, acc);
+        }
+
+        // 右部分木は全て入れられる
+        *acc = tmp;
+
+        // 次に現在ノード val を前に付け足せるか？
+        let tmp2 = M::op(&val, acc);
+        if !f(tmp2.clone()) {
+            // val は入れられないので，取れるのは右部分木まで
+            return rsize;
+        }
+
+        // val も入れられる
+        *acc = tmp2;
+
+        // 左部分木へ（さらに左に伸ばす）
+        rsize + 1 + self.min_left_inner(l, f, acc)
     }
 }
 

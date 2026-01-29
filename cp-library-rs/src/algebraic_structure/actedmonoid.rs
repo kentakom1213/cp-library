@@ -177,6 +177,32 @@ pub mod examples {
         }
     }
 
+    /// 区間加算 + 区間最大値
+    #[derive(Debug)]
+    pub struct AddMax<T>(PhantomData<T>);
+    impl<T> ActedMonoid for AddMax<T>
+    where
+        T: Zero + Clone + Add<Output = T> + Ord + Bounded,
+    {
+        type Val = T;
+        type Act = T;
+        fn e() -> Self::Val {
+            T::min_value()
+        }
+        fn id() -> Self::Act {
+            T::zero()
+        }
+        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
+            x.clone().max(y.clone())
+        }
+        fn mapping(x: &Self::Val, y: &Self::Act) -> Self::Val {
+            x.clone() + y.clone()
+        }
+        fn compose(x: &Self::Act, y: &Self::Act) -> Self::Act {
+            x.clone() + y.clone()
+        }
+    }
+
     /// 区間更新 + 区間和取得
     #[derive(Debug)]
     pub struct UpdateSum<T>(PhantomData<T>);
