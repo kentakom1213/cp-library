@@ -25,7 +25,7 @@ checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
 
 [[package]]
 name = "cp-library-rs"
-version = "0.3.12"
+version = "0.3.13"
 dependencies = [
  "itertools",
  "itertools-num",
