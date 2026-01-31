@@ -46,12 +46,9 @@ impl<M: ActedMonoid> LazySegmentTree<M> {
     /// 遅延評価セグメント木を初期化する
     /// - `n`: 配列サイズ
     pub fn new(n: usize) -> Self {
-        let mut log = 0usize;
-        let mut offset = 1usize;
-        while offset < n {
-            log += 1;
-            offset <<= 1;
-        }
+        assert!(n > 0);
+        let offset = n.next_power_of_two();
+        let log = offset.trailing_zeros() as usize;
         Self {
             size: n,
             log,
