@@ -1,16 +1,13 @@
 //! グリッド探索の便利ツール
 
+use num::One;
+use num_traits::{WrappingAdd, WrappingSub};
+
 /// グリッドの探索
 pub trait Grid<T>
 where
     Self: Sized,
 {
-    /// usizeにおける-1
-    const NEG1: T;
-    /// 隣接する4方向（上下左右）
-    const ADJ4: [(T, T); 4];
-    /// 隣接する8方向
-    const ADJ8: [(T, T); 8];
     /// 座標`(i,j)`に上下左右で隣接する座標を取得
     /// （グリッドサイズ`HxW`でバリデーション）
     ///
@@ -23,7 +20,7 @@ where
     /// >    ↓
     /// >    4
     /// > ```
-    fn get_adj_4(&self, H: usize, W: usize) -> Vec<Self>;
+    fn get_adj_4(&self, rrange: (T, T), crange: (T, T)) -> Vec<Self>;
     /// 座標`(i,j)`に8方向で隣接する座標を取得
     /// （グリッドサイズ`HxW`でバリデーション）
     ///
@@ -36,42 +33,80 @@ where
     /// >   ↙↓➘
     /// > 6  7  8
     /// > ```
-    fn get_adj_8(&self, H: usize, W: usize) -> Vec<Self>;
+    fn get_adj_8(&self, rrange: (T, T), crange: (T, T)) -> Vec<Self>;
+    /// 右のセルを返す
+    fn right(&self) -> (T, T);
+    /// 右上のセルを返す
+    fn upright(&self) -> (T, T);
+    /// 上のセルを返す
+    fn up(&self) -> (T, T);
+    /// 左上のセルを返す
+    fn upleft(&self) -> (T, T);
+    /// 左のセルを返す
+    fn left(&self) -> (T, T);
+    /// 左下のセルを返す
+    fn downleft(&self) -> (T, T);
+    /// 下のセルを返す
+    fn down(&self) -> (T, T);
+    /// 右下のセルを返す
+    fn downright(&self) -> (T, T);
 }
 
-impl Grid<usize> for (usize, usize) {
-    const NEG1: usize = 1_usize.wrapping_neg();
-    const ADJ4: [(usize, usize); 4] = [(0, 1), (Self::NEG1, 0), (0, Self::NEG1), (1, 0)];
-    const ADJ8: [(usize, usize); 8] = [
-        (0, 1),
-        (Self::NEG1, 1),
-        (Self::NEG1, 0),
-        (Self::NEG1, Self::NEG1),
-        (0, Self::NEG1),
-        (1, Self::NEG1),
-        (1, 0),
-        (1, 1),
-    ];
-    fn get_adj_4(&self, H: usize, W: usize) -> Vec<(usize, usize)> {
-        let mut adj = vec![];
-        for &(dr, dc) in &Self::ADJ4 {
-            let nr = self.0.wrapping_add(dr);
-            let nc = self.1.wrapping_add(dc);
-            if nr < H && nc < W {
-                adj.push((nr, nc));
-            }
-        }
-        adj
+impl<T> Grid<T> for (T, T)
+where
+    T: Clone + PartialOrd + WrappingAdd + WrappingSub + One,
+{
+    fn right(&self) -> (T, T) {
+        let (r, c) = self.clone();
+        (r, c.wrapping_add(&T::one()))
     }
-    fn get_adj_8(&self, H: usize, W: usize) -> Vec<(usize, usize)> {
-        let mut adj = vec![];
-        for &(dr, dc) in &Self::ADJ8 {
-            let nr = self.0.wrapping_add(dr);
-            let nc = self.1.wrapping_add(dc);
-            if nr < H && nc < W {
-                adj.push((nr, nc));
-            }
-        }
-        adj
+    fn upright(&self) -> (T, T) {
+        let (r, c) = self.clone();
+        (r.wrapping_sub(&T::one()), c.wrapping_add(&T::one()))
+    }
+    fn up(&self) -> (T, T) {
+        let (r, c) = self.clone();
+        (r.wrapping_sub(&T::one()), c)
+    }
+    fn upleft(&self) -> (T, T) {
+        let (r, c) = self.clone();
+        (r.wrapping_sub(&T::one()), c.wrapping_sub(&T::one()))
+    }
+    fn left(&self) -> (T, T) {
+        let (r, c) = self.clone();
+        (r, c.wrapping_sub(&T::one()))
+    }
+    fn downleft(&self) -> (T, T) {
+        let (r, c) = self.clone();
+        (r.wrapping_add(&T::one()), c.wrapping_sub(&T::one()))
+    }
+    fn down(&self) -> (T, T) {
+        let (r, c) = self.clone();
+        (r.wrapping_add(&T::one()), c)
+    }
+    fn downright(&self) -> (T, T) {
+        let (r, c) = self.clone();
+        (r.wrapping_add(&T::one()), c.wrapping_add(&T::one()))
+    }
+    fn get_adj_4(&self, rrange: (T, T), crange: (T, T)) -> Vec<Self> {
+        [self.right(), self.up(), self.left(), self.down()]
+            .into_iter()
+            .filter(|(r, c)| (&rrange.0 <= r && r < &rrange.1) && (&crange.0 <= c && c < &crange.1))
+            .collect()
+    }
+    fn get_adj_8(&self, rrange: (T, T), crange: (T, T)) -> Vec<Self> {
+        [
+            self.right(),
+            self.upright(),
+            self.up(),
+            self.upleft(),
+            self.left(),
+            self.downleft(),
+            self.down(),
+            self.downright(),
+        ]
+        .into_iter()
+        .filter(|(r, c)| (&rrange.0 <= r && r < &rrange.1) && (&crange.0 <= c && c < &crange.1))
+        .collect()
     }
 }
