@@ -8,7 +8,7 @@
 //!
 //! をそれぞれ $`O(\log N)`$ で行う．（$`N = |A|`$）
 
-use crate::{algebraic_structure::monoid::Monoid, utils::show_binary_tree::ShowBinaryTree};
+use crate::{algebraic_structure::monoid::Monoid, tree::show_binary_tree::ShowBinaryTree};
 use std::{
     fmt::{self, Debug},
     ops::{

@@ -14,7 +14,7 @@ use num_traits::PrimInt;
 use crate::{
     algebraic_structure::actedmonoid_with_size::ActedMonoidWithSize,
     tree::arena::{Arena, ArenaNode, Ptr},
-    utils::show_binary_tree::ShowBinaryTree,
+    tree::show_binary_tree::ShowBinaryTree,
 };
 
 type A<M> = Arena<NodeInner<M>>;

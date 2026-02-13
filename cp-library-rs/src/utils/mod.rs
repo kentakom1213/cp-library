@@ -9,7 +9,6 @@ pub mod list_pairs;
 pub mod ord_float;
 pub mod palindrome;
 pub mod run_length;
-pub mod show_binary_tree;
 pub mod usize_pow;
 pub mod yesno;
 pub mod zigzag;

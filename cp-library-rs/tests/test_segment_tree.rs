@@ -7,7 +7,7 @@ use cp_library_rs::{
     },
     data_structure::segment_tree::*,
     debug,
-    utils::show_binary_tree::ShowBinaryTree,
+    tree::show_binary_tree::ShowBinaryTree,
 };
 
 #[test]

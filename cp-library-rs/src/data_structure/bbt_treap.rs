@@ -14,7 +14,7 @@ use rand_xorshift::XorShiftRng;
 use crate::{
     algebraic_structure::actedmonoid::ActedMonoid,
     tree::arena::{Arena, ArenaNode, Ptr},
-    utils::show_binary_tree::ShowBinaryTree,
+    tree::show_binary_tree::ShowBinaryTree,
 };
 
 type A<K, M> = Arena<TreapNode<K, M>>;

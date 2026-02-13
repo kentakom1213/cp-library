@@ -3,7 +3,7 @@
 use cp_library_rs::{
     algebraic_structure::monoid_with_context::examples::{AddMod, MulMod},
     data_structure::segment_tree_ctx::SegmentTreeCtx,
-    utils::show_binary_tree::ShowBinaryTree,
+    tree::show_binary_tree::ShowBinaryTree,
 };
 
 #[test]

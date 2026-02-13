@@ -2,7 +2,7 @@
 //! - 参考: <https://drken1215.hatenablog.com/entry/2024/11/17/035045>
 
 use crate::{
-    algebraic_structure::actedmonoid::ActedMonoid, utils::show_binary_tree::ShowBinaryTree,
+    algebraic_structure::actedmonoid::ActedMonoid, tree::show_binary_tree::ShowBinaryTree,
 };
 use core::fmt;
 use std::{

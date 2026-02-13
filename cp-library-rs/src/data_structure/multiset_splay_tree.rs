@@ -5,6 +5,7 @@ pub use multiset_splay_tree_::MultiSet;
 mod multiset_splay_tree_ {
     //! 多重集合
     use crate::{
+        tree::show_binary_tree::ShowBinaryTree,
         tree::splay_tree::{
             find::{lower_bound, upper_bound},
             insert::{insert, insert_right},
@@ -13,7 +14,6 @@ mod multiset_splay_tree_ {
             remove::remove,
             splay::splay,
         },
-        utils::show_binary_tree::ShowBinaryTree,
     };
     use std::{
         fmt::Debug,

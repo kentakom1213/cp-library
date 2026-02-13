@@ -2,7 +2,7 @@
 
 use cp_library_rs::algebraic_structure::actedmonoid::examples::AddSum;
 use cp_library_rs::algebraic_structure::to_acted::ToActed;
-use cp_library_rs::utils::show_binary_tree::ShowBinaryTree;
+use cp_library_rs::tree::show_binary_tree::ShowBinaryTree;
 use cp_library_rs::{
     algebraic_structure::operation::Add, data_structure::dynamic_segment_tree::DynamicSegmentTree,
 };
