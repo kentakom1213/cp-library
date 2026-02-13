@@ -8,6 +8,7 @@ pub mod bbt_treap;
 pub mod bit;
 pub mod bit_2d;
 pub mod bitset;
+pub mod cartesian_tree;
 pub mod dual_segment_tree;
 pub mod dynamic_segment_tree;
 pub mod dynamic_segment_tree_2d;

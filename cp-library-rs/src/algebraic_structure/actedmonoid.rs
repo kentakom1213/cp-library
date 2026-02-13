@@ -237,4 +237,94 @@ pub mod examples {
             }
         }
     }
+
+    /// 等差数列加算 + 区間和
+    pub struct ArithSum<T>(PhantomData<T>);
+
+    #[derive(Debug, Clone, PartialEq)]
+    pub struct ArithVal<T> {
+        pub val_sum: T,
+        pub index_sum: usize,
+        pub len: usize,
+    }
+
+    impl<T: Zero> ArithVal<T> {
+        /// インデックス i の値を初期化する
+        pub fn new(i: usize) -> Self {
+            Self {
+                val_sum: T::zero(),
+                index_sum: i,
+                len: 1,
+            }
+        }
+    }
+
+    /// 等差数列
+    #[derive(Debug, Clone, PartialEq)]
+    pub struct ArithAct<T> {
+        /// 公差
+        pub a: T,
+        /// 切片
+        pub b: T,
+    }
+
+    impl<T> ArithAct<T> {
+        /// 等差数列 `a*i + b` を初期化する
+        pub fn new(a: T, b: T) -> Self {
+            Self { a, b }
+        }
+    }
+
+    impl<T> ActedMonoid for ArithSum<T>
+    where
+        T: Zero + Clone + Add<Output = T> + Mul<Output = T> + FromPrimitive + PartialEq,
+    {
+        type Val = ArithVal<T>;
+        type Act = ArithAct<T>;
+        fn e() -> Self::Val {
+            ArithVal {
+                val_sum: T::zero(),
+                index_sum: 0,
+                len: 0,
+            }
+        }
+        fn id() -> Self::Act {
+            ArithAct {
+                a: T::zero(),
+                b: T::zero(),
+            }
+        }
+        fn op(x: &Self::Val, y: &Self::Val) -> Self::Val {
+            let x = x.clone();
+            let y = y.clone();
+            ArithVal {
+                val_sum: x.val_sum + y.val_sum,
+                index_sum: x.index_sum + y.index_sum,
+                len: x.len + y.len,
+            }
+        }
+        fn mapping(x: &Self::Val, y: &Self::Act) -> Self::Val {
+            let ArithVal {
+                val_sum,
+                index_sum,
+                len,
+            } = x.clone();
+            let ArithAct { a, b } = y.clone();
+            ArithVal {
+                val_sum: val_sum
+                    + a * T::from_usize(index_sum).unwrap()
+                    + b * T::from_usize(len).unwrap(),
+                index_sum,
+                len,
+            }
+        }
+        fn compose(x: &Self::Act, y: &Self::Act) -> Self::Act {
+            let x = x.clone();
+            let y = y.clone();
+            ArithAct {
+                a: x.a + y.a,
+                b: x.b + y.b,
+            }
+        }
+    }
 }
