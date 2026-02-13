@@ -150,9 +150,9 @@ impl<'a> Eq for HashVal<'a> {}
 
 impl Debug for HashVal<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_map()
-            .entry(&"length", &self.length)
-            .entry(&"hash", &self.hash)
+        f.debug_struct("HashVal")
+            .field("length", &self.length)
+            .field("hash", &self.hash)
             .finish()
     }
 }
