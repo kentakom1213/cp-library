@@ -1,5 +1,9 @@
-//! N人をペアに分ける組合せを全列挙する
+//! 組合せの列挙
 
+use itertools::Itertools;
+use superslice::Ext;
+
+// ========== pairs ==========
 /// ペアのベクタ型
 pub type Pairs<T> = Vec<(T, T)>;
 
@@ -45,4 +49,34 @@ impl ListPairs<usize> {
     pub fn pairs_usize(n: usize) -> Self {
         (0..n).collect()
     }
+}
+
+// ========== comb with rep ==========
+/// r 個の n 面ダイスを振った結果を列挙する
+pub fn comb_with_rep(n: usize, r: usize) -> impl Iterator<Item = Vec<usize>> {
+    let perm: Vec<_> = std::iter::repeat_n(false, r)
+        .chain(std::iter::repeat_n(true, n - 1))
+        .collect();
+
+    std::iter::once(perm.clone())
+        .chain(std::iter::repeat(()).scan(perm, |p, _| p.next_permutation().then_some(p.clone())))
+        .map(aggregate_comb)
+}
+
+fn aggregate_comb(choose: Vec<bool>) -> Vec<usize> {
+    let mut res = vec![];
+    if choose[0] {
+        res.push(0);
+    }
+    for (k, &f) in choose.iter().dedup_with_count() {
+        if f {
+            res.extend(std::iter::repeat_n(0, k - 1));
+        } else {
+            res.push(k);
+        }
+    }
+    if *choose.last().unwrap() {
+        res.push(0);
+    }
+    res
 }

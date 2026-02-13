@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::utils::list_pairs::*;
+use cp_library_rs::utils::enum_comb::*;
 
 #[test]
 fn test_enum_pairs() {

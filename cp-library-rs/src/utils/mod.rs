@@ -2,10 +2,10 @@
 
 pub mod consts;
 pub mod coordinate_compression;
+pub mod enum_comb;
 pub mod grid;
 pub mod index_isize;
 pub mod lineartime_merging;
-pub mod list_pairs;
 pub mod ord_float;
 pub mod palindrome;
 pub mod run_length;
