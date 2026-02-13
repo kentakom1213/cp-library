@@ -128,6 +128,10 @@ impl<'a> HashVal<'a> {
     /// ハッシュ同士を連結
     /// - 時間計算量: $`O(1)`$
     pub fn chain(&self, other: &HashVal<'a>) -> HashVal<'a> {
+        assert_eq!(
+            self.rolling_hash.base, other.rolling_hash.base,
+            "Cannot chain HashVal with different bases"
+        );
         Self {
             rolling_hash: self.rolling_hash,
             length: self.len() + other.len(),
@@ -142,6 +146,10 @@ impl<'a> HashVal<'a> {
 
 impl PartialEq for HashVal<'_> {
     fn eq(&self, other: &Self) -> bool {
+        assert_eq!(
+            self.rolling_hash.base, other.rolling_hash.base,
+            "Cannot compare HashVal with different bases"
+        );
         self.len() == other.len() && self.val() == other.val()
     }
 }

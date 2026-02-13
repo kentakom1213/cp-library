@@ -65,3 +65,19 @@ fn test_LCP() {
     assert_eq!(rh2.get_LCP(2, 8), 5);
     assert_eq!(rh2.get_LCP(3, 9), 4);
 }
+
+#[should_panic]
+#[test]
+fn test_different_base_chain() {
+    let rh1 = RollingHash::from_str("abc", Modint::generate_base());
+    let rh2 = RollingHash::from_str("def", Modint::generate_base());
+    let _ = rh1.hash(..).chain(&rh2.hash(..));
+}
+
+#[should_panic]
+#[test]
+fn test_different_base_eq() {
+    let rh1 = RollingHash::from_str("abc", Modint::generate_base());
+    let rh2 = RollingHash::from_str("abc", Modint::generate_base());
+    let _ = rh1.hash(..) == rh2.hash(..);
+}
