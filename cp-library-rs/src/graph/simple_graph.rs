@@ -1,5 +1,7 @@
 //! 単純グラフの連結成分分解，2部グラフ判定など
 
+use crate::utils::consts::Infinity;
+
 type Graph = Vec<Vec<usize>>;
 
 /// # 単純グラフ
@@ -19,8 +21,6 @@ pub struct SimpleGraph {
 }
 
 impl SimpleGraph {
-    const INF: usize = 1_000_000_000_000_000_000;
-
     /// グラフの構築
     pub fn new(V: usize) -> Self {
         Self {
@@ -29,7 +29,7 @@ impl SimpleGraph {
             graph: vec![vec![]; V],
             edges: vec![],
             component_size: None,
-            components: vec![Self::INF; V],
+            components: vec![Infinity::infinity(); V],
         }
     }
 
@@ -44,16 +44,16 @@ impl SimpleGraph {
     /// 連結成分に分解：O(|V|+|E|)
     pub fn decompose(&mut self) {
         let mut component = 0;
-        self.components = vec![Self::INF; self.V];
+        self.components = vec![Infinity::infinity(); self.V];
         for i in 0..self.V {
-            if self.components[i] != Self::INF {
+            if self.components[i] != Infinity::infinity() {
                 continue;
             }
             self.components[i] = component;
             let mut stack = vec![i];
             while let Some(u) = stack.pop() {
                 for &v in &self.graph[u] {
-                    if self.components[v] == Self::INF {
+                    if self.components[v] == Infinity::infinity() {
                         self.components[v] = component;
                         stack.push(v);
                     }

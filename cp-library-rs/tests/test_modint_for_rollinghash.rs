@@ -5,7 +5,7 @@ use cp_library_rs::number_theory::modint_for_rollinghash::*;
 
 #[test]
 fn test_neg() {
-    let x: Modint = 0.into();
+    let x: Modint = Modint::new(0);
     assert_eq!(-x, 0);
 
     let y = Modint::new(10);
@@ -21,26 +21,26 @@ fn test_sub() {
     let y = 1000000007;
     assert_eq!(x - y, MOD - y);
 
-    let a: Modint = 288230376151711744.into(); // 1 << 58
-    let b: usize = 576460752303423488; // 1 << 59
-    let c: usize = 1152921504606846976; // 1 << 60
+    let a: Modint = Modint::new(288230376151711744); // 1 << 58
+    let b: u64 = 576460752303423488; // 1 << 59
+    let c: u64 = 1152921504606846976; // 1 << 60
     assert_eq!(
         -a - b - c,
         MOD - (288230376151711744 + 576460752303423488 + 1152921504606846976)
     );
 
-    let zero = Modint::new(0) + 1 - 1;
+    let zero: Modint = Modint::new(0) + 1_usize - 1_usize;
     assert_eq!(zero.0, 0);
 }
 
 #[test]
 fn test_pow() {
     let x = Modint::new(2);
-    let y: usize = 1000000007;
+    let y = 1000000007;
     assert_eq!(x.pow(y), 35184372088832);
 
     let a: Modint = MOD.into();
-    let b: usize = 1024;
+    let b = 1024;
     assert_eq!(a.pow(b), 0);
 }
 
@@ -66,7 +66,7 @@ fn test_add_assign() {
 fn test_sub_assign() {
     let mut add = Modint::new(0);
     let mut sub = Modint::new(0);
-    for i in 0..20 {
+    for i in 0..20_usize {
         add += i;
         sub -= i;
     }
@@ -115,14 +115,14 @@ fn test_mul_assign() {
 fn test_sum() {
     assert_eq!(
         (0..20).map(|i| Modint::new(2).pow(i)).sum::<Modint>(),
-        Modint::new(2).pow(20) - 1
+        Modint::new(2).pow(20) - 1_usize
     );
 }
 
 #[test]
 fn test_product() {
     assert_eq!(
-        (0..100).map(|_| 3.into()).product::<Modint>(),
+        (0..100).map(|_| Modint(3)).product::<Modint>(),
         Modint::new(3).pow(100)
     );
 }

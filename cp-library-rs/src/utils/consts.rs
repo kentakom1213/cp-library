@@ -18,8 +18,8 @@ macro_rules! impl_infinity {
     };
 }
 
-impl_infinity!(usize, 1001001001001001001);
-impl_infinity!(isize, 1001001001001001001);
+impl_infinity!(usize, 1001001001);
+impl_infinity!(isize, 1001001001);
 impl_infinity!(u64, 1001001001001001001);
 impl_infinity!(i64, 1001001001001001001);
 impl_infinity!(u32, 1001001001);

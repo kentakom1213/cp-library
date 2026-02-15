@@ -1,7 +1,7 @@
 //! ミラー・ラビン素数判定法
 
 /// 余りをとる累乗
-fn powmod(a: usize, b: usize, m: usize) -> usize {
+fn powmod(a: u64, b: u64, m: u64) -> u64 {
     let (mut a, mut b, m) = (a as u128, b as u128, m as u128);
     let mut res = 1;
     while b > 0 {
@@ -11,12 +11,12 @@ fn powmod(a: usize, b: usize, m: usize) -> usize {
         a = (a * a) % m;
         b >>= 1;
     }
-    res as usize
+    res as u64
 }
 
 /// ## ミラーラビン素数判定法
 /// 参考: <https://zenn.dev/kaki_xxx/articles/40a92b43200215>
-pub fn is_prime_MR(N: usize) -> bool {
+pub fn is_prime_MR(N: u64) -> bool {
     if N <= 2 {
         return N == 2;
     }
@@ -43,7 +43,7 @@ pub fn is_prime_MR(N: usize) -> bool {
                 if x == N - 1 {
                     break;
                 }
-                x = ((x as u128).pow(2) % (N as u128)) as usize;
+                x = ((x as u128).pow(2) % (N as u128)) as u64;
                 t += 1;
             }
             if t == s {

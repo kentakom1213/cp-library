@@ -2,7 +2,7 @@
 
 use crate::number_theory::miller_rabin_test::is_prime_MR;
 
-fn gcd(a: usize, b: usize) -> usize {
+fn gcd(a: u64, b: u64) -> u64 {
     if b == 0 {
         a
     } else {
@@ -11,7 +11,7 @@ fn gcd(a: usize, b: usize) -> usize {
 }
 
 /// ポラード・ロー法を適用し、約数を見つける
-pub fn pollard_rho(N: usize) -> usize {
+pub fn pollard_rho(N: u64) -> u64 {
     if N % 2 == 0 {
         return 2;
     }
@@ -19,8 +19,7 @@ pub fn pollard_rho(N: usize) -> usize {
         return N;
     }
     let tmp = &mut 0;
-    let f =
-        |x: usize, tmp: &mut u128| -> usize { (((x as u128).pow(2) + *tmp) % N as u128) as usize };
+    let f = |x: u64, tmp: &mut u128| -> u64 { (((x as u128).pow(2) + *tmp) % N as u128) as u64 };
     let mut step = 0;
     loop {
         *tmp += 1;
@@ -44,7 +43,7 @@ pub fn pollard_rho(N: usize) -> usize {
 /// ポラード・ロー法により素因数分解を行う
 ///
 /// - 時間計算量: $`O(n^{1/4})`$
-pub fn factorize_pollard_rho(N: usize) -> Vec<usize> {
+pub fn factorize_pollard_rho(N: u64) -> Vec<u64> {
     if N == 1 {
         return vec![];
     }

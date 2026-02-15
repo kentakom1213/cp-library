@@ -6,7 +6,7 @@
 ///
 /// **戻り値**
 /// - `(x, y, gcd(a, b))`
-pub fn ext_gcd(a: isize, b: isize) -> (isize, isize, isize) {
+pub fn ext_gcd(a: i64, b: i64) -> (i64, i64, i64) {
     if b == 0 {
         return (1, 0, a);
     }
@@ -24,7 +24,7 @@ pub fn ext_gcd(a: isize, b: isize) -> (isize, isize, isize) {
 /// **戻り値**
 /// - `a`と`m`が互いに素 → Some($`a^{-1} \mod m`$)
 /// - `a`と`m`が互いに素でない → None
-pub fn inv(a: isize, m: isize) -> Option<isize> {
+pub fn inv(a: i64, m: i64) -> Option<i64> {
     let (x, _, d) = ext_gcd(a, m);
     (d == 1).then_some(x.rem_euclid(m))
 }

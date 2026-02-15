@@ -8,17 +8,17 @@ use num::Integer;
 use num_traits::*;
 use rand::{prelude::*, random, rng};
 
-const MOD998: usize = 998244353;
+const MOD998: u64 = 998244353;
 
 #[test]
 fn test_add() {
-    let x: M998 = 998244355.into();
-    let y = 998244359;
+    let x: M998 = M998::new(998244355);
+    let y: u64 = 998244359;
     assert_eq!(x + y, 8 + MOD998);
 
     let a: M998 = MOD998.into();
-    let b = 1000000007;
-    let c = 20021213;
+    let b: usize = 1000000007;
+    let c: usize = 20021213;
     assert_eq!(a + b + c, 21776867);
     assert_eq!(a + b + c, (21776867 + MOD998));
 }
@@ -38,15 +38,15 @@ fn test_neg() {
 #[test]
 fn test_sub() {
     let x = M998::zero();
-    let y = 1000000007;
+    let y: usize = 1000000007;
     assert_eq!(x - y, 996488699);
 
-    let a: M998 = 288230376151711744_usize.into(); // 1 << 58
-    let b: usize = 576460752303423488; // 1 << 59
-    let c: usize = 1152921504606846976; // 1 << 60
+    let a: M998 = 288230376151711744_u64.into(); // 1 << 58
+    let b: u64 = 576460752303423488; // 1 << 59
+    let c: u64 = 1152921504606846976; // 1 << 60
     assert_eq!(-a - b - c, 553154679);
 
-    let zero: M998 = M998::zero() + 1 - 1;
+    let zero: M998 = M998::zero() + 1_usize - 1_usize;
     assert_eq!(zero.0, 0);
 }
 
@@ -82,7 +82,7 @@ fn test_add_assign() {
 #[test]
 fn test_add_usize() {
     let a = M998::new(998244333);
-    let y: usize = 1001001001001001001;
+    let y: u64 = 1001001001001001001;
 
     assert_eq!(a + y, a + M998::from(y));
 }
@@ -91,7 +91,7 @@ fn test_add_usize() {
 fn test_sub_assign() {
     let mut add = M107::zero();
     let mut sub = M107::zero();
-    for i in 0..20 {
+    for i in 0..20_usize {
         add += i;
         sub -= i;
     }
@@ -120,12 +120,12 @@ fn test_mul_assign() {
 
 #[test]
 fn test_div_assign() {
-    let mut iota: Vec<M998> = (0..10).map(|i| i.into()).collect();
+    let mut iota: Vec<M998> = (0..10).map(|i| M998::new(i)).collect();
 
     eprintln!("{:?}", iota);
 
     for i in 0..10 {
-        iota[i] /= 2;
+        iota[i] /= 2_usize;
     }
 
     eprintln!("{:?}", iota);
@@ -135,14 +135,14 @@ fn test_div_assign() {
 fn test_sum() {
     assert_eq!(
         (0..20).map(|i| M107::new(2).pow(i)).sum::<M107>(),
-        M107::new(2).pow(20) - 1
+        M107::new(2).pow(20) - 1_usize
     );
 }
 
 #[test]
 fn test_product() {
     assert_eq!(
-        (0..100).map(|_| 3.into()).product::<M107>(),
+        (0..100).map(|_| M107::new(3)).product::<M107>(),
         M107::new(3).pow(100)
     );
 }
@@ -173,7 +173,7 @@ fn test_from_isize() {
 }
 
 /// ランダムな分数を生成する
-fn generate_random_fraction(rng: &mut ThreadRng) -> ((usize, usize), M998) {
+fn generate_random_fraction(rng: &mut ThreadRng) -> ((u64, u64), M998) {
     let n = rng.random_range(0..=4000);
     let d = rng.random_range(1..=4000);
     let g = n.gcd(&d);
@@ -205,7 +205,7 @@ fn test_rational_reconstruction() {
 
     // 分母1
     for i in 1..23 {
-        let x: M998 = M998::from(i) / 23;
+        let x: M998 = M998::from(i) / 23_usize;
         let (p, q) = x.rational_reconstruction().unwrap();
         println!("x: {x:?} -> {:?}", (p, q));
         assert_eq!((i, 23), (p, q));
@@ -214,7 +214,7 @@ fn test_rational_reconstruction() {
 
 #[test]
 fn test_powi() {
-    let x: M998 = 3.into();
+    let x: M998 = Modint::new(3);
     assert_eq!(x.powi(0), M998::one());
     assert_eq!(x.powi(1), x);
     assert_eq!(x.powi(2), x * x);

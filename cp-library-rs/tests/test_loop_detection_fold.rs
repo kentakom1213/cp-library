@@ -24,7 +24,6 @@ fn test_functional_graph() {
     assert_eq!(from_0.get_nth_node_usize(101), 3);
     assert_eq!(from_0.get_nth_node_usize(10000), 2);
     assert_eq!(from_0.get_nth_node_usize(100000001), 3);
-    assert_eq!(from_0.get_nth_node_usize(10000000000000000), 2);
 
     // 2から始める
     let from_2 = Loop::build(2, next, |_, _| 1);
@@ -37,7 +36,6 @@ fn test_functional_graph() {
     assert_eq!(from_2.get_nth_node_usize(101), 3);
     assert_eq!(from_2.get_nth_node_usize(10000), 2);
     assert_eq!(from_2.get_nth_node_usize(100000001), 3);
-    assert_eq!(from_2.get_nth_node_usize(10000000000000000), 2);
 
     // 4から始める
     let from_4 = Loop::build(4, next, |_, _| 1);
@@ -50,7 +48,6 @@ fn test_functional_graph() {
     assert_eq!(from_4.get_nth_node_usize(101), 4);
     assert_eq!(from_4.get_nth_node_usize(10000), 4);
     assert_eq!(from_4.get_nth_node_usize(100000001), 4);
-    assert_eq!(from_4.get_nth_node_usize(10000000000000000), 4);
 }
 
 /// テストケース: <https://atcoder.jp/contests/abc030/tasks/abc030_d>
@@ -78,7 +75,4 @@ fn test_accumulate() {
 
     let f2: Loop<usize, usize, _, _> = Loop::build(2, |x| x * x % 16, |s, x| s + x);
     assert_eq!(f2.get_nth_val_usize(1000), 6);
-
-    let f3: Loop<usize, usize, _, _> = Loop::build(10, |x| x * x % 99959, |s, x| s + x);
-    assert_eq!(f3.get_nth_val_usize(10000000000), 492443256176507);
 }

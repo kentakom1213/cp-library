@@ -17,12 +17,12 @@ use crate::number_theory::ext_euclid::inv;
 /// を満たす $`x`$ を求める．
 ///
 /// ただし，任意の $`(i,j)`$ に対し $`m_i`$ と $`m_j`$ は互いに素である必要がある．
-pub fn garner_algorithm(rems: &[usize], mods: &[usize]) -> usize {
+pub fn garner_algorithm(rems: &[u64], mods: &[u64]) -> u64 {
     let mut m = 1;
-    let mut x = (rems[0] % mods[0]) as isize;
+    let mut x = (rems[0] % mods[0]) as i64;
 
     for i in 0..rems.len() {
-        let (ri, mi) = (rems[i] as isize, mods[i] as isize);
+        let (ri, mi) = (rems[i] as i64, mods[i] as i64);
         let Some(inv_m) = inv(m, mi) else {
             panic!("For all (i,j), gcd(mi, mj) must be 1.")
         };
@@ -30,5 +30,5 @@ pub fn garner_algorithm(rems: &[usize], mods: &[usize]) -> usize {
         x += t * m;
         m *= mi;
     }
-    x as usize
+    x as u64
 }

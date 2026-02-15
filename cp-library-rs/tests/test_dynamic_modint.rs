@@ -4,18 +4,18 @@
 use cp_library_rs::number_theory::dynamic_modint::*;
 use rand::random;
 
-const MOD998: usize = 998244353;
-const MOD1000: usize = 1000;
+const MOD998: u64 = 998244353;
+const MOD1000: u64 = 1000;
 
 #[test]
 fn test_add() {
     let x = Modint2::new(998244355, MOD998);
-    let y: usize = 998244359;
+    let y: u64 = 998244359;
     assert_eq!(x + y, 8 + MOD998);
 
     let a = Modint2::new(MOD998, MOD998);
-    let b = 1000000007;
-    let c = 20021213;
+    let b: u64 = 1000000007;
+    let c: u64 = 20021213;
     assert_eq!(a + b + c, 21776867);
     assert_eq!(a + b + c, (21776867 + MOD998));
 }
@@ -35,26 +35,26 @@ fn test_neg() {
 #[test]
 fn test_sub() {
     let x = Modint2::new(0, MOD998);
-    let y = 1000000007;
+    let y: u64 = 1000000007;
     assert_eq!(x - y, 996488699);
 
     let a = Modint2::new(288230376151711744, MOD998); // 1 << 58
-    let b: usize = 576460752303423488; // 1 << 59
-    let c: usize = 1152921504606846976; // 1 << 60
+    let b: u64 = 576460752303423488; // 1 << 59
+    let c: u64 = 1152921504606846976; // 1 << 60
     assert_eq!(-a - b - c, 553154679);
 
-    let zero = Modint2::new(0, MOD998) + 1 - 1;
+    let zero = Modint2::new(0, MOD998) + 1_usize - 1_usize;
     assert_eq!(zero, 0);
 }
 
 #[test]
 fn test_pow() {
     let x = Modint2::new(2, MOD998);
-    let y: usize = 1000000007;
+    let y: u64 = 1000000007;
     assert_eq!(x.pow(y), 132727571);
 
     let a = Modint2::new(MOD998, MOD998);
-    let b: usize = 1024;
+    let b: u64 = 1024;
     assert_eq!(a.pow(b), 0);
 }
 
@@ -79,7 +79,7 @@ fn test_add_assign() {
 #[test]
 fn test_add_usize() {
     let a = Modint2::new(998244333, MOD998);
-    let y: usize = 1001001001001001001;
+    let y: u64 = 1001001001001001001;
 
     assert_eq!(a + y, a + Modint2::new(y, MOD998));
 }
@@ -88,7 +88,7 @@ fn test_add_usize() {
 #[should_panic]
 fn test_panic_different_mod() {
     let a = Modint2::new(998244333, MOD998);
-    let y: usize = 1001001001001001001;
+    let y: u64 = 1001001001001001001;
 
     let _ = a + Modint2::new(y, MOD1000);
 }
@@ -97,7 +97,7 @@ fn test_panic_different_mod() {
 fn test_sub_assign() {
     let mut add = Modint2::new(0, MOD1000);
     let mut sub = Modint2::new(0, MOD1000);
-    for i in 0..20 {
+    for i in 0..20_usize {
         add += i;
         sub -= i;
     }
@@ -110,7 +110,7 @@ fn test_mul_assign() {
     let mut fact = vec![Modint2::new(1, MOD998); 20];
 
     // 階乗
-    for i in 1..20 {
+    for i in 1..20_usize {
         let prv = fact[i - 1];
         fact[i] *= prv * i;
     }
@@ -131,7 +131,7 @@ fn test_div_assign() {
     eprintln!("{:?}", iota);
 
     for i in 0..10 {
-        iota[i] /= 2;
+        iota[i] /= 2_usize;
     }
 
     eprintln!("{:?}", iota);
@@ -141,8 +141,8 @@ fn test_div_assign() {
 fn test_from_isize() {
     for _ in 0..200 {
         let x: i64 = random();
-        let x_mod = (998244353 + x % 998244353) as usize % 998244353;
-        let y = Modint2::from_isize(x as isize, MOD998);
+        let x_mod = (998244353 + x % 998244353) as u64 % 998244353;
+        let y = Modint2::from_isize(x, MOD998);
         assert_eq!(x_mod, y.value);
     }
 }

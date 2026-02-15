@@ -55,10 +55,10 @@ fn test_dot() {
 fn test_pow() {
     // テトラナッチ数
     let tetra: Matrix<M998> = Matrix::new(vec![
-        vec![0.into(), 1.into(), 0.into(), 0.into()],
-        vec![0.into(), 0.into(), 1.into(), 0.into()],
-        vec![0.into(), 0.into(), 0.into(), 1.into()],
-        vec![1.into(), 1.into(), 1.into(), 1.into()],
+        vec![M998::new(0), M998::new(1), M998::new(0), M998::new(0)],
+        vec![M998::new(0), M998::new(0), M998::new(1), M998::new(0)],
+        vec![M998::new(0), M998::new(0), M998::new(0), M998::new(1)],
+        vec![M998::new(1), M998::new(1), M998::new(1), M998::new(1)],
     ]);
 
     // 初期値

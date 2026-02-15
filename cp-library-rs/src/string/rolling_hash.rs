@@ -106,8 +106,8 @@ impl RollingHash {
 
     /// 文字 c の ASCII コードを返す
     #[inline]
-    fn ord(c: char) -> usize {
-        c as usize
+    fn ord(c: char) -> u64 {
+        c as u64
     }
 }
 

@@ -230,7 +230,7 @@ fn range_reverse_affine(size: usize, query: usize) {
         let actually = tr.get_range(l..r);
         let expected = ar[l..r]
             .iter()
-            .fold((1.into(), 0.into()), |acc, f| f.compose(&acc));
+            .fold((M998::new(1), M998::new(0)), |acc, f| f.compose(&acc));
         assert_eq!(actually, expected);
 
         // 区間の反転
