@@ -1,9 +1,7 @@
 #![allow(non_snake_case)]
 
-use cp_library_rs::{
-    graph::bellman_ford::bellman_ford,
-    utils::consts::{IINF, INF},
-};
+use cp_library_rs::graph::bellman_ford::bellman_ford;
+use cp_library_rs::utils::consts::Infinity;
 
 #[test]
 fn test_dist() {
@@ -18,7 +16,10 @@ fn test_dist() {
     let (has_neg, dist, _) = bellman_ford(4, 0, &edges);
 
     assert!(has_neg);
-    assert_eq!(dist, vec![0, -IINF, -IINF, -IINF]);
+    assert_eq!(
+        dist,
+        vec![0, -i64::infinity(), -i64::infinity(), -i64::infinity()]
+    );
 }
 
 #[test]
@@ -37,5 +38,5 @@ fn test_prev() {
 
     assert!(!has_neg);
     assert_eq!(dist, vec![0, -1, 1, 3, 0, -3]);
-    assert_eq!(prev, vec![INF, 0, 4, 0, 1, 4]);
+    assert_eq!(prev, vec![usize::infinity(), 0, 4, 0, 1, 4]);
 }

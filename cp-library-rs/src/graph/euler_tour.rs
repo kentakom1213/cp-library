@@ -1,6 +1,6 @@
 //! オイラーツアー
 
-use crate::utils::consts::INF;
+use crate::utils::consts::Infinity;
 
 /// EulerTour
 #[derive(Debug)]
@@ -16,9 +16,9 @@ impl EulerTour {
     pub fn new(N: usize) -> Self {
         Self {
             G: vec![vec![]; N],
-            in_: vec![INF; N],
-            out: vec![INF; N],
-            depth: vec![INF; N],
+            in_: vec![usize::infinity(); N],
+            out: vec![usize::infinity(); N],
+            depth: vec![usize::infinity(); N],
         }
     }
 
@@ -30,7 +30,7 @@ impl EulerTour {
 
     /// 順序付けを行う
     pub fn build(&mut self, root: usize) {
-        self.dfs(INF, root, &mut 0, &mut 0);
+        self.dfs(usize::infinity(), root, &mut 0, &mut 0);
     }
 
     /// 行きがけ順，帰りがけ順で順序付け

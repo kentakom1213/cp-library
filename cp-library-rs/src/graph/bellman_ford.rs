@@ -1,14 +1,14 @@
 //! ベルマン・フォード法
 
-use crate::utils::consts::{IINF, INF};
+use crate::utils::consts::Infinity;
 
 /// ベルマン・フォード法
 /// - 重み付きグラフの単一始点最短路を求める
 /// - 重みが負の場合にも対応
 /// - 各頂点`v`の距離`dist[v]`について
-///   - vに到達不可能な場合     → [`IINF`]
+///   - vに到達不可能な場合     → [`i64::infinity()`]
 ///   - vへの最短路が求まる場合 → `(vへの最短路長)`
-///   - vへの最短路がいくらでも小さくできる場合 → `-IINF`
+///   - vへの最短路がいくらでも小さくできる場合 → `-i64::infinity()`
 ///
 /// 引数
 /// - `N` : 頂点数
@@ -24,11 +24,11 @@ use crate::utils::consts::{IINF, INF};
 pub fn bellman_ford(
     N: usize,
     start: usize,
-    edges: &Vec<(usize, usize, isize)>,
-) -> (bool, Vec<isize>, Vec<usize>) {
-    let mut dist = vec![2 * IINF; N];
+    edges: &Vec<(usize, usize, i64)>,
+) -> (bool, Vec<i64>, Vec<usize>) {
+    let mut dist = vec![2 * i64::infinity(); N];
     dist[start] = 0;
-    let mut prev = vec![INF; N];
+    let mut prev = vec![usize::infinity(); N];
 
     for _ in 0..N {
         for &(u, v, w) in edges {
@@ -47,28 +47,28 @@ pub fn bellman_ford(
         if dist[v] > dist[u] + w {
             has_negative = true;
             // 始点から到達できる場合
-            if dist[u] < IINF {
-                dist[v] = -IINF;
+            if dist[u] < i64::infinity() {
+                dist[v] = -i64::infinity();
             }
         }
     }
 
     // 到達できない頂点をINFに
     dist.iter_mut().for_each(|d| {
-        if *d > IINF {
-            *d = IINF;
+        if *d > i64::infinity() {
+            *d = i64::infinity();
         }
     });
 
     // 影響範囲を調べる（もう一度ベルマンフォード）
     for _ in 0..N {
         for &(u, v, w) in edges {
-            if dist[u] == IINF || dist[v] == IINF {
+            if dist[u] == i64::infinity() || dist[v] == i64::infinity() {
                 continue;
             }
             // 緩和
             if dist[v] > dist[u] + w {
-                dist[v] = -IINF;
+                dist[v] = -i64::infinity();
             }
         }
     }

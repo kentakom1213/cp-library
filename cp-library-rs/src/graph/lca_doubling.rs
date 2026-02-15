@@ -1,6 +1,6 @@
 //! ダブリングにより、最小共通祖先を求める
 
-use crate::utils::consts::INF;
+use crate::utils::consts::Infinity;
 
 type Graph = Vec<Vec<usize>>;
 
@@ -19,7 +19,7 @@ impl LCA {
         let n = tree.len(); // グラフの頂点数
         let logn = n.next_power_of_two().trailing_zeros() as usize;
         let mut double = vec![vec![0; n]; logn]; // ダブリング配列
-        let mut depth = vec![INF; n]; // 頂点の根からの距離
+        let mut depth = vec![usize::infinity(); n]; // 頂点の根からの距離
         depth[0] = 0;
         Self::dfs(root, &mut double[0], &mut depth, tree);
 
@@ -40,7 +40,7 @@ impl LCA {
 
     fn dfs(u: usize, par: &mut Vec<usize>, depth: &mut Vec<usize>, tree: &Graph) {
         for &v in &tree[u] {
-            if depth[v] != INF {
+            if depth[v] != usize::infinity() {
                 continue;
             }
             depth[v] = depth[u] + 1;

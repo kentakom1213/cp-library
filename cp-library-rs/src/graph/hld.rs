@@ -1,6 +1,6 @@
 //! ## HL分解（重軽分解）
 
-use crate::utils::consts::INF;
+use crate::utils::consts::Infinity;
 
 /// HL分解
 pub struct HLD {
@@ -27,13 +27,13 @@ impl HLD {
     pub fn new(N: usize) -> Self {
         Self {
             N,
-            root: INF,
+            root: usize::infinity(),
             G: vec![vec![]; N],
-            parent: vec![INF; N],
-            subtree_size: vec![INF; N],
-            in_: vec![INF; N],
-            out: vec![INF; N],
-            head: vec![INF; N],
+            parent: vec![usize::infinity(); N],
+            subtree_size: vec![usize::infinity(); N],
+            in_: vec![usize::infinity(); N],
+            out: vec![usize::infinity(); N],
+            head: vec![usize::infinity(); N],
         }
     }
 
@@ -48,11 +48,11 @@ impl HLD {
         self.root = root;
 
         // heavy childの計算
-        self.set_heavy_child(INF, root);
+        self.set_heavy_child(usize::infinity(), root);
 
         // heavy pathの計算
         self.head[root] = root;
-        self.build_heavy_path(INF, root, &mut 0);
+        self.build_heavy_path(usize::infinity(), root, &mut 0);
     }
 
     /// 再帰的にheavy childを計算し，
