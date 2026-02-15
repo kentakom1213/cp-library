@@ -52,7 +52,7 @@ impl ListPairs<usize> {
 }
 
 // ========== comb with rep ==========
-/// r 個の n 面ダイスを振った結果を列挙する
+/// n 個の集合から重複を許して r 個取り出すときの組合せを列挙する．
 pub fn comb_with_rep(n: usize, r: usize) -> impl Iterator<Item = Vec<usize>> {
     let perm: Vec<_> = std::iter::repeat_n(false, r)
         .chain(std::iter::repeat_n(true, n - 1))

@@ -16,21 +16,27 @@ impl FactorTable {
     /// 前計算を行う
     /// - $`O(N \log\log N)`$ 時間で篩を作成
     pub fn new(n: usize) -> Self {
-        let mut facs = FactorTable {
-            n,
-            sieve: vec![1; n + 1],
-        };
+        let mut sieve = vec![0; n + 1];
+        if n >= 1 {
+            sieve[1] = 1;
+        }
         for i in 2..=n {
-            for j in 1.. {
-                if i * j > n {
-                    break;
-                }
-                if facs.sieve[i * j] == 1 {
-                    facs.sieve[i * j] = i;
+            if sieve[i] == 0 {
+                // i は素数
+                sieve[i] = i;
+                // i*i から始める（溢れ注意）
+                if i <= n / i {
+                    let mut j = i * i;
+                    while j <= n {
+                        if sieve[j] == 0 {
+                            sieve[j] = i;
+                        }
+                        j += i;
+                    }
                 }
             }
         }
-        facs
+        Self { n, sieve }
     }
 
     /// 素因数分解を行い，素因数のベクタを返す
@@ -43,8 +49,9 @@ impl FactorTable {
         assert!(1 <= x && x <= self.n);
         let mut factors = vec![];
         while x > 1 {
-            factors.push(self.sieve[x]);
-            x /= self.sieve[x];
+            let p = self.sieve[x];
+            factors.push(p);
+            x /= p;
         }
         factors
     }
@@ -60,12 +67,12 @@ impl FactorTable {
         let mut pairs: Vec<(usize, usize)> = vec![];
         while x > 1 {
             let p = self.sieve[x];
-            if !pairs.is_empty() && pairs.last().unwrap().0 == p {
-                pairs.last_mut().unwrap().1 += 1
-            } else {
-                pairs.push((p, 1));
+            let mut e = 0;
+            while x % p == 0 {
+                x /= p;
+                e += 1;
             }
-            x /= self.sieve[x];
+            pairs.push((p, e));
         }
         pairs
     }

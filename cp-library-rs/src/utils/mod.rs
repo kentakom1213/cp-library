@@ -1,5 +1,6 @@
 //! ## ユーティリティ
 
+pub mod boolutil;
 pub mod consts;
 pub mod coordinate_compression;
 pub mod enum_comb;
@@ -10,5 +11,4 @@ pub mod ord_float;
 pub mod palindrome;
 pub mod run_length;
 pub mod usize_pow;
-pub mod yesno;
 pub mod zigzag;

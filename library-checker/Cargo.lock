@@ -16,7 +16,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "cp-library-rs"
-version = "0.3.17"
+version = "0.3.18"
 dependencies = [
  "itertools",
  "itertools-num",
@@ -31,6 +31,7 @@ dependencies = [
  "rand",
  "rand_xorshift",
  "rustc-hash",
+ "superslice",
 ]
 
 [[package]]
@@ -239,6 +240,12 @@ name = "rustc-hash"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "357703d41365b4b27c590e3ed91eabb1b663f07c4c084095e60cbed4362dff0d"
+
+[[package]]
+name = "superslice"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab16ced94dbd8a46c82fd81e3ed9a8727dac2977ea869d217bcc4ea1f122e81f"
 
 [[package]]
 name = "syn"
