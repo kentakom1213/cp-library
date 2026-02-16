@@ -53,3 +53,72 @@ fn test_ord() {
 
     assert_eq!(values, sorted);
 }
+
+#[test]
+fn test_arithmetic() {
+    let a = Frac::new(1_i64, 2);
+    let b = Frac::new(1_i64, 3);
+
+    assert_eq!(a + b, Frac::new(5, 6));
+    assert_eq!(a - b, Frac::new(1, 6));
+    assert_eq!(a * b, Frac::new(1, 6));
+    assert_eq!(a / b, Frac::new(3, 2));
+    assert_eq!(-a, Frac::new(-1, 2));
+}
+
+#[test]
+fn test_arithmetic_assign() {
+    let mut x = Frac::new(3_i64, 4);
+    x += Frac::new(1, 4);
+    assert_eq!(x, Frac::new(1, 1));
+
+    x -= Frac::new(1, 2);
+    assert_eq!(x, Frac::new(1, 2));
+
+    x *= Frac::new(4, 3);
+    assert_eq!(x, Frac::new(2, 3));
+
+    x /= Frac::new(2, 5);
+    assert_eq!(x, Frac::new(5, 3));
+}
+
+#[test]
+fn test_from_and_scalar_arithmetic() {
+    let x = Frac::from(3_i64);
+    assert_eq!(x, Frac::new(3, 1));
+
+    let a = Frac::new(3_i64, 4);
+    assert_eq!(a + 2, Frac::new(11, 4));
+    assert_eq!(a - 2, Frac::new(-5, 4));
+    assert_eq!(a * 2, Frac::new(3, 2));
+    assert_eq!(a / 2, Frac::new(3, 8));
+}
+
+#[test]
+fn test_scalar_arithmetic_assign() {
+    let mut x = Frac::new(1_i64, 2);
+    x += 1;
+    assert_eq!(x, Frac::new(3, 2));
+
+    x -= 2;
+    assert_eq!(x, Frac::new(-1, 2));
+
+    x *= 6;
+    assert_eq!(x, Frac::new(-3, 1));
+
+    x /= 3;
+    assert_eq!(x, Frac::new(-1, 1));
+}
+
+#[test]
+#[should_panic(expected = "division by zero scalar")]
+fn test_scalar_div_by_zero_panics() {
+    let _ = Frac::new(1_i64, 2) / 0_i64;
+}
+
+#[test]
+#[should_panic(expected = "division by zero scalar")]
+fn test_scalar_div_assign_by_zero_panics() {
+    let mut x = Frac::new(3_i64, 4);
+    x /= 0_i64;
+}
