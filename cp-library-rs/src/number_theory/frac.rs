@@ -3,7 +3,7 @@
 use std::cmp::Ordering;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-use num::Integer;
+use num::{Integer, One, Zero};
 use num_integer::gcd;
 
 /// 分数を表す構造体
@@ -15,6 +15,33 @@ impl<T: Integer + Copy> Frac<T> {
     pub fn new(a: T, b: T) -> Self {
         let c = gcd(a, b);
         Self(a / c, b / c)
+    }
+}
+
+impl<T> Zero for Frac<T>
+where
+    T: Integer + Copy,
+{
+    fn zero() -> Self {
+        Self(T::zero(), T::one())
+    }
+    fn is_zero(&self) -> bool {
+        !self.1.is_zero() && self.0.is_zero()
+    }
+}
+
+impl<T> One for Frac<T>
+where
+    T: Integer + Copy,
+{
+    fn one() -> Self {
+        Self(T::one(), T::one())
+    }
+    fn is_one(&self) -> bool
+    where
+        Self: PartialEq,
+    {
+        !self.1.is_zero() && self.0 == self.1
     }
 }
 
