@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 use cp_library_rs::number_theory::frac::*;
+use num::{One, Zero};
 
 #[test]
 fn test_eq() {
@@ -121,4 +122,18 @@ fn test_scalar_div_by_zero_panics() {
 fn test_scalar_div_assign_by_zero_panics() {
     let mut x = Frac::new(3_i64, 4);
     x /= 0_i64;
+}
+
+#[test]
+fn test_zero_one_trait() {
+    assert!(Frac::<i64>::zero().is_zero());
+    assert!(!Frac::<i64>::zero().is_one());
+    assert!(Frac::<i64>::one().is_one());
+    assert!(!Frac::<i64>::one().is_zero());
+
+    // 非正規値でも panic せず false を返すこと
+    assert!(!Frac(1_i64, 0).is_zero());
+    assert!(!Frac(1_i64, 0).is_one());
+    assert!(!Frac(0_i64, 0).is_zero());
+    assert!(!Frac(0_i64, 0).is_one());
 }
