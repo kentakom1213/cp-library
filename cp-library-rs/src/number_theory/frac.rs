@@ -1,6 +1,7 @@
 //! 比較を実装した分数の実装
 
 use std::cmp::Ordering;
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use num::Integer;
 use num_integer::gcd;
@@ -14,6 +15,190 @@ impl<T: Integer + Copy> Frac<T> {
     pub fn new(a: T, b: T) -> Self {
         let c = gcd(a, b);
         Self(a / c, b / c)
+    }
+}
+
+impl<T> From<T> for Frac<T>
+where
+    T: Integer + Copy,
+{
+    fn from(value: T) -> Self {
+        Self::new(value, T::one())
+    }
+}
+
+impl<T> Add for Frac<T>
+where
+    T: Integer + Copy,
+{
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self::Output {
+        let Frac(a, b) = self;
+        let Frac(c, d) = rhs;
+        Self::new(a * d + c * b, b * d)
+    }
+}
+
+impl<T> Sub for Frac<T>
+where
+    T: Integer + Copy,
+{
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        let Frac(a, b) = self;
+        let Frac(c, d) = rhs;
+        Self::new(a * d - c * b, b * d)
+    }
+}
+
+impl<T> Mul for Frac<T>
+where
+    T: Integer + Copy,
+{
+    type Output = Self;
+    fn mul(self, rhs: Self) -> Self::Output {
+        let Frac(a, b) = self;
+        let Frac(c, d) = rhs;
+        Self::new(a * c, b * d)
+    }
+}
+
+impl<T> Div for Frac<T>
+where
+    T: Integer + Copy,
+{
+    type Output = Self;
+    fn div(self, rhs: Self) -> Self::Output {
+        let Frac(a, b) = self;
+        let Frac(c, d) = rhs;
+        assert!(!c.is_zero(), "division by zero fraction");
+        Self::new(a * d, b * c)
+    }
+}
+
+impl<T> AddAssign for Frac<T>
+where
+    T: Integer + Copy,
+{
+    fn add_assign(&mut self, rhs: Self) {
+        *self = *self + rhs;
+    }
+}
+
+impl<T> SubAssign for Frac<T>
+where
+    T: Integer + Copy,
+{
+    fn sub_assign(&mut self, rhs: Self) {
+        *self = *self - rhs;
+    }
+}
+
+impl<T> MulAssign for Frac<T>
+where
+    T: Integer + Copy,
+{
+    fn mul_assign(&mut self, rhs: Self) {
+        *self = *self * rhs;
+    }
+}
+
+impl<T> DivAssign for Frac<T>
+where
+    T: Integer + Copy,
+{
+    fn div_assign(&mut self, rhs: Self) {
+        *self = *self / rhs;
+    }
+}
+
+impl<T> Neg for Frac<T>
+where
+    T: Integer + Copy + Neg<Output = T>,
+{
+    type Output = Self;
+    fn neg(self) -> Self::Output {
+        let Frac(a, b) = self;
+        Self::new(-a, b)
+    }
+}
+
+impl<T> Add<T> for Frac<T>
+where
+    T: Integer + Copy,
+{
+    type Output = Self;
+    fn add(self, rhs: T) -> Self::Output {
+        self + Self::from(rhs)
+    }
+}
+
+impl<T> Sub<T> for Frac<T>
+where
+    T: Integer + Copy,
+{
+    type Output = Self;
+    fn sub(self, rhs: T) -> Self::Output {
+        self - Self::from(rhs)
+    }
+}
+
+impl<T> Mul<T> for Frac<T>
+where
+    T: Integer + Copy,
+{
+    type Output = Self;
+    fn mul(self, rhs: T) -> Self::Output {
+        let Frac(a, b) = self;
+        Self::new(a * rhs, b)
+    }
+}
+
+impl<T> Div<T> for Frac<T>
+where
+    T: Integer + Copy,
+{
+    type Output = Self;
+    fn div(self, rhs: T) -> Self::Output {
+        assert!(!rhs.is_zero(), "division by zero scalar");
+        let Frac(a, b) = self;
+        Self::new(a, b * rhs)
+    }
+}
+
+impl<T> AddAssign<T> for Frac<T>
+where
+    T: Integer + Copy,
+{
+    fn add_assign(&mut self, rhs: T) {
+        *self = *self + rhs;
+    }
+}
+
+impl<T> SubAssign<T> for Frac<T>
+where
+    T: Integer + Copy,
+{
+    fn sub_assign(&mut self, rhs: T) {
+        *self = *self - rhs;
+    }
+}
+
+impl<T> MulAssign<T> for Frac<T>
+where
+    T: Integer + Copy,
+{
+    fn mul_assign(&mut self, rhs: T) {
+        *self = *self * rhs;
+    }
+}
+
+impl<T> DivAssign<T> for Frac<T>
+where
+    T: Integer + Copy,
+{
+    fn div_assign(&mut self, rhs: T) {
+        *self = *self / rhs;
     }
 }
 
