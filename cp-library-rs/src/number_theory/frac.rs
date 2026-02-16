@@ -9,12 +9,28 @@ use num_integer::gcd;
 /// 分数を表す構造体
 /// - `Frac(a, b)` := a / b
 #[derive(Debug, Clone, Copy)]
-pub struct Frac<T: Integer>(pub T, pub T);
+pub struct Frac<T: Integer>(T, T);
 
 impl<T: Integer + Copy> Frac<T> {
     pub fn new(a: T, b: T) -> Self {
+        assert!(!b.is_zero(), "denominator must be non-zero");
+        let (mut a, mut b) = (a, b);
+        if b < T::zero() {
+            a = T::zero() - a;
+            b = T::zero() - b;
+        }
         let c = gcd(a, b);
         Self(a / c, b / c)
+    }
+
+    /// 分子
+    pub fn numer(&self) -> T {
+        self.0
+    }
+
+    /// 分母
+    pub fn denom(&self) -> T {
+        self.1
     }
 }
 
