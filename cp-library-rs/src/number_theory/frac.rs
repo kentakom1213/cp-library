@@ -32,6 +32,12 @@ impl<T: Integer + Copy> Frac<T> {
     pub fn denom(&self) -> T {
         self.1
     }
+
+    /// 整数に変換する
+    pub fn as_integer(&self) -> Option<T> {
+        let &Self(a, b) = self;
+        (a % b == T::zero()).then_some(a / b)
+    }
 }
 
 impl<T> Zero for Frac<T>
