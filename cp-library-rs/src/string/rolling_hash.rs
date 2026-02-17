@@ -1,5 +1,7 @@
 //! ローリングハッシュ
 
+#![allow(clippy::len_without_is_empty)]
+
 use std::{
     fmt::Debug,
     ops::{Bound, RangeBounds},

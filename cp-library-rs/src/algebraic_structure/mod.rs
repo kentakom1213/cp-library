@@ -11,6 +11,7 @@ pub mod affine2d;
 pub mod commutative;
 pub mod group;
 pub mod indexed_monoid;
+pub mod k_best;
 pub mod monoid;
 pub mod monoid_with_context;
 pub mod operation;
