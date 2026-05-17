@@ -1,6 +1,9 @@
 //! An indexed multiset with order statistics.
 
-use crate::tree::arena::{Arena, ArenaNode, Ptr};
+use crate::tree::{
+    arena::{Arena, ArenaNode, Ptr},
+    show_binary_tree::ShowBinaryTree,
+};
 use std::{cmp::Ordering, fmt::Debug, iter::FromIterator};
 
 #[derive(Debug)]
@@ -119,6 +122,18 @@ impl<T: Ord> IndexedSet<T> {
             self.distinct_len += 1;
         }
         count
+    }
+
+    /// Inserts `key` only if it is not present.
+    ///
+    /// Returns `true` if `key` was inserted.
+    pub fn insert_unique(&mut self, key: T) -> bool {
+        if self.contains(&key) {
+            false
+        } else {
+            self.insert(key);
+            true
+        }
     }
 
     /// Removes one occurrence of `key`.
@@ -533,6 +548,38 @@ impl<'a, T: Ord> IntoIterator for &'a IndexedSet<T> {
 
 impl<T: Ord + Debug> Debug for IndexedSet<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_list().entries(self.iter()).finish()
+        let mut map = f.debug_map();
+        let mut stack = vec![];
+        let mut cur = self.root;
+        while cur.is_some() || !stack.is_empty() {
+            while let Some(ptr) = cur {
+                stack.push(ptr);
+                cur = self.arena.get(ptr).left;
+            }
+            let ptr = stack.pop().expect("stack is not empty");
+            let node = self.arena.get(ptr);
+            map.entry(&node.key, &node.count);
+            cur = node.right;
+        }
+        map.finish()
+    }
+}
+
+impl<T: Ord + Debug> ShowBinaryTree<Ptr> for IndexedSet<T> {
+    fn get_left(&self, ptr: &Ptr) -> Option<Ptr> {
+        self.arena.get(*ptr).left
+    }
+
+    fn get_right(&self, ptr: &Ptr) -> Option<Ptr> {
+        self.arena.get(*ptr).right
+    }
+
+    fn get_root(&self) -> Option<Ptr> {
+        self.root
+    }
+
+    fn print_node(&self, ptr: &Ptr) -> String {
+        let node = self.arena.get(*ptr);
+        format!("{:?}: {}", node.key, node.count)
     }
 }

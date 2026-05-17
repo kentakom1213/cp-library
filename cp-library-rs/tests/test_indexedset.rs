@@ -84,3 +84,25 @@ fn test_remove_n_and_remove_all() {
     assert_eq!(set.nth(1), Some(&4));
     assert_eq!(set.remove_all(&100), 0);
 }
+
+#[test]
+fn test_insert_unique() {
+    let mut set = IndexedSet::from_iter([1, 2, 2, 3]);
+
+    assert_eq!(set.insert_unique(2), false);
+    assert_eq!(set.count(&2), 2);
+    assert_eq!(set.len(), 4);
+    assert_eq!(set.distinct_len(), 3);
+
+    assert_eq!(set.insert_unique(4), true);
+    assert_eq!(set.count(&4), 1);
+    assert_eq!(set.len(), 5);
+    assert_eq!(set.distinct_len(), 4);
+}
+
+#[test]
+fn test_debug_as_count_map() {
+    let set = IndexedSet::from_iter([3, 1, 3, 2, 2, 2]);
+
+    assert_eq!(format!("{:?}", set), "{1: 1, 2: 3, 3: 2}");
+}
