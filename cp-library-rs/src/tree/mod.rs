@@ -1,4 +1,6 @@
-//! ## 木構造のユーティリティ
+//! # Tree Utilities
+//!
+//! Internal helpers for pointer-based tree implementations and visualization.
 
 pub(crate) mod aa_tree;
 pub mod arena;

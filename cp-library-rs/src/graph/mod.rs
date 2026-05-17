@@ -1,4 +1,6 @@
-//! ## グラフアルゴリズム
+//! # Graph Algorithms
+//!
+//! Shortest paths, tree decompositions, SCC, max-flow, and related graph utilities.
 
 pub mod bellman_ford;
 pub mod centroid;

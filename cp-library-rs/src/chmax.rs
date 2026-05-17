@@ -1,5 +1,6 @@
-/// `chmax!(x1, x2, ..., xn)`:`x1`,`x2`,...,`xn`のうち最大のものを、`x1`に代入する
-/// - 代入があったとき、`true`を返す
+/// Replaces the first argument with the maximum of all arguments.
+///
+/// Returns `true` if the first argument was updated.
 #[macro_export]
 macro_rules! chmax {
     ( $a:expr, $b:expr $(,)* ) => {{

@@ -1,4 +1,6 @@
-//! ## 数論アルゴリズム
+//! # Number Theory
+//!
+//! Modular arithmetic, primality tests, factorization, and combinatorial helpers.
 
 pub mod comb;
 pub mod comb_no_mod;

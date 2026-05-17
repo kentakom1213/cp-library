@@ -1,4 +1,9 @@
-//! ## データ構造
+//! # Data Structures
+//!
+//! Common data structures for competitive programming.
+//!
+//! This module includes Fenwick trees, segment trees, union-find variants,
+//! tries, multisets, and dynamic range-query structures.
 
 pub mod acc2d;
 pub mod acc2d_cyclic;

@@ -1,4 +1,4 @@
-/// 変数をデバッグ出力する
+/// Prints values to standard error in debug builds.
 #[macro_export]
 macro_rules! debug {
     ( $($val:expr),* $(,)* ) => {{

@@ -1,4 +1,6 @@
-//! ## ユーティリティ
+//! # Utilities
+//!
+//! Small reusable helpers for indexing, iteration, grids, and numeric convenience.
 
 pub mod boolutil;
 pub mod consts;

@@ -1,16 +1,22 @@
-//! ダイクストラ法
+//! Dijkstra's shortest path algorithm.
 
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 
 use num_traits::{Bounded, Zero};
 
-/// Dijkstra法
-/// - グラフ`graph`が与えられたとき、スタート地点`s`から各頂点への最短路を求める
+/// Computes single-source shortest paths on a graph with non-negative edge weights.
 ///
-/// 戻り値
-/// - `prev`: 各頂点への最短路において、その頂点の直前の頂点
-/// - `dist`: スタート地点`s`から各頂点への最短距離
+/// The graph is represented as an adjacency list of `(to, weight)` pairs.
+///
+/// # Returns
+///
+/// - `prev`: predecessor of each vertex in one shortest path tree
+/// - `dist`: shortest distance from `s` to each vertex
+///
+/// # Complexity
+///
+/// - $`O((V + E) log V)`$
 #[allow(clippy::ptr_arg)]
 pub fn dijkstra<T: Copy + Zero + Bounded + Ord>(
     graph: &Vec<Vec<(usize, T)>>,
@@ -39,12 +45,14 @@ pub fn dijkstra<T: Copy + Zero + Bounded + Ord>(
     (prev, dist)
 }
 
-/// 経路復元
-/// - スタート地点`s`からゴール地点`t`までの最短路を復元する
+/// Restores a shortest path from `s` to `t` from the predecessor array.
 ///
-/// 戻り値
-/// - `Some(path)`: スタート地点`s`からゴール地点`t`までの最短路
-/// - `None`: sがダイクストラ法のスタート地点でない場合 | 最短路が存在しない場合
+/// Returns `None` if `t` is unreachable from `s`, or if `prev` is inconsistent with `s`
+/// being the source.
+///
+/// # Complexity
+///
+/// - $`O(length of path)`$
 #[allow(clippy::ptr_arg)]
 pub fn path_reconstruction(s: usize, t: usize, prev: &Vec<Option<usize>>) -> Option<Vec<usize>> {
     if prev[s].is_some() || prev[t].is_none() {

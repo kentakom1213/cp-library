@@ -1,26 +1,24 @@
-//! ベルマン・フォード法
+//! Bellman-Ford shortest path algorithm.
 
 use crate::utils::consts::Infinity;
 
-/// ベルマン・フォード法
-/// - 重み付きグラフの単一始点最短路を求める
-/// - 重みが負の場合にも対応
-/// - 各頂点`v`の距離`dist[v]`について
-///   - vに到達不可能な場合     → [`i64::infinity()`]
-///   - vへの最短路が求まる場合 → `(vへの最短路長)`
-///   - vへの最短路がいくらでも小さくできる場合 → `-i64::infinity()`
+/// Computes single-source shortest paths, allowing negative edge weights.
 ///
-/// 引数
-/// - `N` : 頂点数
-/// - `start` : 始点
-/// - `edges` : 有向辺 `(in, out, weight)` の集合
+/// Distances are encoded as follows:
 ///
-/// 戻り値
-/// - `has_negative` : (グラフ全体で)負閉路を含むか
-/// - `dist` : 各頂点への最短路
-/// - `prev` : 各頂点の最短路について，その頂点の直前に経由した頂点
+/// - unreachable: [`i64::infinity()`]
+/// - finite shortest path: the shortest distance
+/// - affected by a reachable negative cycle: `-i64::infinity()`
 ///
-/// - 時間計算量: $`O(NM)`$
+/// # Returns
+///
+/// - `has_negative`: whether the graph contains any negative cycle
+/// - `dist`: distance from `start` to each vertex
+/// - `prev`: predecessor array for relaxed shortest paths
+///
+/// # Complexity
+///
+/// - $`O(NM)`$
 pub fn bellman_ford(
     N: usize,
     start: usize,

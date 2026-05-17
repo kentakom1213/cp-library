@@ -1,3 +1,5 @@
-//! ## 畳み込み
+//! # Convolution
+//!
+//! Convolution-related algorithms.
 
 pub mod ntt;

@@ -1,4 +1,4 @@
-//! BinaryIndexedTree / FenwickTree
+//! Fenwick tree (`BinaryIndexedTree`) implementation.
 
 use std::{
     fmt::Debug,
@@ -10,8 +10,10 @@ use std::{
 
 use crate::algebraic_structure::{group::Group, monoid::Monoid, ordered_monoid::OrderedMonoid};
 
-/// # BinaryIndexedTree
-/// - `0-indexed`なインターフェースを持つBIT
+/// A Fenwick tree with a zero-based interface.
+///
+/// This structure supports prefix queries over a [`Monoid`], and range queries
+/// when the operation additionally forms a [`Group`].
 pub struct BIT<T: Monoid> {
     pub size: usize,
     arr: Vec<T::Val>,
@@ -23,8 +25,13 @@ impl<T: Monoid> BIT<T> {
         x & x.wrapping_neg()
     }
 
-    /// BITの初期化を行う
-    /// - `n`: 列の長さ
+    /// Creates a tree of length `n`.
+    ///
+    /// All entries are initialized to [`Monoid::e`].
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(n)`$
     pub fn new(n: usize) -> Self {
         BIT {
             size: n,
@@ -32,9 +39,11 @@ impl<T: Monoid> BIT<T> {
         }
     }
 
-    /// 一点加算を行う
-    /// - `i`: 加算を行うインデックス（`0-indexed`）
-    /// - `x`: 加算する値
+    /// Adds `x` to index `i`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn add(&mut self, mut i: usize, x: T::Val) {
         i += 1;
         while i <= self.size {
@@ -43,8 +52,11 @@ impl<T: Monoid> BIT<T> {
         }
     }
 
-    /// 先頭からの和を求める
-    /// - `i`: 区間`[0,i)`に対しての総和（`0-indexed`）
+    /// Returns the aggregate on the prefix `[0, i)`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn prefix_sum(&self, mut i: usize) -> T::Val {
         let mut res = T::e();
         while i != 0 {
@@ -77,8 +89,13 @@ impl<T: Group> BIT<T> {
         }
     }
 
-    /// 任意の区間の和を求める
-    /// - `range`: 区間を表すRangeオブジェクト
+    /// Returns the aggregate on `range`.
+    ///
+    /// Out-of-bounds endpoints are clamped to `[0, self.size]`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn sum<R: RangeBounds<usize>>(&self, range: R) -> T::Val {
         if let Some((i, j)) = self.parse_range(range) {
             T::op(&self.prefix_sum(j), &T::inv(&self.prefix_sum(i)))
@@ -89,7 +106,11 @@ impl<T: Group> BIT<T> {
 }
 
 impl<T: Monoid> From<&Vec<T::Val>> for BIT<T> {
-    /// ベクターの参照からBITを作成
+    /// Builds a Fenwick tree from a vector reference.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(n)`$
     fn from(src: &Vec<T::Val>) -> Self {
         let size = src.len();
         let mut arr = vec![T::e(); size + 1];
@@ -106,7 +127,7 @@ impl<T: Monoid> From<&Vec<T::Val>> for BIT<T> {
 }
 
 impl<T: OrderedMonoid> BIT<T> {
-    /// `lower_bound`/`upper_bound`を共通化した実装
+    /// Shared implementation of [`BIT::lower_bound`] and [`BIT::upper_bound`].
     fn binary_search<F>(&self, w: T::Val, compare: F) -> usize
     where
         F: Fn(&T::Val, &T::Val) -> bool,
@@ -126,11 +147,20 @@ impl<T: OrderedMonoid> BIT<T> {
         }
         idx
     }
-    /// `a_0 + a_1 + ... + a_i >= w`となる最小の`i`を求める
+    /// Returns the smallest index `i` such that `a_0 + ... + a_i >= w`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn lower_bound(&self, w: T::Val) -> usize {
         self.binary_search(w, T::lt)
     }
-    /// `a_0 + a_1 + ... + a_i > w`となる最小の`i`を求める
+
+    /// Returns the smallest index `i` such that `a_0 + ... + a_i > w`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn upper_bound(&self, w: T::Val) -> usize {
         self.binary_search(w, T::le)
     }

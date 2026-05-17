@@ -1,11 +1,12 @@
-//! ダブリングにより、最小共通祖先を求める
+//! Lowest common ancestor by binary lifting.
 
 use crate::utils::consts::Infinity;
 
 type Graph = Vec<Vec<usize>>;
 
-/// LCA
-/// - 最小共通祖先を求めるクエリに答える
+/// LCA data structure based on binary lifting.
+///
+/// After $`O(n log n)` preprocessing, each query is answered in `O(log n)`$.
 pub struct LCA {
     root: usize,
     logn: usize,
@@ -14,7 +15,11 @@ pub struct LCA {
 }
 
 impl LCA {
-    /// `root`を根に持つ木`tree`で、初期化を行う
+    /// Builds the structure for `tree` rooted at `root`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(n log n)`$
     pub fn new(tree: &Graph, root: usize) -> Self {
         let n = tree.len(); // グラフの頂点数
         let logn = n.next_power_of_two().trailing_zeros() as usize;
@@ -49,17 +54,29 @@ impl LCA {
         }
     }
 
-    /// 頂点 `v` の深さを求める
+    /// Returns the depth of `v` from the root.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn depth(&self, v: usize) -> usize {
         self.depth[v]
     }
 
-    /// 頂点 `v` の親を求める
+    /// Returns the parent of `v`, or `None` if `v` is the root.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn parent(&self, v: usize) -> Option<usize> {
         (v != self.root).then_some(self.double[0][v])
     }
 
-    /// 頂点 `u`,`v` の最小共通祖先を求める
+    /// Returns the lowest common ancestor of `u` and `v`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn lca(&self, mut u: usize, mut v: usize) -> usize {
         // 常にuを深くする
         if self.depth[u] < self.depth[v] {
@@ -88,13 +105,23 @@ impl LCA {
         self.double[0][u]
     }
 
-    /// 頂点 `u`,`v` の距離を求める
+    /// Returns the number of edges on the path between `u` and `v`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn dist(&self, u: usize, v: usize) -> usize {
         let o = self.lca(u, v);
         (self.depth[u] - self.depth[o]) + (self.depth[v] - self.depth[o])
     }
 
-    /// 頂点 `v` の k 個上の祖先を求める
+    /// Returns the `k`-th ancestor of `v`.
+    ///
+    /// Returns `None` if the ancestor does not exist.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn kth_ancestor(&self, mut v: usize, k: usize) -> Option<usize> {
         if k > self.depth(v) {
             return None;
@@ -107,7 +134,13 @@ impl LCA {
         Some(v)
     }
 
-    /// 頂点 `u` から `v` へ向かうパス上の `k` 個目の頂点を求める
+    /// Returns the `k`-th vertex on the path from `u` to `v`.
+    ///
+    /// Here `k = 0` means `u`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn kth_on_path(&self, u: usize, v: usize, k: usize) -> Option<usize> {
         let o = self.lca(u, v);
         let dist_u_o = self.depth[u] - self.depth[o];

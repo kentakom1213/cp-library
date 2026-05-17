@@ -1,4 +1,6 @@
-//! ## 文字列アルゴリズム
+//! # String Algorithms
+//!
+//! Pattern matching, hashing, suffix structures, and string-related constants.
 
 pub mod consts;
 pub mod lcs;

@@ -1,18 +1,21 @@
-//! Modintの構造体
+//! Fixed-modulus modular integer types.
 
 pub use modint_::*;
 
-/// MOD用の定数：$`998244353`$
+/// The modulus `998244353`.
 pub const MOD998: usize = 998244353;
 
-/// MOD用の定数：$`10^9 + 7`$
+/// The modulus `1_000_000_007`.
 pub const MOD107: usize = 1000000007;
 
+/// [`Modint`] over [`MOD998`].
 pub type M998 = Modint<MOD998>;
+/// [`Modint`] over [`MOD107`].
 pub type M107 = Modint<MOD107>;
 
-// 適当な素数
+/// Auxiliary prime modulus often used in rolling hash or multi-mod hashing.
 pub type P1 = Modint<938472061>;
+/// Auxiliary prime modulus often used in rolling hash or multi-mod hashing.
 pub type P2 = Modint<958472071>;
 
 #[rustfmt::skip]

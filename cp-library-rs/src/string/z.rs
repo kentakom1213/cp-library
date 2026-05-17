@@ -1,18 +1,21 @@
-//! Z-Algorithm
+//! Z-algorithm.
 
-/// 文字列 s に対して，
+/// Computes the Z-array of `s`.
+///
+/// The returned array `z` satisfies:
 ///
 /// ```text
-/// z[i] := lcp(s, s[i..])
+/// z[i] = lcp(s, s[i..])
 /// ```
 ///
-/// を満たす配列 z を求める．
+/// where `lcp` is the length of the longest common prefix.
 ///
-/// - 時間計算量: $`O(|s|)`$
+/// # Complexity
 ///
-/// ---
+/// - $`O(|s|)`$
 ///
-/// 参考:
+/// ## References
+///
 /// - <https://qiita.com/Pro_ktmr/items/16904c9570aa0953bf05>
 pub fn z_algorithm<T: PartialEq>(s: &[T]) -> Vec<usize> {
     let n = s.len();

@@ -1,28 +1,37 @@
-//! ## UnionFind木
+//! Disjoint-set union with optional component values.
 //!
-//! モノイドを乗せるUnionFind木．
+//! The base alias [`UnionFind`] behaves like an ordinary DSU.
+//! [`UnionFindMonoid`] additionally stores one aggregated value per connected component.
 
 use std::{collections::HashMap, fmt::Debug, mem};
 
 use crate::{algebraic_structure::commutative::CommutativeMonoid, utils::consts::NEG1};
 
-/// UnionFind木
+/// A plain disjoint-set union without component values.
 pub type UnionFind = UnionFindMonoid<()>;
 
-/// UnionFind木（モノイド）
+/// A disjoint-set union carrying one aggregated value per component.
+///
+/// Component values are combined with a [`CommutativeMonoid`] on merge.
 pub struct UnionFindMonoid<M: CommutativeMonoid> {
-    /// 要素数
+    /// Number of elements.
     n: usize,
-    /// 親の番号を格納する配列
+    /// Parent array using union-by-size encoding.
     parent: Vec<usize>,
-    /// 値
+    /// Component values stored only at roots.
     value: Vec<Option<M::Val>>,
-    /// 連結成分の個数
+    /// Number of connected components.
     count: usize,
 }
 
 impl<M: CommutativeMonoid> UnionFindMonoid<M> {
-    /// 根を求める
+    /// Returns the representative of the set containing `x`.
+    ///
+    /// Path compression is applied.
+    ///
+    /// # Complexity
+    ///
+    /// - Amortized $`O(alpha(n))`$
     pub fn root(&mut self, mut x: usize) -> usize {
         // 根を探索
         let mut root = x;
@@ -36,21 +45,32 @@ impl<M: CommutativeMonoid> UnionFindMonoid<M> {
         root
     }
 
-    /// ノード`x`が属する集合の値を取得
+    /// Returns the aggregated value of the component containing `x`.
+    ///
+    /// # Complexity
+    ///
+    /// - Amortized $`O(alpha(n))`$
     pub fn value(&mut self, x: usize) -> &M::Val {
         let root = self.root(x);
         self.value[root].as_ref().unwrap()
     }
 
-    /// 同一の集合に所属するか判定
+    /// Returns `true` if `x` and `y` belong to the same component.
+    ///
+    /// # Complexity
+    ///
+    /// - Amortized $`O(alpha(n))`$
     pub fn is_same(&mut self, x: usize, y: usize) -> bool {
         self.root(x) == self.root(y)
     }
 
-    /// 集合`x,y`を併合する．
+    /// Merges the components containing `x` and `y`.
     ///
-    /// **戻り値**
-    /// - すでに併合済みだった場合`None`，そうでない場合親となった要素の番号を返す
+    /// Returns the new root if a merge happened, or `None` if they were already connected.
+    ///
+    /// # Complexity
+    ///
+    /// - Amortized $`O(alpha(n))`$
     pub fn unite(&mut self, x: usize, y: usize) -> Option<usize> {
         let mut parent = self.root(x);
         let mut child = self.root(y);
@@ -76,20 +96,30 @@ impl<M: CommutativeMonoid> UnionFindMonoid<M> {
         Some(parent)
     }
 
-    /// 連結成分の大きさを求める
+    /// Returns the size of the component containing `x`.
+    ///
+    /// # Complexity
+    ///
+    /// - Amortized $`O(alpha(n))`$
     pub fn get_size(&mut self, x: usize) -> usize {
         let root = self.root(x);
         self.parent[root].wrapping_neg()
     }
 
-    /// 連結成分の数を返す
+    /// Returns the current number of connected components.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn group_count(&self) -> usize {
         self.count
     }
 
-    /// {代表元: 集合} のマップを返す
+    /// Enumerates all components as a map from root to member list.
     ///
-    /// - 時間計算量: $`O(N)`$
+    /// # Complexity
+    ///
+    /// - $`O(n alpha(n))`$
     pub fn enum_groups(&mut self) -> HashMap<usize, Vec<usize>> {
         (0..self.n).fold(HashMap::default(), |mut map, i| {
             let root = self.root(i);
@@ -100,7 +130,11 @@ impl<M: CommutativeMonoid> UnionFindMonoid<M> {
 }
 
 impl UnionFindMonoid<()> {
-    /// 新しいUnionFind木を生成する
+    /// Creates a plain disjoint-set union of size `n`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(n)`$
     pub fn new(n: usize) -> Self {
         UnionFindMonoid {
             n,

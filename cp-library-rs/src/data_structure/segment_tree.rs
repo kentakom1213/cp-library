@@ -1,12 +1,13 @@
-//! ## セグメント木
+//! Segment tree over a [`Monoid`].
 //!
-//! 集合 $`S`$ と演算 $`\circ`$ の組 $`(S,\circ)`$ がモノイド（[`Monoid`]）であるとき，
-//! $`S`$ の要素の列 $`A`$ に対し，
+//! This structure supports point updates and range aggregation on a static-length array.
 //!
-//! - 区間積の取得 ： $`A[l] \circ A[l+1] \circ \cdots \circ A[r]`$
-//! - 要素の更新 ： $`A[i] \leftarrow x`$
+//! ## Complexity
 //!
-//! をそれぞれ $`O(\log N)`$ で行う．（$`N = |A|`$）
+//! - Construction: $`O(n)`$
+//! - Point update: $`O(log n)`$
+//! - Range query: $`O(log n)`$
+//! - Binary search on prefixes: $`O(log n)`$
 
 use crate::{algebraic_structure::monoid::Monoid, tree::show_binary_tree::ShowBinaryTree};
 use std::{
@@ -17,9 +18,9 @@ use std::{
     },
 };
 
-/// セグメント木
+/// A segment tree over a [`Monoid`].
 pub struct SegmentTree<M: Monoid> {
-    /// 要素数
+    /// The logical length of the array.
     pub N: usize,
     offset: usize,
     data: Vec<M::Val>,
@@ -52,8 +53,11 @@ impl<M: Monoid> SegmentTree<M> {
         }
     }
 
-    /// セグメント木を初期化する
-    /// - 時間計算量: $`O(N)`$
+    /// Creates a segment tree of length `N`, filled with [`Monoid::e`].
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(N)`$
     pub fn new(N: usize) -> Self {
         let offset = N.next_power_of_two();
 
@@ -64,8 +68,11 @@ impl<M: Monoid> SegmentTree<M> {
         }
     }
 
-    /// 配列から初期化する
-    /// - 時間計算量: $`O(N)`$
+    /// Builds a segment tree from `src`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(N)`$
     pub fn from_vec(src: Vec<M::Val>) -> Self {
         let mut seg = Self::new(src.len());
         for (i, v) in src.into_iter().enumerate() {
@@ -78,8 +85,11 @@ impl<M: Monoid> SegmentTree<M> {
         seg
     }
 
-    /// `index`番目の要素を`value`に更新する
-    /// - 時間計算量: $`O(\log N)`$
+    /// Replaces the element at `index` with `value`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log N)`$
     pub fn update(&mut self, index: usize, value: M::Val) {
         let mut i = index + self.offset;
         self.data[i] = value;
@@ -90,8 +100,13 @@ impl<M: Monoid> SegmentTree<M> {
         }
     }
 
-    /// `i`番目の要素の可変な参照を返す
-    /// - 時間計算量: $`O(\log N)`$
+    /// Returns a mutable guard for the value at `i`.
+    ///
+    /// The tree is updated when the returned [`ValMut`] is dropped.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log N)`$ including the drop-time rebuild
     pub fn get_mut(&mut self, i: usize) -> Option<ValMut<'_, M>> {
         if i < self.offset {
             let default = self.index(i).clone();
@@ -105,8 +120,15 @@ impl<M: Monoid> SegmentTree<M> {
         }
     }
 
-    /// 区間`range`の集約を行う
-    /// - 時間計算量: $`O(\log N)`$
+    /// Returns the aggregate on `range`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `range` is outside `[0, self.N]`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log N)`$
     pub fn get_range<R: RangeBounds<usize> + Debug>(&self, range: R) -> M::Val {
         let (start, end) = match self.parse_range(&range) {
             Some(r) => r,
@@ -160,7 +182,9 @@ where
     }
 }
 
-/// セグメント木の要素の可変参照
+/// A mutable guard for a segment tree leaf.
+///
+/// When dropped, this guard writes the modified value back to the tree and rebuilds ancestors.
 pub struct ValMut<'a, M: 'a + Monoid> {
     segself: &'a mut SegmentTree<M>,
     idx: usize,
@@ -198,18 +222,21 @@ impl<M: Monoid> DerefMut for ValMut<'_, M> {
 
 // セグ木上の2分探索
 impl<M: Monoid> SegmentTree<M> {
-    /// 左端を固定した2分探索
-    /// - 引数`l`と関数`f`に対して，
-    ///     - `f( seg.get(l..x) ) = true`
-    ///     - `f( seg.get(l..x+1) ) = false`
+    /// Finds the maximum right endpoint starting from `l` that satisfies `f`.
     ///
-    ///   \
-    ///   を満たす`x`を返す
+    /// More precisely, it returns `(prod, x)` such that:
     ///
-    /// **引数**
-    /// - `f` :
-    ///   - `f(e) = true`
-    ///   - 任意の`i`に対して，`f( seg.get(l..i) ) = false`ならば，`f( seg.get(l..i+1) ) = false`
+    /// - `f(self.get_range(l..x)) == true`
+    /// - `f(self.get_range(l..x + 1)) == false`, unless `x == self.N`
+    ///
+    /// The predicate must satisfy:
+    ///
+    /// - `f(M::e()) == true`
+    /// - monotonicity with respect to extending the range
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log N)`$
     pub fn max_right<F>(&self, mut l: usize, f: F) -> (M::Val, usize)
     where
         F: Fn(M::Val) -> bool,

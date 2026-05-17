@@ -1,4 +1,4 @@
-//! ローリングハッシュ
+//! Rolling hash for strings and arrays.
 
 #![allow(clippy::len_without_is_empty)]
 
@@ -11,9 +11,9 @@ use crate::number_theory::modint_for_rollinghash::modint::Modint;
 
 use num_traits::{One, Zero};
 
-/// ローリングハッシュ
+/// Rolling hash over a sequence of modular values.
 ///
-/// 文字列をハッシュし，連続部分列の一致判定を $`O(1)`$ で行う．
+/// After preprocessing, substring hash queries are answered in $`O(1)`$.
 #[derive(Debug)]
 pub struct RollingHash {
     pub size: usize,
@@ -23,7 +23,11 @@ pub struct RollingHash {
 }
 
 impl RollingHash {
-    /// 初期化
+    /// Builds a rolling hash from `arr` and `base`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(n)`$
     pub fn build(arr: &[Modint], base: Modint) -> Self {
         let size = arr.len();
         let mut power = vec![Modint(1); size + 1];
@@ -46,14 +50,27 @@ impl RollingHash {
         }
     }
 
-    /// 文字列から生成
+    /// Builds a rolling hash from a string.
+    ///
+    /// Each character is encoded by its Unicode scalar value.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(n)`$
     pub fn from_str(s: &str, base: Modint) -> Self {
         let arr: Vec<Modint> = s.chars().map(Self::ord).map(Modint).collect();
         Self::build(&arr, base)
     }
 
-    /// `l..r`のハッシュを取得
-    /// - 時間計算量: $`O(1)`$
+    /// Returns the hash value of `range`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `range` is outside `[0, self.len()]`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn hash<'a, R: RangeBounds<usize> + Debug>(&'a self, range: R) -> HashVal<'a> {
         let (l, r) = self.parse_range(&range);
         HashVal {
@@ -63,8 +80,11 @@ impl RollingHash {
         }
     }
 
-    /// `S[a..]`, `S[b..]` の最長共通接頭辞の長さを調べる
-    /// - 時間計算量: $`O(\log N)`$
+    /// Returns the length of the longest common prefix of `S[a..]` and `S[b..]`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn get_LCP(&self, a: usize, b: usize) -> usize {
         let len = self.size.saturating_sub(a.max(b));
         let (mut lo, mut hi) = (0, len + 1);
@@ -79,6 +99,11 @@ impl RollingHash {
         lo
     }
 
+    /// Returns the length of the source sequence.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn len(&self) -> usize {
         self.size
     }
@@ -106,13 +131,14 @@ impl RollingHash {
         }
     }
 
-    /// 文字 c の ASCII コードを返す
+    /// Encodes `c` as an integer.
     #[inline]
     fn ord(c: char) -> usize {
         c as usize
     }
 }
 
+/// Hash value extracted from a [`RollingHash`].
 #[derive(Clone)]
 pub struct HashVal<'a> {
     rolling_hash: &'a RollingHash,
@@ -121,14 +147,24 @@ pub struct HashVal<'a> {
 }
 
 impl<'a> HashVal<'a> {
-    /// ハッシュの値を返す
-    /// - 時間計算量: $`O(1)`$
+    /// Returns the raw hash value.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn val(&self) -> Modint {
         self.hash
     }
 
-    /// ハッシュ同士を連結
-    /// - 時間計算量: $`O(1)`$
+    /// Concatenates two hash values with the same base.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the bases differ.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn chain(&self, other: &HashVal<'a>) -> HashVal<'a> {
         assert_eq!(
             self.rolling_hash.base, other.rolling_hash.base,
@@ -141,6 +177,11 @@ impl<'a> HashVal<'a> {
         }
     }
 
+    /// Returns the represented substring length.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn len(&self) -> usize {
         self.length
     }

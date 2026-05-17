@@ -1,13 +1,15 @@
-//! ノードの確保を行うハンドラ
+//! Arena allocation utilities for tree-like data structures.
 
-/// ノードを表すトレイト
+/// Marker trait for node types stored in an [`Arena`].
 pub trait ArenaNode {}
 
-/// Storage とのやり取りを行うために用いるポインタ
+/// An index-based handle into an [`Arena`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Ptr(pub usize);
 
-/// アリーナ構造のストレージ
+/// A simple append-only arena.
+///
+/// This type stores nodes contiguously and returns lightweight [`Ptr`] handles.
 #[derive(Default)]
 pub struct Arena<N: ArenaNode> {
     nodes: Vec<N>,
@@ -15,7 +17,11 @@ pub struct Arena<N: ArenaNode> {
 }
 
 impl<N: ArenaNode> Arena<N> {
-    /// アリーナ構造体のみ生成する
+    /// Creates an empty arena.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn new() -> Self {
         Self {
             nodes: vec![],
@@ -23,7 +29,11 @@ impl<N: ArenaNode> Arena<N> {
         }
     }
 
-    /// n 個のノードを一気に確保する
+    /// Creates an empty arena with capacity for `n` nodes.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(n)`$ allocation
     pub fn with_capacity(n: usize) -> Self {
         Self {
             nodes: Vec::with_capacity(n),
@@ -31,26 +41,42 @@ impl<N: ArenaNode> Arena<N> {
         }
     }
 
-    /// 新たなノードを確保する
+    /// Allocates a new node and returns its handle.
+    ///
+    /// # Complexity
+    ///
+    /// - Amortized $`O(1)`$
     pub fn alloc(&mut self, node: N) -> Ptr {
         let id = self.nodes.len();
         self.nodes.push(node);
         Ptr(id)
     }
 
-    /// ノードの不変参照を取得する
+    /// Returns an immutable reference to the node pointed to by `ptr`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn get(&self, ptr: Ptr) -> &N {
         &self.nodes[ptr.0]
     }
 
-    /// ノードの可変参照を取得する
+    /// Returns a mutable reference to the node pointed to by `ptr`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn get_mut(&mut self, ptr: Ptr) -> &mut N {
         &mut self.nodes[ptr.0]
     }
 }
 
 impl<N: ArenaNode + Default> Arena<N> {
-    /// 空ノードを確保する
+    /// Allocates a default-initialized node.
+    ///
+    /// # Complexity
+    ///
+    /// - Amortized $`O(1)`$
     pub fn alloc_default(&mut self) -> Ptr {
         self.alloc(N::default())
     }

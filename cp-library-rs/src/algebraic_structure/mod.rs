@@ -1,6 +1,8 @@
-//! ## 代数的構造
+//! # Algebraic Structures
 //!
-//! データ構造に載せる代数的構造
+//! Traits and helper types used to parameterize generic data structures and algorithms.
+//!
+//! Typical entry points include [`monoid`], [`group`], [`commutative`], and [`actedmonoid`].
 
 pub mod abel;
 pub mod actedmonoid;

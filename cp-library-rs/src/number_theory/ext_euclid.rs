@@ -1,11 +1,10 @@
-//! 拡張ユークリッド互除法
+//! Extended Euclidean algorithm.
 
-/// 拡張ユークリッド互除法により，
-/// $`ax + by = \gcd(a, b)`$ を満たす $`(x, y, \gcd(a,b))`$
-/// を求める．
+/// Returns `(x, y, g)` such that `ax + by = g = gcd(a, b)`.
 ///
-/// **戻り値**
-/// - `(x, y, gcd(a, b))`
+/// # Complexity
+///
+/// - $`O(log min(a, b))`$
 pub fn ext_gcd(a: isize, b: isize) -> (isize, isize, isize) {
     if b == 0 {
         return (1, 0, a);
@@ -17,13 +16,13 @@ pub fn ext_gcd(a: isize, b: isize) -> (isize, isize, isize) {
     (x, y, d)
 }
 
-/// 拡張ユークリッド互除法によりモジュラ逆元を計算する．
-/// - $`ax \equiv 1 \mod m`$ を満たす $`x`$ を求める．
-/// - $`a`$ と $`m`$ は互いに素である必要がある
+/// Returns the modular inverse of `a` modulo `m`.
 ///
-/// **戻り値**
-/// - `a`と`m`が互いに素 → Some($`a^{-1} \mod m`$)
-/// - `a`と`m`が互いに素でない → None
+/// Returns `None` if `a` and `m` are not coprime.
+///
+/// # Complexity
+///
+/// - $`O(log min(a, m))`$
 pub fn inv(a: isize, m: isize) -> Option<isize> {
     let (x, _, d) = ext_gcd(a, m);
     (d == 1).then_some(x.rem_euclid(m))

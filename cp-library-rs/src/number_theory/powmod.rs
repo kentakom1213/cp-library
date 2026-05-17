@@ -1,12 +1,10 @@
-//! あまりを取る累乗
+//! Modular exponentiation.
 
-/// あまりをとる累乗
+/// Returns `a^b mod m`.
 ///
-/// **戻り値**
-/// - `usize` : $`a^b \mod m`$
+/// # Complexity
 ///
-/// **計算量**
-/// - $`O(\log b)`$
+/// - $`O(log b)`$
 pub fn powmod(mut a: usize, mut b: usize, m: usize) -> usize {
     let mut res = 1;
     while b > 0 {

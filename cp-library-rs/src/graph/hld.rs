@@ -1,29 +1,36 @@
-//! ## HL分解（重軽分解）
+//! Heavy-light decomposition.
 
 use crate::utils::consts::Infinity;
 
-/// HL分解
+/// Heavy-light decomposition of a rooted tree.
+///
+/// This structure maps each subtree to a contiguous range and decomposes a path
+/// into $`O(log n)`$ heavy-path segments.
 pub struct HLD {
-    /// 頂点数
+    /// Number of vertices.
     pub N: usize,
-    /// 根
+    /// Root vertex used for decomposition.
     pub root: usize,
-    /// グラフ
+    /// Undirected tree adjacency list.
     pub G: Vec<Vec<usize>>,
-    /// 親頂点
+    /// Parent of each vertex.
     pub parent: Vec<usize>,
-    /// subtree_size[i] := `i`を根とする部分木のサイズ
+    /// `subtree_size[i]` is the size of the subtree rooted at `i`.
     pub subtree_size: Vec<usize>,
-    /// 行きがけ順での番号
+    /// Entry time in Euler-like order.
     pub in_: Vec<usize>,
-    /// 帰りがけ順での番号
+    /// Exit time in Euler-like order.
     pub out: Vec<usize>,
-    /// heavy pathの端点
+    /// Head vertex of the heavy path containing each vertex.
     pub head: Vec<usize>,
 }
 
 impl HLD {
-    /// `N`頂点の木を初期化する
+    /// Creates an empty tree with `N` vertices.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(N)`$
     pub fn new(N: usize) -> Self {
         Self {
             N,
@@ -37,13 +44,21 @@ impl HLD {
         }
     }
 
-    /// 辺`(u,v)`を追加する
+    /// Adds an undirected edge `(u, v)`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn add_edge(&mut self, u: usize, v: usize) {
         self.G[u].push(v);
         self.G[v].push(u);
     }
 
-    /// 頂点`root`を根としてHL分解をする
+    /// Builds the decomposition with `root` as the tree root.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(N)`$
     pub fn decompose(&mut self, root: usize) {
         self.root = root;
 
@@ -105,13 +120,21 @@ impl HLD {
         self.out[u] = *id;
     }
 
-    /// 頂点`v`の配列上でのインデックス
+    /// Returns the linearized index of `v`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     #[inline]
     pub fn get_id(&self, v: usize) -> usize {
         self.in_[v]
     }
 
-    /// 2頂点`u,v`の最小共通祖先 (LCA) を求める
+    /// Returns the lowest common ancestor of `u` and `v`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log N)`$
     pub fn get_lca(&self, mut u: usize, mut v: usize) -> usize {
         let mut pu = self.head[u];
         let mut pv = self.head[v];
@@ -133,24 +156,30 @@ impl HLD {
         }
     }
 
-    /// `u`を根とする部分木の値を集約する
+    /// Returns the contiguous range corresponding to the subtree of `u`.
     ///
-    /// （モノイド`M`が可環であるときに定義される）
+    /// The subtree is represented as the half-open interval `[in_[u], out[u])`.
     ///
-    /// **戻り値**
-    /// - `(usize, usize)` : (左, 右)
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     #[inline]
     pub fn get_subtree<T, F>(&self, u: usize) -> (usize, usize) {
         (self.in_[u], self.out[u])
     }
 
-    /// 頂点`u,v`間のパス上のパス断片を順に返すイテレータを返す．
+    /// Returns an iterator over heavy-path segments on the path from `u` to `v`.
     ///
-    /// **戻り値 (Item)**
-    /// - `i (usize)` : 最も根側の頂点
-    /// - `j (usize)` : 最も葉側の頂点
-    /// - `last (bool)` : 最後のpath segmentであるか
-    /// - `rev (bool)` : 取得するpathの向きに対してpath segmentが逆方向かどうか
+    /// Each item of [`PathSegment`] is `(top, bottom, last, rev)`, where:
+    ///
+    /// - `top` is the endpoint closer to the root
+    /// - `bottom` is the endpoint farther from the root
+    /// - `last` indicates whether this is the final segment
+    /// - `rev` indicates whether the segment direction is reversed with respect to `u -> v`
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log N)`$ segments overall
     pub fn get_path(&self, u: usize, v: usize) -> PathSegment<'_> {
         PathSegment {
             hld: self,
@@ -161,15 +190,10 @@ impl HLD {
     }
 }
 
-/// パス断片を返すイテレータ
+/// Iterator over heavy-path segments produced by [`HLD::get_path`].
 ///
-/// **戻り値 (next)**
-/// - `i (usize)` : 最も根側の頂点
-/// - `j (usize)` : 最も葉側の頂点
-/// - `last (bool)` : 最後のpath segmentであるか
-/// - `rev (bool)` : 取得するpathの向きに対してpath segmentが逆方向かどうか
+/// ## References
 ///
-/// **参考**
 /// - <https://ngtkana.hatenablog.com/entry/2024/06/24/200138>
 pub struct PathSegment<'a> {
     hld: &'a HLD,

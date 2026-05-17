@@ -1,7 +1,19 @@
-//! 入力用マクロ
-//! - 参考：[Rustで競技プログラミング スターターキット](https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e)
+//! Input macro for competitive programming.
+//!
+//! ## References
+//!
+//! - [Rustで競技プログラミング スターターキット](https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e)
 
-/// 入力用マクロ
+/// Reads values from standard input.
+///
+/// ## Supported forms
+///
+/// - `get!(T)`: reads one value of type `T`
+/// - `get!(T1, T2, ...)`: reads multiple values from one line
+/// - `get!(T; n)`: reads `n` lines, one value per line
+/// - `get!(T1, T2; n)`: reads `n` tuples
+/// - `get!(T ;;)`: reads one line into `Vec<T>`
+/// - `get!(T ;; n)`: reads `n` lines into `Vec<Vec<T>>`
 #[macro_export]
 macro_rules! get {
     (parse, $val:expr, usize1) => {(get!(parse, $val, usize) - 1)};

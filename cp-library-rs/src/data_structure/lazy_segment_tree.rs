@@ -1,5 +1,16 @@
-//! 遅延評価セグメント木
-//! - 参考: <https://drken1215.hatenablog.com/entry/2024/11/17/035045>
+//! Lazy segment tree over an [`ActedMonoid`].
+//!
+//! This structure supports range updates and range queries.
+//!
+//! ## Complexity
+//!
+//! - Construction: $`O(n)`$
+//! - Point update/query: $`O(log n)`$
+//! - Range update/query: $`O(log n)`$
+//!
+//! ## References
+//!
+//! - <https://drken1215.hatenablog.com/entry/2024/11/17/035045>
 
 use crate::{
     algebraic_structure::actedmonoid::ActedMonoid, tree::show_binary_tree::ShowBinaryTree,
@@ -13,7 +24,7 @@ use std::{
     },
 };
 
-/// 遅延評価セグメント木
+/// A lazy segment tree over an [`ActedMonoid`].
 #[derive(Debug)]
 pub struct LazySegmentTree<M: ActedMonoid> {
     pub size: usize,
@@ -43,8 +54,11 @@ impl<M: ActedMonoid> LazySegmentTree<M> {
         }
     }
 
-    /// 遅延評価セグメント木を初期化する
-    /// - `n`: 配列サイズ
+    /// Creates a tree of length `n`, filled with [`ActedMonoid::e`].
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(n)`$
     pub fn new(n: usize) -> Self {
         assert!(n > 0);
         let offset = n.next_power_of_two();
@@ -58,7 +72,11 @@ impl<M: ActedMonoid> LazySegmentTree<M> {
         }
     }
 
-    /// 配列から構築する
+    /// Builds a tree from `src`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(n)`$
     pub fn from_vec(src: Vec<M::Val>) -> Self {
         let mut seg = Self::new(src.len());
         for (i, v) in src.into_iter().enumerate() {
@@ -108,7 +126,11 @@ impl<M: ActedMonoid> LazySegmentTree<M> {
         }
     }
 
-    /// 要素を更新する
+    /// Replaces the element at `i` with `v`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn set(&mut self, i: usize, v: M::Val) {
         assert!(i < self.size);
         let k = i + self.offset;
@@ -117,7 +139,11 @@ impl<M: ActedMonoid> LazySegmentTree<M> {
         self.pull_dat_deep(k);
     }
 
-    /// 要素を取得する
+    /// Returns the element at `i`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn get_at(&mut self, i: usize) -> M::Val {
         assert!(i < self.size);
         let k = i + self.offset;
@@ -125,7 +151,11 @@ impl<M: ActedMonoid> LazySegmentTree<M> {
         self.data[k].clone()
     }
 
-    /// 要素へ作用させる
+    /// Applies `f` to the element at `i`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn apply_at(&mut self, i: usize, f: M::Act) {
         assert!(i < self.size);
         let k = i + self.offset;
@@ -134,8 +164,15 @@ impl<M: ActedMonoid> LazySegmentTree<M> {
         self.pull_dat_deep(k);
     }
 
-    /// 区間に`val`を作用させる
-    /// - `range`: `[left, right)`
+    /// Applies `val` to all elements in `range`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `range` is outside `[0, self.size]`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn apply<R: RangeBounds<usize> + fmt::Debug>(&mut self, range: R, val: M::Act) {
         let Some((left, right)) = self.parse_range(&range) else {
             panic!("The given range is wrong: {:?}", range);
@@ -182,8 +219,15 @@ impl<M: ActedMonoid> LazySegmentTree<M> {
         }
     }
 
-    /// 区間を取得する
-    /// - `range`: `[left, right)`
+    /// Returns the aggregate on `range`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `range` is outside `[0, self.size]`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn get<R: RangeBounds<usize> + fmt::Debug>(&mut self, range: R) -> M::Val {
         let Some((left, right)) = self.parse_range(&range) else {
             panic!("The given range is wrong: {:?}", range);
@@ -221,13 +265,22 @@ impl<M: ActedMonoid> LazySegmentTree<M> {
         M::op(&val_left, &val_right)
     }
 
-    /// 全区間の集約
+    /// Returns the aggregate over the entire array.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(1)`$
     pub fn all_prod(&self) -> M::Val {
         self.data[1].clone()
     }
 
-    /// 左端を固定した2分探索
-    /// - 返り値: (prod([l, Val)), Val)
+    /// Finds the maximum right endpoint starting from `l` that satisfies `f`.
+    ///
+    /// Returns `(prod, r)` where `prod` is the aggregate on `[l, r)`.
+    ///
+    /// # Complexity
+    ///
+    /// - $`O(log n)`$
     pub fn max_right<Act>(&mut self, l: usize, f: Act) -> (M::Val, usize)
     where
         Act: Fn(M::Val) -> bool,
